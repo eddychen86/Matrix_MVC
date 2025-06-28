@@ -10,7 +10,7 @@ First, you need to install libman if you don't have, please enter this command l
 ```
 dotnet tool install Microsoft.Web.LibraryManager.Cli
 ```
-After installed libman, you need to install the dependency packages into the `www/root/lib` folder.
+After installed libman, you need to install the dependency packages into the `wwwroot/lib` folder.
 ```
 libman restore
 ```
