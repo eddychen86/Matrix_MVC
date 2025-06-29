@@ -3,15 +3,25 @@
   "defaultProvider": "unpkg",
   "libraries": [
     {
-      "library": "vue@3.5.16",
+      "library": "vue@3.5.17",
       "destination": "wwwroot/lib/vue/",
       "files": [
         "dist/vue.global.js"
       ]
     },
     {
-      "library": "bootstrap@5.3.7",
-      "destination": "wwwroot/lib/bootstrap"
+      "library": "primevue@4.3.5",
+      "destination": "wwwroot/lib/primevue/",
+      "files": [
+        "umd/primevue.min.js"
+      ]
+    },
+    {
+      "library": "@primeuix/themes@1.1.2",
+      "destination": "wwwroot/lib/primevue/themes/",
+      "files": [
+        "umd/*"
+      ]
     }
   ]
 }

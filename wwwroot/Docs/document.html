@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="zh-Hant" class="scroll-smooth">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Matrix - 專案規格書</title>
+  <!-- Bootstrap 5.1 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+    xintegrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="./css/document.css">
+</head>
+
+<body class="bg-light">
+
+  <!-- Sidebar Navigation -->
+  <aside class="sidebar d-none d-lg-block">
+    <div class="p-4">
+      <h1 class="h5 fw-bold text-primary">專案規格書</h1>
+      <p class="text-muted small">Matrix</p>
+    </div>
+    <nav class="mt-2">
+      <ul class="nav flex-column">
+        <li class="nav-item"><a href="#overview" class="sidebar-link nav-link fw-medium">1. 專案概觀</a></li>
+        <li class="nav-item"><a href="#scope" class="sidebar-link nav-link fw-medium">2. 專案範疇</a></li>
+        <li class="nav-item"><a href="#stack" class="sidebar-link nav-link fw-medium">3. 技術棧</a></li>
+        <li class="nav-item"><a href="#features" class="sidebar-link nav-link fw-medium">4. 功能性需求</a></li>
+        <li class="nav-item"><a href="#database" class="sidebar-link nav-link fw-medium">5. 資料庫綱要</a></li>
+        <li class="nav-item"><a href="#api" class="sidebar-link nav-link fw-medium">6. API 規格</a></li>
+        <li class="nav-item"><a href="#timeline" class="sidebar-link nav-link fw-medium">7. 開發時程</a></li>
+        <li class="nav-item"><a href="#roles" class="sidebar-link nav-link fw-medium">8. 團隊分工</a></li>
+      </ul>
+    </nav>
+    <div class="position-absolute bottom-0 start-0 w-100 p-3 text-muted" style="font-size: 0.75rem;">
+      <p class="mb-0">版本: 1.1</p>
+      <p class="mb-0">更新日期: 2025年6月26日</p>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <div class="container-fluid p-4 p-md-5">
+
+      <!-- Header for mobile -->
+      <div class="d-lg-none mb-4 p-3 bg-white rounded shadow-sm border">
+        <h1 class="h3 fw-bold text-primary">專案規格書</h1>
+        <p class="text-muted">輕量級社群平台</p>
+      </div>
+
+      <!-- 1. 專案概觀 -->
+      <section id="overview" class="content-section mb-5">
+        <h2 class="display-6 fw-bold mb-4 border-bottom border-2 border-primary pb-2">1. 專案概觀</h2>
+        <div class="card shadow-sm">
+          <div class="card-body p-4">
+            <h3 class="h5 fw-semibold mb-2 text-primary">1.1 專案簡介</h3>
+            <p class="text-muted leading-relaxed mb-4">
+              本專案旨在開發一個輕量級的社群平台，專注於提供核心的社群互動體驗。使用者可以註冊帳號、發表個人動態、對他人的貼文進行留言與按讚，形成一個純粹、友善的線上交流空間。專案目標是打造一個穩定、易用且專注於內容分享與互動的應用程式。
+            </p>
+            <h3 class="h5 fw-semibold mb-2 text-primary">1.2 專案目標</h3>
+            <p class="text-muted leading-relaxed">在為期 <span class="fw-bold text-primary">1.5 個月（六週）</span> 的時間内，由 <span
+                class="fw-bold text-primary">四人</span> 開發團隊合作完成此專案的最小可行性產品 (Minimum Viable Product,
+              MVP)，實現所有核心社群功能，並準備好進行最終的成果展示。</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- 2. 專案範疇 -->
+      <section id="scope" class="content-section mb-5">
+        <h2 class="display-6 fw-bold mb-4 border-bottom border-2 border-primary pb-2">2. 專案範疇</h2>
+        <div class="row g-4">
+          <div class="col-md-6">
+            <div class="card h-100 shadow-sm">
+              <div class="card-body p-4">
+                <h3 class="h5 fw-semibold mb-4 text-success d-flex align-items-center">
+                  <span class="fs-4 me-2">✓</span> 範圍內功能 (In-Scope)
+                </h3>
+                <ul class="list-unstyled space-y-3 text-muted">
+                  <li><strong class="text-body">使用者系統:</strong> 基於 Email/密碼的註冊、登入與個人資料管理。</li>
+                  <li><strong class="text-body">社群核心:</strong> 建立與閱讀文字貼文。</li>
+                  <li><strong class="text-body">核心互動:</strong> 對貼文進行「按讚」與「留言」。</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="card h-100 shadow-sm">
+              <div class="card-body p-4">
+                <h3 class="h5 fw-semibold mb-4 text-danger d-flex align-items-center">
+                  <span class="fs-4 me-2">✗</span> 範圍外功能 (Out-of-Scope)
+                </h3>
+                <ul class="list-unstyled space-y-3 text-muted">
+                  <li><strong class="text-body">Web3 整合功能:</strong> 包含 NFT 展示、ENS 域名顯示等。</li>
+                  <li><strong class="text-body">即時通訊:</strong> 一對一或群組聊天功能。</li>
+                  <li>任何形式的金流支付系統。</li>
+                  <li>第三方開發者插件系統。</li>
+                  <li>上傳圖片或影片至貼文。</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 3. 技術棧 -->
+      <section id="stack" class="content-section mb-5">
+        <h2 class="display-6 fw-bold mb-4 border-bottom border-2 border-primary pb-2">3. 技術棧</h2>
+        <div class="row row-cols-2 row-cols-md-4 g-4">
+          <div class="col">
+            <div class="tech-card card shadow-sm text-center h-100">
+              <div class="card-body d-flex flex-column justify-content-center">
+                <div class="fs-1 mb-2">🌐</div>
+                <h4 class="h6 fw-bold">ASP.NET Core</h4>
+                <p class="small text-muted">後端框架</p>
+              </div>
+            </div>
+          </div>
+          <div class="col">
+            <div class="tech-card card shadow-sm text-center h-100">
+              <div class="card-body d-flex flex-column justify-content-center">
+                <div class="fs-1 mb-2">🖼️</div>
+                <h4 class="h6 fw-bold">Vue.js 3</h4>
+                <p class="small text-muted">前端互動</p>
+              </div>
+            </div>
+          </div>
+          <div class="col">
+            <div class="tech-card card shadow-sm text-center h-100">
+              <div class="card-body d-flex flex-column justify-content-center">
+                <div class="fs-1 mb-2">💾</div>
+                <h4 class="h6 fw-bold">SQL Server</h4>
+                <p class="small text-muted">資料庫</p>
+              </div>
+            </div>
+          </div>
+          <div class="col">
+            <div class="tech-card card shadow-sm text-center h-100">
+              <div class="card-body d-flex flex-column justify-content-center">
+                <div class="fs-1 mb-2">🔗</div>
+                <h4 class="h6 fw-bold">EF Core</h4>
+                <p class="small text-muted">ORM</p>
+              </div>
+            </div>
+          </div>
+          <div class="col">
+            <div class="tech-card card shadow-sm text-center h-100">
+              <div class="card-body d-flex flex-column justify-content-center">
+                <div class="fs-1 mb-2">🌿</div>
+                <h4 class="h6 fw-bold">Git</h4>
+                <p class="small text-muted">版本控制</p>
+              </div>
+            </div>
+          </div>
+          <div class="col">
+            <div class="tech-card card shadow-sm text-center h-100">
+              <div class="card-body d-flex flex-column justify-content-center">
+                <div class="fs-1 mb-2">🎨</div>
+                <h4 class="h6 fw-bold">Bootstrap 5</h4>
+                <p class="small text-muted">CSS 框架</p>
+              </div>
+            </div>
+          </div>
+          <div class="col">
+            <div class="tech-card card shadow-sm text-center h-100">
+              <div class="card-body d-flex flex-column justify-content-center">
+                <div class="fs-1 mb-2">💻</div>
+                <h4 class="h6 fw-bold">VS 2022</h4>
+                <p class="small text-muted">開發工具</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 4. 功能性需求 -->
+      <section id="features" class="content-section mb-5">
+        <h2 class="display-6 fw-bold mb-4 border-bottom border-2 border-primary pb-2">4. 功能性需求</h2>
+        <div class="accordion" id="featuresAccordion">
+          <div class="accordion-item">
+            <h2 class="accordion-header" id="headingOne">
+              <button class="accordion-button fw-semibold" type="button" data-bs-toggle="collapse"
+                data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                4.1 使用者模組
+              </button>
+            </h2>
+            <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne"
+              data-bs-parent="#featuresAccordion">
+              <div class="accordion-body">
+                <ul class="list-group list-group-flush">
+                  <li class="list-group-item"><strong class="text-body">註冊:</strong> 使用者可使用 Email 和密碼建立新帳號。密碼需加密儲存。</li>
+                  <li class="list-group-item"><strong class="text-body">登入/登出:</strong> 使用者可登入以存取完整功能，並可隨時登出。</li>
+                  <li class="list-group-item"><strong class="text-body">查看個人檔案:</strong>
+                    任何人皆可查看使用者的個人檔案頁面，顯示其基本資料與發布過的貼文。</li>
+                  <li class="list-group-item"><strong class="text-body">編輯個人檔案:</strong> 使用者登入後，可編輯自己的顯示名稱等基本資訊。</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div class="accordion-item">
+            <h2 class="accordion-header" id="headingTwo">
+              <button class="accordion-button fw-semibold collapsed" type="button" data-bs-toggle="collapse"
+                data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                4.2 社群互動模組
+              </button>
+            </h2>
+            <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo"
+              data-bs-parent="#featuresAccordion">
+              <div class="accordion-body">
+                <ul class="list-group list-group-flush">
+                  <li class="list-group-item"><strong class="text-body">建立貼文:</strong> 登入使用者可發布純文字內容的貼文。</li>
+                  <li class="list-group-item"><strong class="text-body">查看時間軸:</strong> 首頁將以時間倒序顯示所有公開的貼文。</li>
+                  <li class="list-group-item"><strong class="text-body">新增留言:</strong> 登入使用者可在任一貼文下方新增文字留言。</li>
+                  <li class="list-group-item"><strong class="text-body">按讚貼文:</strong> 登入使用者可對貼文按讚或取消讚。貼文將顯示總按讚數。</li>
+                  <li class="list-group-item"><strong class="text-body">刪除貼文/留言:</strong> 使用者可以刪除自己發布的貼文或留言。</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 5. 資料庫綱要 -->
+      <section id="database" class="content-section mb-5">
+        <h2 class="display-6 fw-bold mb-4 border-bottom border-2 border-primary pb-2">5. 資料庫綱要</h2>
+        <p class="mb-4 text-muted">此為本專案的核心資料庫結構示意圖，展示了各個資料表之間的關聯。</p>
+        <div class="row g-4 row-cols-1 row-cols-lg-2 row-cols-xl-4">
+          <div class="col">
+            <div class="card h-100 shadow-sm">
+              <div class="card-header fw-bold text-primary">Users (AspNetUsers)</div>
+              <ul class="list-group list-group-flush font-monospace small">
+                <li class="list-group-item"><span class="fw-bold">Id (PK)</span></li>
+                <li class="list-group-item">Email</li>
+                <li class="list-group-item">PasswordHash</li>
+                <li class="list-group-item">... (Identity 預設欄位)</li>
+              </ul>
+            </div>
+          </div>
+          <div class="col">
+            <div class="card h-100 shadow-sm">
+              <div class="card-header fw-bold text-primary">Posts</div>
+              <ul class="list-group list-group-flush font-monospace small">
+                <li class="list-group-item"><span class="fw-bold">Id (PK)</span></li>
+                <li class="list-group-item">Content (NVARCHAR)</li>
+                <li class="list-group-item">CreatedAt (DATETIME)</li>
+                <li class="list-group-item"><span class="text-success">AuthorId (FK to Users.Id)</span></li>
+              </ul>
+            </div>
+          </div>
+          <div class="col">
+            <div class="card h-100 shadow-sm">
+              <div class="card-header fw-bold text-primary">Comments</div>
+              <ul class="list-group list-group-flush font-monospace small">
+                <li class="list-group-item"><span class="fw-bold">Id (PK)</span></li>
+                <li class="list-group-item">Content (NVARCHAR)</li>
+                <li class="list-group-item">CreatedAt (DATETIME)</li>
+                <li class="list-group-item"><span class="text-success">PostId (FK to Posts.Id)</span></li>
+                <li class="list-group-item"><span class="text-success">AuthorId (FK to Users.Id)</span></li>
+              </ul>
+            </div>
+          </div>
+          <div class="col">
+            <div class="card h-100 shadow-sm">
+              <div class="card-header fw-bold text-primary">Likes</div>
+              <ul class="list-group list-group-flush font-monospace small">
+                <li class="list-group-item"><span class="fw-bold">Id (PK)</span></li>
+                <li class="list-group-item"><span class="text-success">PostId (FK to Posts.Id)</span></li>
+                <li class="list-group-item"><span class="text-success">UserId (FK to Users.Id)</span></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 6. API 規格 -->
+      <section id="api" class="content-section mb-5">
+        <h2 class="display-6 fw-bold mb-4 border-bottom border-2 border-primary pb-2">6. API 規格</h2>
+        <div class="row g-4">
+          <div class="col-12">
+            <div class="card shadow-sm">
+              <div class="card-body p-4">
+                <h3 class="h5 fw-semibold mb-3 text-primary">內部 API (Internal)</h3>
+                <p class="text-muted mb-3">此 API 端點由後端提供，專門供前端 Vue.js 進行非同步互動，例如按讚。</p>
+                <div class="bg-dark rounded p-3 font-monospace text-light small position-relative">
+                  <button onclick="copyCode()"
+                    class="btn btn-sm btn-outline-light position-absolute top-0 end-0 mt-2 me-2"
+                    style="font-size: 0.75rem;">Copy</button>
+                  <pre id="api-code" class="mb-0"><code><span class="code-green">POST</span> /api/posts/{postId}/like
+
+<span class="code-gray">// Success Response (200 OK)</span>
+{
+  <span class="code-cyan">"success"</span>: <span class="text-info">true</span>,
+  <span class="code-cyan">"newLikeCount"</span>: <span class="text-warning">15</span>
+}</code></pre>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 7. 開發時程 -->
+      <section id="timeline" class="content-section mb-5">
+        <h2 class="display-6 fw-bold mb-4 border-bottom border-2 border-primary pb-2">7. 開發時程</h2>
+        <p class="mb-4 text-muted">整個開發週期為六週。下方的甘特圖展示了每週的核心任務與里程碑。</p>
+        <div class="card shadow-sm">
+          <div class="card-body p-4">
+            <div class="chart-container"
+              style="position: relative; height:40vh; width:100%; max-width: 900px; margin: auto;">
+              <canvas id="timelineChart"></canvas>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 8. 團隊分工 -->
+      <section id="roles" class="content-section">
+        <h2 class="display-6 fw-bold mb-4 border-bottom border-2 border-primary pb-2">8. 團隊分工</h2>
+        <p class="mb-4 text-muted">為了確保開發效率與權責分明，團隊將分為後端與前端兩組，各自負責明確的專業領域。</p>
+        <div class="row g-4">
+          <div class="col-lg-6">
+            <div class="card h-100 shadow-sm">
+              <div class="card-body p-4">
+                <h3 class="h5 fw-semibold mb-4 text-primary d-flex align-items-center">
+                  <span class="fs-4 me-2">⚙️</span> 後端團隊 (2 人)
+                </h3>
+                <ul class="list-group list-group-flush">
+                  <li class="list-group-item"><strong class="text-body">資料庫設計:</strong> 規劃實體關係圖 (ERD) 與資料表綱要。</li>
+                  <li class="list-group-item"><strong class="text-body">資料庫建置:</strong> 使用 EF Core 進行資料庫遷移 (Migration)
+                    與模型建立。</li>
+                  <li class="list-group-item"><strong class="text-body">後端 API 設計:</strong> 設計並實現標準化、易於使用的 RESTful API
+                    接口 (用於留言、按讚等)。</li>
+                  <li class="list-group-item"><strong class="text-body">核心業務邏輯:</strong> 編寫所有 Controller 的商業邏輯。</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-6">
+            <div class="card h-100 shadow-sm">
+              <div class="card-body p-4">
+                <h3 class="h5 fw-semibold mb-4 text-primary d-flex align-items-center">
+                  <span class="fs-4 me-2">🎨</span> 前端團隊 (2 人)
+                </h3>
+                <ul class="list-group list-group-flush">
+                  <li class="list-group-item"><strong class="text-body">UI/UX 設計:</strong> 負責網站整體的視覺風格、使用者流程與互動體驗設計。
+                  </li>
+                  <li class="list-group-item"><strong class="text-body">前端切版與樣式:</strong> 將設計稿轉換為響應式的 HTML 與 CSS
+                    (Bootstrap)。</li>
+                  <li class="list-group-item"><strong class="text-body">前端互動開發:</strong> 使用 Vue.js 實現非同步留言與按讚功能。</li>
+                  <li class="list-group-item"><strong class="text-body">API 串接與狀態管理:</strong> 呼叫後端 API，並管理前端頁面的資料狀態。
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- Bootstrap 5.1 JS Bundle -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+    xintegrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
+    crossorigin="anonymous"></script>
+  <script src="./js/document.js"></script>
+</body>
+
+</html>

@@ -19,6 +19,7 @@
 ###############
 wwwroot/lib/*
 !wwwroot/lib/jquery*
+node_modules/
 ####################
 # VS Upgrade stuff #
 ####################

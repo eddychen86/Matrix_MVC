@@ -1,0 +1,63 @@
+@model List<Product>
+
+@* 1. 頁面獨有的 HTML 內容，注意掛載點 ID 最好是唯一的 *@
+<div id="primevue-demo-app">
+    <h1>PrimeVue DataTable - 資料來自 MVC Controller</h1>
+    <p-card>
+        <template #content>
+            <p-datatable :value="products" stripedRows paginator :rows="5">
+                <p-column field="Id" header="產品ID"></p-column>
+                <p-column field="Name" header="產品名稱"></p-column>
+                <p-column field="Category" header="分類"></p-column>
+                <p-column field="Price" header="價格">
+                    <template #body="slotProps">
+                        {{ slotProps.data.Price != null ? formatCurrency(slotProps.data.Price) : '-' }}
+                    </template>
+                </p-column>
+            </p-datatable>
+        </template>
+    </p-card>
+</div>
+
+@section Scripts {
+    @* 2. 只引入本頁面需要的 PrimeVue 元件 JS *@    
+    <script>
+        const { createApp, ref } = Vue;
+
+        const app = createApp({
+            setup() {
+                // 從 Model 注入資料
+                const initialData = @Html.Raw(Json.Serialize(Model));
+                const products = ref(initialData);
+
+                const formatCurrency = (value) => {
+                    if (typeof value !== 'number') return '-';
+                    return value.toLocaleString('zh-TW', { style: 'currency', currency: 'TWD', minimumFractionDigits: 0 });
+                };
+
+                return {
+                    products,
+                    formatCurrency
+                };
+            }
+        });
+
+        // 3. 在本頁的實例中註冊 PrimeVue 和所需元件
+        app.use(PrimeVue.Config, {
+            theme: {
+                preset: 'aura', // 使用從 aura.js 來的全域物件
+                options: {
+                    darkModeSelector: 'none',
+                }
+            }
+        });
+
+        app.component('p-datatable', PrimeVue.DataTable);
+        app.component('p-column', PrimeVue.Column);
+        app.component('p-paginator', PrimeVue.Paginator);
+        app.component('p-card', PrimeVue.Card);
+
+        // 4. 掛載到本頁的根元素上
+        app.mount('#primevue-demo-app');
+    </script>
+}

@@ -1,0 +1,11 @@
+{
+	"scripts": {
+		"build": "npx tailwindcss -i ./wwwroot/css/tailwind.css -o ./wwwroot/css/site.css",
+		"dev": "npx tailwindcss -i ./wwwroot/css/tailwind.css -o ./wwwroot/css/site.css --watch"
+	},
+	"dependencies": {
+		"@tailwindcss/cli": "^4.1.11",
+		"tailwindcss": "^4.1.11",
+		"tailwindcss-primeui": "^0.6.1"
+	}
+}
