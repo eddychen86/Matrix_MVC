@@ -10,17 +10,10 @@
       ]
     },
     {
-      "library": "primevue@4.3.5",
-      "destination": "wwwroot/lib/primevue/",
+      "library": "flowbite@3.1.2",
+      "destination": "wwwroot/lib/flowbite/",
       "files": [
-        "umd/primevue.min.js"
-      ]
-    },
-    {
-      "library": "@primeuix/themes@1.1.2",
-      "destination": "wwwroot/lib/primevue/themes/",
-      "files": [
-        "umd/*"
+        "dist/*.min.*"
       ]
     }
   ]
