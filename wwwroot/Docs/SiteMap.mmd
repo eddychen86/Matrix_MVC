@@ -3,7 +3,6 @@ config:
   theme: neo
   look: handDrawn
   layout: elk
-id: 1707bcf5-4321-4f64-87f9-2623301baa27
 ---
 graph TD
     %% Styling
@@ -14,125 +13,115 @@ graph TD
     classDef orange fill:#ffedd5,stroke:#f97316,stroke-width:2px;
     classDef purple fill:#ede9fe,stroke:#7c3aed,stroke-width:2px;
     classDef gray fill:#e2e8f0,stroke:#475569,stroke-width:2px;
+    classDef brown fill:#FFE0B2, color:#97705D, fill:#E8DAD4, background-color:#E8DAD4, stroke:#97705D, border-color:#97705D
 
     %% Nodes
-    %% A(首頁<br>Home)
+    Home(首頁<br>Home)
+    Guest(訪客<br>Guest)
+    Admin(後台<br>Admin)
 
-    B1(搜尋<br>Search)
-    B2(關於<br>About)
-    B3(動態消息<br>News)
-    B4(登入<br>Login)
-    B5(註冊<br>Regular)
+    Search(搜尋<br>Search)
+    About(關於<br>About)
+    News(動態消息<br>News)
 
-    C1(會員<br>User)
-    C2(後台<br>Admin)
-    %% C(搜尋<br>Search)
-    %% D(關於<br>About)
-    %% E(動態消息<br>News)
-    %% F(登入<br>Login)
+    Login(登入<br>Login)
+    Regular(註冊<br>Regular)
 
-    A --> B1
-    A --> B2
-    A --> B3
-    A --> B4
-    A --> B5
+    Dashboard(儀表板<br>Dashboard)
+    Users(使用者管理<br>Users)
+    Articles(貼文管理<br>Articles)
+    Report(檢擧管理<br>Report)
+    WebLogs(網站設定<br>Web Logs)
 
-    B4 --> C1
-    B4 --> C2
+    AddArticle(建立貼文<br>Add Article)
+    Notify(通知<br>Notify)
+    Message(訊息<br>Message)
+    Bookmark(書籤<br>Bookmark)
+    Profile(個人檔案<br>Profile)
+    Settings(設定<br>Settings)
 
-    subgraph "管理員"
-      C2
-      D1(儀表板<br>Dashboard)
-      D2(使用者管理<br>Users)
-      D3(內容管理<br>Articles)
-      D4(檢舉管理<br>Report)
-      D5(網站管理<br>Web)
+    ProfileHome(個人主頁<br>ProfileHome)
+    Activity(活動<br>Activity)
+    Praise(按讚<br>Praise)
+    Reply(回覆<br>Reply)
 
-      C2 --> D1
-      C2 --> D2
-      C2 --> D3
-      C2 --> D4
-      C2 --> D5
+    EditProfile(編輯個人資訊<br>EditProfile<br>註冊 stepl)
+    EditAccount(帳號設定<br>EditAccount<br>註冊 step2)
+    EditSecurity(安全性設定<br>EditSecurity<br>註冊 step3)
+    EditWeb3(錢包與數位身分<br>EditWeb3<br>註冊 step4)
+
+    %% Group
+    Home --> Guest
+    Home --> Login
+    Home --> Regular
+    Home --> Admin
+
+    Guest --> Search
+    Guest --> About
+    Guest --> News
+    subgraph "訪客"
+      Search
+      About
+      News
     end
-    
-    subgraph "會員區域"
-      C1
-      D6(設定<br>Settings)
-      D7(個人檔案)
 
+    Login --> AddArticle
+    Login --> Notify
+    Login --> Message
+    Login --> Bookmark
+    Login --> Profile
+    Login --> Settings
+    subgraph "會員"
+      AddArticle
+      Notify
+      Message
+      Bookmark
+      Profile
+      Settings
 
+      Profile --> ProfileHome
+      Profile --> Activity
+      Profile --> Praise
+      Profile --> Reply
+      subgraph "個人檔案"
+        ProfileHome
+        Activity
+        Praise
+        Reply
+      end
+      
+      Settings --> EditProfile
+      Settings --> EditAccount
+      Settings --> EditSecurity
+      Settings --> EditWeb3
+      subgraph "設定"
+        EditProfile
+        EditAccount
+        EditSecurity
+        EditWeb3
+      end
     end
-    %% subgraph "會員區域"
-    %%     (建立貼文<br>Add Article)
-    %%     (通知<br>Notify)
-    %%     (訊息<br>Message)
-    %%     (書籤<br>Bookmark)
-    %%     (個人檔案<br>Profile)
-    %%     (設定<br>Settings)
 
-    %%     F --> G
-    %%     F --> H
-    %%     F --> I
-    %%     F --> J
-    %%     F --> K
-    %%     F --> L
+    Admin --> Dashboard
+    Admin --> Users
+    Admin --> Articles
+    Admin --> Report
+    Admin --> WebLogs
+    subgraph "後台"
+      Dashboard
+      Users
+      Articles
+      Report
+      WebLogs
+    end
 
-    %%     subgraph "個人檔案"
-    %%         M(個人主頁<br>Profile)
-    %%         N(活動<br>Activity)
-    %%         O(按讚<br>GJ)
-    %%         P(回覆<br>Answer)
-    %%     end
-        
-    %%     K --> M
-    %%     G --> M
-    %%     J --> M
-    %%     I --> M
+    Regular -.-> Settings
 
-    %%     subgraph "設定"
-    %%         Q(編輯個人資訊<br>Profile)
-    %%         R(帳號設定<br>Account)
-    %%         S(安全性設定<br>Security)
-    %%         T(錢包與數位身份<br>Wallet Address)
-    %%     end
-
-    %%     L --> H
-
-    %%     K -- "註冊 Regular" --> P
-    %%     K -- "註冊 Step1" --> Q
-    %%     K -- "註冊 Step2" --> R
-    %%     K -- "註冊 Step3" --> S
-    %%     K -- "註冊 Step4" --> T
-        
-    %%     L --> Q
-    %%     L --> R
-    %%     L --> S
-    %%     L --> T
-    %% end
-    
-    %% subgraph "管理者"
-    %%     U(後台<br>Admin)
-    %%     V(通知<br>Notify)
-    %%     W(訊息<br>Message)
-    %%     X(書籤<br>Bookmark)
-    %%     Y(個人檔案<br>Profile)
-    %%     Z(設定<br>Settings)
-    %% end
-
-    %% A --> U
-    %% F -.-> U
-
-    %% U --> V
-    %% U --> W
-    %% U --> X
-    %% U --> Y
-    %% U --> Z
-    
-    %% Apply styles
-    class A pink
-    class B1,B2,B3,B4,B5 yellow
-    class C1 purple
-    class C2,D1,D2,D3,D4,D5 gray
-    class F,G,H,I,J,K,L,M,N,O,P green
-    class Q,R,S,T purple
-    class U,V,W,X,Y,Z gray
+    %% %% Apply styles
+    class Home pink
+    class Guest,Search,About,News brown
+    class Login,AddArticle,Notify,Message,Bookmark,Profile,Settings yellow
+    class ProfileHome,Activity,Praise,Reply blue
+    class Regular green
+    class EditProfile,EditAccount,EditSecurity,EditWeb3 purple
+    class Admin,Dashboard,Users,Articles,Report,WebLogs gray
