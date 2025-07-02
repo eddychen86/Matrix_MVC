@@ -17,7 +17,9 @@
 ###############
 # Static Files #
 ###############
-wwwroot/lib/
+wwwroot/lib/*
+!wwwroot/lib/jquery*
+node_modules/
 ####################
 # VS Upgrade stuff #
 ####################
