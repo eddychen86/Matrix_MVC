@@ -8,7 +8,10 @@
 *.pdb
 *.dll.config
 *.cache
+.DS_Store
 *.suo
+*.exe
+tailwindcss
 # Include dlls if they’re in the NuGet packages directory
 !/packages/*/lib/*.dll
 !/packages/*/lib/*/*.dll
@@ -55,6 +58,7 @@ TestResults/
 *.rar
 *.tar
 *.zip
+*-lock.yaml
 ######################
 # Logs and databases #
 ######################

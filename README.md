@@ -5,8 +5,13 @@
 ---
 Matrix is a sanctuary for Web3 pioneers and deep-tech enthusiasts, designed to filter out the noise of mainstream social media. We provide a pure, focused environment for high-quality discourse. Here, an on-chain credential is the only pass, ensuring a community built on expertise and shared consensus. While the platform may start with fragmented sparks of insight, we believe that as true peers connect, these unordered glimmers will form a grand and orderly matrix of thought.
 
+## Tools
+- ASP\.NET Core 8 Web MVC
+- Tailwindcss
+- DaisyUI
+
 ## Steps
-First, you need to install libman if you don't have, please enter this command line to your terminal:
+First, you need to install libman if you don't have or doesn't use Visual Studio, please enter this command line to your terminal:
 ```
 dotnet tool install Microsoft.Web.LibraryManager.Cli
 ```
@@ -14,6 +19,49 @@ After installed libman, you need to install the dependency packages into the `ww
 ```
 libman restore
 ```
+Because this project used DaisyUI UI Library, you need to install tailwindcss CLI and DaisyUI.<br>
+
+  1. Get Tailwind CSS executable
+  FollowTailwind CSS guideand get the latest version of Tailwind CSS executable for your OS.
+
+      ###### windows
+      ```
+      curl -sLo tailwindcss.exe https://github.com/tailwindlabs/tailwindcss/releases/latest/download/tailwindcss-windows-x64.exe
+      ```
+      ###### Linux
+      ```
+      curl -sLo tailwindcss https://github.com/tailwindlabs/tailwindcss/releases/latest/download/tailwindcss-linux-arm64
+      curl -sLo tailwindcss https://github.com/tailwindlabs/tailwindcss/releases/latest/download/tailwindcss-linux-arm64-musl
+      curl -sLo tailwindcss https://github.com/tailwindlabs/tailwindcss/releases/latest/download/tailwindcss-linux-x64
+      curl -sLo tailwindcss https://github.com/tailwindlabs/tailwindcss/releases/latest/download/tailwindcss-linux-x64-musl
+      ```
+      ###### MacOS
+      ```
+      curl -sLo tailwindcss https://github.com/tailwindlabs/tailwindcss/releases/latest/download/tailwindcss-macos-arm64
+      curl -sLo tailwindcss https://github.com/tailwindlabs/tailwindcss/releases/latest/download/tailwindcss-macos-x64
+      ```
+      Make the file executable (For Linux and MacOS):
+      ```
+      chmod +x tailwindcss
+      ```
+
+  2. Get daisyUI bundled JS file
+  Run this code to download latest version of daisyUI as a single js file and put it next to Tailwind's executable file.
+      ```
+      curl -sL "https://github.com/saadeghi/daisyui/releases/latest/download/daisyui.js" -o "./wwwroot/css/daisyui.js"
+      curl -sL "https://github.com/saadeghi/daisyui/releases/latest/download/daisyui-theme.js" -o "./wwwroot/css/daisyui-theme.js"
+      ```
+
+  3. Build CSS
+      When you execute the following command, "tailwindcss" will be listened in the background.
+      ###### MacOS
+      ```
+      npm run dev:mac
+      ```
+      ###### windows
+      ```
+      npm run dev:win
+      ```
 
 ## Update
 - 20250627 - Create a project environment.
