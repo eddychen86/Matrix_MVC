@@ -1,7 +1,4 @@
+
 .top_menu {
-  @apply
-  border border-gray-500
-  w-full h-[100px]
-  mx-auto
-  ;
+    @apply border border-gray-500 w-full h-[100px] mx-auto;
 }
