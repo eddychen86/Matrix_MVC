@@ -19,6 +19,11 @@ After installed libman, you need to install the dependency packages into the `ww
 ```
 libman restore
 ```
+Then, you also need to install DotNetEnv so that the project can automatically connect to the database using the `.env` file.
+<i><b>If you are using Visual Studio, you can install it in Nuget Extensions Management.</b></i>
+```
+dotnet add package DotNetEnv
+```
 Because this project used DaisyUI UI Library, you need to install tailwindcss CLI and DaisyUI.<br>
 
   1. Get Tailwind CSS executable
@@ -45,7 +50,7 @@ Because this project used DaisyUI UI Library, you need to install tailwindcss CL
       chmod +x tailwindcss
       ```
 
-  2. Get daisyUI bundled JS file
+  2. Get daisyUI bundled JS file if this project doesn't have these files.
   Run this code to download latest version of daisyUI as a single js file and put it next to Tailwind's executable file.
       ```
       curl -sL "https://github.com/saadeghi/daisyui/releases/latest/download/daisyui.js" -o "./wwwroot/css/daisyui.js"
