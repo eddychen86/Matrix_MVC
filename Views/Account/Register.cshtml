@@ -1,0 +1,49 @@
+﻿@model Matrix.Models.RegisterViewModel
+@{
+    Layout = null;
+}
+@{
+    ViewData["Title"] = "Register";
+}
+<link href="~/css/site.css" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+
+
+
+<div class="min-h-screen bg-cover bg-center bg-[url('/img/RegisterBG.jpg')] flex items-center justify-start">
+    <div class=" w-[696px] h-[842px] bg-[#162534] rounded-[30px] shadow-[0px_10px_15px_rgba(0,0,0,0.3)] opacity-90 absolute left-[29px] top-[29px]">
+        <h1 class="text-white text-[48px] leading-[56px] font-bold text-center font-['Source_Sans_Pro'] absolute top-[200px] left-[150] right-[146]">Sign Up</h1>
+        <h4 class="text-white text-[14px] leading-[18px] text-center font-['Roboto'] absolute top-[264px] left-[150] right-[146]">Join the blockchain community</h4>
+        <form asp-action="Register">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="UserName" class="control-label text-white text-[14px] leading-[18px] font-medium font-['Source_Sans_Pro'] absolute top-[330px] left-[150] right-[146]"></label>
+                <input asp-for="UserName" class="form-control w-[400px] h-[48px] px-2 border-0 outline-none rounded-[24px] bg-white text-black text-[14px] leading-[48px] font-medium font-['Source_Sans_Pro'] absolute top-[358px] left-[151] " />
+                <span asp-validation-for="UserName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Email" class="control-label control-label text-white text-[14px] leading-[18px] font-medium font-['Source_Sans_Pro'] absolute top-[422px] left-[150] "></label>
+                <input asp-for="Email" class="form-control form-control w-[400px] h-[48px] px-2 border-0 outline-none rounded-[24px] bg-white text-black text-[14px] leading-[48px] font-medium font-['Source_Sans_Pro'] absolute top-[450px] left-[151] " />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Password" class="control-label control-label control-label text-white text-[14px] leading-[18px] font-medium font-['Source_Sans_Pro'] absolute top-[513px] left-[150] "></label>
+                <input asp-for="Password" class="form-control form-control form-control w-[400px] h-[48px] px-2 border-0 outline-none rounded-[24px] bg-white text-black text-[14px] leading-[48px] font-medium font-['Source_Sans_Pro'] absolute top-[541px] left-[151] " />
+                <span asp-validation-for="Password" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ConfirmPassword" class="control-label control-label control-label control-label text-white text-[14px] leading-[18px] font-medium font-['Source_Sans_Pro'] absolute top-[605px] left-[150] "></label>
+                <input asp-for="ConfirmPassword" class="form-control form-control form-control form-control w-[400px] h-[48px] px-2 border-0 outline-none rounded-[24px] bg-white text-black text-[14px] leading-[48px] font-medium font-['Source_Sans_Pro'] absolute top-[633px] left-[151] " />
+                <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Submit" class="btn btn-primary w-[400px] h-[48px] px-2 border-0 outline-none rounded-[24px] bg-[#ff7f3e] text-white text-[18px] leading-[23px] font-bold font-['Source_Sans_Pro'] cursor-pointer transition hover:bg-orange-500 absolute top-[721px] left-[151] " />
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
