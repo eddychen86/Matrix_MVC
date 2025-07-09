@@ -62,6 +62,7 @@ TestResults/
 ######################
 # Logs and databases #
 ######################
+.env
 *.log
 *.sqlite
 _appsettings.json
