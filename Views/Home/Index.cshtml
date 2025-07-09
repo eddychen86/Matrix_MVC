@@ -14,10 +14,17 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
             @for (int i = 0; i < 6; i++)
             {
-                <div class="bg-neutral-800 p-4 rounded-lg shadow hover:shadow-md transition duration-300">
-                    <img src="@Url.Content("~/img/Cut.png")" class="rounded-md h-40 w-full object-cover mb-3" />
-                    <p class="text-sm font-semibold">活動 2022年3月12日</p>
-                    <p class="text-xs text-gray-400">加入日期：2022年3月12日</p>
+                <div class="card image-full shadow-sm bg-transparent">
+                    <div class="relative">
+                        <img src="@Url.Content("~/img/Cut.png")" alt="Shoes" class="w-full h-full object-cover rounded-2xl" />
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/90 to-transparent rounded-lg"></div>
+                    </div>
+                    
+                    <div class="card-body text-white ">
+                        <h2 class="card-title">活動 2025年7月9日</h2>
+                        <p>加入日期：2025年7月9日</p>
+
+                    </div>
                 </div>
             }
         </div>
