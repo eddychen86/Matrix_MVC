@@ -20,7 +20,6 @@ tailwindcss
 ###############
 # Static Files #
 ###############
-wwwroot/css/site.css
 wwwroot/lib/*
 !wwwroot/lib/jquery*
 !wwwroot/lib/daisyui*
