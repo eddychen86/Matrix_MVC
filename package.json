@@ -5,8 +5,5 @@
 		"build:mac": "./tailwindcss -i ./wwwroot/css/tailwind.css -o ./wwwroot/css/site.css",
 		"dev:win": "tailwindcss.exe -i ./wwwroot/css/tailwind.css -o ./wwwroot/css/site.css --watch",
 		"dev:mac": "./tailwindcss -i ./wwwroot/css/tailwind.css -o ./wwwroot/css/site.css --watch"
-	},
-	"dependencies": {
-		"lucide-vue-next": "^0.525.0"
 	}
 }

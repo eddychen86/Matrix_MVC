@@ -39,4 +39,8 @@
   --noise: 1;
 }
 
+* {
+  font-size: 14px;
+}
+
 @import "./_Layout.css"
