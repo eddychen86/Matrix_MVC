@@ -22,6 +22,7 @@ tailwindcss
 ###############
 wwwroot/lib/*
 !wwwroot/lib/jquery*
+!wwwroot/lib/daisyui*
 node_modules/
 ####################
 # VS Upgrade stuff #
