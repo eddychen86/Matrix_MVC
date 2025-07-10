@@ -1,9 +1,9 @@
-﻿<div class="flex items-center justify-center min-h-screen bg-gray-800">
-    <div class="bg-neutral-900 text-white rounded-2xl p-6 w-full max-w-3xl shadow-xl">
+﻿<div class="flex min-h-screen items-center justify-center bg-gray-800">
+    <div class="w-full max-w-3xl rounded-2xl bg-neutral-900 p-6 text-white shadow-xl">
         <!-- 標題區塊 -->
-        <div class="flex justify-between items-center mb-6">
+        <div class="mb-6 flex items-center justify-between">
             <h2 class="text-xl font-bold">Notify</h2>
-            <select class="bg-neutral-800 text-white px-3 py-1 rounded-md border border-neutral-600 text-sm">
+            <select class="rounded-md border border-neutral-600 bg-neutral-800 px-3 py-1 text-sm text-white">
                 <option>This month</option>
                 <option>Last month</option>
             </select>
@@ -13,10 +13,10 @@
         <div class="space-y-4">
             @for (int i = 0; i < 6; i++)
             {
-                <div class="flex items-center justify-between bg-neutral-800 px-4 py-3 rounded-lg hover:bg-neutral-700 transition">
+                <div class="flex items-center justify-between rounded-lg bg-neutral-800 px-4 py-3 transition hover:bg-neutral-700">
                     <!-- 左邊：頭像與訊息 -->
                     <div class="flex items-center space-x-4">
-                        <img src="@Url.Content("~/img/avatar.png")" class="w-10 h-10 rounded-full border border-gray-600" />
+                        <img src="@Url.Content("~/img/Cute.png")" class="h-10 w-10 rounded-full border border-gray-600" />
                         <div>
                             <p class="font-semibold">Jordan Smith</p>
                             <p class="text-sm text-gray-400">Great artwork, love it! Great artwork, love it!</p>
@@ -26,7 +26,7 @@
                     <!-- 右邊：時間與按鈕 -->
                     <div class="flex flex-col items-end space-y-1">
                         <span class="text-xs text-gray-500">2h</span>
-                        <button class="text-blue-400 text-sm hover:underline">Reply</button>
+                        <button class="text-sm text-blue-400 hover:underline">Reply</button>
                     </div>
                 </div>
             }
