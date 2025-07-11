@@ -8,25 +8,19 @@
   <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 </head>
 
-<body class="relative">
+<body class="flex bg-primary">
   <partial name="_Menu" />
 
-  <div class="container mx-auto">
-    <main role="main" class="pb-3">
-      @RenderBody()
-    </main>
+  <div class="w-full pr-4">
+    @RenderBody()
+    <partial name="_Footer" />
   </div>
-
-  <partial name="_Footer" />
 
   <script src="~/lib/jquery/jquery.min.js"></script>
   <script src="~/lib/vue/dist/vue.global.js"></script>
   <script src="~/lib/lucide/dist/umd/lucide.min.js"></script>
   <script>
     lucide.createIcons();
-
-    @* const sidebarOpen = ref(true) *@
-
   </script>
 
   @await RenderSectionAsync("Scripts", required: false)

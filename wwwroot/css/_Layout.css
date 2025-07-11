@@ -1,7 +1,35 @@
-.top_menu {
-  @apply
-  border border-gray-500
-  w-full h-[100px]
-  mx-auto
-  ;
+.sidebar {
+  @apply bg-secondary text-white text-3xl h-full rounded-[30px] p-10 flex flex-col justify-between transition-[width] duration-300;
+}
+
+.sidebar li {
+  @apply flex flex-col gap-6 px-5 overflow-hidden;
+}
+
+.sidebar li:last-child {
+  @apply bg-white w-full flex flex-col gap-6 text-black p-5 rounded-3xl;
+}
+
+.sidebar li button span {
+  @apply absolute left-18 truncate;
+}
+
+.sidebar li button {
+  @apply overflow-hidden;
+}
+
+.sidebar-open {
+  @apply w-[350px];
+}
+
+.sidebar-open button span {
+  @apply opacity-100;
+}
+
+.sidebar-close {
+  @apply w-[150px] items-center;
+}
+
+.sidebar-close button span {
+  @apply opacity-0;
 }

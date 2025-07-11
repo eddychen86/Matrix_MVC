@@ -39,11 +39,11 @@
 }
 
 button {
-  @apply gap-6 rounded-xl py-1;
+  @apply min-h-9 flex items-center gap-6 rounded-xl cursor-pointer relative;
 }
 
 button:active {
-  @apply bg-inherit shadow;
+  @apply bg-inherit shadow-none;
 }
 
 .icon-base {
@@ -55,3 +55,7 @@ button:active {
 }
 
 @import "./_Layout.css"
+
+/* [v-cloak] {
+  display: none;
+} */
