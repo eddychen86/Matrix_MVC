@@ -8,6 +8,13 @@
       "files": [
         "dist/vue.global.js"
       ]
+    },
+    {
+      "library": "lucide@latest",
+      "destination": "wwwroot/lib/lucide/",
+      "files": [
+        "dist/umd/lucide.min.js"
+      ]
     }
   ]
 }
