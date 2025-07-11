@@ -11,16 +11,15 @@
     --color-blue-700: oklch(48.8% 0.243 264.376);
     --color-blue-800: oklch(42.4% 0.199 265.638);
     --color-gray-50: oklch(98.5% 0.002 247.839);
+    --color-gray-200: oklch(92.8% 0.006 264.531);
     --color-gray-300: oklch(87.2% 0.01 258.338);
     --color-gray-800: oklch(27.8% 0.033 256.848);
+    --color-gray-900: oklch(21% 0.034 264.665);
     --color-black: #000;
     --color-white: #fff;
     --spacing: 0.25rem;
-    --container-sm: 24rem;
     --text-sm: 0.875rem;
     --text-sm--line-height: calc(1.25 / 0.875);
-    --text-xl: 1.25rem;
-    --text-xl--line-height: calc(1.75 / 1.25);
     --text-3xl: 1.875rem;
     --text-3xl--line-height: calc(2.25 / 1.875);
     --font-weight-medium: 500;
@@ -451,46 +450,16 @@
     width: 100%;
     grid-auto-columns: max-content auto;
   }
-  .fixed {
-    position: fixed;
-  }
-  .relative {
-    position: relative;
-  }
   .top-0 {
     top: calc(var(--spacing) * 0);
   }
   .left-0 {
     left: calc(var(--spacing) * 0);
   }
-  .z-10 {
-    z-index: 10;
-  }
   .drawer-content {
     grid-column-start: 2;
     grid-row-start: 1;
     min-width: calc(0.25rem * 0);
-  }
-  .container {
-    width: 100%;
-    @media (width >= 40rem) {
-      max-width: 40rem;
-    }
-    @media (width >= 48rem) {
-      max-width: 48rem;
-    }
-    @media (width >= 64rem) {
-      max-width: 64rem;
-    }
-    @media (width >= 80rem) {
-      max-width: 80rem;
-    }
-    @media (width >= 96rem) {
-      max-width: 96rem;
-    }
-  }
-  .mx-auto {
-    margin-inline: auto;
   }
   .footer-title {
     margin-bottom: calc(0.25rem * 2);
@@ -527,17 +496,8 @@
   .hidden {
     display: none;
   }
-  .h-9 {
-    height: calc(var(--spacing) * 9);
-  }
-  .h-10 {
-    height: calc(var(--spacing) * 10);
-  }
   .h-12 {
     height: calc(var(--spacing) * 12);
-  }
-  .w-10 {
-    width: calc(var(--spacing) * 10);
   }
   .w-12 {
     width: calc(var(--spacing) * 12);
@@ -547,9 +507,6 @@
   }
   .w-full {
     width: 100%;
-  }
-  .w-sm {
-    width: var(--container-sm);
   }
   .link {
     cursor: pointer;
@@ -576,14 +533,8 @@
   .justify-center {
     justify-content: center;
   }
-  .gap-4 {
-    gap: calc(var(--spacing) * 4);
-  }
   .overflow-hidden {
     overflow: hidden;
-  }
-  .rounded {
-    border-radius: 0.25rem;
   }
   .rounded-\[30px\] {
     border-radius: 30px;
@@ -594,23 +545,14 @@
   .rounded-lg {
     border-radius: var(--radius-lg);
   }
-  .bg-\[\#1\] {
-    background-color: #1;
-  }
   .bg-accent {
     background-color: var(--color-accent);
-  }
-  .bg-base-200 {
-    background-color: var(--color-base-200);
   }
   .bg-blue-700 {
     background-color: var(--color-blue-700);
   }
   .bg-primary {
     background-color: var(--color-primary);
-  }
-  .bg-primary-content {
-    background-color: var(--color-primary-content);
   }
   .bg-white {
     background-color: var(--color-white);
@@ -633,9 +575,6 @@
   .pr-4 {
     padding-right: calc(var(--spacing) * 4);
   }
-  .pb-3 {
-    padding-bottom: calc(var(--spacing) * 3);
-  }
   .text-center {
     text-align: center;
   }
@@ -647,16 +586,9 @@
     font-size: var(--text-sm);
     line-height: var(--tw-leading, var(--text-sm--line-height));
   }
-  .text-xl {
-    font-size: var(--text-xl);
-    line-height: var(--tw-leading, var(--text-xl--line-height));
-  }
   .font-medium {
     --tw-font-weight: var(--font-weight-medium);
     font-weight: var(--font-weight-medium);
-  }
-  .text-base-content {
-    color: var(--color-base-content);
   }
   .text-gray-800 {
     color: var(--color-gray-800);
@@ -709,6 +641,20 @@
     &:hover {
       @media (hover: hover) {
         background-color: var(--color-gray-50);
+      }
+    }
+  }
+  .hover\:bg-gray-200 {
+    &:hover {
+      @media (hover: hover) {
+        background-color: var(--color-gray-200);
+      }
+    }
+  }
+  .hover\:bg-gray-900 {
+    &:hover {
+      @media (hover: hover) {
+        background-color: var(--color-gray-900);
       }
     }
   }
@@ -791,7 +737,7 @@
     }
   }
 }
-button {
+button, .cts-btn {
   position: relative;
   display: flex;
   min-height: calc(var(--spacing) * 9);
@@ -799,11 +745,14 @@ button {
   align-items: center;
   gap: calc(var(--spacing) * 6);
   border-radius: var(--radius-xl);
-}
-button:active {
-  background-color: inherit;
-  --tw-shadow: 0 0 #0000;
-  box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+  padding: calc(var(--spacing) * 4);
+  &:active {
+    background-color: inherit;
+  }
+  &:active {
+    --tw-shadow: 0 0 #0000;
+    box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+  }
 }
 .icon-base {
   height: calc(var(--spacing) * 8);
@@ -835,7 +784,7 @@ button:active {
 .sidebar li {
   display: flex;
   flex-direction: column;
-  gap: calc(var(--spacing) * 6);
+  gap: calc(var(--spacing) * 2);
   overflow: hidden;
   padding-inline: calc(var(--spacing) * 5);
 }
@@ -843,34 +792,42 @@ button:active {
   display: flex;
   width: 100%;
   flex-direction: column;
-  gap: calc(var(--spacing) * 6);
   border-radius: var(--radius-3xl);
   background-color: var(--color-white);
-  padding: calc(var(--spacing) * 5);
+  padding-block: calc(var(--spacing) * 5);
   color: var(--color-black);
 }
-.sidebar li button span {
+.sidebar li button span, .sidebar li a span {
   position: absolute;
   left: calc(var(--spacing) * 18);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.sidebar li button {
+.sidebar li button, .sidebar li a {
   overflow: hidden;
 }
 .sidebar-open {
   width: 350px;
 }
-.sidebar-open button span {
+.sidebar-open button span, .sidebar-open a span {
   opacity: 100%;
+}
+.sidebar-open li:last-child button {
+  padding-inline: calc(var(--spacing) * 4);
 }
 .sidebar-close {
   width: 150px;
   align-items: center;
 }
-.sidebar-close button span {
+.sidebar-close button span, .sidebar-close a span {
   opacity: 0%;
+}
+.sidebar-close li:last-child {
+  padding-inline: calc(var(--spacing) * 3);
+}
+.sidebar-close li:last-child button {
+  padding-inline: calc(var(--spacing) * 0);
 }
 @layer base {
   :where(:root),:root:has(input.theme-controller[value=light]:checked),[data-theme=light] {

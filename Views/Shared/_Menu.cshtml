@@ -22,30 +22,30 @@
         <ul :class="isCollapsed ? 'sidebar-close' : 'sidebar-open'" class="sidebar">
             <!-- Sidebar content here -->
             <li>
-                <button>
+                <a asp-area="" asp-controller="Home" asp-action="Index" aria-current="page" class="cts-btn hover:bg-gray-900">
                     <img src="~/img/Matrix_Logo_White.png" alt="Matrix Logo" class="icon-lg">
                     <span>Matrix</span>
-                </button>
-                <button>
+                </a>
+                <a asp-area="" asp-controller="Login" asp-action="Index" aria-current="page" class="cts-btn hover:bg-gray-900">
                     <i data-lucide="plus" class="bg-white rounded-full overflow-hidden flex justify-center items-center h-12 w-12 text-secondary p-1"></i>
                     <span>Login</span>
-                </button>
+                </a>
             </li>
             <li>
                 @foreach (var i in menus)
                 {
-                    <button>
+                    <button class="hover:bg-gray-900">
                         <i data-lucide="@i.icon" class="icon-base text-white"></i>
                         <span>@i.title</span>
                     </button>
                 }
             </li>
             <li>
-                <button v-on:click="toggleSidebar">
+                <button v-on:click="toggleSidebar" class="hover:bg-gray-200">
                     <i :data-lucide="isCollapsed ? 'panel-right-open' : 'panel-right-close'" class="icon-base"></i>
                     <span>Hide bar</span>
                 </button>
-                <button>
+                <button class="hover:bg-gray-200">
                     <i data-lucide="log-out" class="icon-base"></i>
                     <span>Log out</span>
                 </button>

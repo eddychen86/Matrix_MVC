@@ -38,12 +38,10 @@
   --depth: 1;
 }
 
-button {
-  @apply min-h-9 flex items-center gap-6 rounded-xl cursor-pointer relative;
-}
-
-button:active {
-  @apply bg-inherit shadow-none;
+button, .cts-btn {
+  @apply min-h-9 flex items-center gap-6 p-4 rounded-xl cursor-pointer relative
+  active:bg-inherit active:shadow-none
+  ;
 }
 
 .icon-base {
