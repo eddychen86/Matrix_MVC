@@ -36,11 +36,22 @@
   --size-field: 0.25rem;
   --border: 1px;
   --depth: 1;
-  --noise: 1;
 }
 
-* {
-  font-size: 14px;
+button {
+  @apply gap-6 rounded-xl py-1;
+}
+
+button:active {
+  @apply bg-inherit shadow;
+}
+
+.icon-base {
+  @apply h-8 w-12 object-contain;
+}
+
+.icon-lg {
+  @apply h-12 w-12 object-contain;
 }
 
 @import "./_Layout.css"

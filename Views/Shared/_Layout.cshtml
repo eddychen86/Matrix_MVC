@@ -9,35 +9,7 @@
 </head>
 
 <body class="relative">
-  <aside class="fixed top-0 left-0 z-10 drawer lg:drawer-open">
-    <input id="my-drawer-2" type="checkbox" class="drawer-toggle" />
-    <div class="drawer-content flex flex-col items-center justify-center">
-      <!-- Page content here -->
-      <label for="my-drawer-2" class="btn btn-primary drawer-button lg:hidden">
-        Open drawer
-      </label>
-    </div>
-    <div class="drawer-side p-4 hidden">
-      <label for="my-drawer-2" aria-label="close sidebar" class="drawer-overlay"></label>
-      <ul class="menu bg-secondary text-white h-full w-sm p-10 rounded-[30px] flex flex-col justify-between">
-        <!-- Sidebar content here -->
-        <li class="px-5 py-10 flex flex-col gap-10">
-          <div class="h-[32px] w-[32px] rounded-full bg-white"></div>
-          <div class="h-[32px] w-[32px] rounded-full bg-white"></div>
-        </li>
-        <li class="px-5 py-10 flex flex-col gap-10">
-          <a asp-area="" asp-controller="Home" asp-action="Index" class="py-2 px-3 md:p-0" aria-current="page">Home</a>
-          <a asp-area="" asp-controller="Home" asp-action="Privacy" class="py-2 px-3 md:p-0"
-            aria-current="page">Privacy</a>
-        </li>
-        <li class="bg-white w-full flex flex-col gap-10 text-black px-3 py-10 rounded-3xl">
-          <i data-lucid="panel-right-open"></i>
-          <div>num</div>
-          <div>num</div>
-        </li>
-      </ul>
-    </div>
-  </aside>
+  <partial name="_Menu" />
 
   <div class="container mx-auto">
     <main role="main" class="pb-3">
@@ -45,44 +17,12 @@
     </main>
   </div>
 
-  <footer class="footer sm:footer-horizontal bg-base-200 text-base-content p-10">
-    <aside>
-      <img src="~/img/Matrix_logo.png" alt="Matrix" class="w-10 h-9">
-      <p>
-        Matrix™
-        <br />
-        Providing reliable tech since 2025
-      </p>
-    </aside>
-    <nav>
-      <h6 class="footer-title">Services</h6>
-      <a class="link link-hover">Branding</a>
-      <a class="link link-hover">Design</a>
-      <a class="link link-hover">Marketing</a>
-      <a class="link link-hover">Advertisement</a>
-    </nav>
-    <nav>
-      <h6 class="footer-title">Company</h6>
-      <a class="link link-hover">About us</a>
-      <a class="link link-hover">Contact</a>
-      <a class="link link-hover">Jobs</a>
-      <a class="link link-hover">Press kit</a>
-    </nav>
-    <nav>
-      <h6 class="footer-title">Legal</h6>
-      <a class="link link-hover">Terms of use</a>
-      <a class="link link-hover">Privacy policy</a>
-      <a class="link link-hover">Cookie policy</a>
-    </nav>
-  </footer>
+  <partial name="_Footer" />
 
   <script src="~/lib/jquery/jquery.min.js"></script>
   <script src="~/lib/vue/dist/vue.global.js"></script>
   <script src="~/lib/lucide/dist/umd/lucide.min.js"></script>
   <script>
-    @* import { createIcons, icons } from 'lucide';
-
-    createIcons({ icons }); *@
     lucide.createIcons();
 
     @* const sidebarOpen = ref(true) *@
