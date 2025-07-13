@@ -64,7 +64,7 @@ public class ApplicationDbContext : IdentityDbContext
             .WithMany(a => a.PraiseCollects)
             .HasForeignKey(pc => pc.ArticleId)
             .OnDelete(DeleteBehavior.Cascade); // 這個可以保留
-        
+
         modelBuilder.Entity<Reply>()
             .HasOne(r => r.User)
             .WithMany(p => p.Replies)
@@ -76,6 +76,18 @@ public class ApplicationDbContext : IdentityDbContext
             .WithMany(a => a.Replies)
             .HasForeignKey(r => r.ArticleId)
             .OnDelete(DeleteBehavior.Cascade); // 這個可以保留
+
+        modelBuilder.Entity<Friend.Friends>()
+            .HasOne(f => f.User)
+            .WithMany(p => p.Friends)      // 這裡指定 Person.Friends
+            .HasForeignKey(f => f.UserId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Friend.Friends>()
+            .HasOne(f => f.FriendUser)
+            .WithMany(p => p.FriendOf)     // 這裡指定 Person.FriendOf
+            .HasForeignKey(f => f.FriendId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 
     public DbSet<Person> Persons { get; set; }
@@ -88,4 +100,5 @@ public class ApplicationDbContext : IdentityDbContext
     public DbSet<LoginRecord> LoginRecords { get; set; }
     public DbSet<Hashtag> Hashtags { get; set; }
     public DbSet<ArticleHashtag> ArticleHashtags { get; set; }
+    public DbSet<Friend.Friends> Friends { get; set; }
 }

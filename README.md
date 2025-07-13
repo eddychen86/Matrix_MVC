@@ -16,7 +16,7 @@ dotnet tool install Microsoft.Web.LibraryManager.Cli
 ```
 After installed libman, you need to install the dependency packages into the `wwwroot/lib` folder.
 ```
-libman restore
+dotnet tool run libman restore
 ```
 Then, you also need to install DotNetEnv so that the project can automatically connect to the database using the `.env` file.
 <i><b>If you are using Visual Studio, you can install it in Nuget Extensions Management.</b></i>
