@@ -23,6 +23,9 @@ Then, you also need to install DotNetEnv so that the project can automatically c
 ```
 dotnet add package DotNetEnv
 ```
+```
+dotnet add package Microsoft.EntityFrameworkCore.Proxies --version 8.0.11
+```
 Because this project used DaisyUI UI Library, you need to install tailwindcss CLI and DaisyUI.<br>
 
   1. Get Tailwind CSS executable
@@ -43,13 +46,30 @@ Because this project used DaisyUI UI Library, you need to install tailwindcss CL
       ```
 
   2. Get daisyUI bundled JS file (already have)
-  3. Build CSS
+  3. Watch CSS
       When you execute the following command, "tailwindcss" will be listened in the background.
       ###### MacOS
       ```
-      npm run dev:mac
+      tw.sh -d
       ```
       ###### windows
       ```
-      npm run dev:win
+      tw.bat -d
       ```
+  4. Build CSS
+      ###### MacOS
+      ```
+      tw.sh -b
+      ```
+      ###### windows
+      ```
+      tw.bat -b
+      ```
+
+---
+# P.S.
+
+Check all EF tools infomations
+```
+dotnet list package
+```
