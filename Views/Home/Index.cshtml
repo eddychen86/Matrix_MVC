@@ -1,8 +1,34 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@model List<Matrix.Models.Article>
+@{
+    ViewData["Title"] = "News";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+<section class="flex min-h-screen">
+    <div id="news_list" class="w-full container">
+        <div id="hot_news" class="flex gap-4">
+            @foreach (var article in Model.Take(5))
+            {
+                <div class="card bg-base-100 image-full w-[190px] h-[250px] overflow-hidden shadow-sm">
+                    <figure>
+                        <img src="" alt="" />
+                    </figure>
+                    <div class="card-body">
+                        <div>
+                            <img src="" alt="">
+                            <h2 class="card-title">@article.Author</h2>
+                        </div>
+                        <div class="card-actions justify-end">
+                            <p>@article.Content</p>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+        <div>
+            
+        </div>
+    </div>
+    <aside id="friends_list" class="h-full w-[300px]">
+
+    </aside>
+</section>
