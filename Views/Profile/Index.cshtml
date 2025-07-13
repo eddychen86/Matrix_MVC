@@ -2,11 +2,11 @@
     For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 *@
 @{
-    Layout = null;
+    // Layout = null;
 }
 @* <script src="https://cdn.tailwindcss.com"></script> *@
 
-<!DOCTYPE html>
+@* <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
@@ -15,44 +15,44 @@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true">
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 
-</head>
-<body class="min-h-screen bg-black text-white">
-    <!-- 頂部橫幅 -->
-    <div class="ml-48 flex h-40 w-5/6 overflow-hidden rounded-lg bg-black pt-4">
+</head> *@
+<div class="relative mx-auto flex min-h-[1080px] w-full max-w-[1920px] flex-col bg-black text-white">
+
+    <!-- 頂部橫幅與頭像 -->
+    <div class="relative flex h-40 w-full items-center justify-center rounded-lg bg-black">
         <img src="~/img/image-top.png" alt="Profile Banner" class="h-full w-full object-cover object-right" />
-    </div>
-    <!--       頭像        -->
-    <div class="absolute top-[105px] left-[260px] h-[120px] w-[120px] rounded-full bg-[#161616]">
-        <img src="~/img/foodpanda.jpg" class="h-full w-full rounded-full object-cover" />
-    </div>
-    <!--     頭像旁邊姓名     -->
-    <div class="mt-[5px] ml-[390px] w-[250px] font-sans leading-[40px] font-semibold text-white text-[32px]">
-        Michael Jordan
+        <!-- 頭像，往左移動 300px，且不被切掉 -->
+        <div class="absolute top-full mt-[105px] flex h-[100px] w-[100px] -translate-y-1/2 items-center justify-center rounded-full border-4 border-black bg-[#161616] shadow-lg md:h-[180px] md:w-[180px]" style="left: calc(50% - 400px); transform: translateY(-50%);">
+            <img src="~/img/foodpanda.jpg" class="h-full w-full rounded-full object-cover" />
+        </div>
+        <!-- 右下預留300px空間（好友列表）-->
+        <div class="absolute right-0 bottom-0 h-full w-[300px] bg-black/0"></div>
     </div>
 
-    <!--       姓名旁圖案         -->
-    <div class="absolute top-[175px] left-[635px] h-[25px] w-[25px] fill-white text-white">
-        <svg viewBox="0 0 24 24" class="h-full w-full">
-            <path d="M0 0h24v24H0z" fill="none"></path>
-            <path d="M22 4v-.5a2.5 2.5 0 0 0-5 0V4c-.55 0-1 .45-1 1v4c0 .55.45 1 1 1h5c.55 0 1-.45 1-1V5c0-.55-.45-1-1-1zm-.8 0h-3.4v-.5c0-.94.76-1.7 1.7-1.7s1.7.76 1.7 1.7V4zm-2.28 8c.04.33.08.66.08 1 0 2.08-.8 3.97-2.1 5.39-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H7v-2h2c.55 0 1-.45 1-1V8h2c1.1 0 2-.9 2-2V3.46c-.95-.3-1.95-.46-3-.46C5.48 3 1 7.48 1 13s4.48 10 10 10 10-4.48 10-10c0-.34-.02-.67-.05-1h-2.03zM10 20.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L8 16v1c0 1.1.9 2 2 2v1.93z"></path>
-        </svg>
+    <!-- 姓名/圖案/按鈕 -->
+    <div class="relative mt-8 flex flex-col items-center justify-between px-8 md:flex-row md:pr-[300px]">
+        <div class="flex items-center gap-3" style="margin-left:600px;">
+            <span class="font-sans text-2xl leading-[40px] font-semibold text-white md:text-[45px]">Michael Jordan</span>
+            <span class="h-6 w-6 fill-white text-white">
+                <svg viewBox="0 0 24 24" class="mr-[10px] h-full w-full">
+                    <path d="M0 0h24v24H0z" fill="none"></path>
+                    <path d="M22 4v-.5a2.5 2.5 0 0 0-5 0V4c-.55 0-1 .45-1 1v4c0 .55.45 1 1 1h5c.55 0 1-.45 1-1V5c0-.55-.45-1-1-1zm-.8 0h-3.4v-.5c0-.94.76-1.7 1.7-1.7s1.7.76 1.7 1.7V4zm-2.28 8c.04.33.08.66.08 1 0 2.08-.8 3.97-2.1 5.39-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H7v-2h2c.55 0 1-.45 1-1V8h2c1.1 0 2-.9 2-2V3.46c-.95-.3-1.95-.46-3-.46C5.48 3 1 7.48 1 13s4.48 10 10 10 10-4.48 10-10c0-.34-.02-.67-.05-1h-2.03zM10 20.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L8 16v1c0 1.1.9 2 2 2v1.93z"></path>
+                </svg>
+            </span>
+        </div>
+        <button class="mt-4 h-10 w-24 rounded-[24px] bg-white text-base font-bold text-black shadow transition hover:bg-gray-200 md:mt-0">
+            Create
+        </button>
     </div>
-
-    <!--        Create button        -->
-
-    <button class="absolute top-[175px] left-[947px] box-border h-[40px] w-[85px] cursor-pointer rounded-[24px] border-0 bg-white px-2 leading-[22px] font-bold text-[16px] text-black outline-none">Create</button>
-
-
 
     <!-- 主要內容區塊 -->
-    <div class="mt-4 flex gap-6">
+    <div class="mt-8 flex flex-col gap-6 px-8 lg:flex-row lg:pr-[300px]">
         <!-- 左側：個人資訊 -->
-        <div class="mt-[5px] ml-[190px] w-[300px]">
-            <div class="mb-4 h-[435px] rounded-xl bg-gray-800 p-6">
+        <div class="mx-auto w-full max-w-[350px] lg:mx-0">
+            <div class="mb-4 rounded-xl bg-gray-800 p-6 shadow">
                 <div class="flex items-center gap-4">
-                    
                     <div>
-                        <h2 class="font-bold text-[20px]">Michael Jordan</h2>
+                        <h2 class="font-bold text-[20px] text-white">Michael Jordan</h2>
                         <div class="mt-1 flex items-center gap-2">
                             <span class="text-sm text-gray-400">🌐</span>
                             <span class="text-sm text-gray-400">Blockchain Enthusiast</span>
@@ -60,7 +60,7 @@
                     </div>
                 </div>
                 <div class="mt-4">
-                    <h3 class="mb-1 text-lg font-semibold">Profile Overview</h3>
+                    <h3 class="mb-1 text-lg font-semibold text-white">Profile Overview</h3>
                     <p class="mb-2 text-sm text-gray-300">
                         自我介紹專區
                     </p>
@@ -69,32 +69,26 @@
                         <div>https://www.jordan.com/</div>
                         <div>https://www.jordan.com/</div>
                     </div>
-                    <!-- 圖片區 -->
-                    
-                    <div class="absolute top-[440px] left-[200px] flex h-[212px] w-[280px] flex-col gap-[5px] overflow-hidden rounded-[10px] bg-gray-800">
-                        <img src="~/img/foodpanda.jpg" class="w-full rounded-lg object-cover" style="height: 67.33px;" alt="" />
-                        <img src="~/img/foodpanda.jpg" class="w-full rounded-lg object-cover" style="height: 67.33px;" alt="" />
-                        <img src="~/img/foodpanda.jpg" class="w-full rounded-lg object-cover" style="height: 67.33px;" alt="" />
-                    </div>
-
-
-
-
                 </div>
             </div>
+            <!-- 圖片區塊 (RWD: 下方顯示) -->
+            <div class="mt-4 flex flex-col gap-2">
+                <img src="~/img/foodpanda.jpg" class="h-[70px] w-full rounded-lg object-cover" alt="" />
+                <img src="~/img/foodpanda.jpg" class="h-[70px] w-full rounded-lg object-cover" alt="" />
+                <img src="~/img/foodpanda.jpg" class="h-[70px] w-full rounded-lg object-cover" alt="" />
+            </div>
         </div>
-
         <!-- 中間：動態貼文 -->
         <div class="flex flex-1 flex-col gap-4">
-            <div class="mt-[5px] mr-30 w-[520px] rounded-xl bg-gray-800 p-6">
-                <h3 class="mb-2 text-lg font-semibold">Michael Jordan</h3>
+            <div class="rounded-xl bg-gray-800 p-6">
+                <h3 class="mb-2 text-lg font-semibold text-white">Michael Jordan</h3>
                 <p class="mb-2 text-gray-300">
                     Exploring the wonders of blockchain technology and its limitless potential in transforming industries. Excited to connect with like-minded enthusiasts here on Matrix!
                 </p>
                 <span class="text-xs text-gray-500">2 hours ago</span>
             </div>
-            <div class="mt-[4px] mr-44 w-[520px] rounded-xl bg-gray-800 p-6">
-                <h3 class="mb-2 text-lg font-semibold">Michael Jordan</h3>
+            <div class="rounded-xl bg-gray-800 p-6">
+                <h3 class="mb-2 text-lg font-semibold text-white">Michael Jordan</h3>
                 <p class="mb-2 text-gray-300">
                     Exploring the wonders of blockchain technology and its limitless potential in transforming industries. Excited to connect with like-minded enthusiasts here on Matrix!
                 </p>
@@ -102,11 +96,18 @@
                 <img src="https://images.unsplash.com/photo-1519125323398-675f0ddb6308?auto=format&fit=facearea&w=400&h=200" class="mt-4 rounded-lg" alt="">
             </div>
         </div>
-
-
     </div>
-</body>
-</html>
+
+    <!-- 右側預留好友列表空間（未來可放內容） -->
+    <div class="fixed top-0 right-0 z-10 hidden h-full w-[300px] bg-transparent lg:block">
+        <!-- 好友列表未來放這裡 -->
+    </div>
+</div>
+
+
+
+
+@* </html> *@
 
 
 
