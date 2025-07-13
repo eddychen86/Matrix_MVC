@@ -25,7 +25,7 @@ public class Friend
     {
         // 建議使用一個獨立的主鍵，但也可以使用複合主鍵 (下面會說明)
         [Key]
-        public int Id { get; set; }
+        public required string FId { get; set; }
 
         // 發出好友邀請的使用者 ID
         [Required]

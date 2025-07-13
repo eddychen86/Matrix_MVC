@@ -8,7 +8,7 @@ namespace Matrix.Models;
 public class ArticleAttachment
 {
     [Key]
-    public int Id { get; set; }
+    public Guid FileId { get; set; }
 
     [Required]
     public string ArticleId { get; set; } = "";
