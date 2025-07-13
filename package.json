@@ -1,9 +1,0 @@
-{
-	"type": "module",
-	"scripts": {
-		"build:win": "tailwindcss.exe -i ./wwwroot/css/tailwind.css -o ./wwwroot/css/site.css --minify",
-		"build:mac": "./tailwindcss -i ./wwwroot/css/tailwind.css -o ./wwwroot/css/site.css --minify",
-		"dev:win": "tailwindcss.exe -i ./wwwroot/css/tailwind.css -o ./wwwroot/css/site.css --watch --poll",
-		"dev:mac": "./tailwindcss -i ./wwwroot/css/tailwind.css -o ./wwwroot/css/site.css --watch --poll"
-	}
-}

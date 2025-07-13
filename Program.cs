@@ -25,7 +25,7 @@ public class Program
 
         // Add services to the container.
         builder.Services.AddDbContext<ApplicationDbContext>(options =>
-            options.UseSqlServer(connectionString));
+            options.UseLazyLoadingProxies().UseSqlServer(connectionString));
         builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
         builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
