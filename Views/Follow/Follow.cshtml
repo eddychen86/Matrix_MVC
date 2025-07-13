@@ -1,0 +1,47 @@
+﻿<div class="mt-20 flex justify-center">
+    <div class="w-full max-w-7xl rounded-2xl bg-black p-6 text-white shadow-lg">
+        <!-- 標題區 -->
+        <div class="mb-6 flex items-center justify-between">
+            <h2 class="text-xl font-bold">Follows</h2>
+            <button class="flex items-center rounded-md bg-gray-700 px-4 py-1 text-sm">
+                This month
+                <svg class="ml-1 h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"></path>
+                </svg>
+            </button>
+        </div>
+
+        <!-- 使用統一的Grid包左右兩邊＋分隔線 -->
+        <div class="grid grid-cols-12 gap-4">
+            <!-- 左側留言清單（8欄） -->
+            <div class="col-span-8 space-y-4">
+                @for (int i = 0; i < 5; i++)
+                {
+                    <div class="rounded-xl bg-gray-700 p-4">
+                        <p class="truncate">
+                            qwe kdk kjk jd uehd a hkjasewh wdhhsiu hdkjas jskj wdh i w d hi use...
+                        </p>
+                        <p class="mt-2 text-sm text-gray-400">Joined 12 Mar 2022</p>
+                    </div>
+                }
+            </div>
+
+            <!-- 中間直線分隔欄（1欄） -->
+            <div class="col-span-1 flex justify-center">
+                <div class="h-full w-px bg-gray-400"></div>
+            </div>
+
+            <!-- 右側頭像與名字清單（3欄） -->
+            <div class="col-span-3 flex flex-col justify-start space-y-4">
+                @for (int i = 0; i < 5; i++)
+                {
+                    <div class="flex items-center space-x-2">
+                        <img src="https://randomuser.me/api/portraits/women/1.jpg"
+                             class="h-10 w-10 rounded-full border border-white" />
+                        <span class="text-sm font-semibold">Samantha Green</span>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
