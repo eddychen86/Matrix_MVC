@@ -4,6 +4,7 @@ using Matrix.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Matrix.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250712123531_AddFriendRelation")]
+    partial class AddFriendRelation
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -56,39 +59,6 @@ namespace Matrix.Data.Migrations
                     b.HasIndex("AuthorId");
 
                     b.ToTable("Articles");
-                });
-
-            modelBuilder.Entity("Matrix.Models.ArticleAttachment", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("ArticleId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("FileName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("FilePath")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("MimeType")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Type")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ArticleId");
-
-                    b.ToTable("ArticleAttachment");
                 });
 
             modelBuilder.Entity("Matrix.Models.ArticleHashtag", b =>
@@ -607,17 +577,6 @@ namespace Matrix.Data.Migrations
                     b.Navigation("Author");
                 });
 
-            modelBuilder.Entity("Matrix.Models.ArticleAttachment", b =>
-                {
-                    b.HasOne("Matrix.Models.Article", "Article")
-                        .WithMany("Attachments")
-                        .HasForeignKey("ArticleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Article");
-                });
-
             modelBuilder.Entity("Matrix.Models.ArticleHashtag", b =>
                 {
                     b.HasOne("Matrix.Models.Article", "Article")
@@ -818,8 +777,6 @@ namespace Matrix.Data.Migrations
             modelBuilder.Entity("Matrix.Models.Article", b =>
                 {
                     b.Navigation("ArticleHashtags");
-
-                    b.Navigation("Attachments");
 
                     b.Navigation("PraiseCollects");
 
