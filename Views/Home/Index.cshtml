@@ -4,21 +4,21 @@
 }
 
 <section class="flex min-h-screen">
-    <div id="news_list" class="w-full container">
-        <div id="hot_news" class="flex gap-4">
-            @foreach (var article in Model.Take(5))
+    <div id="news_list" class="w-full">
+        <div id="hot_news" class="flex gap-4 w-[600px] mx-auto overflow-auto">
+            @foreach (var item in ViewBag.HotList)
             {
-                <div class="card bg-base-100 image-full w-[190px] h-[250px] overflow-hidden shadow-sm">
+                <div class="card bg-base-100 image-full min-w-[190px] h-[250px] overflow-hidden shadow-sm">
                     <figure>
                         <img src="" alt="" />
                     </figure>
                     <div class="card-body">
                         <div>
                             <img src="" alt="">
-                            <h2 class="card-title">@article.Author</h2>
+                            <h2 class="card-title">@item.Author</h2>
                         </div>
                         <div class="card-actions justify-end">
-                            <p>@article.Content</p>
+                            <p>@item.Content</p>
                         </div>
                     </div>
                 </div>
@@ -28,7 +28,12 @@
             
         </div>
     </div>
-    <aside id="friends_list" class="h-full w-[300px]">
+    <aside id="friends_list" class="h-screen w-[300px] border">
 
     </aside>
 </section>
+
+@section Scripts {
+    <script>
+    </script>
+}
