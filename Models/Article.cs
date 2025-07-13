@@ -24,4 +24,5 @@ public class Article
     public virtual ICollection<ArticleHashtag>? ArticleHashtags { get; set; }
     public virtual ICollection<Reply>? Replies { get; set; }
     public virtual ICollection<PraiseCollect>? PraiseCollects { get; set; }
+    public virtual ICollection<ArticleAttachment>? Attachments { get; set; }
 }

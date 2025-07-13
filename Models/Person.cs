@@ -40,4 +40,6 @@ public class Person
   public virtual ICollection<Report> ReportsMade { get; set; } = new List<Report>();
   public virtual ICollection<Report> ReportsResolved { get; set; } = new List<Report>();
   public virtual ICollection<LoginRecord> LoginRecords { get; set; } = new List<LoginRecord>();
+  public virtual ICollection<Friend.Friends> Friends { get; set; } = new List<Friend.Friends>();      // 我加別人
+  public virtual ICollection<Friend.Friends> FriendOf { get; set; } = new List<Friend.Friends>();     // 別人加我
 }
