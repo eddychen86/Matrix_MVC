@@ -1,5 +1,6 @@
 #!/bin/bash
 
+chmod +x ./tailwindcss
 arg="$1"
 
 case "$arg" in
