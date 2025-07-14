@@ -16,7 +16,8 @@
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 
 </head> *@
-<div class="relative mx-auto flex min-h-[1080px] w-full max-w-[1920px] flex-col bg-black text-white">
+
+<div class="relative mx-auto flex w-full max-w-[1920px] flex-col bg-black text-white">
 
     <!-- 頂部橫幅與頭像 -->
     <div class="relative flex h-40 w-full items-center justify-center rounded-lg bg-black">
@@ -32,7 +33,7 @@
     <!-- 姓名/圖案/按鈕 -->
     <div class="relative mt-8 flex flex-col items-center justify-between px-8 md:flex-row md:pr-[300px]">
         <div class="flex items-center gap-3" style="margin-left:600px;">
-            <span class="font-sans text-2xl leading-[40px] font-semibold text-white md:text-[45px]">Michael Jordan</span>
+            <span class="font-sans text-2xl leading-[40px] font-semibold text-white md:text-[40px]">Michael Jordan</span>
             <span class="h-6 w-6 fill-white text-white">
                 <svg viewBox="0 0 24 24" class="mr-[10px] h-full w-full">
                     <path d="M0 0h24v24H0z" fill="none"></path>
@@ -40,8 +41,8 @@
                 </svg>
             </span>
         </div>
-        <button class="mt-4 h-10 w-24 rounded-[24px] bg-white text-base font-bold text-black shadow transition hover:bg-gray-200 md:mt-0">
-            Create
+        <button class="mt-4 h-10 w-22 rounded-[24px] bg-white text-base font-bold text-black shadow transition hover:bg-gray-200 md:mt-0">
+              Create
         </button>
     </div>
 
@@ -52,43 +53,42 @@
             <div class="mb-4 rounded-xl bg-gray-800 p-6 shadow">
                 <div class="flex items-center gap-4">
                     <div>
-                        <h2 class="font-bold text-[20px] text-white">Michael Jordan</h2>
-                        <div class="mt-1 flex items-center gap-2">
-                            <span class="text-sm text-gray-400">🌐</span>
-                            <span class="text-sm text-gray-400">Blockchain Enthusiast</span>
-                        </div>
+                        <h2 class="font-bold text-[23px] text-white">Profile Overview</h2>
+                        
                     </div>
                 </div>
-                <div class="mt-4">
-                    <h3 class="mb-1 text-lg font-semibold text-white">Profile Overview</h3>
-                    <p class="mb-2 text-sm text-gray-300">
-                        自我介紹專區
+                <div class="mt-3">
+                    <p class="mb-4 h-[100px] text-[20px] text-gray-300">
+                        自我介紹專區xxxxxxxxxxxxxxxxxxxxxxxx
                     </p>
-                    <div class="space-y-1 text-xs text-gray-400">
-                        <div>Jordan@mail.com</div>
+                    <div class="space-y-1 text-[17px] text-gray-400">
+                        <div class="mb-[10px]">Jordan@mail.com</div>
+                        <div>https://www.jordan.com/</div>
                         <div>https://www.jordan.com/</div>
                         <div>https://www.jordan.com/</div>
                     </div>
                 </div>
+
+                <!-- 圖片區塊 (RWD: 下方顯示) -->
+                <div class="mt-4 flex flex-col gap-2">
+                    <img src="~/img/foodpanda.jpg" class="h-[108px] w-full rounded-lg object-cover" alt="" />
+                    <img src="~/img/foodpanda.jpg" class="h-[108px] w-full rounded-lg object-cover" alt="" />
+                    @* <img src="~/img/foodpanda.jpg" class="h-[100px] w-full rounded-lg object-cover" alt="" /> *@
+                </div>
             </div>
-            <!-- 圖片區塊 (RWD: 下方顯示) -->
-            <div class="mt-4 flex flex-col gap-2">
-                <img src="~/img/foodpanda.jpg" class="h-[70px] w-full rounded-lg object-cover" alt="" />
-                <img src="~/img/foodpanda.jpg" class="h-[70px] w-full rounded-lg object-cover" alt="" />
-                <img src="~/img/foodpanda.jpg" class="h-[70px] w-full rounded-lg object-cover" alt="" />
-            </div>
+            
         </div>
         <!-- 中間：動態貼文 -->
         <div class="flex flex-1 flex-col gap-4">
             <div class="rounded-xl bg-gray-800 p-6">
-                <h3 class="mb-2 text-lg font-semibold text-white">Michael Jordan</h3>
+                <h3 class="mb-2 font-semibold text-[23px] text-white">Michael Jordan</h3>
                 <p class="mb-2 text-gray-300">
                     Exploring the wonders of blockchain technology and its limitless potential in transforming industries. Excited to connect with like-minded enthusiasts here on Matrix!
                 </p>
                 <span class="text-xs text-gray-500">2 hours ago</span>
             </div>
-            <div class="rounded-xl bg-gray-800 p-6">
-                <h3 class="mb-2 text-lg font-semibold text-white">Michael Jordan</h3>
+            <div class="mb-[12px] rounded-xl bg-gray-800 p-6">
+                <h3 class="mb-2 font-semibold text-[23px] text-white">Michael Jordan</h3>
                 <p class="mb-2 text-gray-300">
                     Exploring the wonders of blockchain technology and its limitless potential in transforming industries. Excited to connect with like-minded enthusiasts here on Matrix!
                 </p>

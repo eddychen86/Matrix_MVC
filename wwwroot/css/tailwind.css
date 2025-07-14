@@ -1,10 +1,8 @@
-@import "tailwindcss" source(none);
+﻿@import "tailwindcss" source(none);
 @source "../../Views/**/*.{cshtml,html,php,erb}";
-@plugin "../lib/daisyui/daisyui.js";
 @plugin "../lib/daisyui/daisyui.js";
 
 /* Optional for custom themes – Docs: https://daisyui.com/docs/themes/#how-to-add-a-new-custom-theme */
-@plugin "../lib/daisyui/daisyui-theme.js" {
 @plugin "../lib/daisyui/daisyui-theme.js" {
   /* custom theme here */
   name: "Default";
@@ -41,9 +39,8 @@
 }
 
 button, .cts-btn {
-  @apply min-h-9 flex items-center gap-6 p-4 rounded-xl cursor-pointer relative
-  active:bg-inherit active:shadow-none
-  ;
+  @apply relative flex min-h-9 cursor-pointer items-center gap-6 rounded-xl p-4
+  active:bg-inherit active:shadow-none;
 }
 
 .icon-base {
@@ -54,7 +51,7 @@ button, .cts-btn {
   @apply h-12 w-12 object-contain;
 }
 
-@import "./_Layout.css"
+@import "./_Layout.css";
 
 /* [v-cloak] {
   display: none;
