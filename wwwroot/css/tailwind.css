@@ -52,7 +52,8 @@ button, .cts-btn {
   @apply h-12 w-12 object-contain;
 }
 
-@import "./_Layout.css"
+@import "./_Layout.css";
+@import "./Error.css";
 
 /* [v-cloak] {
   display: none;

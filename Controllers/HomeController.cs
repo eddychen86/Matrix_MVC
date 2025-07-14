@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Identity;
 using Matrix.Models;
 using Matrix.Data;
+using Matrix.ViewModels;
 using Microsoft.EntityFrameworkCore;
 
 namespace Matrix.Controllers;
@@ -21,9 +22,19 @@ public class HomeController : Controller
     public async Task<IActionResult> Index()
     {
         // 取得所有文章（lazy loading 會自動載入 Author）
-        var Articles = await _context.Articles.OrderByDescending(a => a.CreateTime).ToListAsync();
-        var hot_list = Articles.Take(5);
-        var default_list = Articles;
+        var articles = await _context.Articles
+            .Include(a => a.Attachments)
+            .OrderByDescending(a => a.CreateTime)
+            .Select(a => new
+            {
+                Article = a,
+                image = a.Attachments != null
+                    ? a.Attachments.FirstOrDefault(att => att.Type.ToLower() == "image")
+                    : null
+            })
+            .ToListAsync();
+        var hot_list = articles.Take(5);
+        var default_list = articles;
 
         ViewBag.HotList = hot_list;
         ViewBag.DefaultList = default_list;
