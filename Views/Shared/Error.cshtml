@@ -9,32 +9,39 @@
     {
         title = devMode ? "An error occurred while processing your request." : "",
         code = statusCode,
-        content = devMode
+        content = !devMode
             ? (@"
-                <div class='flex items-center justify-between w-full pr-5'>
-                    <div id='error-id_state'>
-                        <h3 class='text-lg font-bold'>Request ID:</h3>
-                        <code>" + Model.RequestId + @"</code>
-                    </div>
-                    <button>
-                        <i data-lucide='chevron-down' class='w-8 h-8'></i>
-                    </button>
-                </div>
-                <div class='bg-stone-800 p-4 rounded-b-xl flex flex-col gap-4'>
-                    <h3 class='text-lg font-bold'>Development Mode</h3>
-                    <p>
-                        Swapping to <span>Development</span> environment will display more detailed information about the error that occurred.
-                    </p>
-                    <p>
-                        <b>The Development environment shouldn't be enabled for deployed applications.</b>
-                        It can result in displaying sensitive information from exceptions to end users.
-                        For local debugging, enable the <b>Development</b> environment by setting the <b>ASPNETCORE_ENVIRONMENT</b> environment variable to <b>Development</b>
-                        and restarting the app.
-                    </p>
+                <div id='error-collapse' class='collapse collapse-arrow'>
+                    <input type='checkbox' class='peer p-0' />
+                    
+                    <section id='error-collapse_title' class='collapse-title'>
+                        <div id='error-id_state'>
+                            <h3 class='text-lg font-bold'>Request ID:</h3>
+                            <code class=''>" + Model.RequestId + @"</code>
+                        </div>
+                    </section>
+
+                    <section id='error-collapse_content' class='collapse-content'>
+                        <h3 class='text-lg font-bold mt-4'>Development Mode</h3>
+                        <p>
+                            Swapping to <span>Development</span> environment will display more detailed information about the error that occurred.
+                        </p>
+                        <p>
+                            <b>The Development environment shouldn't be enabled for deployed applications.</b>
+                            It can result in displaying sensitive information from exceptions to end users.
+                            For local debugging, enable the <b>Development</b> environment by setting the <b>ASPNETCORE_ENVIRONMENT</b> environment variable to <b>Development</b>
+                            and restarting the app.
+                        </p>
+                    </section>
                 </div>
             ")
             : (@"
-            
+                <p class='text-xl'>
+                    We're sorry, but something went wrong.<br>
+                    Please contact the system administrator or
+                    <a id='tryAgain' class='underline text-blue-300 cursor-pointer'>try again</a>
+                    later.
+                </p>
             ")
     };
 }
@@ -47,21 +54,25 @@
     <title>Matrix</title>
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 </head>
-<body class="bg-[#161616]">
+<body class="bg-[#161616] over-hidden">
     <main id="error-body">
         <h1 id="error-statecode" class="-top-5">@statusCode</h1>
 
         <div id="error-box">
-            <h1 class="text-5xl mb-4 font-bold">Oops!</h1>
+            <h1 class="text-5xl font-bold">Oops!</h1>
             <h1 id="error-box_title">@errorInfo.title</h1>
             <div id="error-box_content">@Html.Raw(errorInfo.content)</div>
-            <a asp-area="" asp-controller="Home" asp-action="Index" id="error-btn">
-                <i data-lucide="house" class="w-5 h-5"></i>
-                返回首頁
-            </a>
+            <div class="w-full flex justify-end">
+                <a asp-area="" asp-controller="Home" asp-action="Index" id="error-btn">
+                    <i data-lucide="house" class="w-5 h-5"></i>
+                    Home
+                </a>
+            </div>
         </div>
     </main>
-    <partial name="_Footer" />
+    <section class="p-4">
+        <partial name="_Footer" />
+    </section>
 
     <script src="~/lib/jquery/jquery.min.js"></script>
     <script src="~/lib/vue/dist/vue.global.js"></script>
@@ -69,7 +80,8 @@
     <script>
         lucide.createIcons();
 
-        console.log(window)
+        const $try = $('#tryAgain')
+        $try.on('click', () => window.location.reload())
     </script>
 </body>
 
