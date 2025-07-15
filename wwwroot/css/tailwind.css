@@ -2,9 +2,7 @@
 @source "../../Views/**/*.{cshtml,html,php,erb}";
 @plugin "../lib/daisyui/daisyui.js";
 
-/* Optional for custom themes – Docs: https://daisyui.com/docs/themes/#how-to-add-a-new-custom-theme */
 @plugin "../lib/daisyui/daisyui-theme.js" {
-  /* custom theme here */
   name: "Default";
   default: true;
   prefersdark: true;
@@ -38,23 +36,4 @@
   --depth: 1;
 }
 
-.cts-btn {
-  @apply min-h-9 flex items-center gap-6 p-4 rounded-xl cursor-pointer relative
-  active:bg-inherit active:shadow-none
-  ;
-}
-
-.icon-base {
-  @apply h-8 w-12 object-contain;
-}
-
-.icon-lg {
-  @apply h-12 w-12 object-contain;
-}
-
-@import "./_Layout.css";
-@import "./Error.css";
-
-/* [v-cloak] {
-  display: none;
-} */
+@import "./components.css";

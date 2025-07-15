@@ -7,7 +7,7 @@
     <div id="news_list" class="w-full">
         <div id="hot_news" class="flex mx-auto w-[650px]">
             <ul class="carousel carousel-center gap-4 w-[600px] text-center">
-                @foreach (var item in ViewBag.HotList)
+                @* @foreach (var item in ViewBag.HotList)
                 {
                     <li class="carousel-item w-[190px] h-[250px] overflow-hidden rounded-[30px]">
                         <div class="card bg-base-100 image-full  shadow-sm">
@@ -17,7 +17,7 @@
                             <div class="card-body">
                                 <div>
                                     <img src="" alt="">
-                                    <h2 class="card-title">@item.Author</h2>
+                                    <h2 class="card-title">@(item.Author?.UserName ?? "")</h2>
                                 </div>
                                 <div class="card-actions justify-end">
                                     <p>@item.Content</p>
@@ -25,7 +25,7 @@
                             </div>
                         </div>
                     </li>
-                }
+                } *@
             </ul>
         </div>
         <div>

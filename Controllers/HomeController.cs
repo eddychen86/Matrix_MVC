@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authorization;
 using Matrix.Models;
 using Matrix.Data;
 using Matrix.ViewModels;
@@ -19,15 +20,18 @@ public class HomeController : Controller
         _logger = logger;
     }
 
+    [AllowAnonymous]
     public async Task<IActionResult> Index()
     {
         // 取得所有文章（lazy loading 會自動載入 Author）
         var articles = await _context.Articles
             .Include(a => a.Attachments)
+            .Include(a => a.Author)
             .OrderByDescending(a => a.CreateTime)
             .Select(a => new
             {
                 Article = a,
+                Author = a.Author,
                 image = a.Attachments != null
                     ? a.Attachments.FirstOrDefault(att => att.Type.ToLower() == "image")
                     : null
