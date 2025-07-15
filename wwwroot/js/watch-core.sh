@@ -41,32 +41,37 @@ start_sass_watch() {
 
 # 監聽文件變化
 monitor_css_changes() {
-    local css_file="css/components.css"
+    local css_dir="css/"
     local last_modified=""
     
     # 檢查系統是否有 fswatch (macOS) 或 inotifywait (Linux)
     if command -v fswatch >/dev/null 2>&1; then
-        echo -e "${GREEN}📁 Using fswatch for file monitoring...${NC}"
-        fswatch -o "$css_file" | while read; do
-            echo -e "${YELLOW}📝 SCSS compiled, restarting Tailwind CSS...${NC}"
+        echo -e "${GREEN}📁 Using fswatch for file monitoring (monitoring entire css/ directory)...${NC}"
+        fswatch -o "$css_dir" | while read; do
+            echo -e "${YELLOW}📝 CSS changes detected, restarting Tailwind CSS...${NC}"
             start_tailwind_watch
             sleep 0.5
         done
     elif command -v inotifywait >/dev/null 2>&1; then
-        echo -e "${GREEN}📁 Using inotifywait for file monitoring...${NC}"
-        while inotifywait -e modify "$css_file" 2>/dev/null; do
-            echo -e "${YELLOW}📝 SCSS compiled, restarting Tailwind CSS...${NC}"
+        echo -e "${GREEN}📁 Using inotifywait for file monitoring (monitoring entire css/ directory)...${NC}"
+        while inotifywait -e modify,create,delete -r "$css_dir" 2>/dev/null; do
+            echo -e "${YELLOW}📝 CSS changes detected, restarting Tailwind CSS...${NC}"
             start_tailwind_watch
             sleep 0.5
         done
     else
-        # 降級方案：polling
+        # 降級方案：polling - 監聽整個 css 目錄
         echo -e "${YELLOW}📁 Using polling for file monitoring (install fswatch or inotify-tools for better performance)...${NC}"
         while true; do
-            if [ -f "$css_file" ]; then
-                current_modified=$(stat -c %Y "$css_file" 2>/dev/null || stat -f %m "$css_file" 2>/dev/null)
+            if [ -d "$css_dir" ]; then
+                # 取得整個 css 目錄的最新修改時間
+                current_modified=$(find "$css_dir" -name "*.css" -type f -exec stat -c %Y {} \; 2>/dev/null | sort -n | tail -1)
+                if [ -z "$current_modified" ]; then
+                    current_modified=$(find "$css_dir" -name "*.css" -type f -exec stat -f %m {} \; 2>/dev/null | sort -n | tail -1)
+                fi
+                
                 if [ "$current_modified" != "$last_modified" ] && [ ! -z "$last_modified" ]; then
-                    echo -e "${YELLOW}📝 SCSS compiled, restarting Tailwind CSS...${NC}"
+                    echo -e "${YELLOW}📝 CSS changes detected, restarting Tailwind CSS...${NC}"
                     start_tailwind_watch
                     sleep 0.5
                 fi

@@ -58,13 +58,13 @@ goto :eof
 
 :: 函數：監聽文件變化
 :monitor_css_changes
-set "css_file=css\components.css"
+set "css_dir=css\"
 set "last_modified="
 
 :: 檢查是否有 PowerShell（用於更精確的文件監聽）
 where powershell >nul 2>&1
 if %errorlevel% equ 0 (
-    echo %ESC%%GREEN%📁 Using PowerShell FileSystemWatcher for monitoring...%ESC%%NC%
+    echo %ESC%%GREEN%📁 Using PowerShell FileSystemWatcher for monitoring (monitoring entire css\ directory)...%ESC%%NC%
     goto :powershell_watch
 ) else (
     echo %ESC%%YELLOW%📁 Using polling for file monitoring...%ESC%%NC%
@@ -76,14 +76,15 @@ if %errorlevel% equ 0 (
 powershell -Command "& {
     $watcher = New-Object System.IO.FileSystemWatcher
     $watcher.Path = '%CD%\css'
-    $watcher.Filter = 'components.css'
-    $watcher.NotifyFilter = [System.IO.NotifyFilters]::LastWrite
+    $watcher.Filter = '*.css'
+    $watcher.NotifyFilter = [System.IO.NotifyFilters]::LastWrite -bor [System.IO.NotifyFilters]::CreationTime
+    $watcher.IncludeSubdirectories = $true
     $watcher.EnableRaisingEvents = $true
     
     while ($true) {
-        $result = $watcher.WaitForChanged([System.IO.WatcherChangeTypes]::Changed, 1000)
+        $result = $watcher.WaitForChanged([System.IO.WatcherChangeTypes]::Changed -bor [System.IO.WatcherChangeTypes]::Created, 1000)
         if ($result.TimedOut -eq $false) {
-            Write-Host '📝 SCSS compiled, restarting Tailwind CSS...'
+            Write-Host '📝 CSS changes detected, restarting Tailwind CSS...'
             Start-Sleep -Milliseconds 500
             exit 1
         }
@@ -98,17 +99,23 @@ goto :eof
 :polling_watch
 :: 降級方案：輪詢檢查文件修改時間
 :polling_loop
-if exist "%css_file%" (
-    for %%f in ("%css_file%") do set "current_modified=%%~tf"
+if exist "%css_dir%" (
+    :: 取得 css 目錄中所有 .css 文件的最新修改時間
+    set "newest_time="
+    for /r "%css_dir%" %%f in (*.css) do (
+        for %%t in ("%%f") do (
+            if "!newest_time!" LSS "%%~tf" set "newest_time=%%~tf"
+        )
+    )
     
     if defined last_modified (
-        if not "!current_modified!"=="!last_modified!" (
-            echo %ESC%%YELLOW%📝 SCSS compiled, restarting Tailwind CSS...%ESC%%NC%
+        if not "!newest_time!"=="!last_modified!" (
+            echo %ESC%%YELLOW%📝 CSS changes detected, restarting Tailwind CSS...%ESC%%NC%
             call :start_tailwind_watch
             timeout /t 1 /nobreak >nul
         )
     )
-    set "last_modified=!current_modified!"
+    set "last_modified=!newest_time!"
 )
 timeout /t 1 /nobreak >nul
 goto :polling_loop
