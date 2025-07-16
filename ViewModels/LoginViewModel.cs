@@ -10,5 +10,7 @@ namespace Matrix.ViewModels
         [Required(ErrorMessage = "請輸入密碼")]
         [DataType(DataType.Password)]
         public string Password { get; set; }
+
+        public bool RememberMe { get; set; }
     }
 }

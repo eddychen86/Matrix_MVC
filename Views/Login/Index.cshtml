@@ -5,118 +5,135 @@
 @{
 	ViewData["Title"] = "Login";
 }
-<link href="~/css/site.css" rel="stylesheet" />
-<link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@700&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@700&display=swap" rel="stylesheet">
+
+<!DOCTYPE html>
+<html lang="zh-tw">
+
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>Matrix</title>
+	<link href="~/css/site.css" rel="stylesheet" />
+	<link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+	<link rel="stylesheet" href="~/css/components.css" asp-append-version="true" />	
+	<link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@700&display=swap" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@700&display=swap" rel="stylesheet">
+
+</head>
+
+<body class="bg-primary flex">
+
+	<div class="min-h-screen bg-cover bg-center bg-[url('/static/img/LoginBG.jpg')] flex items-center justify-start">
+		<div class="absolute top-[29px] left-[29px] h-[842px] w-[696px] rounded-[30px] bg-[#162534] opacity-90 shadow-[0px_10px_15px_rgba(0,0,0,0.3)]">
+			<h1 class="text-white text-[48px] leading-[56px] font-bold text-center font-['Source_Sans_Pro'] absolute top-[200px] left-[150] right-[146]">Log in</h1>
+			<h4 class="text-white text-[14px] leading-[18px] text-center font-['Roboto'] absolute top-[264px] left-[150] right-[146]">Join the blockchain community</h4>
+			<form asp-action="Login" method="post">
+				<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+				<div class="form-group">
+					<label asp-for="UserName" class="control-label text-white text-[14px] leading-[18px] font-medium font-['Source_Sans_Pro'] absolute top-[330px] left-[150] right-[146]"></label>
+					<input asp-for="UserName" class="form-control w-[400px] h-[48px] px-2 border-0 outline-none rounded-[24px] bg-white text-black text-[14px] leading-[48px] font-medium font-['Source_Sans_Pro'] absolute top-[358px] left-[151] " />
+					<span asp-validation-for="UserName" class="text-danger"></span>
+				</div>
+				<div class="form-group">
+					<label asp-for="Password" class="control-label control-label control-label text-white text-[14px] leading-[18px] font-medium font-['Source_Sans_Pro'] absolute top-[422px] left-[150] "></label>
+					<input asp-for="Password" class="form-control form-control form-control w-[400px] h-[48px] px-2 border-0 outline-none rounded-[24px] bg-white text-black text-[14px] leading-[48px] font-medium font-['Source_Sans_Pro'] absolute top-[450px] left-[151] " />
+					<span asp-validation-for="Password" class="text-danger"></span>
+				</div>
+
+				<div class="mb-6 flex w-full items-center justify-between md:w-[400px]">
+
+					<label class="flex cursor-pointer items-center gap-2 select-none">
+						<input type="checkbox"
+							   class="peer absolute h-5 w-5 opacity-0" />
+						<span class="absolute top-[525px] left-[150] inline-block h-[20px] w-[20px] rounded-[5px] bg-white transition-all duration-150 peer-checked:bg-[#ff7f3e]"></span>
+						<span class="ml-2 text-white text-[16px] font-semibold font-['Source_Sans_Pro'] absolute top-[523px] left-[186]">Remember me</span>
+					</label>
+
+					<a href="javascript:void(0)" onclick="openModal()" class="text-white text-[16px] font-bold font-['Source_Sans_Pro'] hover:underline absolute top-[523px] right-[146]">Forgot password?</a>
+				</div>
 
 
-<div class="min-h-screen bg-cover bg-center bg-[url('/img/LoginBG.jpg')] flex items-center justify-start">
-	<div class="absolute top-[29px] left-[29px] h-[842px] w-[696px] rounded-[30px] bg-[#162534] opacity-90 shadow-[0px_10px_15px_rgba(0,0,0,0.3)]">
-		<h1 class="text-white text-[48px] leading-[56px] font-bold text-center font-['Source_Sans_Pro'] absolute top-[200px] left-[150] right-[146]">Log in</h1>
-		<h4 class="text-white text-[14px] leading-[18px] text-center font-['Roboto'] absolute top-[264px] left-[150] right-[146]">Join the blockchain community</h4>
-		<form asp-action="Login" method="post">
-			<div asp-validation-summary="ModelOnly" class="text-danger"></div>
-			<div class="form-group">
-				<label asp-for="UserName" class="control-label text-white text-[14px] leading-[18px] font-medium font-['Source_Sans_Pro'] absolute top-[330px] left-[150] right-[146]"></label>
-				<input asp-for="UserName" class="form-control w-[400px] h-[48px] px-2 border-0 outline-none rounded-[24px] bg-white text-black text-[14px] leading-[48px] font-medium font-['Source_Sans_Pro'] absolute top-[358px] left-[151] " />
-				<span asp-validation-for="UserName" class="text-danger"></span>
-			</div>
-			<div class="form-group">
-				<label asp-for="Password" class="control-label control-label control-label text-white text-[14px] leading-[18px] font-medium font-['Source_Sans_Pro'] absolute top-[422px] left-[150] "></label>
-				<input asp-for="Password" class="form-control form-control form-control w-[400px] h-[48px] px-2 border-0 outline-none rounded-[24px] bg-white text-black text-[14px] leading-[48px] font-medium font-['Source_Sans_Pro'] absolute top-[450px] left-[151] " />
-				<span asp-validation-for="Password" class="text-danger"></span>
-			</div>
-
-			<div class="form-group">
-				<label asp-for="Password" class="control-label control-label control-label text-white text-[14px] leading-[18px] font-medium font-['Source_Sans_Pro'] absolute top-[422px] left-[150] "></label>
-				<input asp-for="Password" class="form-control form-control form-control w-[400px] h-[48px] px-2 border-0 outline-none rounded-[24px] bg-white text-black text-[14px] leading-[48px] font-medium font-['Source_Sans_Pro'] absolute top-[450px] left-[151] " />
-				<span asp-validation-for="Password" class="text-danger"></span>
-			</div>
+				<div class="form-group">
+					<button class="btn btn-primary w-[400px] h-[48px] px-2 border-0 outline-none rounded-full bg-[#ff7f3e] text-white text-[18px] leading-[23px] font-bold font-['Source_Sans_Pro'] cursor-pointer transition hover:bg-orange-500 absolute top-[566px] left-[149] z-10">
+						Login
+					</button>
+				</div>
 
 
-			<div class="mb-6 flex w-full items-center justify-between md:w-[400px]">
+				<div href="https://accounts.google.com/signin" target="_blank" rel="noopener noreferrer"
+				   class="absolute top-[566px] left-[435] z-0 flex h-12 w-12 items-center justify-center rounded-full bg-white shadow hover:bg-gray-100">
+					<img src="#" class="h-5 w-5" alt="Google logo" />
+				</div>
 
-				<label class="flex cursor-pointer items-center gap-2 select-none">
-					<input type="checkbox"
-						   class="peer absolute h-5 w-5 opacity-0" />
-					<span class="absolute top-[525px] left-[150] inline-block h-[20px] w-[20px] rounded-[5px] bg-white transition-all duration-150 peer-checked:bg-[#ff7f3e]"></span>
-					<span class="ml-2 text-white text-[16px] font-semibold font-['Source_Sans_Pro'] absolute top-[523px] left-[186]">Remember me</span>
-				</label>
+				<div href="https://www.facebook.com/login" target="_blank" rel="noopener noreferrer"
+				   class="absolute top-[566px] left-[500] z-0 flex h-12 w-12 items-center justify-center rounded-full bg-[#2a629a] shadow hover:bg-blue-700">
+					<img src="#" class="h-5 w-5" alt="Facebook logo" />
+				</div>
 
-				<a href="javascript:void(0)" onclick="openModal()" class="text-white text-[16px] font-bold font-['Source_Sans_Pro'] hover:underline absolute top-[523px] right-[146]">Forgot password?</a>
-			</div>
+				<span class="text-white text-[14px] leading-[18px] font-['Roboto'] text-right absolute top-[643px] right-[301] ">
+					New here? Sign up now!
+				</span>
+				<a href="/Register"
+				   class="text-white text-[14px] leading-[18px] font-medium font-['Roboto'] hover:underline absolute top-[643px] left-[399]">
+					Sign up
+				</a>
 
-
-			<div class="form-group">
-				<button class="btn btn-primary w-[400px] h-[48px] px-2 border-0 outline-none rounded-full bg-[#ff7f3e] text-white text-[18px] leading-[23px] font-bold font-['Source_Sans_Pro'] cursor-pointer transition hover:bg-orange-500 absolute top-[542px] left-[149] z-10">
-					Login
-				</button>
-			</div>
-
-
-			<a href="https://accounts.google.com/signin" target="_blank" rel="noopener noreferrer"
-			   class="pointer-events-none absolute top-[566px] left-[435] z-0 flex h-12 w-12 items-center justify-center rounded-full bg-white shadow hover:bg-gray-100">
-				<img src="/img/google.svg" class="h-5 w-5" alt="Google logo" />
-			</a>
-
-			<a href="https://www.facebook.com/login" target="_blank" rel="noopener noreferrer"
-			   class="pointer-events-none absolute top-[566px] left-[500] z-0 flex h-12 w-12 items-center justify-center rounded-full bg-[#2a629a] shadow hover:bg-blue-700">
-				<img src="/img/facebook-f.svg" class="h-5 w-5" alt="Facebook logo" />
-			</a>
-
-			<span class="text-white text-[14px] leading-[18px] font-['Roboto'] text-right absolute top-[643px] right-[301] ">
-				New here? Sign up now!
-			</span>
-			<a href="/Register"
-			   class="text-white text-[14px] leading-[18px] font-medium font-['Roboto'] hover:underline absolute top-[643px] left-[399]">
-				Sign up
-			</a>
-
-		</form>
-	</div>
-</div>
-
-
-<div id="forgotModal" class="fixed inset-0 z-50 flex hidden items-center justify-center">
-	<div class="absolute inset-0 bg-white opacity-20"></div>
-
-	<div class="relative z-10 box-border h-[160px] w-[375px] rounded-[16px] border border-transparent bg-[#162534] shadow-[0_10px_15px_rgba(0,0,0,0.5)]">
-		<!-- 加上定位讓關閉按鈕固定右上 -->
-		<button class="absolute top-2 right-3 text-xl text-white hover:text-gray-400" onclick="closeModal()">&times;</button>
-
-		<label class="absolute top-[20px] left-[24px] leading-[24px] font-[Manrope] font-bold text-white text-[18px]">Forgot Password</label>
-		<label class="absolute top-[65px] left-[24px] leading-[18px] font-[Manrope] font-medium text-white text-[14px]">Please enter your email.</label>
-
-		<div class="absolute top-[94px] left-[24px] flex h-[42px] w-[325px] items-center rounded-full border-2 border-white bg-white">
-			<input type="email"
-				   placeholder="Enter your email"
-				   class="h-full flex-1 rounded-l-full border-none bg-white pl-4 font-[Manrope] text-black text-[15px] outline-none"
-				   style="font-family:'Manrope',sans-serif;" />
-			<button class="z-10 ml-[-16px] h-full rounded-full border-none bg-[#2a629a] px-7 font-[Manrope] font-semibold text-white text-[15px] transition outline-none hover:bg-[#305a85]"
-					style="font-family:'Manrope',sans-serif;">
-				Submit
-			</button>
+			</form>
 		</div>
 	</div>
-</div>
 
 
-<script>
-	function openModal() {
-	  document.getElementById('forgotModal').classList.remove('hidden');
-	}
-	function closeModal() {
-	  document.getElementById('forgotModal').classList.add('hidden');
-	}
-	document.addEventListener('keydown', function(e) {
-	  if (e.key === "Escape") closeModal();
-	});
-</script>
+	<div id="forgotModal" class="fixed inset-0 z-50 flex hidden items-center justify-center">
+		<div class="absolute inset-0 bg-white opacity-20"></div>
+
+		<div class="relative z-10 box-border h-[160px] w-[375px] rounded-[16px] border border-transparent bg-[#162534] shadow-[0_10px_15px_rgba(0,0,0,0.5)]">
+			<button class="absolute top-2 right-3 text-xl text-white hover:text-gray-400" onclick="closeModal()">&times;</button>
+
+			<label class="absolute top-[20px] left-[24px] leading-[24px] font-[Manrope] font-bold text-white text-[18px]">Forgot Password</label>
+			<label class="absolute top-[65px] left-[24px] leading-[18px] font-[Manrope] font-medium text-white text-[14px]">Please enter your email.</label>
+
+			<div class="absolute top-[94px] left-[24px] flex h-[42px] w-[325px] items-center rounded-full border-2 border-white bg-white">
+				<input type="email"
+					   placeholder="Enter your email"
+					   class="h-full flex-1 rounded-l-full border-none bg-white pl-4 font-[Manrope] text-black text-[15px] outline-none"
+					   style="font-family:'Manrope',sans-serif;" />
+				<button class="z-10 ml-[-16px] h-full rounded-full border-none bg-[#2a629a] px-7 font-[Manrope] font-semibold text-white text-[15px] transition outline-none hover:bg-[#305a85]"
+						style="font-family:'Manrope',sans-serif;">
+					Submit
+				</button>
+			</div>
+		</div>
+	</div>
+
+	<script src="~/lib/jquery/jquery.min.js"></script>
+	<script src="~/lib/vue/dist/vue.global.js"></script>
+	<script src="~/lib/lucide/dist/umd/lucide.min.js"></script>
+	<script>
+		lucide.createIcons();
+	</script>
+
+	<script>
+		function openModal() {
+		  document.getElementById('forgotModal').classList.remove('hidden');
+		}
+		function closeModal() {
+		  document.getElementById('forgotModal').classList.add('hidden');
+		}
+		document.addEventListener('keydown', function(e) {
+		  if (e.key === "Escape") closeModal();
+		});
+	</script>
+	@await RenderSectionAsync("Scripts", required: false)
+</body>
+
+
 
 @section Scripts {
-	@{
+		@{
 
-		await Html.RenderPartialAsync("_ValidationScriptsPartial");
-	}
+				await Html.RenderPartialAsync("_ValidationScriptsPartial");
+		}
 }
+
+</html>
