@@ -13,4 +13,16 @@ public class RegisterViewModel
     [Required]
     [MaxLength(20)]
     public string UserName { get; set; } = null!;
+
+    [Required]
+    [DataType(DataType.Password)]
+    [MaxLength(20)]
+    public string Password { get; set; } = null!;
+
+    [Required]
+    [DataType(DataType.Password)]
+    [MaxLength(20)]
+    public string ConfirmPassword { get; set; } = null!;
+
+
 }
