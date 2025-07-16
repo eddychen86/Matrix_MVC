@@ -78,4 +78,9 @@ public class HomeController : Controller
     {
         return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
     }
+    public IActionResult TestConnection()
+    {
+        var followCount = _context.Follows.Count();
+        return Content($"資料庫連線成功，目前共有 {followCount} 筆 Follow 資料");
+    }
 }

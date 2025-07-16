@@ -1,4 +1,6 @@
-﻿<div class="mt-20 flex justify-center">
+﻿@model List<Matrix.Models.Follow>
+
+<div class="mt-20 flex justify-center">
     <div class="w-full max-w-7xl rounded-2xl bg-black p-6 text-white shadow-lg">
         <!-- 標題區 -->
         <div class="mb-6 flex items-center justify-between">
@@ -15,13 +17,15 @@
         <div class="grid grid-cols-12 gap-4">
             <!-- 左側留言清單（8欄） -->
             <div class="col-span-8 space-y-4">
-                @for (int i = 0; i < 5; i++)
+                @foreach (var follow in Model)
                 {
                     <div class="rounded-xl bg-gray-700 p-4">
                         <p class="truncate">
-                            qwe kdk kjk jd uehd a hkjasewh wdhhsiu hdkjas jskj wdh i w d hi use...
+                            @follow.User.DisplayName
                         </p>
-                        <p class="mt-2 text-sm text-gray-400">Joined 12 Mar 2022</p>
+                        <p class="mt-2 text-sm text-gray-400">
+                            Joined @follow.FollowTime.ToString("dd MMM yyyy")
+                        </p>
                     </div>
                 }
             </div>
@@ -33,12 +37,11 @@
 
             <!-- 右側頭像與名字清單（3欄） -->
             <div class="col-span-3 flex flex-col justify-start space-y-4">
-                @for (int i = 0; i < 5; i++)
+                @foreach (var follow in Model)
                 {
                     <div class="flex items-center space-x-2">
-                        <img src="https://randomuser.me/api/portraits/women/1.jpg"
-                             class="h-10 w-10 rounded-full border border-white" />
-                        <span class="text-sm font-semibold">Samantha Green</span>
+                        <img src="@follow.User.AvatarPath" class="h-10 w-10 rounded-full border border-white" />
+                        <span class="text-sm font-semibold">@follow.User.DisplayName</span>
                     </div>
                 }
             </div>
