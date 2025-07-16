@@ -1,8 +1,11 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authorization;
 using Matrix.Models;
 using Matrix.Data;
+using Matrix.ViewModels;
+using Microsoft.EntityFrameworkCore;
 
 namespace Matrix.Controllers;
 
@@ -17,59 +20,29 @@ public class HomeController : Controller
         _logger = logger;
     }
 
-    public IActionResult Index()
+    [AllowAnonymous]
+    public async Task<IActionResult> Index()
     {
-        var fakeArticles = new List<Article>();
-        var fakeUsers = new List<Person>();
-
-        for (int i = 1; i <= 10; i++)
-        {
-            // https://img.daisyui.com/images/stock/photo-1606107557195-0e29a4b5b4aa.webp
-            fakeArticles.Add(new Article
+        // 取得所有文章（lazy loading 會自動載入 Author）
+        var articles = await _context.Articles
+            .Include(a => a.Attachments)
+            .Include(a => a.Author)
+            .OrderByDescending(a => a.CreateTime)
+            .Select(a => new
             {
-                ArticleId = Guid.NewGuid().ToString(),
-                AuthorId = $"Author{i}", // 這裡不用管資料庫有沒有這個人
-                Content = $"Cat ipsum dolor sit amet, quia eiusmod velitesse. Explicabo architecto incidunt excepteur laudantium. Voluptas. Velitesse ullamco or excepteur, and error so veritatis. Laboris ex so enim, non yet suscipit illum cupidatat. Eaque perspiciatis veniam but dicta or ut so ipsa. Qui quam. Voluptate.",
-                IsPublic = 0,
-                Status = 0,
-                CreateTime = DateTime.Now.AddMinutes(-i * 10),
-                PraiseCount = 999,
-                CollectCount = 999,
-                Author = null, // 或給一個 Person 物件
-                Replies = new List<Reply>(),
-                PraiseCollects = new List<PraiseCollect>(),
-                Attachments = new List<ArticleAttachment>()
-            });
-        }
+                Article = a,
+                Author = a.Author,
+                image = a.Attachments != null
+                    ? a.Attachments.FirstOrDefault(att => att.Type.ToLower() == "image")
+                    : null
+            })
+            .ToListAsync();
+        var hot_list = articles.Take(5);
+        var default_list = articles;
 
-        for (int i = 0; i <= 5; i++)
-        {
-            var fakeIdentityUser = new IdentityUser
-            {
-                Id = $"AspNetUserId{i}", // 你想要的 Id
-                UserName = $"user{i}@test.com",
-                Email = $"user{i}@test.com"
-                // 其他必要欄位可視情況補上
-            };
+        ViewBag.HotList = hot_list;
+        ViewBag.DefaultList = default_list;
 
-            fakeUsers.Add(new Person
-            {
-                User = fakeIdentityUser,
-                PersonId = Guid.NewGuid().ToString(),
-                Status = 0,
-                DisplayName = $"",
-                AvatarPath = "",
-                IsPrivate = 0,
-                WalletAddress = "",
-                ModifyTime = DateTime.Now.AddMinutes(0),
-            });
-        }
-
-        return View(fakeArticles);
-    }
-
-    public IActionResult Privacy()
-    {
         return View();
     }
 

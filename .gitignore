@@ -38,6 +38,7 @@ obj/
 TestResults/
 .idea/
 .vs/
+.vscode/
 ###################
 # Web publish log #
 ###################

@@ -18,6 +18,9 @@ namespace Matrix.Data.Migrations
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("ProductVersion", "8.0.11")
+                .HasAnnotation("Proxies:ChangeTracking", false)
+                .HasAnnotation("Proxies:CheckEquality", false)
+                .HasAnnotation("Proxies:LazyLoading", true)
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -60,11 +63,9 @@ namespace Matrix.Data.Migrations
 
             modelBuilder.Entity("Matrix.Models.ArticleAttachment", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("FileId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("ArticleId")
                         .IsRequired()
@@ -84,7 +85,7 @@ namespace Matrix.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("Id");
+                    b.HasKey("FileId");
 
                     b.HasIndex("ArticleId");
 
@@ -134,11 +135,8 @@ namespace Matrix.Data.Migrations
 
             modelBuilder.Entity("Matrix.Models.Friend+Friends", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    b.Property<string>("FId")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("FriendId")
                         .IsRequired()
@@ -154,7 +152,7 @@ namespace Matrix.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
-                    b.HasKey("Id");
+                    b.HasKey("FId");
 
                     b.HasIndex("FriendId");
 

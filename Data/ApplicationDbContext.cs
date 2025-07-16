@@ -1,11 +1,11 @@
-﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+﻿// using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Matrix.Models;
-using Microsoft.AspNetCore.Identity;
+// using Microsoft.AspNetCore.Identity;
 
 namespace Matrix.Data;
 
-public class ApplicationDbContext : IdentityDbContext
+public class ApplicationDbContext : DbContext
 {
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
         : base(options)
@@ -22,7 +22,7 @@ public class ApplicationDbContext : IdentityDbContext
 
         // Person 一對一 AspNetUser
         modelBuilder.Entity<Person>()
-            .HasOne<IdentityUser>(p => p.User)
+            .HasOne(p => p.User)
             .WithOne()
             .HasForeignKey<Person>(p => p.PersonId)
             .IsRequired();
