@@ -1,0 +1,13 @@
+@layer components {
+  .arrow {
+    @apply absolute z-10 top-1/2 -translate-y-1/2 bg-gray-500 w-[50px] h-[50px] flex justify-center items-center rounded-full;
+
+    &-l {
+      @apply left-0;
+    }
+
+    &-r {
+      @apply left-0;
+    }
+  }
+}
