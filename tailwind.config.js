@@ -2,10 +2,22 @@
 module.exports = {
   content: [
     "./Views/**/*.{cshtml,html}",
-    "./wwwroot/css/tailwind.css"
+    "./Areas/**/*.cshtml",
+    "./wwwroot/css/tailwind.css",
+    "./wwwroot/scss/**/*.scss",
+    "./**/*.html",
+    "./**/*.js",
   ],
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        primary: '#1e40af',
+        secondary: '#1f2937',
+      },
+      spacing: {
+        '18': '4.5rem',
+      }
+    },
   },
   plugins: [
     require("./wwwroot/lib/daisyui/daisyui.js"),
