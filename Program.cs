@@ -1,6 +1,7 @@
-using Microsoft.AspNetCore.Identity;
+// using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Matrix.Data;
+using Matrix.Services;
 using DotNetEnv;
 
 namespace Matrix;
@@ -28,17 +29,29 @@ public class Program
             options.UseLazyLoadingProxies().UseSqlServer(connectionString));
         builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
+        // ------------------ 註冊 Service ------------------
+
+        builder.Services.AddScoped<UserService>();
+        builder.Services.AddScoped<ArticleService>();
+        builder.Services.AddScoped<NotificationService>();
+
+        // -------------------------------------------------
+
+        // ---------------- 取消使用 Identity ---------------
+
         // builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
         //     .AddEntityFrameworkStores<ApplicationDbContext>();
+
+        // -------------------------------------------------
+
         builder.Services.AddControllersWithViews();
+        builder.Services.AddRazorPages();
 
         var app = builder.Build();
 
         // Configure the HTTP request pipeline.
         if (app.Environment.IsDevelopment())
-        {
             app.UseMigrationsEndPoint();
-        }
         else
         {
             app.UseExceptionHandler("/Home/Error");
@@ -48,9 +61,7 @@ public class Program
 
         app.UseHttpsRedirection();
         app.UseStaticFiles();
-
         app.UseRouting();
-
         app.UseAuthorization();
 
         app.MapControllerRoute(
