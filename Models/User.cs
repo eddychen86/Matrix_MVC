@@ -6,47 +6,76 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Matrix.Models;
 
+/// <summary>
+/// 代表系統用戶帳號的實體
+/// </summary>
 public class User
 {
+  /// <summary>
+  /// 用戶的唯一識別碼
+  /// </summary>
   [Key]
   public Guid UserId { get; set; }
 
-  // 權限
+  /// <summary>
+  /// 用戶的權限等級，0表示一般用戶，其他值表示不同權限等級
+  /// </summary>
   public required int Role { get; set; } = 0;
 
-  // 用戶名
+  /// <summary>
+  /// 用戶的顯示名稱，用於登入和顯示
+  /// </summary>
   [Required]
   [MaxLength(50)]
   public string UserName { get; set; } = null!;
 
-  // 信箱
+  /// <summary>
+  /// 用戶的電子郵件地址，用於登入和通知
+  /// </summary>
   [Required]
   [EmailAddress]
   [MaxLength(100)]
   public string Email { get; set; } = null!;
 
-  // 輸入密碼 (加密)
+  /// <summary>
+  /// 用戶的密碼（加密儲存）
+  /// </summary>
   [Required]
   public string Password { get; set; } = null!;
 
-  // 確認密碼 (不儲存到資料庫)
+  /// <summary>
+  /// 確認密碼欄位，僅用於表單驗證，不儲存到資料庫
+  /// </summary>
   [NotMapped]
   public string? PasswordConfirm { get; set; }
 
-  // 國家
+  /// <summary>
+  /// 用戶所在的國家
+  /// </summary>
   public string? Country { get; set; }
 
-  // 性別
+  /// <summary>
+  /// 用戶的性別，可能的值取決於系統設定
+  /// </summary>
   public int? Gender { get; set; }
 
-  // 建立帳號時間
+  /// <summary>
+  /// 帳號的建立時間
+  /// </summary>
   public required DateTime CreateTime { get; set; } = DateTime.Now;
 
-  // 最後登入時間
+  /// <summary>
+  /// 用戶最後一次登入的時間
+  /// </summary>
   public DateTime? LastLoginTime { get; set; }
 
-  // 0: 啟用、1: 停用、2: Ban 
+  /// <summary>
+  /// 帳號狀態，0表示啟用，1表示停用，2表示被封禁
+  /// </summary>
   public int Status { get; set; } = 0;
   
-  public virtual Person? Person { get; set; }
+  /// <summary>
+  /// 關聯的用戶個人資料
+  /// </summary>
+  public virtual required Person Person { get; set; }
 }

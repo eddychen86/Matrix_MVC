@@ -21,32 +21,48 @@ public enum FriendshipStatus
 /// </summary>
 public class Friendship
 {
-    // 主鍵
+    /// <summary>
+    /// 好友關係的唯一識別碼
+    /// </summary>
     [Key]
     public Guid FriendshipId { get; set; }
 
-    // 發出好友邀請的使用者 ID
+    /// <summary>
+    /// 發出好友邀請的使用者識別碼
+    /// </summary>
     [Required]
     public Guid UserId { get; set; }
 
-    // 接收好友邀請的使用者 ID
+    /// <summary>
+    /// 接收好友邀請的使用者識別碼
+    /// </summary>
     [Required]
     public Guid FriendId { get; set; }
 
-    // 好友關係的狀態 (待確認、已接受等)
+    /// <summary>
+    /// 好友關係的狀態，包括待確認、已接受、已拒絕或已封鎖
+    /// </summary>
     [Required]
     public FriendshipStatus Status { get; set; }
 
-    // 建立關係的時間
+    /// <summary>
+    /// 好友邀請發送的時間
+    /// </summary>
     [Required]
     public DateTime RequestDate { get; set; }
 
     // --- 導覽屬性 (Navigation Properties) ---
     // 這些屬性讓 EF Core 知道如何建立關聯
 
+    /// <summary>
+    /// 發出好友邀請的使用者
+    /// </summary>
     [ForeignKey("UserId")]
-    public virtual required Person User { get; set; }
+    public virtual required Person Requester { get; set; }
 
+    /// <summary>
+    /// 接收好友邀請的使用者
+    /// </summary>
     [ForeignKey("FriendId")]
-    public virtual required Person FriendUser { get; set; }
+    public virtual required Person Recipient { get; set; }
 }
