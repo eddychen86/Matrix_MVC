@@ -9,7 +9,7 @@ public class Follow
 {
     [Key]
     public Guid FollowId { get; set; }
-    public required string UserId { get; set; }
+    public Guid UserId { get; set; }
     public Guid IsFollowingId { get; set; }
     public int Type { get; set; }
     public DateTime FollowTime { get; set; }

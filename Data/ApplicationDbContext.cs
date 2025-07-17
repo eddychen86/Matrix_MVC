@@ -20,12 +20,11 @@ public class ApplicationDbContext : DbContext
         modelBuilder.Entity<ArticleHashtag>()
             .HasKey(ah => new { ah.ArticleId, ah.TagId });
 
-        // Person 一對一 AspNetUser
+        // Person 一對一 User
         modelBuilder.Entity<Person>()
             .HasOne(p => p.User)
-            .WithOne()
-            .HasForeignKey<Person>(p => p.PersonId)
-            .IsRequired();
+            .WithOne(u => u.Person)
+            .HasForeignKey<Person>(p => p.UserId);
 
         modelBuilder.Entity<Notification>()
             .HasOne(n => n.Receiver)
@@ -77,19 +76,20 @@ public class ApplicationDbContext : DbContext
             .HasForeignKey(r => r.ArticleId)
             .OnDelete(DeleteBehavior.Cascade); // 這個可以保留
 
-        modelBuilder.Entity<Friend.Friends>()
+        modelBuilder.Entity<Friendship>()
             .HasOne(f => f.User)
             .WithMany(p => p.Friends)      // 這裡指定 Person.Friends
             .HasForeignKey(f => f.UserId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        modelBuilder.Entity<Friend.Friends>()
+        modelBuilder.Entity<Friendship>()
             .HasOne(f => f.FriendUser)
             .WithMany(p => p.FriendOf)     // 這裡指定 Person.FriendOf
             .HasForeignKey(f => f.FriendId)
             .OnDelete(DeleteBehavior.Restrict);
     }
 
+    public DbSet<User> Users { get; set; }
     public DbSet<Person> Persons { get; set; }
     public DbSet<Article> Articles { get; set; }
     public DbSet<Reply> Replies { get; set; }
@@ -100,5 +100,5 @@ public class ApplicationDbContext : DbContext
     public DbSet<LoginRecord> LoginRecords { get; set; }
     public DbSet<Hashtag> Hashtags { get; set; }
     public DbSet<ArticleHashtag> ArticleHashtags { get; set; }
-    public DbSet<Friend.Friends> Friends { get; set; }
+    public DbSet<Friendship> Friendships { get; set; }
 }

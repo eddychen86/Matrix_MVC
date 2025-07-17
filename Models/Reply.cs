@@ -10,9 +10,9 @@ public class Reply
     [Key]
     public Guid ReplyId { get; set; }
     [Required]
-    public required string UserId { get; set; }
+    public Guid UserId { get; set; }
     [Required]
-    public required string ArticleId { get; set; }
+    public Guid ArticleId { get; set; }
     [Required, MaxLength(1000)]
     public required string Content { get; set; }
     public DateTime ReplyTime { get; set; }

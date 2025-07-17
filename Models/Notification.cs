@@ -9,8 +9,8 @@ public class Notification
 {
     [Key]
     public Guid NotifyId { get; set; }
-    public required string GetId { get; set; }
-    public required string SendId { get; set; }
+    public Guid GetId { get; set; }
+    public Guid SendId { get; set; }
     public int Type { get; set; }
     public int IsRead { get; set; } = 0;
     public DateTime SentTime { get; set; }

@@ -10,8 +10,8 @@ public class PraiseCollect
     [Key]
     public Guid EventId { get; set; }
     public int Type { get; set; }
-    public required string UserId { get; set; }
-    public required string ArticleId { get; set; }
+    public Guid UserId { get; set; }
+    public Guid ArticleId { get; set; }
     public DateTime CreateTime { get; set; }
 
     [ForeignKey("UserId")]

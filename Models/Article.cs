@@ -8,9 +8,9 @@ namespace Matrix.Models;
 public class Article
 {
     [Key]
-    public required string ArticleId { get; set; }
+    public Guid ArticleId { get; set; }
     [Required]
-    public required string AuthorId { get; set; }
+    public Guid AuthorId { get; set; }
     [Required, MaxLength(4000)]
     public required string Content { get; set; }
     public int IsPublic { get; set; } = 0;

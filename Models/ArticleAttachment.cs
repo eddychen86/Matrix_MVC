@@ -11,7 +11,7 @@ public class ArticleAttachment
     public Guid FileId { get; set; }
 
     [Required]
-    public string ArticleId { get; set; } = "";
+    public Guid ArticleId { get; set; }
 
     [Required]
     public string FilePath { get; set; } = "";

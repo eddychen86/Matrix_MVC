@@ -9,13 +9,13 @@ public class Report
 {
     [Key]
     public Guid ReportId { get; set; }
-    public required string ReporterId { get; set; }
-    public required string TargetId { get; set; }
+    public Guid ReporterId { get; set; }
+    public Guid TargetId { get; set; }
     public int Type { get; set; }
     [Required, MaxLength(500)]
     public required string Reason { get; set; }
     public int Status { get; set; } = 0;
-    public string? ResolverId { get; set; }
+    public Guid? ResolverId { get; set; }
     public DateTime? ProcessTime { get; set; }
 
     [ForeignKey("ReporterId")]

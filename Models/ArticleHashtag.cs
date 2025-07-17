@@ -7,7 +7,7 @@ namespace Matrix.Models;
 
 public class ArticleHashtag
 {
-    public required string ArticleId { get; set; }
+    public Guid ArticleId { get; set; }
     public Guid TagId { get; set; }
 
     [ForeignKey("ArticleId")]

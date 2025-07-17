@@ -9,7 +9,7 @@ public class LoginRecord
 {
     [Key]
     public Guid LoginId { get; set; }
-    public required string UserId { get; set; }
+    public Guid UserId { get; set; }
     public required string IpAddress { get; set; }
     public required string UserAgent { get; set; }
     public DateTime LoginTime { get; set; }
