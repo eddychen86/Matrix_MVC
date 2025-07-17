@@ -1,54 +1,81 @@
 ﻿@model Matrix.ViewModels.RegisterViewModel
 @{
     Layout = null;
-}
-@{
     ViewData["Title"] = "Register";
 }
-<link href="~/css/site.css" rel="stylesheet" />
-<link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@700&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+<!DOCTYPE html>
+<html lang="zh-tw">
 
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Matrix</title>
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/components.css" asp-append-version="true" />
+    <link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@700&display=swap" rel="stylesheet">
+</head>
 
+<body class="min-h-screen bg-cover bg-center bg-[url('/static/img/RegisterBG.jpg')] flex items-center justify-start sm:justify-start sm:pl-[40px]">
 
-<div class="min-h-screen bg-cover bg-center bg-[url('/img/RegisterBG.jpg')] flex items-center justify-start">
-    <div class="absolute top-[29px] left-[29px] h-[842px] w-[696px] rounded-[30px] bg-[#162534] opacity-90 shadow-[0px_10px_15px_rgba(0,0,0,0.3)]">
-        <h1 class="text-white text-[48px] leading-[56px] font-bold text-center font-['Source_Sans_Pro'] absolute top-[200px] left-[150] right-[146]">Sign Up</h1>
-        <h4 class="text-white text-[14px] leading-[18px] text-center font-['Roboto'] absolute top-[264px] left-[150] right-[146]">Join the blockchain community</h4>
-        <form asp-action="Index">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="UserName" class="control-label text-white text-[14px] leading-[18px] font-medium font-['Source_Sans_Pro'] absolute top-[330px] left-[150] right-[146]"></label>
-                <input asp-for="UserName" class="form-control w-[400px] h-[48px] px-2 border-0 outline-none rounded-[24px] bg-white text-black text-[14px] leading-[48px] font-medium font-['Source_Sans_Pro'] absolute top-[358px] left-[151] " />
-                <span asp-validation-for="UserName" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Email" class="control-label control-label text-white text-[14px] leading-[18px] font-medium font-['Source_Sans_Pro'] absolute top-[422px] left-[150] "></label>
-                <input asp-for="Email" class="form-control form-control w-[400px] h-[48px] px-2 border-0 outline-none rounded-[24px] bg-white text-black text-[14px] leading-[48px] font-medium font-['Source_Sans_Pro'] absolute top-[450px] left-[151] " />
-                <span asp-validation-for="Email" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Password" class="control-label control-label control-label text-white text-[14px] leading-[18px] font-medium font-['Source_Sans_Pro'] absolute top-[513px] left-[150] "></label>
-                <input asp-for="Password" class="form-control form-control form-control w-[400px] h-[48px] px-2 border-0 outline-none rounded-[24px] bg-white text-black text-[14px] leading-[48px] font-medium font-['Source_Sans_Pro'] absolute top-[541px] left-[151] " />
-                <span asp-validation-for="Password" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="ConfirmPassword" class="control-label control-label control-label control-label text-white text-[14px] leading-[18px] font-medium font-['Source_Sans_Pro'] absolute top-[605px] left-[150] "></label>
-                <input asp-for="ConfirmPassword" class="form-control form-control form-control form-control w-[400px] h-[48px] px-2 border-0 outline-none rounded-[24px] bg-white text-black text-[14px] leading-[48px] font-medium font-['Source_Sans_Pro'] absolute top-[633px] left-[151] " />
-                <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Submit" class="btn btn-primary w-[400px] h-[48px] px-2 border-0 outline-none rounded-[24px] bg-[#ff7f3e] text-white text-[18px] leading-[23px] font-bold font-['Source_Sans_Pro'] cursor-pointer transition hover:bg-orange-500 absolute top-[721px] left-[151] " />
-            </div>
-        </form>
+    <div class="relative flex h-[842px] w-[696px] flex-col items-center justify-center rounded-[30px] bg-[#162534]/90 py-12 shadow-xl">
+        <div class="h-[700px] w-[404px]">
+            <h1 class="text-white text-[48px] text-center font-bold mb-2 font-['Source_Sans_Pro']">Sign Up</h1>
+            <h4 class="text-white text-base text-center mb-12 font-['Roboto']">Join the blockchain community</h4>
+
+            <form class="flex w-full flex-col gap-2" asp-action="Index" method="post">
+                <div class="flex w-full max-w-[400px] flex-col gap-1">
+                    <label asp-for="UserName" class="text-white font-medium font-['Source_Sans_Pro']"></label>
+                    <input asp-for="UserName" class="form-control w-full h-12 px-4 rounded-[24px] bg-white text-black text-base font-medium font-['Source_Sans_Pro'] mt-2" />
+                    <div class="h-5">
+                        <span asp-validation-for="UserName" class="text-xs text-red-600"></span>
+                    </div>
+                </div>
+                <div class="flex w-full max-w-[400px] flex-col gap-1">
+                    <label asp-for="Email" class="text-white font-medium font-['Source_Sans_Pro']"></label>
+                    <input asp-for="Email" class="form-control w-full h-12 px-4 rounded-[24px] bg-white text-black text-base font-medium font-['Source_Sans_Pro'] mt-2" />
+                    <div class="h-5">
+                        <span asp-validation-for="Email" class="text-xs text-red-600"></span>
+                    </div>
+                </div>
+                <div class="flex w-full max-w-[400px] flex-col gap-1">
+                    <label asp-for="Password" class="text-white font-medium font-['Source_Sans_Pro']"></label>
+                    <input asp-for="Password" class="form-control w-full h-12 px-4 rounded-[24px] bg-white text-black text-base font-medium font-['Source_Sans_Pro'] mt-2" />
+                    <div class="h-5">
+                        <span asp-validation-for="Password" class="text-xs text-red-600"></span>
+                    </div>
+                </div>
+                <div class="flex w-full max-w-[400px] flex-col gap-1">
+                    <label asp-for="ConfirmPassword" class="text-white font-medium font-['Source_Sans_Pro']"></label>
+                    <input asp-for="ConfirmPassword" class="form-control w-full h-12 px-4 rounded-[24px] bg-white text-black text-base font-medium font-['Source_Sans_Pro'] mt-2" />
+                    <div class="h-5">
+                        <span asp-validation-for="ConfirmPassword" class="text-xs text-red-600"></span>
+                    </div>
+                </div>
+                <div class="mt-5 w-full max-w-[400px]">
+                    <button type="submit" class="w-full h-12 rounded-full bg-[#ff7f3e] text-white text-lg font-bold font-['Source_Sans_Pro'] hover:bg-orange-500 transition">Submit</button>
+                </div>
+            </form>
+        </div>
     </div>
-</div>
+
+    <script src="~/lib/jquery/jquery.min.js"></script>
+    <script src="~/lib/vue/dist/vue.global.js"></script>
+    <script src="~/lib/lucide/dist/umd/lucide.min.js"></script>
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
 
 
 
-
-@section Scripts {
+@section Scripts
+{
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
+
 }
+
+</html>
