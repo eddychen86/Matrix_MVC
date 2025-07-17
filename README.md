@@ -6,8 +6,11 @@ Matrix is a sanctuary for Web3 pioneers and deep-tech enthusiasts, designed to f
 
 ## Tools
 - ASP\.NET Core 8 Web MVC
-- Tailwindcss
+- Tailwindcss CLI
 - DaisyUI
+- DotNetEnv
+- SCSS
+- Proxy for lazy loading
 
 ## Steps
 First, you need to install libman if you don't have or doesn't use Visual Studio, please enter this command line to your terminal:
@@ -18,11 +21,12 @@ After installed libman, you need to install the dependency packages into the `ww
 ```
 dotnet tool run libman restore
 ```
-Then, you also need to install DotNetEnv so that the project can automatically connect to the database using the `.env` file.
+Then, you also need to install `DotNetEnv` so that the project can automatically connect to the database using the `.env` file.
 <i><b>If you are using Visual Studio, you can install it in Nuget Extensions Management.</b></i>
 ```
 dotnet add package DotNetEnv
 ```
+Last, installs the package for lazy loading. This allows related data to be loaded automatically on demand.
 ```
 dotnet add package Microsoft.EntityFrameworkCore.Proxies --version 8.0.11
 ```
@@ -38,32 +42,19 @@ Because this project used DaisyUI UI Library, you need to install tailwindcss CL
       ###### MacOS
       ```
       curl -sLo tailwindcss https://github.com/tailwindlabs/tailwindcss/releases/latest/download/tailwindcss-macos-arm64
-      curl -sLo tailwindcss https://github.com/tailwindlabs/tailwindcss/releases/latest/download/tailwindcss-macos-x64
       ```
-      Make the file executable (For Linux and MacOS):
-      ```
-      chmod +x tailwindcss
-      ```
+      Make the file executable (For Linux and MacOS): `chmod +x tailwindcss`
 
-  2. Get daisyUI bundled JS file (already have)
-  3. Watch CSS
+  1. Get daisyUI bundled JS file (already have)
+  2. Watch CSS
       When you execute the following command, "tailwindcss" will be listened in the background.
       ###### MacOS
       ```
-      tw.sh -d
+      ./tw.sh
       ```
       ###### windows
       ```
-      tw.bat -d
-      ```
-  4. Build CSS
-      ###### MacOS
-      ```
-      tw.sh -b
-      ```
-      ###### windows
-      ```
-      tw.bat -b
+      .\tw.bat
       ```
 
 ---
