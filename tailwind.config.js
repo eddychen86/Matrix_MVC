@@ -4,7 +4,7 @@ module.exports = {
     "./Views/**/*.{cshtml,html}",
     "./Areas/**/*.cshtml",
     "./wwwroot/css/tailwind.css",
-    ".wwwroot/scss/**/*.scss",
+    "./wwwroot/scss/**/*.scss",
     "./**/*.html",
     "./**/*.js",
   ],
