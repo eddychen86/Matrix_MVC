@@ -1,0 +1,88 @@
+﻿/* wwwroot/css/scss/_follow.scss */
+
+
+@layer components {
+    // 主容器樣式
+    .follows-wrapper {
+        @apply mt-20 flex justify-center;
+    }
+
+    .follows-container {
+        // 直接使用 Tailwind 的 bg-black, p-6, text-white, shadow-lg 等
+        @apply w-full max-w-7xl rounded-2xl bg-black p-6 text-white shadow-lg;
+    }
+
+    // 標題區
+    .follows-header {
+        @apply mb-6 flex items-center justify-between;
+    }
+
+    .follows-title {
+        @apply text-xl font-bold;
+    }
+
+    .month-selector-btn {
+        // 直接使用 Tailwind 的 bg-gray-700
+        @apply flex items-center rounded-md bg-gray-700 px-4 py-1 text-sm;
+    }
+
+    .month-selector-icon {
+        @apply ml-1 h-4 w-4;
+        width: 1rem !important; /* 16px */
+        height: 1rem !important; /* 16px */
+    }
+
+    // Grid 佈局
+    .follows-grid {
+        @apply grid grid-cols-12 gap-4;
+    }
+
+    // 左側追蹤列表欄位
+    .follow-list-col {
+        @apply col-span-8 space-y-4;
+    }
+
+    // 追蹤卡片樣式
+    .follow-card {
+        // 直接使用 Tailwind 的 bg-gray-700
+        @apply rounded-xl bg-gray-700 p-4;
+        // 內部文字樣式 (巢狀規則)
+        .display-name {
+            @apply truncate;
+        }
+
+        .join-date {
+            // 直接使用 Tailwind 的 text-gray-400
+            @apply mt-2 text-sm text-gray-400;
+        }
+    }
+
+    // 中間分隔線欄位
+    .divider-col {
+        @apply col-span-1 flex justify-center;
+
+        .divider-line {
+            // 直接使用 Tailwind 的 bg-gray-400
+            @apply h-full w-px bg-gray-400;
+        }
+    }
+
+    // 右側頭像與名字列表欄位
+    .avatar-list-col {
+        @apply col-span-3 flex flex-col justify-start space-y-4;
+    }
+
+    // 頭像項目樣式
+    .avatar-item {
+        @apply flex items-center space-x-2;
+
+        .avatar-img {
+            // 直接使用 Tailwind 的 border-white
+            @apply h-10 w-10 rounded-full border border-white;
+        }
+
+        .avatar-name {
+            @apply text-sm font-semibold;
+        }
+    }
+}
