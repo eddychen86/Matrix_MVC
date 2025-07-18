@@ -1,0 +1,194 @@
+@charset "UTF-8";
+@layer components {
+  .sidebar {
+    @apply bg-secondary text-white text-3xl h-full rounded-[30px] p-10 flex flex-col justify-between transition-[width] duration-300;
+  }
+  .sidebar li {
+    @apply flex flex-col gap-2 px-5 overflow-hidden;
+  }
+  .sidebar li:last-child {
+    @apply bg-white w-full flex flex-col text-black py-5 rounded-3xl;
+  }
+  .sidebar li button span,
+  .sidebar li a span {
+    @apply absolute left-18 truncate;
+  }
+  .sidebar li button,
+  .sidebar li a {
+    @apply overflow-hidden;
+  }
+  .sidebar-open {
+    @apply items-center w-[100px];
+  }
+  .sidebar-open button span,
+  .sidebar-open a span {
+    @apply opacity-0;
+  }
+  .sidebar-open li:last-child {
+    @apply px-1;
+  }
+  .sidebar-open li:last-child button {
+    @apply px-0;
+  }
+  .sidebar-close {
+    @apply w-[280px];
+  }
+  .sidebar-close button span,
+  .sidebar-close a span {
+    @apply opacity-100;
+  }
+  .sidebar-close li:last-child button {
+    @apply px-2;
+  }
+  @media (min-width: 640px) {
+    .sidebar-open {
+      @apply w-[280px] lg:w-[350px] items-stretch;
+    }
+    .sidebar-open button span,
+    .sidebar-open a span {
+      @apply opacity-100;
+    }
+    .sidebar-open li:last-child {
+      @apply px-3;
+    }
+    .sidebar-open li:last-child button {
+      @apply px-2 lg:px-4;
+    }
+    .sidebar-close {
+      @apply items-center w-[100px] lg:w-[150px];
+    }
+    .sidebar-close button span,
+    .sidebar-close a span {
+      @apply opacity-0;
+    }
+    .sidebar-close li:last-child {
+      @apply px-1 lg:px-3;
+    }
+    .sidebar-close li:last-child button {
+      @apply px-0;
+    }
+  }
+}
+@layer components {
+  .cts-btn {
+    @apply min-h-9 flex items-center gap-6 p-4 rounded-xl cursor-pointer relative
+    active:bg-inherit active:shadow-none;
+  }
+  .icon-base {
+    @apply h-8 w-12 object-contain;
+  }
+  .icon-lg {
+    @apply h-12 w-12 object-contain;
+  }
+  .para-xs {
+    @apply text-[12px];
+  }
+  .para {
+    @apply text-[14px];
+  }
+  .subTitle {
+    @apply text-[20px];
+  }
+  @media screen and (max-width: 1000px) {
+    .subTitle {
+      @apply text-[16px];
+    }
+  }
+  @media screen and (max-width: 500px) {
+    .subTitle {
+      @apply text-[14px];
+    }
+  }
+  .title {
+    @apply text-[28px];
+  }
+  @media screen and (max-width: 1000px) {
+    .title {
+      @apply text-[24px];
+    }
+  }
+  @media screen and (max-width: 500px) {
+    .title {
+      @apply text-[22px];
+    }
+  }
+  @media screen and (max-width: 300px) {
+    .title {
+      @apply text-[20px];
+    }
+  }
+  .title-lg {
+    @apply text-[36px];
+  }
+  @media screen and (max-width: 1000px) {
+    .title-lg {
+      @apply text-[32px];
+    }
+  }
+  @media screen and (max-width: 500px) {
+    .title-lg {
+      @apply text-[30px];
+    }
+  }
+  @media screen and (max-width: 300px) {
+    .title-lg {
+      @apply text-[28px];
+    }
+  }
+}
+@layer components {
+  .arrow {
+    @apply absolute z-10 top-1/2 -translate-y-1/2 bg-gray-500 w-[50px] h-[50px] flex justify-center items-center rounded-full;
+  }
+  .arrow-l {
+    @apply left-0;
+  }
+  .arrow-r {
+    @apply left-0;
+  }
+}
+/* DEBUG: 添加字體載入日誌 */
+@font-face {
+  font-family: RubikGlitch;
+  font-style: normal;
+  src: url("/static/fonts/RubikGlitch-Regular.ttf") format("truetype");
+}
+@layer components {
+  #error-collapse {
+    @apply w-full border border-stone-300/50 rounded-lg;
+  }
+  #error-collapse_title {
+    @apply flex items-center justify-between px-5 py-0;
+  }
+  #error-collapse_content {
+    @apply bg-stone-700 flex flex-col gap-4 relative;
+  }
+  #error-body {
+    @apply flex justify-center items-center bg-primary w-full h-screen text-white relative;
+  }
+  #error-statecode {
+    @apply absolute tracking-widest font-["RubikGlitch"] text-stone-300
+    top-[20%] sm:top-[10%] lg:-top-20
+    text-[100px] sm:text-[200px] md:text-[400px] lg:text-[600px];
+  }
+  #error-id_state {
+    @apply relative ml-10 my-5 select-none;
+  }
+  #error-id_state:before {
+    box-shadow: 0 0 5px 3px rgba(255, 73, 73, 0.534);
+    @apply content-[""] absolute top-2.5 -left-10 w-2.5 h-2.5 rounded-full bg-red-500 border-red-600;
+  }
+  #error-box {
+    @apply relative top-30 z-20 bg-gradient-to-br from-red-400/15 to-black/80 backdrop-blur-lg p-8 md:p-10 rounded-[30px] border border-white/20 shadow-2xl flex flex-col gap-4
+    w-[90%] sm:w-[80%] md:w-[600px] lg:w-[900px];
+  }
+  #error-box_title {
+    @apply text-3xl md:text-4xl font-bold text-gray-100 mb-3;
+  }
+  #error-box_content {
+    @apply text-base text-gray-300;
+  }
+  #error-btn {
+    @apply rounded-full py-2 pr-3 flex gap-4 justify-center items-center bg-white text-black w-40 right-0;
+  }
+}
