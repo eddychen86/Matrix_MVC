@@ -1,0 +1,51 @@
+.register-bg {
+    @apply min-h-screen bg-cover bg-center bg-[url('/static/img/RegisterBG.jpg')] flex items-center justify-start sm:justify-start sm:pl-[40px];
+}
+
+.register-panel {
+    @apply relative flex h-[842px] w-[696px] flex-col items-center justify-center rounded-[30px] bg-[#162534]/90 py-12 shadow-xl;
+}
+
+.register-panel_inner {
+    @apply h-[700px] w-[404px];
+}
+
+.register-title {
+    @apply text-white text-[48px] text-center font-bold mb-2 font-['Source_Sans_Pro'];
+}
+
+.register-subtitle {
+    @apply text-white text-base text-center mb-12 font-['Roboto'];
+}
+
+.register-form {
+    @apply flex w-full flex-col gap-2;
+}
+
+.register-form_group {
+    @apply flex w-full max-w-[400px] flex-col gap-1;
+}
+
+.register-form_label {
+    @apply text-white font-medium font-['Source_Sans_Pro'];
+}
+
+.register-form_input {
+    @apply form-control w-full h-12 px-4 rounded-[24px] bg-white text-black text-base font-medium font-['Source_Sans_Pro'] mt-2;
+}
+
+.register-form_error-group {
+    @apply h-5;
+}
+
+.register-form_error {
+    @apply text-xs text-red-600;
+}
+
+.register-form_button-group {
+    @apply mt-5 w-full max-w-[400px];
+}
+
+.register-form_button {
+    @apply w-full h-12 rounded-full bg-[#ff7f3e] text-white text-lg font-bold font-['Source_Sans_Pro'] hover:bg-orange-500 transition;
+}
