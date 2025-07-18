@@ -3,37 +3,22 @@ using System.ComponentModel.DataAnnotations;
 namespace Matrix.DTOs;
 
 /// <summary>
-/// Article 實體的資料傳輸物件 (Data Transfer Object)
-/// 
-/// 此檔案用於在不同層之間傳輸 Article 實體的資料，包括：
-/// - 用於 API 回應的資料格式
-/// - 用於前端顯示的文章資料結構
-/// - 用於服務層之間的資料傳遞
-/// 
-/// 注意事項：
-/// - 僅能新增與 Article 實體相關的屬性
-/// - 包含適當的 Data Annotations 進行驗證
-/// - 此 DTO 主要用於讀取操作，顯示文章的完整資訊
-/// - 包含計算屬性和輔助方法以增強前端使用體驗
+/// Article 實體的資料傳輸物件
 /// </summary>
 public class ArticleDto
 {
     /// <summary>
     /// 文章的唯一識別碼
-    /// 用途：作為文章的主要識別
     /// </summary>
     public Guid ArticleId { get; set; }
 
     /// <summary>
     /// 文章作者的唯一識別碼
-    /// 用途：連結到對應的作者
     /// </summary>
     public Guid AuthorId { get; set; }
 
     /// <summary>
     /// 文章的內容文字
-    /// 用途：顯示文章的完整內容
-    /// 驗證：必填，最大長度 4000 個字元
     /// </summary>
     [Required(ErrorMessage = "文章內容為必填欄位")]
     [StringLength(4000, ErrorMessage = "文章內容長度不能超過 4000 個字元")]
@@ -41,45 +26,36 @@ public class ArticleDto
 
     /// <summary>
     /// 文章的公開狀態
-    /// 用途：控制文章的可見性
-    /// 值說明：0=公開, 1=私人
     /// </summary>
     public int IsPublic { get; set; }
 
     /// <summary>
     /// 文章的狀態
-    /// 用途：控制文章的顯示狀態
-    /// 值說明：0=正常, 1=隱藏, 2=已刪除
     /// </summary>
     public int Status { get; set; }
 
     /// <summary>
     /// 文章的建立時間
-    /// 用途：顯示文章發布時間
     /// </summary>
     public DateTime CreateTime { get; set; }
 
     /// <summary>
     /// 文章獲得的讚數量
-    /// 用途：顯示文章的受歡迎程度
     /// </summary>
     public int PraiseCount { get; set; }
 
     /// <summary>
     /// 文章被收藏的次數
-    /// 用途：顯示文章的收藏數量
     /// </summary>
     public int CollectCount { get; set; }
 
     /// <summary>
     /// 文章作者的個人資料
-    /// 用途：顯示作者的基本資訊
     /// </summary>
     public PersonDto? Author { get; set; }
 
     /// <summary>
     /// 文章的回覆列表
-    /// 用途：顯示文章的所有回覆
     /// </summary>
     public List<ReplyDto> Replies { get; set; } = new List<ReplyDto>();
 
