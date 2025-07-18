@@ -17,57 +17,57 @@
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@700&display=swap" rel="stylesheet">
 </head>
 
-<body class="register-bg">
-    <div class="register-panel">
-        <div class="register-panel_inner">
-            <h1 class="register-title">Sign Up</h1>
-            <h4 class="register-subtitle">Join the blockchain community</h4>
+<body class="min-h-screen bg-cover bg-center bg-[url('/static/img/RegisterBG.jpg')] flex items-center justify-start sm:justify-start sm:pl-[40px]">
 
-            <form class="register-form" asp-action="Index" method="post">
-                <div class="register-form_group">
-                    <label asp-for="UserName" class="register-form_label"></label>
-                    <input asp-for="UserName" class="register-form_input" />
-                    <div class="register-form_error-group">
-                        <span asp-validation-for="UserName" class="register-form_error"></span>
+    <div class="relative flex h-[842px] w-[696px] flex-col items-center justify-center rounded-[30px] bg-[#162534]/90 py-12 shadow-xl">
+        <div class="h-[700px] w-[404px]">
+            <h1 class="text-white text-[48px] text-center font-bold mb-2 font-['Source_Sans_Pro']">Sign Up</h1>
+            <h4 class="text-white text-base text-center mb-12 font-['Roboto']">Join the blockchain community</h4>
+
+            <form class="flex w-full flex-col gap-2" asp-action="Index" method="post">
+                <div class="flex w-full max-w-[400px] flex-col gap-1">
+                    <label asp-for="UserName" class="text-white font-medium font-['Source_Sans_Pro']"></label>
+                    <input asp-for="UserName" class="form-control w-full h-12 px-4 rounded-[24px] bg-white text-black text-base font-medium font-['Source_Sans_Pro'] mt-2" />
+                    <div class="h-5">
+                        <span asp-validation-for="UserName" class="text-xs text-red-600"></span>
                     </div>
                 </div>
-                <div class="register-form_group">
-                    <label asp-for="Email" class="register-form_label"></label>
-                    <input asp-for="Email" class="register-form_input" />
-                    <div class="register-form_error-group">
-                        <span asp-validation-for="Email" class="register-form_error"></span>
+                <div class="flex w-full max-w-[400px] flex-col gap-1">
+                    <label asp-for="Email" class="text-white font-medium font-['Source_Sans_Pro']"></label>
+                    <input asp-for="Email" class="form-control w-full h-12 px-4 rounded-[24px] bg-white text-black text-base font-medium font-['Source_Sans_Pro'] mt-2" />
+                    <div class="h-5">
+                        <span asp-validation-for="Email" class="text-xs text-red-600"></span>
                     </div>
                 </div>
-                <div class="register-form_group">
-                    <label asp-for="Password" class="register-form_label"></label>
-                    <input asp-for="Password" class="register-form_input" />
-                    <div class="register-form_error-group">
-                        <span asp-validation-for="Password" class="register-form_error"></span>
+                <div class="flex w-full max-w-[400px] flex-col gap-1">
+                    <label asp-for="Password" class="text-white font-medium font-['Source_Sans_Pro']"></label>
+                    <input asp-for="Password" class="form-control w-full h-12 px-4 rounded-[24px] bg-white text-black text-base font-medium font-['Source_Sans_Pro'] mt-2" />
+                    <div class="h-5">
+                        <span asp-validation-for="Password" class="text-xs text-red-600"></span>
                     </div>
                 </div>
-                <div class="register-form_group">
-                    <label asp-for="ConfirmPassword" class="register-form_label"></label>
-                    <input asp-for="ConfirmPassword" class="register-form_input" />
-                    <div class="register-form_error-group">
-                        <span asp-validation-for="ConfirmPassword" class="register-form_error"></span>
+                <div class="flex w-full max-w-[400px] flex-col gap-1">
+                    <label asp-for="ConfirmPassword" class="text-white font-medium font-['Source_Sans_Pro']"></label>
+                    <input asp-for="ConfirmPassword" class="form-control w-full h-12 px-4 rounded-[24px] bg-white text-black text-base font-medium font-['Source_Sans_Pro'] mt-2" />
+                    <div class="h-5">
+                        <span asp-validation-for="ConfirmPassword" class="text-xs text-red-600"></span>
                     </div>
                 </div>
-                <div class="register-form_button-group">
-                    <button type="submit" class="register-form_button">Submit</button>
+                <div class="mt-5 w-full max-w-[400px]">
+                    <button type="submit" class="w-full h-12 rounded-full bg-[#ff7f3e] text-white text-lg font-bold font-['Source_Sans_Pro'] hover:bg-orange-500 transition">Submit</button>
                 </div>
             </form>
         </div>
     </div>
 
-
+    <script src="~/lib/jquery/jquery.min.js"></script>
+    <script src="~/lib/vue/dist/vue.global.js"></script>
+    <script src="~/lib/lucide/dist/umd/lucide.min.js"></script>
+    <script>
+        lucide.createIcons();
+    </script>
 </body>
 
-<script src="~/lib/jquery/jquery.min.js"></script>
-<script src="~/lib/vue/dist/vue.global.js"></script>
-<script src="~/lib/lucide/dist/umd/lucide.min.js"></script>
-<script>
-    lucide.createIcons();
-</script>
 
 
 @section Scripts
