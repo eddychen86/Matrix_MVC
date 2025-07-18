@@ -1,4 +1,4 @@
-﻿@{
+@{
     var menus = new[]
     {
         new { title = "Search", icon = "search", func = "" },
@@ -6,52 +6,53 @@
         new { title = "Follows", icon = "share-2", func = "" },
         new { title = "Collects", icon = "bookmark", func = "" },
     };
+
+    var bottoms = new[]
+    {
+        new { title = "Hide bar", icon = "panel-right-open", click="toggleSidebar" },
+        new { title = "Log out", icon = "log-out", click="" }
+    };
 }
 
-<aside id="sidebar-app" class="top-0 left-0 drawer lg:drawer-open w-auto">
-    <input id="my-drawer-2" type="checkbox" class="drawer-toggle" />
-    <div class="drawer-content flex flex-col items-center justify-center">
-        <!-- Page content here -->
-        <label for="my-drawer-2" class="btn btn-primary drawer-button lg:hidden">
-            Open drawer
-        </label>
-    </div>
-
-    <div class="drawer-side p-4 hidden">
-        <label for="my-drawer-2" aria-label="close sidebar" class="drawer-overlay"></label>
-        <ul :class="isCollapsed ? 'sidebar-close' : 'sidebar-open'" class="sidebar">
-            <!-- Sidebar content here -->
-            <li>
-                <a asp-area="" asp-controller="Home" asp-action="Index" aria-current="page" class="cts-btn hover:bg-gray-900">
-                    <img src="~/img/Matrix_Logo_White.png" alt="Matrix Logo" class="icon-lg">
-                    <span>Matrix</span>
-                </a>
-                <a asp-area="" asp-controller="Login" asp-action="Index" aria-current="page" class="cts-btn hover:bg-gray-900">
-                    <i data-lucide="plus" class="bg-white rounded-full overflow-hidden flex justify-center items-center h-12 w-12 text-secondary p-1"></i>
-                    <span>Login</span>
-                </a>
-            </li>
-            <li>
-                @foreach (var i in menus)
-                {
-                    <button class="hover:bg-gray-900">
-                        <i data-lucide="@i.icon" class="icon-base text-white"></i>
-                        <span>@i.title</span>
-                    </button>
-                }
-            </li>
-            <li>
-                <button v-on:click="toggleSidebar" class="hover:bg-gray-200">
-                    <i :data-lucide="isCollapsed ? 'panel-right-open' : 'panel-right-close'" class="icon-base"></i>
-                    <span>Hide bar</span>
+<aside id="sidebar-app" class="top-0 left-0 p-4 h-screen">
+    <ul :class="isCollapsed ? 'sidebar-close' : 'sidebar-open'" class="sidebar">
+        <!-- Sidebar content here -->
+        <li>
+            <a asp-area="" asp-controller="Home" asp-action="Index" aria-current="page"
+                class="cts-btn hover:bg-gray-900 title"
+            >
+                <img src="~/static/img/Matrix_logo_white.png" alt="Matrix Logo" class="icon-lg">
+                <span>Matrix</span>
+            </a>
+            <a asp-area="" asp-controller="Login" asp-action="Index" aria-current="page"
+                class="cts-btn hover:bg-gray-900 title"
+            >
+                <i data-lucide="plus"
+                    class="bg-white rounded-full overflow-hidden flex justify-center items-center icon-lg text-secondary p-1"
+                ></i>
+                <span>Login</span>
+            </a>
+        </li>
+        <li>
+            @foreach (var i in menus)
+            {
+                <button class="cts-btn hover:bg-gray-900">
+                    <i data-lucide="@i.icon" class="icon-base text-white"></i>
+                    <span class="title">@i.title</span>
                 </button>
-                <button class="hover:bg-gray-200">
-                    <i data-lucide="log-out" class="icon-base"></i>
-                    <span>Log out</span>
+            }
+        </li>
+        <li>
+            @foreach (var i in bottoms) {
+                <button v-on:click="@i.click" :class="isCollapsed ? 'sidebar-btn-none-text' : ''"
+                    class="cts-btn hover:bg-gray-200"
+                >
+                    <i data-lucide="@i.icon" class="icon-base"></i>
+                    <span class="title">@i.title</span>
                 </button>
-            </li>
-        </ul>
-    </div>
+            }
+        </li>
+    </ul>
 </aside>
 
 <script>

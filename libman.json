@@ -15,6 +15,22 @@
       "files": [
         "dist/umd/lucide.min.js"
       ]
+    },
+    {
+      "library": "sass@latest",
+      "destination": "wwwroot/lib/sass/",
+      "files": [
+        "sass.dart.js",
+        "package.json"
+      ]
+    },
+    {
+      "library": "chokidar@latest",
+      "destination": "wwwroot/lib/chokidar/",
+      "files": [
+        "index.js",
+        "lib/**"
+      ]
     }
   ]
 }
