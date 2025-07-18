@@ -12,11 +12,10 @@
 <body class="bg-primary flex">
   <partial name="_Menu" />
 
-  <div class="w-full p-4 pl-0">
+  <div class="w-full p-4 pl-0 flex flex-col gap-4">
     <main class="text-white">
-       @RenderBody() 
+      @RenderBody()
     </main>
-    @* <partial name="_LoginPartial" /> *@
     <partial name="_Footer" />
   </div>
 
