@@ -1,0 +1,66 @@
+@layer components {
+  .cts-btn {
+    @apply min-h-9 flex items-center gap-6 p-4 rounded-xl cursor-pointer relative
+    active:bg-inherit active:shadow-none;
+  }
+
+  .icon-base {
+    @apply h-8 w-12 object-contain;
+  }
+
+  .icon-lg {
+    @apply h-12 w-12 object-contain;
+  }
+
+  .para-xs {
+    @apply text-[12px];
+  }
+
+  .para {
+    @apply text-[14px];
+  }
+
+  .subTitle {
+    @apply text-[20px];
+
+    @media screen and (max-width: 1000px) {
+      @apply text-[16px];
+    }
+
+    @media screen and (max-width: 500px) {
+      @apply text-[14px];
+    }
+  }
+
+  .title {
+    @apply text-[28px];
+
+    @media screen and (max-width: 1000px) {
+      @apply text-[24px];
+    }
+
+    @media screen and (max-width: 500px) {
+      @apply text-[22px];
+    }
+
+    @media screen and (max-width: 300px) {
+      @apply text-[20px];
+    }
+  }
+
+  .title-lg {
+    @apply text-[36px];
+
+    @media screen and (max-width: 1000px) {
+      @apply text-[32px];
+    }
+
+    @media screen and (max-width: 500px) {
+      @apply text-[30px];
+    }
+
+    @media screen and (max-width: 300px) {
+      @apply text-[28px];
+    }
+  }
+}

@@ -21,6 +21,7 @@ tailwindcss
 # Static Files #
 ###############
 wwwroot/css/site.css
+wwwroot/css/components.css
 wwwroot/lib/*
 !wwwroot/lib/jquery*
 !wwwroot/lib/daisyui*
@@ -38,6 +39,7 @@ obj/
 TestResults/
 .idea/
 .vs/
+.vscode/
 ###################
 # Web publish log #
 ###################
