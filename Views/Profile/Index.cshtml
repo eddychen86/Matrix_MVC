@@ -1,113 +1,96 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
-@{
+﻿@{
     // Layout = null;
+    ViewData["Title"] = "Profile";
+
+    var fake = ViewBag.FakeProfile;
 }
 @* <script src="https://cdn.tailwindcss.com"></script> *@
 
-@* <!DOCTYPE html>
-<html lang="zh-Hant">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Profile Layout Example</title>
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true">
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-
-</head> *@
-
-<div class="relative mx-auto flex w-full max-w-[1920px] flex-col bg-black text-white">
-
-    <!-- 頂部橫幅與頭像 -->
-    <div class="relative flex h-40 w-full items-center justify-center rounded-lg bg-black">
-        <img src="~/static/img/image-top.png" alt="Profile Banner" class="h-full w-full object-cover object-right" />
-        <!-- 頭像，往左移動 300px，且不被切掉 -->
-        <div class="absolute top-full mt-[105px] flex h-[100px] w-[100px] -translate-y-1/2 items-center justify-center rounded-full border-4 border-black bg-[#161616] shadow-lg md:h-[180px] md:w-[180px]" style="left: calc(50% - 400px); transform: translateY(-50%);">
-            <img src="~/static/img/foodpanda.jpg" class="h-full w-full rounded-full object-cover" />
+<!-- 頂部橫幅與頭像 -->
+<header id="profile-header">
+    <img id="profile-banner" src="@fake.banner" alt="Profile Banner">
+    
+    <div id="profile-avatar">
+        <div class="flex items-center justify-between">
+            <div id="profile-avatar_img">
+                <img src="@fake.avatarImg" alt="Avatar Img">
+            </div>
+            <div id="profile-name">
+                <h1 class="title-lg">@fake.name</h1>
+                @if (!fake.isPrivate){
+                    <i data-lucide="globe" class="icon-base"></i>
+                } else{
+                    <i data-lucide="globe-lock" class="icon-base"></i>
+                }
+            </div>
         </div>
-        <!-- 右下預留300px空間（好友列表）-->
-        <div class="absolute right-0 bottom-0 h-full w-[300px] bg-black/0"></div>
+    </div>
+</header>
+
+
+<section id="profile-body">
+    <!-- 左側：個人資訊 -->
+    <div id="profile-user_info">
+        <div class="flex items-center justify-between w-full">
+            <h2 class="font-bold title">Profile Overview</h2>
+            <i data-lucide="pen" class="icon-base"></i>
+        </div>
+        
+        <div>
+            <h2 class="font-bold subTitle">自我介紹</h2>
+            <p class="para">@fake.overview.intro</p>
+        </div>
+        
+        <div class="flex flex-col gap-4 para text-gray-400">
+            @foreach (var i in fake.overview.extends){
+                <p class="para">@i</p>
+            }
+        </div>
+
+        <!-- 圖片區塊 (RWD: 下方顯示) -->
+        <div class="flex flex-col gap-4">
+            @foreach (var i in fake.overview.images) {
+                <img src="@i" class="h-[108px] w-full rounded-lg object-cover" alt="" />
+            }
+        </div>
     </div>
 
-    <!-- 姓名/圖案/按鈕 -->
-    <div class="relative mt-8 flex flex-col items-center justify-between px-8 md:flex-row md:pr-[300px]">
-        <div class="flex items-center gap-3" style="margin-left:600px;">
-            <span class="font-sans text-2xl leading-[40px] font-semibold text-white md:text-[40px]">Michael Jordan</span>
-            <span class="h-6 w-6 fill-white text-white">
-                <svg viewBox="0 0 24 24" class="mr-[10px] h-full w-full">
-                    <path d="M0 0h24v24H0z" fill="none"></path>
-                    <path d="M22 4v-.5a2.5 2.5 0 0 0-5 0V4c-.55 0-1 .45-1 1v4c0 .55.45 1 1 1h5c.55 0 1-.45 1-1V5c0-.55-.45-1-1-1zm-.8 0h-3.4v-.5c0-.94.76-1.7 1.7-1.7s1.7.76 1.7 1.7V4zm-2.28 8c.04.33.08.66.08 1 0 2.08-.8 3.97-2.1 5.39-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H7v-2h2c.55 0 1-.45 1-1V8h2c1.1 0 2-.9 2-2V3.46c-.95-.3-1.95-.46-3-.46C5.48 3 1 7.48 1 13s4.48 10 10 10 10-4.48 10-10c0-.34-.02-.67-.05-1h-2.03zM10 20.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L8 16v1c0 1.1.9 2 2 2v1.93z"></path>
-                </svg>
-            </span>
-        </div>
-        <button class="mt-4 h-10 w-22 rounded-[24px] bg-white text-base font-bold text-black shadow transition hover:bg-gray-200 md:mt-0">
-              Create
-        </button>
-    </div>
-
-    <!-- 主要內容區塊 -->
-    <div class="mt-8 flex flex-col gap-6 px-8 lg:flex-row lg:pr-[300px]">
-        <!-- 左側：個人資訊 -->
-        <div class="mx-auto w-full max-w-[350px] lg:mx-0">
-            <div class="mb-4 rounded-xl bg-gray-800 p-6 shadow">
+    <!-- 中間：動態貼文 -->
+    <div class="flex flex-col gap-4">
+        @foreach (var i in fake.articles) {
+            <div class="rounded-[30px] bg-accent p-6 flex flex-col gap-4">
                 <div class="flex items-center gap-4">
-                    <div>
-                        <h2 class="font-bold text-[23px] text-white">Profile Overview</h2>
-                        
+                    <img src="@i.userImg" alt="@i.user" class="h-12 w-12 rounded-full object-cover object-center">
+                    <div class="flex flex-col gap-4">
+                        <h3 class="font-semibold subTitle">@i.user</h3>
+                        <p class="para text-stone-500">@i.createTime</p>
                     </div>
                 </div>
-                <div class="mt-3">
-                    <p class="mb-4 h-[100px] text-[20px] text-gray-300">
-                        自我介紹專區xxxxxxxxxxxxxxxxxxxxxxxx
-                    </p>
-                    <div class="space-y-1 text-[17px] text-gray-400">
-                        <div class="mb-[10px]">Jordan@mail.com</div>
-                        <div>https://www.jordan.com/</div>
-                        <div>https://www.jordan.com/</div>
-                        <div>https://www.jordan.com/</div>
+                <p class="para">@i.content</p>
+                <div class="grid grid-cols-5 gap-4">
+                    @foreach (var img in i.images) {
+                        <img src="@img" class="h-28 rounded-[30px] object-cover object-center" alt="">
+                    }
+                </div>
+                <div class="flex items-center justify-end gap-4">
+                    <div class="flex items-center gap-2 text-orange-400">
+                        <i data-lucide="thumbs-up"></i>
+                        <span>@i.praises</span>
+                    </div>
+                    <div class="flex items-center gap-2 text-blue-400">
+                        <i data-lucide="bookmark"></i>
+                        <span>@i.collects</span>
                     </div>
                 </div>
-
-                <!-- 圖片區塊 (RWD: 下方顯示) -->
-                <div class="mt-4 flex flex-col gap-2">
-                    <img src="~/static/img/foodpanda.jpg" class="h-[108px] w-full rounded-lg object-cover" alt="" />
-                    <img src="~/static/img/foodpanda.jpg" class="h-[108px] w-full rounded-lg object-cover" alt="" />
-                    @* <img src="~/img/foodpanda.jpg" class="h-[100px] w-full rounded-lg object-cover" alt="" /> *@
-                </div>
             </div>
-            
-        </div>
-        <!-- 中間：動態貼文 -->
-        <div class="flex flex-1 flex-col gap-4">
-            <div class="rounded-xl bg-gray-800 p-6">
-                <h3 class="mb-2 font-semibold text-[23px] text-white">Michael Jordan</h3>
-                <p class="mb-2 text-gray-300">
-                    Exploring the wonders of blockchain technology and its limitless potential in transforming industries. Excited to connect with like-minded enthusiasts here on Matrix!
-                </p>
-                <span class="text-xs text-gray-500">2 hours ago</span>
-            </div>
-            <div class="mb-[12px] rounded-xl bg-gray-800 p-6">
-                <h3 class="mb-2 font-semibold text-[23px] text-white">Michael Jordan</h3>
-                <p class="mb-2 text-gray-300">
-                    Exploring the wonders of blockchain technology and its limitless potential in transforming industries. Excited to connect with like-minded enthusiasts here on Matrix!
-                </p>
-                <span class="text-xs text-gray-500">2 hours ago</span>
-                <img src="https://images.unsplash.com/photo-1519125323398-675f0ddb6308?auto=format&fit=facearea&w=400&h=200" class="mt-4 rounded-lg" alt="">
-            </div>
-        </div>
+        }
     </div>
+</section>
 
-    <!-- 右側預留好友列表空間（未來可放內容） -->
-    <div class="fixed top-0 right-0 z-10 hidden h-full w-[300px] bg-transparent lg:block">
-        <!-- 好友列表未來放這裡 -->
-    </div>
+<!-- 右側預留好友列表空間（未來可放內容） -->
+<div class="fixed top-0 right-0 z-10 hidden h-full w-[300px] bg-transparent lg:block">
+    <!-- 好友列表未來放這裡 -->
 </div>
-
-
-
-
-@* </html> *@
 
 
 
