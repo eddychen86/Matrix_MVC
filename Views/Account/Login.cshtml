@@ -1,0 +1,25 @@
+﻿@model Matrix.ViewModels.LoginViewModel
+@{
+    ViewData["Title"] = "Login";
+    Layout = "~/Views/Shared/_AuthLayout.cshtml";
+}
+
+<main id="login-bg">
+    <div id="mock"></div>
+    <form method="POST" class="w-1/2">
+        <div class="input-item">
+            <label for="UserName" class="subTitle">User Name</label>
+            <input type="text" asp-for="UserName" placeholder="Enter User Name">
+        </div>
+        <div class="input-item">
+            <label for="Password" class="subTitle">Password</label>
+            <input type="text" asp-for="Password" placeholder="Enter Pawword">
+        </div>
+    </form>
+</main>
+
+@section Scripts {
+    <script>
+
+    </script>
+}

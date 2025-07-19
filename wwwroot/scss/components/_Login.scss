@@ -1,143 +1,29 @@
-.login_bg {
-    @apply min-h-screen bg-cover bg-center bg-[url('/static/img/LoginBG.jpg')] flex items-center justify-center sm:justify-start sm:pl-[40px];
-}
+@layer components {
+  #login-body {
+    @apply flex bg-[url('/static/img/LoginBG.jpg')] bg-cover bg-center h-screen w-screen p-2 sm:p-4 md:p-8;
 
-.login-card {
-    @apply relative flex h-[842px] w-[696px] flex-col items-center justify-center rounded-[30px] bg-[#162534]/90 py-12 shadow-xl;
-}
+    #login-bg {
+      @apply rounded-[30px] w-full md:w-1/2 h-full overflow-hidden relative shadow-xl shadow-black/30;
 
-.login-div {
-    @apply w-[404px];
-}
+      #mock {
+        @apply w-full h-full bg-secondary opacity-80;
+      }
 
-.login-card_title {
-    @apply text-white text-[48px] text-center font-bold mb-2 font-['Source_Sans_Pro'];
-}
+      form {
+        @apply absolute top-1/2 left-1/2 -translate-1/2 flex flex-col gap-8;
 
-.login-card_subtitle {
-    @apply text-white text-base text-center mb-12 font-['Roboto'];
-}
+        .input-item {
+          @apply flex flex-col gap-4;
 
-.login-card_form {
-    @apply flex w-full flex-col gap-6;
-}
+          label {
+            @apply text-white;
+          }
 
-.login-card_label {
-    @apply text-white font-medium font-['Source_Sans_Pro;'];
-}
-
-.login-card_input {
-    @apply form-control w-full h-12 px-4 rounded-[24px] bg-white text-black text-base font-medium font-['Source_Sans_Pro'] mt-2;
-}
-
-.login-card_validation {
-    @apply h-5;
-}
-
-.login-card_error {
-    @apply text-xs text-red-600
-}
-
-.login-card_options {
-    @apply flex w-full items-center justify-between;
-}
-
-.login-card_remember {
-    @apply flex items-center gap-2;
-}
-
-.login-card_checkbox {
-    @apply peer h-5 w-5 opacity-0;
-}
-
-.login-card_custombox {
-    @apply inline-block h-5 w-5 rounded bg-white transition;
-}
-
-.login-card_checkbox:checked + .login-card_custombox {
-    @apply bg-[#ff7f3e];
-}
-
-.login-card_text {
-    @apply ml-2 text-white font-semibold font-['Source_Sans_Pro'];
-}
-
-.login-card_forgot {
-    @apply text-white font-bold font-['Source_Sans_Pro'] hover:underline;
-}
-
-.login-card_button {
-    @apply w-full h-12 rounded-full bg-[#ff7f3e] text-white text-lg font-bold font-['Source_Sans_Pro'] hover:bg-orange-500 transition;
-}
-
-.login-card_socials {
-    @apply flex justify-center gap-4;
-}
-
-.login-card_social {
-    @apply flex hidden h-12 w-12 items-center justify-center rounded-full shadow transition;
-}
-
-.login-card_social-google {
-    @apply bg-white hover:bg-gray-100;
-}
-
-.login-card_social-facebook {
-    @apply bg-[#2a629a] hover:bg-blue-700;
-}
-
-.login-card_social-logo {
-    @apply h-5 w-5;
-}
-
-.login-card_signup {
-    @apply flex justify-center items-center mt-4;
-}
-
-.login-card_signup-text {
-    @apply text-white text-sm font-['Roboto'];
-}
-
-.login-card_signup-link {
-    @apply ml-2 text-white text-sm font-medium font-['Roboto'] hover:underline;
-}
-
-.forgot-modal {
-    @apply fixed inset-0 z-50 flex hidden items-center justify-center font-['Manrope'];
-}
-
-.forgot-modal_backdrop {
-    @apply absolute inset-0 bg-white opacity-20;
-}
-
-.forgot-modal_content {
-    @apply relative z-10 box-border w-full max-w-[375px] rounded-[16px] border border-transparent bg-[#162534] p-6 shadow-[0_10px_15px_rgba(0,0,0,0.5)];
-}
-
-.forgot-modal_close {
-    @apply absolute top-2 right-3 text-xl text-white hover:text-gray-400 bg-transparent border-none cursor-pointer;
-}
-
-.forgot-modal_form {
-    @apply flex flex-col gap-6;
-}
-
-.forgot-modal_label-title {
-    @apply font-['Manrope'] font-bold text-white text-[18px];
-}
-
-.forgot-modal_label-subtitle {
-    @apply font-['Manrope'] font-medium text-white text-[14px];
-}
-
-.forgot-modal_input-group {
-    @apply mt-2 flex h-[42px] w-full items-center rounded-full border-2 border-white bg-white;
-}
-
-.forgot-modal_input {
-    @apply h-full flex-1 rounded-l-full border-none bg-white pl-4 font-['Manrope'] text-black text-[15px] outline-none;
-}
-
-.forgot-modal_submit {
-    @apply z-10 ml-[-16px] h-full rounded-full border-none bg-[#2a629a] px-7 font-['Manrope'] font-semibold text-white text-[15px] transition outline-none hover:bg-[#305a85];
+          input {
+            @apply rounded-full bg-white overflow-hidden w-full px-4 py-2;
+          }
+        }
+      }
+    }
+  }
 }
