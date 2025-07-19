@@ -1,34 +1,34 @@
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Matrix.Models;
-
-/// <summary>
-/// 代表系統中的標籤實體
-/// </summary>
-public class Hashtag
-{
-    /// <summary>
-    /// 標籤的唯一識別碼
-    /// </summary>
-    [Key]
-    public Guid TagId { get; set; }
-    
-    /// <summary>
-    /// 標籤的文字內容，最大長度為10個字元
-    /// </summary>
-    [Required, MaxLength(10)]
-    public required string Content { get; set; }
-    
-    /// <summary>
-    /// 標籤的狀態，0表示正常，其他值表示不同狀態
-    /// </summary>
-    public int Status { get; set; } = 0;
+namespace Matrix.Models{
 
     /// <summary>
-    /// 與此標籤關聯的文章集合
+    /// 代表系統中的標籤實體
     /// </summary>
-    public virtual required ICollection<ArticleHashtag> ArticleHashtags { get; set; }
+    public class Hashtag
+    {
+        /// <summary>
+        /// 標籤的唯一識別碼
+        /// 改用 UUID 以確保唯一性和安全性，並以 ArrayExtension.GenerateOrdered(1)[0] 方法生成一個劇時間排序的唯一的值
+        /// </summary>
+        [Key]
+        public UUID TagId { get; set; } = ArrayExtension.GenerateOrdered(1)[0];
+        
+        /// <summary>
+        /// 標籤的文字內容，最大長度為10個字元
+        /// </summary>
+        [Required, MaxLength(10)]
+        public required string Content { get; set; }
+        
+        /// <summary>
+        /// 標籤的狀態，0表示正常，其他值表示不同狀態
+        /// </summary>
+        public int Status { get; set; } = 0;
+
+        /// <summary>
+        /// 與此標籤關聯的文章集合
+        /// </summary>
+        public virtual required ICollection<ArticleHashtag> ArticleHashtags { get; set; }
+    }
 }
+
