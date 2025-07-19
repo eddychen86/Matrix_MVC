@@ -16,6 +16,7 @@
         <PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" Version="8.0.11" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.11" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.11" />
+        <PackageReference Include="UUID" Version="1.1.1" />
     </ItemGroup>
 
     <Target Name="PrepublishScript" BeforeTargets="PrepareForPublish">

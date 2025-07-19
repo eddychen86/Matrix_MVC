@@ -36,6 +36,9 @@ namespace Matrix.Data.Configurations
             /// </summary>
             builder.HasKey(f => f.FriendshipId);
 
+            builder.Property(f => f.FriendshipId)
+                .HasDefaultValueSql("NEWSEQUENTIALID()");
+
             // === 欄位配置 ===
             /// <summary>
             /// 配置 UserId 欄位屬性

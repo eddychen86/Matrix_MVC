@@ -10,21 +10,22 @@ namespace Matrix.Models{
     {
         /// <summary>
         /// 回覆的唯一識別碼
+        /// 改用 UUID 以確保唯一性和安全性，並以 ArrayExtension.GenerateOrdered(1)[0] 方法生成一個劇時間排序的唯一的值
         /// </summary>
         [Key]
-        public Guid ReplyId { get; set; }
+        public UUID ReplyId { get; set; } = ArrayExtension.GenerateOrdered(1)[0];
         
         /// <summary>
-        /// 發表回覆的用戶識別碼
+        /// 發表回覆的 UserId
         /// </summary>
         [Required]
-        public Guid UserId { get; set; }
+        public UUID UserId { get; set; }
         
         /// <summary>
-        /// 被回覆的文章識別碼
+        /// 被回覆的 ArticleId
         /// </summary>
         [Required]
-        public Guid ArticleId { get; set; }
+        public UUID ArticleId { get; set; }
         
         /// <summary>
         /// 回覆的內容文字，最大長度為1000個字元

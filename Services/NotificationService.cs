@@ -19,7 +19,7 @@ namespace Matrix.Services
                 var notification = await _context.Notifications
                     .Include(n => n.Receiver)
                     .Include(n => n.Sender)
-                    .FirstOrDefaultAsync(n => n.NotifyId == id);
+                    .FirstOrDefaultAsync(n => n.NotifyId.ToGuid() == id);
     
                 return notification == null ? null : MapToNotificationDto(notification, true);
             }
@@ -48,7 +48,7 @@ namespace Matrix.Services
             /// </summary>
             public async Task<bool> SendSystemNotificationAsync(Guid receiverId, string title, string content, int type = 0)
             {
-                var receiver = await _context.Persons.FirstOrDefaultAsync(p => p.UserId == receiverId);
+                var receiver = await _context.Persons.FirstOrDefaultAsync(p => p.UserId.ToGuid() == receiverId);
                 if (receiver == null) return false;
     
                 _context.Notifications.Add(new Notification
@@ -72,14 +72,14 @@ namespace Matrix.Services
             /// </summary>
             public async Task<bool> SendUserNotificationAsync(Guid senderId, Guid receiverId, int type, Guid? relatedId = null)
             {
-                var sender = await _context.Persons.FirstOrDefaultAsync(p => p.UserId == senderId);
-                var receiver = await _context.Persons.FirstOrDefaultAsync(p => p.UserId == receiverId);
+                var sender = await _context.Persons.FirstOrDefaultAsync(p => p.UserId.ToGuid() == senderId);
+                var receiver = await _context.Persons.FirstOrDefaultAsync(p => p.UserId.ToGuid() == receiverId);
                 
                 if (sender == null || receiver == null || senderId == receiverId) return false;
     
                 var existingNotification = await _context.Notifications
-                    .FirstOrDefaultAsync(n => n.SendId == sender.PersonId &&
-                                           n.GetId == receiver.PersonId &&
+                    .FirstOrDefaultAsync(n => n.SendId.ToGuid() == sender.PersonId.ToGuid() &&
+                                           n.GetId.ToGuid() == receiver.PersonId.ToGuid() &&
                                            n.Type == type);
     
                 if (existingNotification != null)
@@ -170,7 +170,7 @@ namespace Matrix.Services
             {
                 var notification = await _context.Notifications
                     .Include(n => n.Receiver)
-                    .FirstOrDefaultAsync(n => n.NotifyId == notificationId);
+                    .FirstOrDefaultAsync(n => n.NotifyId.ToGuid() == notificationId);
     
                 if (notification?.Receiver.UserId != userId) return false;
     
@@ -252,7 +252,7 @@ namespace Matrix.Services
                 var query = _context.Notifications
                     .Include(n => n.Receiver)
                     .Include(n => n.Sender)
-                    .Where(n => n.GetId == userId);
+                    .Where(n => n.GetId.ToGuid() == userId);
     
                 if (type.HasValue)
                     query = query.Where(n => n.Type == type.Value);
@@ -265,14 +265,14 @@ namespace Matrix.Services
     
             private async Task<Person?> GetPersonByUserId(Guid userId)
             {
-                return await _context.Persons.FirstOrDefaultAsync(p => p.UserId == userId);
+                return await _context.Persons.FirstOrDefaultAsync(p => p.UserId.ToGuid() == userId);
             }
     
             private async Task<List<Notification>> GetValidNotifications(List<Guid> notificationIds, Guid userId)
             {
                 return await _context.Notifications
                     .Include(n => n.Receiver)
-                    .Where(n => notificationIds.Contains(n.NotifyId) && n.Receiver.UserId == userId)
+                    .Where(n => notificationIds.Contains(n.NotifyId.ToGuid()) && n.Receiver.UserId.ToGuid() == userId)
                     .ToListAsync();
             }
     
@@ -280,10 +280,10 @@ namespace Matrix.Services
             {
                 var notification = await _context.Notifications
                     .Include(n => n.Receiver)
-                    .FirstOrDefaultAsync(n => n.NotifyId == notificationId);
+                    .FirstOrDefaultAsync(n => n.NotifyId.ToGuid() == notificationId);
     
-                if (notification?.Receiver.UserId != userId || notification.IsRead == readStatus)
-                    return notification?.Receiver.UserId == userId;
+                if (notification?.Receiver.UserId.ToGuid() != userId || notification.IsRead == readStatus)
+                    return notification?.Receiver.UserId.ToGuid() == userId;
     
                 notification.IsRead = readStatus;
                 notification.IsReadTime = readStatus == 1 ? DateTime.Now : null;

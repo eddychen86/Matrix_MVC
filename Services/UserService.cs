@@ -18,7 +18,7 @@ namespace Matrix.Services
             {
                 var user = await _context.Users
                     .Include(u => u.Person)
-                    .FirstOrDefaultAsync(u => u.UserId == id);
+                    .FirstOrDefaultAsync(u => u.UserId.ToGuid() == id);
     
                 if (user?.Person == null) return null;
     
@@ -69,8 +69,6 @@ namespace Matrix.Services
     
                 var person = new Person
                 {
-                    PersonId = Guid.NewGuid(),
-                    UserId = Guid.NewGuid(),
                     DisplayName = dto.UserName,
                     ModifyTime = DateTime.Now,
                     User = null! // 稍後設定
@@ -78,7 +76,6 @@ namespace Matrix.Services
     
                 var user = new User
                 {
-                    UserId = person.UserId,
                     Role = 0,
                     UserName = dto.UserName,
                     Email = dto.Email,
@@ -87,8 +84,9 @@ namespace Matrix.Services
                     Status = 0,
                     Person = person
                 };
-    
+
                 person.User = user;
+                person.UserId = user.UserId;
     
                 _context.Users.Add(user);
                 _context.Persons.Add(person);
@@ -103,7 +101,7 @@ namespace Matrix.Services
             {
                 var user = await _context.Users
                     .Include(u => u.Person)
-                    .FirstOrDefaultAsync(u => u.UserId == id);
+                    .FirstOrDefaultAsync(u => u.UserId.ToGuid() == id);
     
                 if (user?.Person == null) return false;
     
@@ -124,7 +122,7 @@ namespace Matrix.Services
             /// </summary>
             public async Task<bool> DeleteUserAsync(Guid id)
             {
-                var user = await _context.Users.FirstOrDefaultAsync(u => u.UserId == id);
+                var user = await _context.Users.FirstOrDefaultAsync(u => u.UserId.ToGuid() == id);
                 if (user == null) return false;
     
                 user.Status = 2; // 已刪除
@@ -159,7 +157,7 @@ namespace Matrix.Services
             /// </summary>
             public async Task<bool> UpdateUserStatusAsync(Guid id, int status)
             {
-                var user = await _context.Users.FirstOrDefaultAsync(u => u.UserId == id);
+                var user = await _context.Users.FirstOrDefaultAsync(u => u.UserId.ToGuid() == id);
                 if (user == null) return false;
     
                 user.Status = status;

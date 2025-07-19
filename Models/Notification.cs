@@ -9,20 +9,21 @@ namespace Matrix.Models{
     public class Notification
     {
         /// <summary>
-        /// 通知的唯一識別碼
+        /// 通知的 ID
+        /// 改用 UUID 以確保唯一性和安全性，並以 ArrayExtension.GenerateOrdered(1)[0] 方法生成一個劇時間排序的唯一的值
         /// </summary>
         [Key]
-        public Guid NotifyId { get; set; }
+        public UUID NotifyId { get; set; } = ArrayExtension.GenerateOrdered(1)[0];
         
         /// <summary>
-        /// 接收通知的用戶識別碼
+        /// 接收通知的 UserId
         /// </summary>
-        public Guid GetId { get; set; }
+        public UUID GetId { get; set; }
         
         /// <summary>
-        /// 發送通知的用戶識別碼
+        /// 發送通知的 UserId
         /// </summary>
-        public Guid SendId { get; set; }
+        public UUID SendId { get; set; }
         
         /// <summary>
         /// 通知的類型，用於區分不同種類的通知

@@ -9,9 +9,10 @@ namespace Matrix.Models{
     {
         /// <summary>
         /// 標籤的唯一識別碼
+        /// 改用 UUID 以確保唯一性和安全性，並以 ArrayExtension.GenerateOrdered(1)[0] 方法生成一個劇時間排序的唯一的值
         /// </summary>
         [Key]
-        public Guid TagId { get; set; }
+        public UUID TagId { get; set; } = ArrayExtension.GenerateOrdered(1)[0];
         
         /// <summary>
         /// 標籤的文字內容，最大長度為10個字元

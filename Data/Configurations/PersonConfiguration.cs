@@ -35,6 +35,9 @@ namespace Matrix.Data.Configurations
             /// </summary>
             builder.HasKey(p => p.PersonId);
 
+            builder.Property(p => p.PersonId)
+                .HasDefaultValueSql("NEWSEQUENTIALID()");
+
             // === 欄位配置 ===
             /// <summary>
             /// 配置 UserId 欄位屬性

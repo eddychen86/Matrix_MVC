@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.Text; // 引入 StringBuilder，用來高效地組合字串
 
 namespace Matrix.Models{
 
@@ -8,16 +9,17 @@ namespace Matrix.Models{
     public class Article
     {
         /// <summary>
-        /// 文章的唯一識別碼
+        /// 文章的 ID
+        /// 改用 UUID 以確保唯一性和安全性，並以 ArrayExtension.GenerateOrdered(1)[0] 方法生成一個劇時間排序的唯一的值
         /// </summary>
         [Key]
-        public Guid ArticleId { get; set; }
+        public UUID ArticleId { get; set; } = ArrayExtension.GenerateOrdered(1)[0];
         
         /// <summary>
-        /// 文章作者的唯一識別碼
+        /// 文章作者的 UserId
         /// </summary>
         [Required]
-        public Guid AuthorId { get; set; }
+        public UUID AuthorId { get; set; }
         
         /// <summary>
         /// 文章的內容文字

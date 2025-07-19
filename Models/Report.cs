@@ -10,19 +10,20 @@ namespace Matrix.Models{
     {
         /// <summary>
         /// 舉報的唯一識別碼
+        /// 改用 UUID 以確保唯一性和安全性，並以 ArrayExtension.GenerateOrdered(1)[0] 方法生成一個劇時間排序的唯一的值
         /// </summary>
         [Key]
-        public Guid ReportId { get; set; }
+        public UUID ReportId { get; set; } = ArrayExtension.GenerateOrdered(1)[0];
         
         /// <summary>
-        /// 提交舉報的用戶識別碼
+        /// 提交舉報的 UserId
         /// </summary>
-        public Guid ReporterId { get; set; }
+        public UUID ReporterId { get; set; }
         
         /// <summary>
-        /// 被舉報的目標識別碼
+        /// 被舉報的 ArticleId / UserId
         /// </summary>
-        public Guid TargetId { get; set; }
+        public UUID TargetId { get; set; }
         
         /// <summary>
         /// 舉報的類型，用於區分不同種類的舉報
@@ -41,9 +42,9 @@ namespace Matrix.Models{
         public int Status { get; set; } = 0;
         
         /// <summary>
-        /// 處理舉報的管理員識別碼
+        /// 處理舉報的 Admin UserId
         /// </summary>
-        public Guid? ResolverId { get; set; }
+        public UUID? ResolverId { get; set; }
         
         /// <summary>
         /// 舉報的處理時間

@@ -10,25 +10,26 @@ namespace Matrix.Models{
     {
         /// <summary>
         /// 關注記錄的唯一識別碼
+        /// 改用 UUID 以確保唯一性和安全性，並以 ArrayExtension.GenerateOrdered(1)[0] 方法生成一個劇時間排序的唯一的值
         /// </summary>
         [Key]
-        public Guid FollowId { get; set; }
-        
+        public UUID FollowId { get; set; } = ArrayExtension.GenerateOrdered(1)[0];
+
         /// <summary>
-        /// 關注者的用戶識別碼
+        /// 關注者的 UserId
         /// </summary>
-        public Guid UserId { get; set; }
-        
+        public UUID UserId { get; set; }
+
         /// <summary>
-        /// 被關注對象的識別碼
+        /// 被關注對象的 UserId
         /// </summary>
-        public Guid FollowedId { get; set; }  // 更清晰的名稱
-        
+        public UUID FollowedId { get; set; }
+
         /// <summary>
         /// 關注類型，用於區分不同種類的關注關係
         /// </summary>
         public int Type { get; set; }
-        
+
         /// <summary>
         /// 關注的時間
         /// </summary>
@@ -39,6 +40,7 @@ namespace Matrix.Models{
         /// </summary>
         [ForeignKey("UserId")]
         public virtual required Person User { get; set; }
+
         // FollowedId 需用商業邏輯處理，不設外鍵，可能指向不同類型的實體
     }
 }

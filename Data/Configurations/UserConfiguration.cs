@@ -17,7 +17,10 @@ namespace Matrix.Data.Configurations
             // 主鍵配置
             builder.HasKey(u => u.UserId);
 
-            // 欄位配置
+            builder.Property(u => u.UserId)
+                .HasDefaultValueSql("NEWSEQUENTIALID()");
+
+            // === 欄位配置 ===
             builder.Property(u => u.UserName)
                 .IsRequired()
                 .HasMaxLength(50);
