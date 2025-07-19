@@ -9,7 +9,7 @@
 <!-- 頂部橫幅與頭像 -->
 <header id="profile-header">
     <img id="profile-banner" src="@fake.banner" alt="Profile Banner">
-    
+
     <div id="profile-avatar">
         <div class="flex items-center justify-between">
             <div id="profile-avatar_img">
@@ -17,9 +17,12 @@
             </div>
             <div id="profile-name">
                 <h1 class="title-lg">@fake.name</h1>
-                @if (!fake.isPrivate){
+                @if (!fake.isPrivate)
+                {
                     <i data-lucide="globe" class="icon-base"></i>
-                } else{
+                }
+                else
+                {
                     <i data-lucide="globe-lock" class="icon-base"></i>
                 }
             </div>
@@ -31,25 +34,30 @@
 <section id="profile-body">
     <!-- 左側：個人資訊 -->
     <div id="profile-user_info">
-        <div class="flex items-center justify-between w-full">
-            <h2 class="font-bold title">Profile Overview</h2>
-            <i data-lucide="pen" class="icon-base"></i>
+        <div class="flex w-full items-center justify-between">
+            <h2 class="title font-bold">Profile Overview</h2>
+            <a asp-controller="EditProfile" asp-action="Index"
+               class="inline-flex items-center rounded p-2 text-white">
+                <i data-lucide="pen" class="icon-base"></i>
+            </a>
         </div>
-        
+
         <div>
-            <h2 class="font-bold subTitle">自我介紹</h2>
+            <h2 class="subTitle font-bold">自我介紹</h2>
             <p class="para">@fake.overview.intro</p>
         </div>
-        
-        <div class="flex flex-col gap-4 para text-gray-400">
-            @foreach (var i in fake.overview.extends){
+
+        <div class="para flex flex-col gap-4 text-gray-400">
+            @foreach (var i in fake.overview.extends)
+            {
                 <p class="para">@i</p>
             }
         </div>
 
         <!-- 圖片區塊 (RWD: 下方顯示) -->
         <div class="flex flex-col gap-4">
-            @foreach (var i in fake.overview.images) {
+            @foreach (var i in fake.overview.images)
+            {
                 <img src="@i" class="h-[108px] w-full rounded-lg object-cover" alt="" />
             }
         </div>
@@ -57,18 +65,20 @@
 
     <!-- 中間：動態貼文 -->
     <div class="flex flex-col gap-4">
-        @foreach (var i in fake.articles) {
-            <div class="rounded-[30px] bg-accent p-6 flex flex-col gap-4">
+        @foreach (var i in fake.articles)
+        {
+            <div class="bg-accent flex flex-col gap-4 rounded-[30px] p-6">
                 <div class="flex items-center gap-4">
                     <img src="@i.userImg" alt="@i.user" class="h-12 w-12 rounded-full object-cover object-center">
                     <div class="flex flex-col gap-4">
-                        <h3 class="font-semibold subTitle">@i.user</h3>
+                        <h3 class="subTitle font-semibold">@i.user</h3>
                         <p class="para text-stone-500">@i.createTime</p>
                     </div>
                 </div>
                 <p class="para">@i.content</p>
                 <div class="grid grid-cols-5 gap-4">
-                    @foreach (var img in i.images) {
+                    @foreach (var img in i.images)
+                    {
                         <img src="@img" class="h-28 rounded-[30px] object-cover object-center" alt="">
                     }
                 </div>
