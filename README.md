@@ -61,6 +61,7 @@ Because this project used DaisyUI UI Library, you need to install tailwindcss CL
 Check all EF tools infomations
 ```
 dotnet list package
+dotnet new view -n <cshtml name> -o <target folder>      # Create a new view 
 ```
 
 ---

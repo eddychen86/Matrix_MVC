@@ -8,9 +8,9 @@
     <div id="auth-form">
         <div id="mock"></div>
         <form method="POST" class="w-4/5 md:w-3/4 lg:w-1/2">
+            @Html.AntiForgeryToken()
             <h1>@ViewData["Title"]</h1>
             <p class="text-center subTitle">Join the blockchain community</p>
-            <div asp-validation-summary="All" class="text-danger"></div>
 
             <div class="input-item">
                 <label for="UserName" class="subTitle">User Name</label>
@@ -20,6 +20,7 @@
                 <label for="Password" class="subTitle">Password</label>
                 <input type="password" asp-for="Password" placeholder="Enter Password">
             </div>
+
             <div class="flex items-center justify-between">
                 <label class="label flex gap-4 items-center">
                     <input type="checkbox" checked="checked" class="auth-checkbox order-indigo-600" />
@@ -27,8 +28,14 @@
                 </label>
                 <button type="button" class="cursor-pointer subTitle" v-on:click="toggleOpen">Forgot password?</button>
             </div>
+
+            <div class="flex items-center gap-4 text-error">
+                <i data-lucide="curcle-x"></i>
+                <div asp-validation-summary="ModelOnly"></div>
+            </div>
+
             <div class="flex gap-4">
-                <button type="button" class="auth-btn subTitle">Login</button>
+                <button type="submit" class="auth-btn subTitle">Login</button>
                 <button type="button" class="third-party-btn subTitle">G</button>
                 <button type="button" class="third-party-btn subTitle">F</button>
             </div>
