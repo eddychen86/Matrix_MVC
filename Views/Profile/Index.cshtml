@@ -16,93 +16,137 @@
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 
 </head> *@
+<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
 
-<div class="relative mx-auto flex w-full max-w-[1920px] flex-col bg-black text-white">
+<div id="app" class="relative mx-auto flex w-full max-w-[1920px] flex-col bg-[#161616] text-white">
+    <!-- Profile View -->
 
-    <!-- 頂部橫幅與頭像 -->
-    <div class="relative flex h-40 w-full items-center justify-center rounded-lg bg-black">
-        <img src="~/static/img/image-top.png" alt="Profile Banner" class="h-full w-full object-cover object-right" />
-        <!-- 頭像，往左移動 300px，且不被切掉 -->
-        <div class="absolute top-full mt-[105px] flex h-[100px] w-[100px] -translate-y-1/2 items-center justify-center rounded-full border-4 border-black bg-[#161616] shadow-lg md:h-[180px] md:w-[180px]" style="left: calc(50% - 400px); transform: translateY(-50%);">
-            <img src="~/static/img/foodpanda.jpg" class="h-full w-full rounded-full object-cover" />
+        <!-- 頂部橫幅與頭像 -->
+        <div class="relative flex h-40 w-full items-center justify-center rounded-lg bg-[#161616]">
+            <img src="~/static/img/image-top.png" alt="Profile Banner" class="h-full w-full object-cover object-right" />
+            <div class="absolute top-1/2 left-1/3 flex -translate-x-1/2 translate-y-10 items-center justify-between gap-4">
+                <img src="~/static/img/foodpanda.jpg" class="h-36 w-36 rounded-full bg-[#161616] object-cover object-center p-4" />
+            </div>
+            <div class="absolute right-0 bottom-0 h-full w-[300px] bg-[#161616]"></div>
         </div>
-        <!-- 右下預留300px空間（好友列表）-->
-        <div class="absolute right-0 bottom-0 h-full w-[300px] bg-black/0"></div>
-    </div>
 
-    <!-- 姓名/圖案/按鈕 -->
-    <div class="relative mt-8 flex flex-col items-center justify-between px-8 md:flex-row md:pr-[300px]">
-        <div class="flex items-center gap-3" style="margin-left:600px;">
-            <span class="font-sans text-2xl leading-[40px] font-semibold text-white md:text-[40px]">Michael Jordan</span>
-            <span class="h-6 w-6 fill-white text-white">
-                <svg viewBox="0 0 24 24" class="mr-[10px] h-full w-full">
-                    <path d="M0 0h24v24H0z" fill="none"></path>
-                    <path d="M22 4v-.5a2.5 2.5 0 0 0-5 0V4c-.55 0-1 .45-1 1v4c0 .55.45 1 1 1h5c.55 0 1-.45 1-1V5c0-.55-.45-1-1-1zm-.8 0h-3.4v-.5c0-.94.76-1.7 1.7-1.7s1.7.76 1.7 1.7V4zm-2.28 8c.04.33.08.66.08 1 0 2.08-.8 3.97-2.1 5.39-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H7v-2h2c.55 0 1-.45 1-1V8h2c1.1 0 2-.9 2-2V3.46c-.95-.3-1.95-.46-3-.46C5.48 3 1 7.48 1 13s4.48 10 10 10 10-4.48 10-10c0-.34-.02-.67-.05-1h-2.03zM10 20.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L8 16v1c0 1.1.9 2 2 2v1.93z"></path>
-                </svg>
-            </span>
+        <!-- 姓名與按鈕 -->
+        <div class="relative mt-8 flex flex-col items-center justify-between px-8 md:flex-row md:pr-[300px]">
+            <div class="flex items-center gap-3 md:ml-[600px]">
+                <span class="font-sans text-2xl leading-[40px] font-semibold text-white md:text-[40px]">Michael Jordan</span>
+                <!-- 這裡也可以放身份圖標 -->
+            </div>
+            <button class="mt-4 h-10 w-22 rounded-[24px] bg-white text-base font-bold text-black shadow transition hover:bg-gray-200 md:mt-0">
+                Create
+            </button>
         </div>
-        <button class="mt-4 h-10 w-22 rounded-[24px] bg-white text-base font-bold text-black shadow transition hover:bg-gray-200 md:mt-0">
-              Create
-        </button>
-    </div>
 
-    <!-- 主要內容區塊 -->
-    <div class="mt-8 flex flex-col gap-6 px-8 lg:flex-row lg:pr-[300px]">
-        <!-- 左側：個人資訊 -->
-        <div class="mx-auto w-full max-w-[350px] lg:mx-0">
-            <div class="mb-4 rounded-xl bg-gray-800 p-6 shadow">
-                <div class="flex items-center gap-4">
-                    <div>
-                        <h2 class="font-bold text-[23px] text-white">Profile Overview</h2>
-                        
+        <!-- 主要內容區塊 -->
+        <div class="mt-8 flex flex-col gap-6 px-8 lg:flex-row lg:pr-[300px]">
+            <!-- 左側：個人資訊 -->
+        
+            <div class="mx-auto w-full max-w-[350px] lg:mx-0">
+                <div class="mb-4 rounded-xl bg-gray-800 p-6 shadow">
+                    <div class="flex items-center gap-4">
+                        <div class="flex w-full items-center justify-between">
+                            <h2 class="font-bold text-[23px] text-white">Profile Overview</h2>
+                            <button @@click="editMode = true">
+                            <i data-lucide="pen" class="icon-base h-5 w-5 cursor-pointer sm:h-6 sm:w-6" ></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <p class="mb-4 h-[100px] text-[20px] text-gray-300">自我介紹專區xxxxxxxxxxxxxxxxxxxxxxxx</p>
+                        <div class="space-y-1 text-[17px] text-gray-400">
+                            <div class="mb-[10px]">Jordan@mail.com</div>
+                            <div>https://www.jordan.com/</div>
+                            <div>https://www.jordan.com/</div>
+                            <div>https://www.jordan.com/</div>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex flex-col gap-2">
+                        <img src="~/static/img/foodpanda.jpg" class="h-[108px] w-full rounded-lg object-cover" alt="" />
+                        <img src="~/static/img/foodpanda.jpg" class="h-[108px] w-full rounded-lg object-cover" alt="" />
                     </div>
                 </div>
-                <div class="mt-3">
-                    <p class="mb-4 h-[100px] text-[20px] text-gray-300">
-                        自我介紹專區xxxxxxxxxxxxxxxxxxxxxxxx
-                    </p>
-                    <div class="space-y-1 text-[17px] text-gray-400">
-                        <div class="mb-[10px]">Jordan@mail.com</div>
-                        <div>https://www.jordan.com/</div>
-                        <div>https://www.jordan.com/</div>
-                        <div>https://www.jordan.com/</div>
+            </div>
+        
+
+            <!-- 中間：動態貼文 -->
+            <div class="flex flex-1 flex-col gap-4">
+                <div class="rounded-xl bg-gray-800 p-6">
+                    <h3 class="mb-2 font-semibold text-[23px] text-white">Michael Jordan</h3>
+                    <p class="mb-2 text-gray-300">Exploring blockchain technology...</p>
+                    <span class="text-xs text-gray-500">2 hours ago</span>
+                </div>
+                <div class="mb-[12px] rounded-xl bg-gray-800 p-6">
+                    <h3 class="mb-2 font-semibold text-[23px] text-white">Michael Jordan</h3>
+                    <p class="mb-2 text-gray-300">Excited to connect with like-minded enthusiasts!</p>
+                    <span class="text-xs text-gray-500">2 hours ago</span>
+                    <img src="https://images.unsplash.com/photo-1519125323398-675f0ddb6308?auto=format&fit=facearea&w=400&h=200" class="mt-4 rounded-lg" alt="">
+                </div>
+            </div>
+        </div>
+
+
+    <!-- Edit Profile View -->
+    <div v-if="editMode" class="fixed top-0 left-0 z-30 h-full w-full">
+        <div class="relative h-full w-full">
+            <div class="h-full w-full bg-white opacity-20"></div>
+            <div class="absolute top-1/2 left-1/2 mx-auto flex w-full max-w-lg -translate-x-1/2 -translate-y-1/2 flex-col items-center rounded-xl bg-[#161616] p-6 shadow-2xl sm:p-8 md:max-w-xl">
+                <img src="~/static/img/foodpanda.jpg" class="mb-4 h-[142px] w-[142px] rounded-full border-4 border-black object-cover" alt="avatar" />
+                <h2 class="mb-4 w-full text-center leading-[33px] font-normal text-[33px] text-white">Michael Jordan</h2>
+                <div class="mb-4 w-full">
+                    <textarea class="bg-opacity-70 h-[100px] w-full resize-none rounded border border-gray-400 bg-black px-4 py-2 text-[18px] text-white focus:border-blue-500 focus:outline-none"
+                              placeholder="Introduction..."></textarea>
+                </div>
+
+                <div class="w-full space-y-4">
+                    <div class="flex w-full flex-col items-start text-[18px] text-white sm:flex-row sm:items-center">
+                        <label class="w-full font-normal sm:w-1/3">User Name</label>
+                        <input type="text" placeholder="User Name..." class="mt-2 h-[54px] w-full rounded border border-gray-400 bg-black px-4 text-[16px] text-white focus:border-blue-500 focus:outline-none sm:mt-0 sm:w-2/3" />
+                    </div>
+                    <div class="flex w-full flex-col items-start text-[18px] text-white sm:flex-row sm:items-center">
+                        <label class="w-full font-normal sm:w-1/3">Email</label>
+                        <input type="text" placeholder="Email..." class="mt-2 h-[54px] w-full rounded border border-gray-400 bg-black px-4 text-[16px] text-white focus:border-blue-500 focus:outline-none sm:mt-0 sm:w-2/3" />
+                    </div>
+                    <div class="flex w-full flex-col items-start text-[18px] text-white sm:flex-row sm:items-center">
+                        <label class="w-full font-normal sm:w-1/3">Password</label>
+                        <input type="text" placeholder="Password..." class="mt-2 h-[54px] w-full rounded border border-gray-400 bg-black px-4 text-[16px] text-white focus:border-blue-500 focus:outline-none sm:mt-0 sm:w-2/3" />
+                    </div>
+                    <div class="flex w-full flex-col text-[18px] text-white sm:flex-row">
+                        <label class="mt-[5px] w-full font-normal sm:w-1/3">Website</label>
+                        <div class="mt-2 w-full space-y-2 sm:mt-0 sm:w-2/3">
+                            <input type="text" placeholder="Website..." class="h-[40px] w-full rounded border border-gray-400 bg-black px-4 text-[15px] text-white focus:border-blue-500 focus:outline-none" />
+                            <input type="text" placeholder="Website..." class="h-[40px] w-full rounded border border-gray-400 bg-black px-4 text-[15px] text-white focus:border-blue-500 focus:outline-none" />
+                        </div>
                     </div>
                 </div>
 
-                <!-- 圖片區塊 (RWD: 下方顯示) -->
-                <div class="mt-4 flex flex-col gap-2">
-                    <img src="~/static/img/foodpanda.jpg" class="h-[108px] w-full rounded-lg object-cover" alt="" />
-                    <img src="~/static/img/foodpanda.jpg" class="h-[108px] w-full rounded-lg object-cover" alt="" />
-                    @* <img src="~/img/foodpanda.jpg" class="h-[100px] w-full rounded-lg object-cover" alt="" /> *@
+                <div class="mt-6 flex justify-center space-x-8">
+                    <button class="flex items-center rounded-xl bg-red-400 px-6 py-3 text-[16px] text-white hover:bg-red-700" @@click="editMode = false">
+                        <i class="fa-solid fa-trash-can mr-2"></i>Cancel
+                    </button>
+                    <button class="flex items-center rounded-xl bg-blue-400 px-6 py-3 text-[16px] text-white hover:bg-blue-700">
+                        <i class="fa-solid fa-floppy-disk mr-2"></i>Update
+                    </button>
                 </div>
             </div>
-            
         </div>
-        <!-- 中間：動態貼文 -->
-        <div class="flex flex-1 flex-col gap-4">
-            <div class="rounded-xl bg-gray-800 p-6">
-                <h3 class="mb-2 font-semibold text-[23px] text-white">Michael Jordan</h3>
-                <p class="mb-2 text-gray-300">
-                    Exploring the wonders of blockchain technology and its limitless potential in transforming industries. Excited to connect with like-minded enthusiasts here on Matrix!
-                </p>
-                <span class="text-xs text-gray-500">2 hours ago</span>
-            </div>
-            <div class="mb-[12px] rounded-xl bg-gray-800 p-6">
-                <h3 class="mb-2 font-semibold text-[23px] text-white">Michael Jordan</h3>
-                <p class="mb-2 text-gray-300">
-                    Exploring the wonders of blockchain technology and its limitless potential in transforming industries. Excited to connect with like-minded enthusiasts here on Matrix!
-                </p>
-                <span class="text-xs text-gray-500">2 hours ago</span>
-                <img src="https://images.unsplash.com/photo-1519125323398-675f0ddb6308?auto=format&fit=facearea&w=400&h=200" class="mt-4 rounded-lg" alt="">
-            </div>
-        </div>
-    </div>
-
-    <!-- 右側預留好友列表空間（未來可放內容） -->
-    <div class="fixed top-0 right-0 z-10 hidden h-full w-[300px] bg-transparent lg:block">
-        <!-- 好友列表未來放這裡 -->
     </div>
 </div>
+
+<script>
+    const { createApp, ref } = Vue;
+
+    createApp({
+      setup() {
+        const editMode = ref(false);
+        return { editMode };
+      }
+    }).mount('#app');
+</script>
+
 
 
 
