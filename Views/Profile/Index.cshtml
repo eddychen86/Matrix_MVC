@@ -17,6 +17,8 @@
 
 </head> *@
 <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+<script src="~/lib/lucide/dist/umd/lucide.min.js"></script>
+
 
 <div id="app" class="relative mx-auto flex w-full max-w-[1920px] flex-col bg-[#161616] text-white">
     <!-- Profile View -->
@@ -27,7 +29,7 @@
             <div class="absolute top-1/2 left-1/3 flex -translate-x-1/2 translate-y-10 items-center justify-between gap-4">
                 <img src="~/static/img/foodpanda.jpg" class="h-36 w-36 rounded-full bg-[#161616] object-cover object-center p-4" />
             </div>
-            <div class="absolute right-0 bottom-0 h-full w-[300px] bg-[#161616]"></div>
+            @* <div class="absolute right-0 bottom-0 h-full w-[300px] bg-[#161616]"></div> *@
         </div>
 
         <!-- 姓名與按鈕 -->
@@ -35,7 +37,10 @@
             <div class="flex items-center gap-3 md:ml-[600px]">
                 <span class="font-sans text-2xl leading-[40px] font-semibold text-white md:text-[40px]">Michael Jordan</span>
                 <!-- 這裡也可以放身份圖標 -->
+                <i data-lucide="globe" class="h-6 w-6 text-white"></i>
             </div>
+            
+
             <button class="mt-4 h-10 w-22 rounded-[24px] bg-white text-base font-bold text-black shadow transition hover:bg-gray-200 md:mt-0">
                 Create
             </button>
@@ -119,6 +124,7 @@
                         <div class="mt-2 w-full space-y-2 sm:mt-0 sm:w-2/3">
                             <input type="text" placeholder="Website..." class="h-[40px] w-full rounded border border-gray-400 bg-black px-4 text-[15px] text-white focus:border-blue-500 focus:outline-none" />
                             <input type="text" placeholder="Website..." class="h-[40px] w-full rounded border border-gray-400 bg-black px-4 text-[15px] text-white focus:border-blue-500 focus:outline-none" />
+                            <input type="text" placeholder="Website..." class="h-[40px] w-full rounded border border-gray-400 bg-black px-4 text-[15px] text-white focus:border-blue-500 focus:outline-none" />
                         </div>
                     </div>
                 </div>
@@ -135,6 +141,9 @@
         </div>
     </div>
 </div>
+<script>
+    lucide.createIcons();
+</script>
 
 <script>
     const { createApp, ref } = Vue;
