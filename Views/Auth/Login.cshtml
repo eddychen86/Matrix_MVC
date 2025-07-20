@@ -1,0 +1,54 @@
+@model Matrix.ViewModels.LoginViewModel
+@{
+    ViewData["Title"] = "Login";
+    Layout = "~/Views/Shared/_AuthLayout.cshtml";
+}
+
+<div id="auth-body">
+    <div id="auth-form">
+        <div id="mock"></div>
+        <form method="POST" class="w-4/5 md:w-3/4 lg:w-1/2">
+            <h1>@ViewData["Title"]</h1>
+            <p class="text-center subTitle">Join the blockchain community</p>
+            <div asp-validation-summary="All" class="text-danger"></div>
+
+            <div class="input-item">
+                <label for="UserName" class="subTitle">User Name</label>
+                <input type="text" asp-for="UserName" placeholder="Enter User Name">
+            </div>
+            <div class="input-item">
+                <label for="Password" class="subTitle">Password</label>
+                <input type="password" asp-for="Password" placeholder="Enter Password">
+            </div>
+            <div class="flex items-center justify-between">
+                <label class="label flex gap-4 items-center">
+                    <input type="checkbox" checked="checked" class="auth-checkbox order-indigo-600" />
+                    <span class="subTitle text-white">Remember me</span>
+                </label>
+                <button type="button" class="cursor-pointer subTitle" v-on:click="toggleOpen">Forgot password?</button>
+            </div>
+            <div class="flex gap-4">
+                <button type="button" class="auth-btn subTitle">Login</button>
+                <button type="button" class="third-party-btn subTitle">G</button>
+                <button type="button" class="third-party-btn subTitle">F</button>
+            </div>
+            <p class="para text-center">New here? Sign up now! <a href="#" class="font-semibold">Sign Up</a></p>
+        </form>
+    </div>
+
+    <transition name="fade">
+        <div id="auth-layout_forgot" v-on:click="toggleClose" v-show="isForgot">
+            <form method="POST">
+                <h1 class="title">Forgot Password</h1>
+                <button type="button" class="subTitle" v-on:click="toggleClose">
+                    <i data-lucide="circle-x" class="close-btn text-error"></i>
+                </button>
+                <p class="para">Please enter your email address to reset your password.</p>
+                <div class="ctn-input">
+                    <input type="email" class="text-secondary" />
+                    <button type="button" class="subTitle">Submit</button>
+                </div>
+            </form>
+        </div>
+    </transition>
+</div>
