@@ -3,11 +3,11 @@
 @inject SignInManager<IdentityUser> SignInManager
 @inject UserManager<IdentityUser> UserManager *@
 
-@inject SignInManager<User> SignInManager
-@inject UserManager<User> UserManager
+@* @inject SignInManager<User> SignInManager
+@inject UserManager<User> UserManager *@
 
 <ul class="flex items-center">
-    @if (SignInManager.IsSignedIn(User))
+    @* @if (SignInManager.IsSignedIn(User))
     {
         <li class="nav-item">
             <a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">Hello @User.Identity?.Name!</a>
@@ -30,5 +30,5 @@
                 class="rounded-lg px-4 py-2 text-sm font-medium text-gray-800 hover:bg-gray-50 focus:ring-4 focus:ring-gray-300 focus:outline-none md:px-5 md:py-2.5"
             >Login</a>
         </li>
-    }
+    } *@
 </ul>
