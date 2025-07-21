@@ -51,6 +51,75 @@ namespace Matrix.Controllers
                 // 註冊成功後，重定向到登入頁面
                 return RedirectToAction("Login");
             }
+        [Route("/login")]
+        public ActionResult Login()
+        {
+            return View("~/Views/Auth/Login.cshtml", new LoginViewModel());
+        }
+
+        [HttpPost]
+        [Route("/login")]
+        public ActionResult LoginPost(LoginViewModel model)
+        {
+            // 備援處理：當 JavaScript 失效時的表單提交
+            ModelState.AddModelError("", "Please enable JavaScript for proper login functionality.");
+            return View("~/Views/Auth/Login.cshtml", model);
+        }
+
+        [HttpPost]
+        [Route("/api/login")]
+        public async Task<IActionResult> LoginApi([FromBody] LoginViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                var errors = ModelState
+                    .Where(kvp => kvp.Value != null && kvp.Value.Errors.Count > 0)
+                    .ToDictionary(
+                        kvp => kvp.Key,
+                        kvp => kvp.Value!.Errors.Select(e => e.ErrorMessage).ToArray()
+                    );
+                return Json(new { success = false, errors });
+            }
+
+            var user = await _context.Users.FirstOrDefaultAsync(u =>
+                u.UserName == model.UserName || u.Email == model.UserName);
+
+            if (user == null || user.Password != model.Password)
+            {
+                ModelState.AddModelError("", "Invalid user name or password.");
+                var errors = ModelState
+                   .Where(kvp => kvp.Value != null && kvp.Value.Errors.Count > 0)
+                   .ToDictionary(
+                       kvp => kvp.Key,
+                       kvp => kvp.Value!.Errors.Select(e => e.ErrorMessage).ToArray()
+                   );
+                return Json(new { success = false, errors });
+            }
+
+            return Json(new
+            {
+                success = true,
+                redirectUrl = user.Role == 1 ? Url.Action("Index", "Admin") : Url.Action("Index", "Home")
+            });
+        }
+
+        [HttpPost]
+        [Route("/login/forgot")]
+        public ActionResult ForgotPwd(LoginViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View("~/Views/Auth/Login.cshtml", model);
+            }
+
+            /*
+            SMTP 郵件發送邏輯可以在這裡實現
+            */
+
+            // 這裡可以添加忘記密碼的邏輯，例如發送重置密碼郵件等
+            // 目前僅返回登入頁面
+            ModelState.AddModelError("", "Forgot password functionality is not implemented yet.");
+            return View("~/Views/Auth/Login.cshtml", model);
         }
     }
 }
