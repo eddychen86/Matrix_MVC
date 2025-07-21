@@ -110,4 +110,14 @@
     checkbox bg-[#ff7f3e] text-white
     checked:bg-[#ff7f3e];
   }
+
+  #auth-error-login {
+    @apply flex items-center gap-4 w-full h-12 rounded-xl overflow-hidden relative border border-red-500;
+    .mock {
+      @apply w-full h-full bg-red-300 opacity-30;
+    }
+    .msg-body {
+      @apply absolute top-1/2 left-4 -translate-y-1/2 z-10 text-red-300 flex items-center gap-4;
+    }
+  }
 }

@@ -17,6 +17,53 @@ namespace Matrix.Controllers
         }
 
         [HttpPost]
+        [Route("/login")]
+        public ActionResult LoginPost(LoginViewModel model)
+        {
+            // 備援處理：當 JavaScript 失效時的表單提交
+            ModelState.AddModelError("", "Please enable JavaScript for proper login functionality.");
+            return View("~/Views/Auth/Login.cshtml", model);
+        }
+
+        [HttpPost]
+        [Route("/api/login")]
+        public async Task<IActionResult> LoginApi([FromBody] LoginViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                var errors = ModelState
+                    .Where(kvp => kvp.Value != null && kvp.Value.Errors.Count > 0)
+                    .ToDictionary(
+                        kvp => kvp.Key,
+                        kvp => kvp.Value!.Errors.Select(e => e.ErrorMessage).ToArray()
+                    );
+                return Json(new { success = false, errors });
+            }
+
+            var user = await _context.Users.FirstOrDefaultAsync(u =>
+                u.UserName == model.UserName || u.Email == model.UserName);
+
+            if (user == null || user.Password != model.Password)
+            {
+                ModelState.AddModelError("", "Invalid user name or password.");
+                var errors = ModelState
+                   .Where(kvp => kvp.Value != null && kvp.Value.Errors.Count > 0)
+                   .ToDictionary(
+                       kvp => kvp.Key,
+                       kvp => kvp.Value!.Errors.Select(e => e.ErrorMessage).ToArray()
+                   );
+                return Json(new { success = false, errors });
+            }
+
+            return Json(new
+            {
+                success = true,
+                redirectUrl = user.Role == 1 ? Url.Action("Index", "Admin") : Url.Action("Index", "Home")
+            });
+        }
+
+        [HttpPost]
+        [Route("/login/forgot")]
         public ActionResult ForgotPwd(LoginViewModel model)
         {
             if (!ModelState.IsValid)
@@ -32,31 +79,6 @@ namespace Matrix.Controllers
             // 目前僅返回登入頁面
             ModelState.AddModelError("", "Forgot password functionality is not implemented yet.");
             return View("~/Views/Auth/Login.cshtml", model);
-        }
-
-        [HttpPost]
-        [Route("/login")]
-        // [ValidateAntiForgeryToken] // 1. 添加防止 CSRF 攻擊的標記
-        public async Task<ActionResult> Login(LoginViewModel model)
-        {
-            if (!ModelState.IsValid)
-            {
-                return View("~/Views/Auth/Login.cshtml", model);
-            }
-
-            // 非同步地從資料庫中尋找使用者
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.UserName == model.UserName || u.Email == model.UserName);
-
-            // 檢查密碼
-            if (user == null || user.Password != model.Password)
-            {
-                Console.WriteLine("Login failed - Invalid credentials");
-                ModelState.AddModelError(string.Empty, "Invalid username or password.");
-                return View("~/Views/Auth/Login.cshtml", model);
-            }
-
-            // 若帳密無誤，則重定向到首頁
-            return user.Role == 1 ? RedirectToAction("Index", "Admin") : RedirectToAction("Index", "Home");
         }
     }
 }
