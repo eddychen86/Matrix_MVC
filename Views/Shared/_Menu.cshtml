@@ -14,21 +14,21 @@
     };
 }
 
-<aside id="sidebar-app" class="top-0 left-0 p-4 h-screen">
+<aside id="sidebar-app" class="fixed top-0 left-0 h-screen p-4">
     <ul :class="isCollapsed ? 'sidebar-close' : 'sidebar-open'" class="sidebar">
         <!-- Sidebar content here -->
         <li>
             <a asp-area="" asp-controller="Home" asp-action="Index" aria-current="page"
-                class="cts-btn hover:bg-gray-900 title"
+                class="cts-btn title hover:bg-gray-900"
             >
                 <img src="~/static/img/Matrix_logo_white.png" alt="Matrix Logo" class="icon-lg">
                 <span>Matrix</span>
             </a>
             <a asp-area="" asp-controller="Login" asp-action="Index" aria-current="page"
-                class="cts-btn hover:bg-gray-900 title"
+                class="cts-btn title hover:bg-gray-900"
             >
                 <i data-lucide="plus"
-                    class="bg-white rounded-full overflow-hidden flex justify-center items-center icon-lg text-secondary p-1"
+                    class="icon-lg text-secondary flex items-center justify-center overflow-hidden rounded-full bg-white p-1"
                 ></i>
                 <span>Login</span>
             </a>

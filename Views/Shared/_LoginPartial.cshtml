@@ -1,12 +1,12 @@
-﻿@* @using Microsoft.AspNetCore.Identity
+﻿@using Microsoft.AspNetCore.Identity
 @inject SignInManager<IdentityUser> SignInManager
-@inject UserManager<IdentityUser> UserManager *@
+@inject UserManager<IdentityUser> UserManager
 
-@* @inject SignInManager<User> SignInManager
-@inject UserManager<User> UserManager *@
+@inject SignInManager<User> SignInManager
+@inject UserManager<User> UserManager
 
 <ul class="flex items-center">
-    @* @if (SignInManager.IsSignedIn(User))
+    @if (SignInManager.IsSignedIn(User))
     {
         <li class="nav-item">
             <a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">Hello @User.Identity?.Name!</a>
@@ -21,13 +21,13 @@
     {
         <li class="nav-item">
             <a asp-area="Identity" asp-page="/Account/Register"
-                class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 md:px-5 md:py-2.5 focus:outline-none"
+                class="rounded-lg bg-blue-700 px-4 py-2 text-sm font-medium text-white hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 focus:outline-none md:px-5 md:py-2.5"
             >Register</a>
         </li>
         <li class="nav-item">
             <a asp-area="Identity" asp-page="/Account/Login"
-                class="text-gray-800 hover:bg-gray-50 focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-4 py-2 md:px-5 md:py-2.5 focus:outline-none"
+                class="rounded-lg px-4 py-2 text-sm font-medium text-gray-800 hover:bg-gray-50 focus:ring-4 focus:ring-gray-300 focus:outline-none md:px-5 md:py-2.5"
             >Login</a>
         </li>
-    } *@
+    }
 </ul>
