@@ -46,6 +46,12 @@ public class Program
 
         builder.Services.AddControllersWithViews();
         builder.Services.AddRazorPages();
+        
+        // 配置 Anti-forgery 以支援 Ajax 請求
+        builder.Services.AddAntiforgery(options =>
+        {
+            options.HeaderName = "RequestVerificationToken";
+        });
 
         var app = builder.Build();
 

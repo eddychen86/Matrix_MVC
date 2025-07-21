@@ -36,7 +36,7 @@
           }
 
           input {
-            @apply rounded-full bg-white overflow-hidden w-full p-4 text-black;
+            @apply rounded-full bg-white overflow-hidden w-full p-4 text-black outline-none;
           }
         }
       }
