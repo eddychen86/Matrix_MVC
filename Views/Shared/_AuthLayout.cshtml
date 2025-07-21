@@ -23,7 +23,7 @@
 
                 createApp({
                     setup() {
-                        const isLoginPage = ref(window.location.pathname === '/login')
+                        const isLoginPage = ref(window.location.pathname.toLowerCase() === '/login')
                         const isForgot = ref(false)
                         
                         const toggleOpen = () => isForgot.value = true

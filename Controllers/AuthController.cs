@@ -35,22 +35,25 @@ namespace Matrix.Controllers
             else
             {
                 // 創建新使用者
-                var newUser = new User
-                {
-                    UserName = model.UserName,
-                    Password = model.Password, // 注意：實際應用中應該對密碼進行加密處理
-                    Role = 0, // 預設角色為普通使用者
-                    CreateTime = DateTime.Now,
-                    Person = null
-                };
+                // var newUser = new User
+                // {
+                //     UserName = model.UserName,
+                //     Password = model.Password, // 注意：實際應用中應該對密碼進行加密處理
+                //     Role = 0, // 預設角色為普通使用者
+                //     CreateTime = DateTime.Now,
+                //     Person = null
+                // };
 
                 // 將新使用者加入資料庫
-                _context.Users.Add(newUser);
-                await _context.SaveChangesAsync();
+                // _context.Users.Add(newUser);
+                // await _context.SaveChangesAsync();
 
                 // 註冊成功後，重定向到登入頁面
                 return RedirectToAction("Login");
             }
+        }
+
+        [HttpGet]
         [Route("/login")]
         public ActionResult Login()
         {
