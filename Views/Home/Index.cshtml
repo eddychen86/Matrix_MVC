@@ -5,12 +5,12 @@
 
 <section class="flex min-h-screen">
     <div id="news_list" class="w-full">
-        <div id="hot_news" class="flex mx-auto w-[650px]">
-            <ul class="carousel carousel-center gap-4 w-[600px] text-center">
+        <div id="hot_news" class="mx-auto flex w-[650px]">
+            <ul class="carousel carousel-center w-[600px] gap-4 text-center">
                 @* @foreach (var item in ViewBag.HotList)
                 {
-                    <li class="carousel-item w-[190px] h-[250px] overflow-hidden rounded-[30px]">
-                        <div class="card bg-base-100 image-full  shadow-sm">
+                    <li class="carousel-item h-[250px] w-[190px] overflow-hidden rounded-[30px]">
+                        <div class="card bg-base-100 image-full shadow-sm">
                             <figure>
                                 <img src="@item." alt="" />
                             </figure>
@@ -37,7 +37,26 @@
     </aside>
 </section>
 
+<!-- ✅ 加在這裡：浮出視窗與灰色背景 -->
+<div id="collect-overlay" class="fixed inset-0 z-40 hidden bg-black/60"></div>
+
+<div id="collect-modal" class="fixed inset-0 z-50 flex hidden items-center justify-center">
+    @await Html.PartialAsync("_CollectModalPartial")
+</div>
+
 @section Scripts {
     <script>
+        function openCollectModal() {
+            document.getElementById("collect-modal").classList.remove("hidden");
+            document.getElementById("collect-overlay").classList.remove("hidden");
+            document.body.classList.add("overflow-hidden");
+        }
+
+        function closeCollectModal() {
+            document.getElementById("collect-modal").classList.add("hidden");
+            document.getElementById("collect-overlay").classList.add("hidden");
+            document.body.classList.remove("overflow-hidden");
+        }
+
     </script>
 }
