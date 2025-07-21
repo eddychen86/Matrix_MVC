@@ -1,0 +1,154 @@
+@model Matrix.ViewModels.LoginViewModel
+@{
+    ViewData["Title"] = "Login";
+    Layout = "~/Views/Shared/_AuthLayout.cshtml";
+}
+
+<div id="auth-body">
+    <div id="auth-form">
+        <div id="mock"></div>
+        <form method="POST" class="w-4/5 md:w-3/4 lg:w-1/2">
+            @Html.AntiForgeryToken()
+            <h1>@ViewData["Title"]</h1>
+            <p class="text-center subTitle">Join the blockchain community</p>
+            
+            @* 用戶名 *@
+            <div class="input-item">
+                <label for="UserName" class="subTitle">User Name</label>
+                <input type="text" asp-for="UserName" placeholder="Enter User Name">
+                <p asp-validation-for="UserName" class="text-red-400 para"></p>
+            </div>
+            
+            @* 密碼 *@
+            <div class="input-item">
+                <label for="Password" class="subTitle">Password</label>
+                <div class="flex gap-4 bg-white rounded-full pr-4 jsustify-between items-center">
+                    <input type="password" asp-for="Password" placeholder="Enter Password">
+                    <button id="private-btn" type="button" class="cursor-pointer">
+                        <i data-lucide="eye-closed" class="text-secondary subTitle"></i>
+                    </button>
+                </div>
+                <p asp-validation-for="Password" class="text-red-400 para"></p>
+            </div>
+            
+            @* 記住密碼／忘記密碼 *@
+            <div class="flex items-center justify-between">
+                <label class="label flex gap-4 items-center">
+                    <input type="checkbox" checked="checked" class="auth-checkbox order-indigo-600" />
+                    <span class="subTitle text-white">Remember me</span>
+                </label>
+                <button type="button" class="cursor-pointer subTitle" v-on:click="toggleOpen">Forgot password?</button>
+            </div>
+
+            @* 錯誤訊息 *@
+            <div id="auth-error-login" class="hidden">
+                <div class="mock"></div>
+                <div class="msg-body">
+                    <i data-lucide="circle-x"></i>
+                    <p class="para"></p>
+                </div>
+            </div>
+
+            @* 登入按鈕 *@
+            <button type="submit" class="auth-btn subTitle py-2">Login</button>
+
+            @* 註冊 *@
+            <p class="para text-center">New here? Sign up now! <a href="/register" class="font-semibold">Sign Up</a></p>
+        </form>
+    </div>
+
+    @* 忘記密碼 pop-up *@
+    <transition name="fade">
+        <div id="auth-layout_forgot" v-on:click="toggleClose" v-show="isForgot">
+            <form method="POST" action="/login/forgot">
+                <h1 class="title">Forgot Password</h1>
+                <button type="button" class="subTitle" v-on:click="toggleClose">
+                    <i data-lucide="x" class="close-btn text-error"></i>
+                </button>
+                <p class="para">Please enter your email address to reset your password.</p>
+                <div class="ctn-input">
+                    <input type="email" class="text-secondary" />
+                    <button type="button" class="subTitle">Submit</button>
+                </div>
+            </form>
+        </div>
+    </transition>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        const updateErrorMsg = err => {
+            const authError = $('#auth-error-login p');
+            const isHidden = $('#auth-error-login').hasClass('hidden')
+
+            // 清除之前的錯誤訊息
+            $('.input-item p').text('');
+
+            if (!isHidden) $('#auth-error-login').addClass('hidden')
+
+            Object.keys(err).forEach(field => {
+                const errMsg = err[field];
+
+                if (errMsg && errMsg.length > 0) {
+                    // 嘗試多種選擇器來找到驗證元素
+                    let el = $(`p[asp-validation-for="${field}"]`)
+
+                    if (el.length > 0 && field) {
+                        el.text(errMsg[0])
+                    } else if (el.length > 0 && !field) {
+                        $('#auth-error-login').removeClass('hidden')
+                        authError.text(errMsg[0])
+                    } else
+                        console.log(`Could not find validation element for ${field}`)
+                }
+            });
+        }
+
+        $(document).ready(() => {
+            // 密碼顯示／隱藏功能
+            $('#private-btn').on('click', function() {
+                const type = $('#Password').attr('type') === 'password' ? 'text' : 'password';
+                $('#Password').attr('type', type);
+                const icon = type === 'password'
+                    ? '<i data-lucide="eye-closed" class="text-secondary subTitle"></i>'
+                    : '<i data-lucide="eye" class="text-secondary subTitle"></i>';
+                $(this).html(icon);
+                lucide.createIcons()
+            })        
+
+            $('form').on('submit', async e => {
+                // 阻止表單提交
+                e.preventDefault()
+
+                try {
+                    // 獲取 anti-forgery token
+                    const token = $('input[name="__RequestVerificationToken"]').val();
+                    
+                    // 使用 AJAX 與 async/await 送到 /api/login
+                    const res = await $.ajax({
+                        url: '/api/login',
+                        type: 'POST',
+                        contentType: 'application/json',
+                        headers: { 'RequestVerificationToken': token },
+                        data: JSON.stringify({
+                            UserName: $('#UserName').val(),
+                            Password: $('#Password').val()
+                        })
+                    })
+
+                    if (res.success)
+                        window.location.href = res.redirectUrl
+                    else (res.errors)
+                        updateErrorMsg(res.errors)
+                } catch (error) {                    
+                    if (error.status === 400 && error.responseJSON && error.responseJSON.errors) {
+                        // 顯示各欄位的驗證錯誤
+                        const errors = error.responseJSON.errors;
+                        updateErrorMsg(errors)
+                    }
+                }
+            });
+        });
+    </script>
+}
