@@ -18,13 +18,20 @@
                 <input type="text" asp-for="UserName" placeholder="Enter User Name">
                 <p asp-validation-for="UserName" class="text-red-400 para"></p>
             </div>
+
+            @* 信箱 *@
+            <div class="input-item">
+                <label for="Email" class="subTitle">Email</label>
+                <input type="text" asp-for="Email" placeholder="Enter Email">
+                <p asp-validation-for="Email" class="text-red-400 para"></p>
+            </div>
             
             @* 密碼 *@
             <div class="input-item">
                 <label for="Password" class="subTitle">Password</label>
-                <div class="flex gap-4 bg-white rounded-full pr-4 jsustify-between items-center">
+                <div class="input-item_pwd">
                     <input type="password" asp-for="Password" placeholder="Enter Password">
-                    <button id="private-btn" type="button" class="cursor-pointer">
+                    <button id="private-btn" type="button">
                         <i data-lucide="eye-closed" class="text-secondary subTitle"></i>
                     </button>
                 </div>
@@ -34,9 +41,9 @@
             @* 確認密碼 *@
             <div class="input-item">
                 <label for="ConfirmPassword" class="subTitle">ConfirmP assword</label>
-                <div class="flex gap-4 bg-white rounded-full pr-4 jsustify-between items-center">
-                    <input type="password" asp-for="ConfirmPassword" placeholder="Confirm Password">
-                    <button id="confirm-private-btn" type="button" class="cursor-pointer">
+                <div class="input-item_pwd">
+                    <input type="password" asp-for="PasswordConfirm" placeholder="Confirm Password">
+                    <button id="confirm-private-btn" type="button">
                         <i data-lucide="eye-closed" class="text-secondary subTitle"></i>
                     </button>
                 </div>
@@ -77,6 +84,8 @@
             Object.keys(err).forEach(field => {
                 const errMsg = err[field];
 
+                @* console.log(`err: ${err}\nfield: ${field}\nerrMsg: ${errMsg}`) *@
+
                 if (errMsg && errMsg.length > 0) {
                     // 嘗試多種選擇器來找到驗證元素
                     let el = $(`p[asp-validation-for="${field}"]`)
@@ -107,7 +116,7 @@
 
         $(document).ready(() => {
             togglePwdView('#private-btn', '#Password');
-            togglePwdView('#confirm-private-btn', '#ConfirmPassword');
+            togglePwdView('#confirm-private-btn', '#PasswordConfirm');
 
             $('form').on('submit', async e => {
                 // 阻止表單提交
@@ -119,13 +128,15 @@
                     
                     // 使用 AJAX 與 async/await 送到 /api/login
                     const res = await $.ajax({
-                        url: '/api/login',
+                        url: '/api/register',
                         type: 'POST',
                         contentType: 'application/json',
                         headers: { 'RequestVerificationToken': token },
                         data: JSON.stringify({
                             UserName: $('#UserName').val(),
-                            Password: $('#Password').val()
+                            Email: $('#Email').val(),
+                            Password: $('#Password').val(),
+                            PasswordConfirm: $('#PasswordConfirm').val(),
                         })
                     })
 

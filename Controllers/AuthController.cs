@@ -1,14 +1,16 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;    // 1. 引用 EntityFrameworkCore
-using Matrix.Data;                      // 2. 引用您的 DbContext 所在的命名空間
-using Matrix.Models;                    // 3. 引用您的 User 模型所在的命名空間
-using Matrix.ViewModels;                // 4. 引用您的 ViewModel 所在的命名空間
+using Matrix.ViewModels;
+using Matrix.DTOs;
+using Matrix.Services;
+using Matrix.Services.Interfaces;
 using System.Threading.Tasks;
+using Matrix.Models;
 
 namespace Matrix.Controllers
 {
-    public class AuthController(ApplicationDbContext _context) : Controller
+    public class AuthController(IUserService _userService) : Controller
     {
+
         [HttpGet]
         [Route("/register")]
         public ActionResult Register()
@@ -17,40 +19,39 @@ namespace Matrix.Controllers
         }
 
         [HttpPost]
-        [Route("/register")]
-        public async Task<IActionResult> Register(RegisterViewModel model)
+        [Route("/api/register")]
+        public async Task<IActionResult> Register([FromBody] RegisterViewModel model)
         {
             if (!ModelState.IsValid)
             {
+                var errors = ModelState
+                    .Where(kvp => kvp.Value != null && kvp.Value.Errors.Count > 0)
+                    .ToDictionary(
+                        kvp => kvp.Key,
+                        kvp => kvp.Value!.Errors.Select(e => e.ErrorMessage).ToArray()
+                    );
+                return Json(new { success = false, errors });
+            }
+
+            // 創建 CreateUserDto
+            var createUserDto = new CreateUserDto
+            {
+                UserName = model.UserName,
+                Email = model.Email ?? "example@mail.com", // 暫時處理，實際應該要求輸入 Email
+                Password = model.Password,
+                PasswordConfirm = model.PasswordConfirm ?? model.Password
+            };
+
+            // 使用 UserService 創建使用者
+            var userId = await _userService.CreateUserAsync(createUserDto);
+            if (userId == null)
+            {
+                ModelState.AddModelError("UserName", "Username or email already exists.");
                 return View("~/Views/Auth/Register.cshtml", model);
             }
 
-            // 檢查使用者是否已存在
-            var existingUser = await _context.Users.FirstOrDefaultAsync(u => u.UserName == model.UserName);
-            if (existingUser != null)
-            {
-                ModelState.AddModelError("UserName", "Username already exists.");
-                return View("~/Views/Auth/Register.cshtml", model);
-            }
-            else
-            {
-                // 創建新使用者
-                // var newUser = new User
-                // {
-                //     UserName = model.UserName,
-                //     Password = model.Password, // 注意：實際應用中應該對密碼進行加密處理
-                //     Role = 0, // 預設角色為普通使用者
-                //     CreateTime = DateTime.Now,
-                //     Person = null
-                // };
-
-                // 將新使用者加入資料庫
-                // _context.Users.Add(newUser);
-                // await _context.SaveChangesAsync();
-
-                // 註冊成功後，重定向到登入頁面
-                return RedirectToAction("Login");
-            }
+            // 註冊成功後，重定向到登入頁面
+            return RedirectToAction("login");
         }
 
         [HttpGet]
@@ -84,25 +85,31 @@ namespace Matrix.Controllers
                 return Json(new { success = false, errors });
             }
 
-            var user = await _context.Users.FirstOrDefaultAsync(u =>
-                u.UserName == model.UserName || u.Email == model.UserName);
-
-            if (user == null || user.Password != model.Password)
+            // 使用 UserService 驗證使用者
+            var isValid = await _userService.ValidateUserAsync(model.UserName, model.Password);
+            if (!isValid)
             {
                 ModelState.AddModelError("", "Invalid user name or password.");
                 var errors = ModelState
-                   .Where(kvp => kvp.Value != null && kvp.Value.Errors.Count > 0)
-                   .ToDictionary(
-                       kvp => kvp.Key,
-                       kvp => kvp.Value!.Errors.Select(e => e.ErrorMessage).ToArray()
-                   );
+                    .Where(kvp => kvp.Value != null && kvp.Value.Errors.Count > 0)
+                    .ToDictionary(
+                        kvp => kvp.Key,
+                        kvp => kvp.Value!.Errors.Select(e => e.ErrorMessage).ToArray()
+                    );
                 return Json(new { success = false, errors });
+            }
+
+            // 取得使用者資料以判斷角色
+            var userDto = await _userService.GetUserByEmailAsync(model.UserName);
+            if (userDto == null)
+            {
+                userDto = await _userService.GetUserByEmailAsync(model.UserName); // 先嘗試 Email，如果沒有再嘗試其他方式
             }
 
             return Json(new
             {
                 success = true,
-                redirectUrl = user.Role == 1 ? Url.Action("Index", "Admin") : Url.Action("Index", "Home")
+                redirectUrl = userDto?.Role == 1 ? Url.Action("Index", "Admin") : Url.Action("Index", "Home")
             });
         }
 
