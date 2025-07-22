@@ -3,6 +3,9 @@ using Microsoft.EntityFrameworkCore;
 using Matrix.Data;
 using Matrix.Services;
 using DotNetEnv;
+using Microsoft.AspNetCore.Localization;
+using Microsoft.Extensions.Options;
+using System.Globalization;
 
 namespace Matrix;
 
@@ -44,14 +47,40 @@ public class Program
 
         // -------------------------------------------------
 
-        builder.Services.AddControllersWithViews();
+        builder.Services.AddControllersWithViews()
+            .AddViewLocalization(); // 啟用視圖本地化
         builder.Services.AddRazorPages();
-        
+
         // 配置 Anti-forgery 以支援 Ajax 請求
         builder.Services.AddAntiforgery(options =>
         {
             options.HeaderName = "RequestVerificationToken";
         });
+
+        // -------------------- 本地化設定 --------------------
+        builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
+
+        builder.Services.Configure<RequestLocalizationOptions>(options =>
+        {
+            var supportedCultures = new[]
+            {
+                new CultureInfo("en-US"),
+                new CultureInfo("zh-TW")
+            };
+
+            options.DefaultRequestCulture = new RequestCulture("zh-TW");
+            options.SupportedCultures = supportedCultures;
+            options.SupportedUICultures = supportedCultures;
+            
+            // 清除所有預設的本地化提供者，強制使用 zh-TW
+            options.RequestCultureProviders.Clear();
+            options.RequestCultureProviders.Add(new CustomRequestCultureProvider(context =>
+            {
+                return Task.FromResult<ProviderCultureResult?>(new ProviderCultureResult("zh-TW"));
+            }));
+        });
+
+        // -------------------------------------------------
 
         var app = builder.Build();
 
@@ -67,6 +96,12 @@ public class Program
 
         app.UseHttpsRedirection();
         app.UseStaticFiles();
+
+        // -------------------- 本地化設定 --------------------
+        var localizationOptions = app.Services.GetRequiredService<IOptions<RequestLocalizationOptions>>();
+        app.UseRequestLocalization(localizationOptions.Value);
+        // -------------------------------------------------
+
         app.UseRouting();
         app.UseAuthorization();
 
