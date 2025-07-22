@@ -31,13 +31,6 @@
         "index.js",
         "lib/**"
       ]
-    },
-    {
-      "library": "vue-quill@latest",
-      "destination": "wwwroot/lib/vue-quill/",
-      "files": [
-        "dist/vue-quill.snow.prod.css"
-      ]
     }
   ]
 }
