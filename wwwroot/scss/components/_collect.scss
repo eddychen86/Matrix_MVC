@@ -2,7 +2,7 @@
 
     .collect-page {
        
-        @apply min-h-screen flex items-center justify-center bg-gray-800 p-4 text-white  ;
+        @apply flex items-center justify-center bg-gray-800 p-4 text-white  ;
     }
 
     .collect-modal {
@@ -12,10 +12,10 @@
     .collect-header {
         @apply flex items-center justify-between mb-6;
 
-        h2 {
-            font-size: 50px !important;
-            font-weight: 700 !important;
-        }
+        //h2 {
+        //    font-size: 50px !important;
+        //    font-weight: 700 !important;
+        //}
 
         select {
             @apply rounded-md border border-neutral-600 bg-neutral-800 px-3 py-1 text-white text-sm;

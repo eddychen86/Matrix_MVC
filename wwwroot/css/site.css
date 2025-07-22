@@ -1411,12 +1411,6 @@
     align-items: center;
     justify-content: space-between;
   }
-  .collect-header h2 {
-    font-size: var(--text-2xl);
-    line-height: var(--tw-leading, var(--text-2xl--line-height));
-    --tw-font-weight: var(--font-weight-bold);
-    font-weight: var(--font-weight-bold);
-  }
   .collect-header select {
     border-radius: var(--radius-md);
     border-style: var(--tw-border-style);

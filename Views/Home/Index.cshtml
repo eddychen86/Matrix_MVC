@@ -41,7 +41,7 @@
 <div id="collect-overlay" class="fixed inset-0 z-40 hidden bg-black/60"></div>
 
 <div id="collect-modal" class="fixed inset-0 z-50 flex hidden items-center justify-center">
-    @await Html.PartialAsync("_CollectModalPartial")
+    @await Html.PartialAsync("_CollectModalPartial", (List<Matrix.ViewModels.CollectItemViewModel>)ViewData["CollectList"])
 </div>
 
 @section Scripts {

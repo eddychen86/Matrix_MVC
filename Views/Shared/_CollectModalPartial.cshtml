@@ -1,10 +1,14 @@
-﻿<main class="collect-page">
+﻿@{
+    var collectList = Model as List<Matrix.ViewModels.CollectItemViewModel>;
+}
+
+<main class="collect-page">
     <button onclick="closeCollectModal()" class="modal-close-btn">&times;</button>
     <div class="collect-container">
         <!-- 標題列 -->
         <div class="collect-header">
-            <h2 class="collect-title">收藏</h2>
-            <select class="collect-filter">
+            <h2 class="collect-title title-lg">收藏</h2>
+            <select class="collect-filter subTitle">
                 <option>本月</option>
                 <option>上月</option>
             </select>
@@ -12,17 +16,12 @@
 
         <!-- 卡片格線 -->
         <div class="collect-grid">
-            @for (int i = 0; i < 6; i++)
+            @foreach (var item in collectList)
             {
                 <div class="collect-card">
-                    <div class="collect-card_image">
-                        <img src="@Url.Content("~/static/img/Cute.png")" alt="Shoes" />
-                        <div class="image-overlay"></div>
-                    </div>
-                    <div class="card-body">
-                        <h2 class="card-title">活動 2025年7月9日</h2>
-                        <p>加入日期：2025年7月9日</p>
-                    </div>
+                    <img src="@item.ImageUrl" alt="@item.Title" />
+                    <p class="para">@item.Title</p>
+                    <p class="para">@item.AuthorName</p>
                 </div>
             }
         </div>
