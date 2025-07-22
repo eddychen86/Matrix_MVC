@@ -20,6 +20,7 @@ tailwindcss
 ###############
 # Static Files #
 ###############
+wwwroot/css/*
 !wwwroot/css/tailwind.css
 wwwroot/lib/*
 !wwwroot/lib/jquery*

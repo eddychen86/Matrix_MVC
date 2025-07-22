@@ -1,16 +1,27 @@
+@using Microsoft.Extensions.Localization;
+@inject IStringLocalizerFactory LocalizerFactory
+@{
+    // 手動設定文化為測試
+    System.Globalization.CultureInfo.CurrentUICulture = new System.Globalization.CultureInfo("zh-TW");
+    
+    var Localizer = LocalizerFactory.Create("Views.Common.Menu", "Matrix");
+    // 除錯：檢查本地化是否工作
+    var testValue = Localizer["Search"];
+    var currentCulture = System.Globalization.CultureInfo.CurrentUICulture.Name;
+}
 @{
     var menus = new[]
     {
-        new { title = "Search", icon = "search", func = "" },
-        new { title = "Notify", icon = "bell", func = "" },
-        new { title = "Follows", icon = "share-2", func = "" },
-        new { title = "Collects", icon = "bookmark", func = "" },
+        new { title = Localizer["Search"], icon = "search", func = "" },
+        new { title = Localizer["Notify"], icon = "bell", func = "" },
+        new { title = Localizer["Follows"], icon = "share-2", func = "" },
+        new { title = Localizer["Collects"], icon = "bookmark", func = "" },
     };
 
     var bottoms = new[]
     {
-        new { title = "Hide bar", icon = "panel-right-open", click="toggleSidebar" },
-        new { title = "Log out", icon = "log-out", click="" }
+        new { title = Localizer["HideBar"], icon = "panel-right-open", click="toggleSidebar" },
+        new { title = Localizer["LogOut"], icon = "log-out", click="" }
     };
 }
 
@@ -22,7 +33,7 @@
                 class="cts-btn hover:bg-gray-900 title"
             >
                 <img src="~/static/img/Matrix_logo_white.png" alt="Matrix Logo" class="icon-lg">
-                <span>Matrix</span>
+                <span>@Localizer["Matrix"]</span>
             </a>
             <a asp-area="" asp-controller="Login" asp-action="Index" aria-current="page"
                 class="cts-btn hover:bg-gray-900 title"
@@ -30,7 +41,7 @@
                 <i data-lucide="plus"
                     class="bg-white rounded-full overflow-hidden flex justify-center items-center icon-lg text-secondary p-1"
                 ></i>
-                <span>Login</span>
+                <span>@Localizer["Login"]</span>
             </a>
         </li>
         <li>
@@ -57,6 +68,9 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', () => {
+        // 目前語系
+        console.log(`Culture: @currentCulture`)
+
         if (typeof Vue !== 'undefined') {
             const { createApp, ref, onMounted } = Vue;
             

@@ -1,7 +1,14 @@
-﻿@model Matrix.ViewModels.RegisterViewModel
+﻿@using Microsoft.AspNetCore.Mvc.Localization;
+@model Matrix.ViewModels.RegisterViewModel
+@inject IViewLocalizer Localizer
 @{
-    ViewData["Title"] = "Register";
+    ViewData["Title"] = Localizer["Register"];
     Layout = "~/Views/Shared/_AuthLayout.cshtml";
+
+    var userNamePlaceholder = Localizer["Enter User Name"];
+    var emailPlaceholder = Localizer["Enter Email"];
+    var passwordPlaceholder = Localizer["Enter Password"];
+    var confirmPasswordPlaceholder = Localizer["Confirm Password"];
 }
 
 <div id="auth-body">
@@ -10,27 +17,27 @@
         <form method="POST" class="w-4/5 md:w-3/4 lg:w-1/2">
             @Html.AntiForgeryToken()
             <h1>@ViewData["Title"]</h1>
-            <p class="text-center subTitle">Join the blockchain community</p>
+            <p class="text-center subTitle">@Localizer["Join the blockchain community"]</p>
 
             @* 用戶名 *@
             <div class="input-item">
-                <label for="UserName" class="subTitle">User Name</label>
-                <input type="text" asp-for="UserName" placeholder="Enter User Name">
+                <label for="UserName" class="subTitle">@Localizer["UserNameLabel"]</label>
+                <input type="text" asp-for="UserName" placeholder="@userNamePlaceholder">
                 <p asp-validation-for="UserName" class="text-red-400 para"></p>
             </div>
 
             @* 信箱 *@
             <div class="input-item">
-                <label for="Email" class="subTitle">Email</label>
-                <input type="text" asp-for="Email" placeholder="Enter Email">
+                <label for="Email" class="subTitle">@Localizer["EmailLabel"]</label>
+                <input type="text" asp-for="Email" placeholder="@emailPlaceholder">
                 <p asp-validation-for="Email" class="text-red-400 para"></p>
             </div>
             
             @* 密碼 *@
             <div class="input-item">
-                <label for="Password" class="subTitle">Password</label>
+                <label for="Password" class="subTitle">@Localizer["PasswordLabel"]</label>
                 <div class="input-item_pwd">
-                    <input type="password" asp-for="Password" placeholder="Enter Password">
+                    <input type="password" asp-for="Password" placeholder="@passwordPlaceholder">
                     <button id="private-btn" type="button">
                         <i data-lucide="eye-closed" class="text-secondary subTitle"></i>
                     </button>
@@ -40,9 +47,9 @@
 
             @* 確認密碼 *@
             <div class="input-item">
-                <label for="ConfirmPassword" class="subTitle">ConfirmP assword</label>
+                <label for="ConfirmPassword" class="subTitle">@Localizer["ConfirmPasswordLabel"]</label>
                 <div class="input-item_pwd">
-                    <input type="password" asp-for="PasswordConfirm" placeholder="Confirm Password">
+                    <input type="password" asp-for="PasswordConfirm" placeholder="@confirmPasswordPlaceholder">
                     <button id="confirm-private-btn" type="button">
                         <i data-lucide="eye-closed" class="text-secondary subTitle"></i>
                     </button>
@@ -60,10 +67,10 @@
             </div>
 
             @* 註冊按鈕 *@
-            <button type="submit" class="auth-btn subTitle py-2">Register</button>
+            <button type="submit" class="auth-btn subTitle py-2">@Localizer["RegisterButton"]</button>
             
             @* 已有帳號 *@
-            <p class="para text-center">Already have an account? <a href="/login" class="font-semibold">Login</a></p>
+            <p class="para text-center">@Localizer["Already have an account?"] <a href="/login" class="font-semibold">@Localizer["Login"]</a></p>
         </form>
     </div>
 </div>

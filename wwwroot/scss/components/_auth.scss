@@ -13,7 +13,7 @@
 
     #auth-form {
       @apply
-        rounded-[30px] h-full overflow-hidden relative shadow-xl shadow-black/30
+        rounded-[30px] h-full overflow-x-hidden relative shadow-xl shadow-black/30
         w-full lg:w-1/2
       ;
 
@@ -25,7 +25,10 @@
         @apply absolute top-1/2 left-1/2 -translate-1/2 flex flex-col gap-8;
 
         h1 {
-          @apply text-center text-6xl font-[SourceSans3] font-bold;
+          @apply
+            text-3xl md:text-6xl
+            text-center font-[SourceSans3] font-bold
+          ;
         }
 
         .input-item {
@@ -36,18 +39,24 @@
           }
 
           input {
-            @apply rounded-full bg-white overflow-hidden w-full p-4 text-black outline-none;
+            @apply
+              rounded-full bg-white overflow-hidden w-full text-black outline-none
+              p-1 sm:p-2 md:p-4
+            ;
           }
 
           &_pwd {
             @apply bg-white rounded-full justify-between items-center relative;
 
             input {
-              @apply pr-14;
+              @apply pr-1 sm:pr-7 md:pr-14;
             }
 
             button {
-              @apply cursor-pointer absolute right-4 top-1/2 -translate-y-1/2;
+              @apply
+                cursor-pointer absolute top-1/2 -translate-y-1/2
+                right-1 sm:right-2 md:right-4
+              ;
             }
           }
         }
