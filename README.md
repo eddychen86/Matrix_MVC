@@ -19,13 +19,10 @@ After installed libman, you need to install the dependency packages into the `ww
 ```
 dotnet tool run libman restore
 ```
-Then, you also need to install `DotNetEnv` so that the project can automatically connect to the database using the `.env` file.
+Then, you also need to install these packages and tools.
 <i><b>If you are using Visual Studio, you can install it in Nuget Extensions Management.</b></i>
 ```
 dotnet add package DotNetEnv
-```
-Last, installs the package for lazy loading. This allows related data to be loaded automatically on demand.
-```
 dotnet add package Microsoft.EntityFrameworkCore.Proxies --version 8.0.11
 ```
 Because this project used DaisyUI UI Library, you need to install tailwindcss CLI and DaisyUI.<br>

@@ -31,7 +31,7 @@ public class Program
 
         // ------------------ 註冊 Service ------------------
 
-        builder.Services.AddScoped<UserService>();
+        builder.Services.AddScoped<Matrix.Services.Interfaces.IUserService, UserService>();
         builder.Services.AddScoped<ArticleService>();
         builder.Services.AddScoped<NotificationService>();
 

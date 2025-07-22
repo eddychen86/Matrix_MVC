@@ -12,12 +12,13 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Matrix.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250719125504_SetDefaultValueForPrimaryKeys")]
-    partial class SetDefaultValueForPrimaryKeys
+    [Migration("20250722034002_UpdateUserPersonNavigationProperties")]
+    partial class UpdateUserPersonNavigationProperties
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
+#pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("ProductVersion", "8.0.11")
                 .HasAnnotation("Proxies:ChangeTracking", false)
@@ -625,9 +626,9 @@ namespace Matrix.Migrations
 
             modelBuilder.Entity("Matrix.Models.User", b =>
                 {
-                    b.Navigation("Person")
-                        .IsRequired();
+                    b.Navigation("Person");
                 });
+#pragma warning restore 612, 618
         }
     }
 }

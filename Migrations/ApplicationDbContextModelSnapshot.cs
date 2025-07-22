@@ -623,8 +623,7 @@ namespace Matrix.Migrations
 
             modelBuilder.Entity("Matrix.Models.User", b =>
                 {
-                    b.Navigation("Person")
-                        .IsRequired();
+                    b.Navigation("Person");
                 });
 #pragma warning restore 612, 618
         }

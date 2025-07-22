@@ -33,10 +33,10 @@
       ]
     },
     {
-      "library": "vue-quill@latest",
-      "destination": "wwwroot/lib/vue-quill/",
+      "library": "@ckeditor/ckeditor5-vue@latest",
+      "destination": "wwwroot/lib/ckEditor5/",
       "files": [
-        "dist/vue-quill.snow.prod.css"
+        "dist/**"
       ]
     }
   ]
