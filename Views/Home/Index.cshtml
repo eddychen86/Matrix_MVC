@@ -73,7 +73,8 @@
         </div>
     </div>
 
-    <aside id="friends_list" class="friend-panel">
+
+    <aside id="friends_list" class="friend-panel z-[1000]">
         <div class="friend-search-bar">
             <button class="friend-icon-btn">
                 <svg class="friend-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -91,7 +92,7 @@
                 new { Name = "Bob",   Avatar = "https://cataas.com/cat" },
                 new { Name = "Carol", Avatar = "https://cataas.com/cat" },
                 new { Name = "Dave",  Avatar = "https://cataas.com/cat" }
-            };
+                };
         }
 
         @foreach (var friend in demoFriends)
@@ -104,6 +105,53 @@
 
     </aside>
 </section>
+
+<!-- 遮罩 -->
+<div id="overlay" class="fixed inset-0 z-[1000] bg-white opacity-20"></div>
+
+@{
+    var demoUser = new { Name = "Jack", Avatar = "https://cataas.com/cat" };
+}
+
+<!-- 編輯發文容器 -->
+<div id="postModal" class="fixed inset-0 z-[1010] flex items-center justify-center">
+    <div class="relative max-h-[800px] min-h-[450px] w-[600px] rounded-[15px] bg-[#161616] p-6">
+        <div class="absolute top-[25px] left-[24px] h-[32px] w-[34px] rounded-[24px] bg-cover bg-center bg-no-repeat"
+             style="background-image: url('@(demoUser.Avatar)')">
+        </div>
+        <div class="absolute top-[30px] left-[69px] text-white text-[18px] font-['Roboto'] font-normal leading-[22px]">
+            @demoUser.Name
+        </div>
+        <button class="absolute top-[22px] right-[24px] h-[32px] w-[32px] text-white hover:text-gray-300">
+            <svg viewBox="0 0 24 24" class="h-full w-full fill-current">
+                <path d="M6 6 L18 18 M6 18 L18 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+            </svg>
+        </button>
+        <textarea class="absolute top-[82px] left-[24px] right-[24px] h-[150px] resize-none rounded-[10px] bg-[#161616] p-4 text-white text-[16px] font-['Source_Sans_Pro'] font-normal leading-[19px] text-justify border border-black focus:outline-none focus:border-white" placeholder="Write your post here..."></textarea>
+        <button class="absolute right-[24px] bottom-[20px] flex h-[50px] w-[50px] items-center justify-center rounded-[32px] border-0 bg-[#2a629a] text-white transition duration-200 outline-none hover:bg-[#3476bd]">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                 class="h-[24px] w-[24px] fill-current text-white">
+                <path d="M0 0h24v24H0z" fill="none" />
+                <path d="M2.01 21 23 12 2.01 3 2 10l15 2-15 2z" />
+            </svg>
+        </button>
+        <button type="button" class="absolute bottom-[29px] left-[24px] h-[32px] w-[32px] text-[#a2a2a2] text-[32px] transition-colors duration-200 hover:text-white">
+            <svg xmlns="http://www.w3.org/2000/svg" style="width: 24px; height: 24px; overflow: visible; fill: rgb(162, 162, 162);" viewBox="0 0 24 24"><path d="M0 0h24v24H0z" fill="none"></path><path d="M16.5 6v11.5c0 2.21-1.79 4-4 4s-4-1.79-4-4V5a2.5 2.5 0 0 1 5 0v10.5c0 .55-.45 1-1 1s-1-.45-1-1V6H10v9.5a2.5 2.5 0 0 0 5 0V5c0-2.21-1.79-4-4-4S7 2.79 7 5v12.5c0 3.04 2.46 5.5 5.5 5.5s5.5-2.46 5.5-5.5V6h-1.5z"></path></svg>
+        </button>
+        <button type="button" class="absolute bottom-[29px] left-[72px] h-[32px] w-[32px] text-[#ff7f3e] text-[32px] transition-colors duration-200 hover:text-white">
+            <svg xmlns="http://www.w3.org/2000/svg" style="width: 24px; height: 24px; overflow: visible; fill: rgb(255, 127, 62);" viewBox="0 0 24 24"><path d="M0 0h24v24H0z" fill="none"></path><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"></path></svg>
+        </button>
+        <button type="button" class="absolute bottom-[29px] left-[124px] h-[32px] w-[32px] text-[#ffda78] text-[32px] transition-colors duration-200 hover:text-white">
+            <svg xmlns="http://www.w3.org/2000/svg" style="width: 24px; height: 24px; overflow: visible; fill: rgb(255, 218, 120);" viewBox="0 0 448 512"><path d="M48 32H197.5C214.5 32 230.7 38.74 242.7 50.75L418.7 226.7C443.7 251.7 443.7 292.3 418.7 317.3L285.3 450.7C260.3 475.7 219.7 475.7 194.7 450.7L18.75 274.7C6.743 262.7 0 246.5 0 229.5V80C0 53.49 21.49 32 48 32L48 32zM112 176C129.7 176 144 161.7 144 144C144 126.3 129.7 112 112 112C94.33 112 80 126.3 80 144C80 161.7 94.33 176 112 176z"></path></svg>
+        </button>
+
+
+    
+    </div>
+</div>
+
+
+
 
 @section Scripts {
     <script>
@@ -120,7 +168,7 @@
                 left: carousel.scrollWidth,
                 behavior: 'smooth'
               });
-            } 
+            }
             else {
               carousel.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
             }
@@ -130,7 +178,7 @@
             const maxScrollLeft = carousel.scrollWidth - carousel.clientWidth;
             if (carousel.scrollLeft >= maxScrollLeft - 10) {
               carousel.scrollTo({ left: 0, behavior: 'smooth' });
-            } 
+            }
             else {
               carousel.scrollBy({ left: scrollAmount, behavior: 'smooth' });
             }
