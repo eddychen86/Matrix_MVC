@@ -18,6 +18,9 @@
   <data name="Collects">
     <value>收藏</value>
   </data>
+  <data name="Language">
+    <value>繁體中文</value>
+  </data>
   <data name="HideBar">
     <value>隱藏側欄</value>
   </data>

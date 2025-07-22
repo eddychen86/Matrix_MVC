@@ -1,13 +1,7 @@
 @using Microsoft.Extensions.Localization;
 @inject IStringLocalizerFactory LocalizerFactory
 @{
-    // 手動設定文化為測試
-    System.Globalization.CultureInfo.CurrentUICulture = new System.Globalization.CultureInfo("zh-TW");
-    
     var Localizer = LocalizerFactory.Create("Views.Common.Menu", "Matrix");
-    // 除錯：檢查本地化是否工作
-    var testValue = Localizer["Search"];
-    var currentCulture = System.Globalization.CultureInfo.CurrentUICulture.Name;
 }
 @{
     var menus = new[]
@@ -20,6 +14,7 @@
 
     var bottoms = new[]
     {
+        new { title = Localizer["Language"], icon = "languages", click="toggleLang" },
         new { title = Localizer["HideBar"], icon = "panel-right-open", click="toggleSidebar" },
         new { title = Localizer["LogOut"], icon = "log-out", click="" }
     };
@@ -68,8 +63,7 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', () => {
-        // 目前語系
-        console.log(`Culture: @currentCulture`)
+        // 本地化已啟用
 
         if (typeof Vue !== 'undefined') {
             const { createApp, ref, onMounted } = Vue;
@@ -85,8 +79,26 @@
                         lucide.createIcons();
                     };
 
+                    const toggleLang = () => {
+                        // 獲取當前語言設定
+                        const currentLang = document.documentElement.lang || 'zh-TW';
+                        
+                        // 切換語言
+                        const newLang = currentLang === 'zh-TW' ? 'en-US' : 'zh-TW';
+                        
+                        // 設定 cookie 記住用戶偏好（有效期 1 年）
+                        // ASP.NET Core 預設的 culture cookie 名稱是 ".AspNetCore.Culture"
+                        const cultureCookie = `c=${newLang}|uic=${newLang}`;
+                        document.cookie = `.AspNetCore.Culture=${cultureCookie}; path=/; max-age=31536000; SameSite=Lax`;
+                        console.log(`Setting culture cookie: ${cultureCookie}`)
+                        
+                        // 重新載入頁面以套用新語言
+                        window.location.reload();
+                    }
+
                     return {
                         isCollapsed,
+                        toggleLang,
                         toggleSidebar
                     };
                 }

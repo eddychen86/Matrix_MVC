@@ -18,6 +18,9 @@
   <data name="Collects">
     <value>Collects</value>
   </data>
+  <data name="Language">
+    <value>English</value>
+  </data>
   <data name="HideBar">
     <value>Hide bar</value>
   </data>

@@ -72,12 +72,14 @@ public class Program
             options.SupportedCultures = supportedCultures;
             options.SupportedUICultures = supportedCultures;
             
-            // 清除所有預設的本地化提供者，強制使用 zh-TW
-            options.RequestCultureProviders.Clear();
-            options.RequestCultureProviders.Add(new CustomRequestCultureProvider(context =>
+            // 配置本地化提供者順序：Query String > Cookie > Accept-Language > 預設
+            options.RequestCultureProviders = new List<IRequestCultureProvider>
             {
-                return Task.FromResult<ProviderCultureResult?>(new ProviderCultureResult("zh-TW"));
-            }));
+                new QueryStringRequestCultureProvider(),
+                new CookieRequestCultureProvider(),
+                new AcceptLanguageHeaderRequestCultureProvider()
+            };
+            // 當所有提供者都沒有結果時，使用預設文化 zh-TW
         });
 
         // -------------------------------------------------
