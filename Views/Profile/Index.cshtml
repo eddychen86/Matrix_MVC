@@ -17,7 +17,8 @@
 
 </head> *@
 <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-<script src="~/lib/lucide/dist/umd/lucide.min.js"></script>
+<link href="https://unpkg.com/lucide-static/font/lucide.css" rel="stylesheet" />
+
 
 
 <div id="app" class="relative mx-auto flex w-full max-w-[1920px] flex-col bg-[#161616] text-white">
@@ -36,8 +37,10 @@
         <div class="relative mt-8 flex flex-col items-center justify-between px-8 md:flex-row md:pr-[300px]">
             <div class="flex items-center gap-3 md:ml-[600px]">
                 <span class="font-sans text-2xl leading-[40px] font-semibold text-white md:text-[40px]">Michael Jordan</span>
-                <!-- 這裡也可以放身份圖標 -->
-                <i data-lucide="globe" class="h-6 w-6 text-white"></i>
+
+                <span ref="iconEl" :class="['text-xl text-white', isPublic ? 'icon-globe' : 'icon-globe-lock']"></span>
+
+
             </div>
             
 
@@ -127,6 +130,38 @@
                             <input type="text" placeholder="Website..." class="h-[40px] w-full rounded border border-gray-400 bg-black px-4 text-[15px] text-white focus:border-blue-500 focus:outline-none" />
                         </div>
                     </div>
+                    <div class="flex w-full flex-col items-start text-[18px] text-white sm:flex-row sm:items-center">
+                        <label class="w-full font-normal sm:w-1/3">Wallet Address</label>
+                        <input type="text" placeholder="Wallet Address..." class="mt-2 h-[54px] w-full rounded border border-gray-400 bg-black px-4 text-[16px] text-white focus:border-blue-500 focus:outline-none sm:mt-0 sm:w-2/3" />
+                    </div>
+                    <!-- Toggle Switch: Private ↔ Public -->
+                    <div class="flex w-full flex-col items-start text-[18px] text-white sm:flex-row sm:items-center">
+                        <!-- 左側標籤 -->
+                        <label class="w-full font-normal sm:w-1/3">Private</label>
+
+                        <!-- 右側切換區塊 -->
+                        <div class="mt-2 w-full sm:mt-0 sm:w-2/3">
+                            <div class="flex items-center justify-center gap-4 sm:justify-start">
+                                <!-- Private -->
+                                <span class="text-[17px] text-gray-300">Private</span>
+
+                                <!-- 切換按鈕 -->
+                                <button class="relative inline-flex h-[36px] w-[64px] items-center rounded-full border border-gray-400 bg-black transition duration-300 focus:outline-none"
+                                        :class="{ 'bg-green-500': isPublic }"
+                                        @@click ="toggleIcon">
+                                    <span class="absolute left-1 h-[28px] w-[28px] transform rounded-full bg-white shadow transition duration-300"
+                                          :class="{ 'translate-x-[28px]': isPublic }"></span>
+                                </button>
+
+                                <!-- Public -->
+                                <span class="text-[17px] text-gray-300">Public</span>
+                            </div>
+                        </div>
+                    </div>
+
+
+
+
                 </div>
 
                 <div class="mt-6 flex justify-center space-x-8">
@@ -141,19 +176,24 @@
         </div>
     </div>
 </div>
-<script>
-    lucide.createIcons();
-</script>
+
 
 <script>
-    const { createApp, ref } = Vue;
-
-    createApp({
-      setup() {
-        const editMode = ref(false);
-        return { editMode };
+    const app = Vue.createApp({
+      data() {
+        return {
+          editMode: false,
+          isPublic: false
+        };
+      },
+      methods: {
+        toggleIcon() {
+          this.isPublic = !this.isPublic;
+        }
       }
-    }).mount('#app');
+    });
+
+    app.mount('#app');
 </script>
 
 
@@ -161,13 +201,3 @@
 
 
 @* </html> *@
-
-
-
-
-
-
-
-
-
-
