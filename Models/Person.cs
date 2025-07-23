@@ -68,7 +68,7 @@ namespace Matrix.Models{
         /// <summary>
         /// 關聯的用戶帳號，一對一關聯
         /// </summary>
-        public virtual required User User { get; set; }
+        public virtual User? User { get; set; }
         
         /// <summary>
         /// 用戶發布的文章集合

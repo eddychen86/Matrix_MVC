@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="@System.Globalization.CultureInfo.CurrentUICulture.Name">
+
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Matrix</title>
+        <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+        <link rel="stylesheet" href="~/css/components.css" asp-append-version="true" />
+    </head>
+
+    <body class="w-screen h-screen">
+        @RenderBody()
+
+        <script src="~/lib/jquery/jquery.min.js"></script>
+        <script src="~/lib/vue/dist/vue.global.js"></script>
+        <script src="~/lib/lucide/dist/umd/lucide.min.js"></script>
+
+        <script>
+            lucide.createIcons();
+            $(document).ready(function() {
+                const { createApp, ref, onMounted } = Vue
+
+                createApp({
+                    setup() {
+                        const isLoginPage = ref(window.location.pathname.toLowerCase() === '/login')
+                        const isForgot = ref(false)
+                        
+                        const toggleOpen = () => isForgot.value = true
+                        const toggleClose = () => isForgot.value = false
+
+                        onMounted(() => {
+                            $('#auth-body').addClass(isLoginPage.value ? 'auth-layout_login' : 'auth-layout_register')
+                        })
+                        
+                        return {
+                            isLoginPage,
+                            isForgot,
+                            toggleOpen,
+                            toggleClose
+                        }
+                    }
+                }).mount('#auth-body')
+            })
+        </script>
+
+        @await RenderSectionAsync("Scripts", required: false)
+    </body>
+
+</html>

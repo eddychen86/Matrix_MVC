@@ -18,7 +18,6 @@ namespace Matrix.Migrations
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
-#pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("ProductVersion", "8.0.11")
                 .HasAnnotation("Proxies:ChangeTracking", false)
@@ -629,7 +628,6 @@ namespace Matrix.Migrations
                     b.Navigation("Person")
                         .IsRequired();
                 });
-#pragma warning restore 612, 618
         }
     }
 }

@@ -1,0 +1,164 @@
+﻿@using Microsoft.AspNetCore.Mvc.Localization;
+@model Matrix.ViewModels.RegisterViewModel
+@inject IViewLocalizer Localizer
+@{
+    ViewData["Title"] = Localizer["Register"];
+    Layout = "~/Views/Shared/_AuthLayout.cshtml";
+
+    var userNamePlaceholder = Localizer["Enter User Name"];
+    var emailPlaceholder = Localizer["Enter Email"];
+    var passwordPlaceholder = Localizer["Enter Password"];
+    var confirmPasswordPlaceholder = Localizer["Confirm Password"];
+}
+
+<div id="auth-body">
+    <div id="auth-form">
+        <div id="mock"></div>
+        <form method="POST" class="w-4/5 md:w-3/4 lg:w-1/2">
+            @Html.AntiForgeryToken()
+            <h1>@ViewData["Title"]</h1>
+            <p class="text-center subTitle">@Localizer["Join the blockchain community"]</p>
+
+            @* 用戶名 *@
+            <div class="input-item">
+                <label for="UserName" class="subTitle">@Localizer["UserNameLabel"]</label>
+                <input type="text" asp-for="UserName" placeholder="@userNamePlaceholder">
+                <p asp-validation-for="UserName" class="text-red-400 para"></p>
+            </div>
+
+            @* 信箱 *@
+            <div class="input-item">
+                <label for="Email" class="subTitle">@Localizer["EmailLabel"]</label>
+                <input type="text" asp-for="Email" placeholder="@emailPlaceholder">
+                <p asp-validation-for="Email" class="text-red-400 para"></p>
+            </div>
+            
+            @* 密碼 *@
+            <div class="input-item">
+                <label for="Password" class="subTitle">@Localizer["PasswordLabel"]</label>
+                <div class="input-item_pwd">
+                    <input type="password" asp-for="Password" placeholder="@passwordPlaceholder">
+                    <button id="private-btn" type="button">
+                        <i data-lucide="eye-closed" class="text-secondary subTitle"></i>
+                    </button>
+                </div>
+                <p asp-validation-for="Password" class="text-red-400 para"></p>
+            </div>
+
+            @* 確認密碼 *@
+            <div class="input-item">
+                <label for="ConfirmPassword" class="subTitle">@Localizer["ConfirmPasswordLabel"]</label>
+                <div class="input-item_pwd">
+                    <input type="password" asp-for="PasswordConfirm" placeholder="@confirmPasswordPlaceholder">
+                    <button id="confirm-private-btn" type="button">
+                        <i data-lucide="eye-closed" class="text-secondary subTitle"></i>
+                    </button>
+                </div>
+                <p asp-validation-for="ConfirmPassword" class="text-red-400 para"></p>
+            </div>
+
+            @* 錯誤訊息 *@
+            <div id="auth-error-register" class="hidden">
+                <div class="mock"></div>
+                <div class="msg-body">
+                    <i data-lucide="circle-x"></i>
+                    <p class="para"></p>
+                </div>
+            </div>
+
+            @* 註冊按鈕 *@
+            <button type="submit" class="auth-btn subTitle py-2">@Localizer["RegisterButton"]</button>
+            
+            @* 已有帳號 *@
+            <p class="para text-center">@Localizer["Already have an account?"] <a href="/login" class="font-semibold">@Localizer["Login"]</a></p>
+        </form>
+    </div>
+</div>
+
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        const updateErrorMsg = err => {
+            const authError = $('#auth-error-register p');
+            const isHidden = $('#auth-error-register').hasClass('hidden')
+
+            // 清除之前的錯誤訊息
+            $('.input-item p').text('');
+
+            if (!isHidden) $('#auth-error-register').addClass('hidden')
+
+            Object.keys(err).forEach(field => {
+                const errMsg = err[field];
+
+                @* console.log(`err: ${err}\nfield: ${field}\nerrMsg: ${errMsg}`) *@
+
+                if (errMsg && errMsg.length > 0) {
+                    // 嘗試多種選擇器來找到驗證元素
+                    let el = $(`p[asp-validation-for="${field}"]`)
+
+                    if (el.length > 0 && field) {
+                        el.text(errMsg[0])
+                    } else if (el.length > 0 && !field) {
+                        $('#auth-error-register').removeClass('hidden')
+                        authError.text(errMsg[0])
+                    } else
+                        console.log(`Could not find validation element for ${field}`)
+                }
+            });
+        }
+        
+        // 密碼顯示／隱藏功能
+        const togglePwdView = (id, pwd) => {
+            $(id).on('click', function() {
+                const type = $(pwd).attr('type') === 'password' ? 'text' : 'password';
+                $(pwd).attr('type', type);
+                const icon = type === 'password'
+                    ? '<i data-lucide="eye-closed" class="text-secondary subTitle"></i>'
+                    : '<i data-lucide="eye" class="text-secondary subTitle"></i>';
+                $(this).html(icon);
+                lucide.createIcons()
+            })
+        }
+
+        $(document).ready(() => {
+            togglePwdView('#private-btn', '#Password');
+            togglePwdView('#confirm-private-btn', '#PasswordConfirm');
+
+            $('form').on('submit', async e => {
+                // 阻止表單提交
+                e.preventDefault()
+
+                try {
+                    // 獲取 anti-forgery token
+                    const token = $('input[name="__RequestVerificationToken"]').val();
+                    
+                    // 使用 AJAX 與 async/await 送到 /api/login
+                    const res = await $.ajax({
+                        url: '/api/register',
+                        type: 'POST',
+                        contentType: 'application/json',
+                        headers: { 'RequestVerificationToken': token },
+                        data: JSON.stringify({
+                            UserName: $('#UserName').val(),
+                            Email: $('#Email').val(),
+                            Password: $('#Password').val(),
+                            PasswordConfirm: $('#PasswordConfirm').val(),
+                        })
+                    })
+
+                    if (res.success)
+                        window.location.href = res.redirectUrl
+                    else (res.errors)
+                        updateErrorMsg(res.errors)
+                } catch (error) {                    
+                    if (error.status === 400 && error.responseJSON && error.responseJSON.errors) {
+                        // 顯示各欄位的驗證錯誤
+                        const errors = error.responseJSON.errors;
+                        updateErrorMsg(errors)
+                    }
+                }
+            });
+        });
+    </script>
+}

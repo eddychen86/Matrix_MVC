@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype" value="text/microsoft-resx" />
+  <resheader name="version" value="2.0" />
+  <resheader name="reader" value="System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+  <resheader name="writer" value="System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+  <data name="ReportsTitle" xml:space="preserve">
+    <value>報告管理</value>
+  </data>
+  <data name="ReportID" xml:space="preserve">
+    <value>報告編號</value>
+  </data>
+  <data name="ReportName" xml:space="preserve">
+    <value>報告名稱</value>
+  </data>
+  <data name="ReportDate" xml:space="preserve">
+    <value>報告日期</value>
+  </data>
+  <data name="ReportType" xml:space="preserve">
+    <value>報告類型</value>
+  </data>
+</root>

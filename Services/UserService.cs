@@ -63,17 +63,11 @@ namespace Matrix.Services
             /// <summary>
             /// 建立使用者
             /// </summary>
-            public async Task<bool> CreateUserAsync(CreateUserDto dto)
+            public async Task<Guid?> CreateUserAsync(CreateUserDto dto)
             {
-                if (await IsEmailExistsAsync(dto.Email)) return false;
+                if (await IsEmailExistsAsync(dto.Email)) return null;
     
-                var person = new Person
-                {
-                    DisplayName = dto.UserName,
-                    ModifyTime = DateTime.Now,
-                    User = null! // 稍後設定
-                };
-    
+                // 先創建 User（不包含 Person）
                 var user = new User
                 {
                     Role = 0,
@@ -81,17 +75,26 @@ namespace Matrix.Services
                     Email = dto.Email,
                     Password = HashPassword(dto.Password),
                     CreateTime = DateTime.Now,
-                    Status = 0,
-                    Person = person
+                    Status = 0
                 };
 
-                person.User = user;
-                person.UserId = user.UserId;
-    
+                // 添加並保存 User
                 _context.Users.Add(user);
+                await _context.SaveChangesAsync();
+
+                // 自動創建對應的 Person
+                var person = new Person
+                {
+                    UserId = user.UserId, // 設定外鍵
+                    DisplayName = dto.UserName,
+                    ModifyTime = DateTime.Now
+                };
+
+                // 添加並保存 Person
                 _context.Persons.Add(person);
                 await _context.SaveChangesAsync();
-                return true;
+                
+                return user.UserId;
             }
     
             /// <summary>
@@ -105,12 +108,47 @@ namespace Matrix.Services
     
                 if (user?.Person == null) return false;
     
+                // 更新 User 相關欄位
                 if (!string.IsNullOrEmpty(dto.UserName))
                 {
                     user.UserName = dto.UserName;
-                    user.Person.DisplayName = dto.UserName;
+                    // 如果沒有特別指定 DisplayName，就同步更新
+                    if (string.IsNullOrEmpty(dto.DisplayName))
+                        user.Person.DisplayName = dto.UserName;
                 }
                 
+                if (!string.IsNullOrEmpty(dto.Email))
+                    user.Email = dto.Email;
+                
+                if (!string.IsNullOrEmpty(dto.Country))
+                    user.Country = dto.Country;
+                
+                if (dto.Gender.HasValue)
+                    user.Gender = dto.Gender;
+                
+                // 更新 Person 相關欄位
+                if (!string.IsNullOrEmpty(dto.DisplayName))
+                    user.Person.DisplayName = dto.DisplayName;
+                
+                if (!string.IsNullOrEmpty(dto.Bio))
+                    user.Person.Bio = dto.Bio;
+                
+                if (!string.IsNullOrEmpty(dto.AvatarPath))
+                    user.Person.AvatarPath = dto.AvatarPath;
+                
+                if (!string.IsNullOrEmpty(dto.BannerPath))
+                    user.Person.BannerPath = dto.BannerPath;
+                
+                if (!string.IsNullOrEmpty(dto.ExternalUrl))
+                    user.Person.ExternalUrl = dto.ExternalUrl;
+                
+                if (dto.IsPrivate.HasValue)
+                    user.Person.IsPrivate = dto.IsPrivate.Value;
+                
+                if (!string.IsNullOrEmpty(dto.WalletAddress))
+                    user.Person.WalletAddress = dto.WalletAddress;
+                
+                // 更新修改時間
                 user.Person.ModifyTime = DateTime.Now;
     
                 await _context.SaveChangesAsync();

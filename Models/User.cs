@@ -75,6 +75,6 @@ namespace Matrix.Models{
         /// <summary>
         /// 關聯的用戶個人資料
         /// </summary>
-        public virtual required Person Person { get; set; }
+        public virtual Person? Person { get; set; }
     }
 }
