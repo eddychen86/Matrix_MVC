@@ -6,6 +6,9 @@ using DotNetEnv;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.Extensions.Options;
 using System.Globalization;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 namespace Matrix;
 
@@ -14,6 +17,11 @@ public class Program
     public static void Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
+
+        // 配置 Console Logging Provider
+        builder.Logging.ClearProviders();
+        builder.Logging.AddConsole();
+        builder.Logging.AddDebug();
 
         // 載入 .env
         DotNetEnv.Env.Load();
@@ -44,6 +52,35 @@ public class Program
 
         // builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
         //     .AddEntityFrameworkStores<ApplicationDbContext>();
+
+        // -------------------------------------------------
+
+        // -------------------- JWT 設定 ---------------------
+        var jwtKey = builder.Configuration["Jwt:Key"];
+        var jwtIssuer = builder.Configuration["Jwt:Issuer"];
+
+        if (string.IsNullOrEmpty(jwtKey) || string.IsNullOrEmpty(jwtIssuer))
+        {
+            throw new InvalidOperationException("JWT Key or Issuer not configured.");
+        }
+
+        builder.Services.AddAuthentication(options =>
+        {
+            options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+        })
+        .AddJwtBearer(options =>
+        {
+            options.TokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateIssuer = true,
+                ValidateAudience = false,
+                ValidateLifetime = true,
+                ValidateIssuerSigningKey = true,
+                ValidIssuer = jwtIssuer,
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
+            };
+        });
 
         // -------------------------------------------------
 
@@ -105,6 +142,8 @@ public class Program
         // -------------------------------------------------
 
         app.UseRouting();
+
+        app.UseAuthentication();
         app.UseAuthorization();
 
         app.MapControllerRoute(

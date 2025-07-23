@@ -10,6 +10,7 @@
 
     <ItemGroup>
         <PackageReference Include="DotNetEnv" Version="3.1.1" />
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.0" />
         <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="8.0.11" />
         <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.11" />
         <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="8.0.11" />
@@ -19,6 +20,21 @@
         <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.11" />
         <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.7" />
         <PackageReference Include="UUID" Version="1.1.1" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Compile Update="Resources\Views\Auth\Auth.Designer.cs">
+        <DesignTime>True</DesignTime>
+        <AutoGen>True</AutoGen>
+        <DependentUpon>Auth.resx</DependentUpon>
+        </Compile>
+    </ItemGroup>
+
+    <ItemGroup>
+        <EmbeddedResource Update="Resources\Views\Auth\Auth.resx">
+        <Generator>PublicResXFileCodeGenerator</Generator>
+        <LastGenOutput>Auth.Designer.cs</LastGenOutput>
+        </EmbeddedResource>
     </ItemGroup>
 
     <ItemGroup>

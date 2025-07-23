@@ -23,6 +23,13 @@ namespace Matrix.Services.Interfaces
         Task<UserDto?> GetUserByEmailAsync(string email);
 
         /// <summary>
+        /// 根據使用者名稱獲取使用者資料
+        /// </summary>
+        /// <param name="username">使用者名稱</param>
+        /// <returns>使用者資料傳輸物件，如果不存在則返回 null</returns>
+        Task<UserDto?> GetUserByUsernameAsync(string username);
+
+        /// <summary>
         /// 建立新使用者
         /// </summary>
         /// <param name="dto">建立使用者資料傳輸物件</param>

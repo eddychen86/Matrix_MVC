@@ -72,10 +72,28 @@
   <data name="EmailFormatError">
     <value>Email must be less than 30 characters.</value>
   </data>
+  <data name="EmailRequired">
+    <value>Email is required.</value>
+  </data>
+  <data name="EmailInvalid">
+    <value>Please enter a valid email address.</value>
+  </data>
+  <data name="PasswordLengthError">
+    <value>Password must be between 8 and 20 characters.</value>
+  </data>
+  <data name="PasswordConfirmRequired">
+    <value>Password confirmation is required.</value>
+  </data>
+  <data name="PasswordCompareError">
+    <value>Passwords do not match.</value>
+  </data>
+  <data name="UsernameOrEmailExists">
+    <value>Username or email already exists.</value>
+  </data>
 
   <!-- Invisit -->
   <data name="NewHereMsg">
-    <value>New here? <a>Sign up</a> now!</value>
+    <value>New here? Let </value>
   </data>
   <data name="hasAccountMsg">
     <value>Already have an account?</value>

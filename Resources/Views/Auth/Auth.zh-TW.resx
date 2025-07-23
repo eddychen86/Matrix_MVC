@@ -73,12 +73,30 @@
     <value>密碼需至少要有一個大寫字母、一個小寫字母、一個數字、一個特殊符號。</value>
   </data>
   <data name="EmailFormatError">
-    <value>E電子郵件不得超過 30 個字。</value>
+    <value>電子郵件不得超過 30 個字。</value>
+  </data>
+  <data name="EmailRequired">
+    <value>電子郵件未填寫。</value>
+  </data>
+  <data name="EmailInvalid">
+    <value>請輸入有效的電子郵件地址。</value>
+  </data>
+  <data name="PasswordLengthError">
+    <value>密碼需介於 8 到 20 個字。</value>
+  </data>
+  <data name="PasswordConfirmRequired">
+    <value>確認密碼未填寫。</value>
+  </data>
+  <data name="PasswordCompareError">
+    <value>密碼不相符。</value>
+  </data>
+  <data name="UsernameOrEmailExists">
+    <value>用戶名或電子郵件已存在。</value>
   </data>
 
   <!-- Invisit -->
   <data name="NewHereMsg">
-    <value>新來的？<a>註冊</a>吧！</value>
+    <value>新來的？</value>
   </data>
   <data name="hasAccountMsg">
     <value>已經有帳號？</value>

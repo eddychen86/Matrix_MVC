@@ -1,45 +1,98 @@
 using System;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using Matrix.Resources.Views.Auth;
 
 namespace Matrix.ViewModels
 {
     public class RegisterViewModel
     {
-        [Required(ErrorMessage = "User name is required")]
-        [StringLength(20, MinimumLength = 3)]
+        [Required(
+            ErrorMessageResourceName = "UserNameInvalid",
+            ErrorMessageResourceType = typeof(Auth)
+        )]
+        [StringLength(20,
+            MinimumLength = 3,
+            ErrorMessageResourceName = "UserNameFormatError",
+            ErrorMessageResourceType = typeof(Auth)
+        )]
         public string UserName { get; set; } = null!;
 
-        [Required(ErrorMessage = "Email is required")]
-        [EmailAddress]
-        [StringLength(30, ErrorMessage = "Email must be less than 30 characters")]
+        [Required(
+            ErrorMessageResourceName = "EmailRequired",
+            ErrorMessageResourceType = typeof(Auth)
+        )]
+        [EmailAddress(
+            ErrorMessageResourceName = "EmailInvalid",
+            ErrorMessageResourceType = typeof(Auth)
+        )]
+        [StringLength(30,
+            ErrorMessageResourceName = "EmailFormatError",
+            ErrorMessageResourceType = typeof(Auth)
+        )]
         public string? Email { get; set; }
 
-        [Required]
+        [Required(
+            ErrorMessageResourceName = "PasswordInvalid",
+            ErrorMessageResourceType = typeof(Auth)
+        )]
         [DataType(DataType.Password)]
-        [StringLength(20, MinimumLength = 8, ErrorMessage = "Password must be between 8 and 20 characters long")]
-        [RegularExpression(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$", 
-            ErrorMessage = "Password must contain at least one uppercase letter, one lowercase letter, one digit, and one special character (@$!%*?&)")]
+        [StringLength(20,
+            MinimumLength = 8,
+            ErrorMessageResourceName = "PasswordLengthError",
+            ErrorMessageResourceType = typeof(Auth)
+        )]
+        [RegularExpression(
+            @"^.{8,20}$", 
+            ErrorMessageResourceName = "PasswordLengthError",
+            ErrorMessageResourceType = typeof(Auth)
+        )]
         public string Password { get; set; } = null!;
 
-        [Required]
+        [Required(
+            ErrorMessageResourceName = "PasswordConfirmRequired",
+            ErrorMessageResourceType = typeof(Auth)
+        )]
         [DataType(DataType.Password)]
-        [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
+        [Compare(
+            "Password",
+            ErrorMessageResourceName = "PasswordCompareError",
+            ErrorMessageResourceType = typeof(Auth)
+        )]
         public string PasswordConfirm { get; set; } = null!;
     }
 
     public class LoginViewModel
     {
-        [Required(ErrorMessage = "User name is required")]
-        [StringLength(20, MinimumLength = 3)]
+        [Required(
+            ErrorMessageResourceName = "UserNameInvalid",
+            ErrorMessageResourceType = typeof(Auth)
+        )]
+        [StringLength(20,
+            MinimumLength = 3,
+            ErrorMessageResourceName = "UserNameFormatError",
+            ErrorMessageResourceType = typeof(Auth)
+        )]
         public string UserName { get; set; } = null!;
 
-        [Required(ErrorMessage = "Password is required")]
+        [Required(
+            ErrorMessageResourceName = "PasswordInvalid",
+            ErrorMessageResourceType = typeof(Auth)
+        )]
         [DataType(DataType.Password)]
-        [StringLength(20, MinimumLength = 8, ErrorMessage = "Password must be between 8 and 20 characters long")]
-        [RegularExpression(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$", 
-            ErrorMessage = "Password must contain at least one uppercase letter, one lowercase letter, one digit, and one special character (@$!%*?&)")]
+        [StringLength(20,
+            MinimumLength = 8,
+            ErrorMessageResourceName = "PasswordLengthError",
+            ErrorMessageResourceType = typeof(Auth)
+        )]
+        [RegularExpression(
+            @"^.{8,20}$", 
+            ErrorMessageResourceName = "PasswordLengthError",
+            ErrorMessageResourceType = typeof(Auth)
+        )]
         public string Password { get; set; } = null!;
+
+        public bool RememberMe { get; set; }
 
         public string? ErrorMessage { get; set; }
     }

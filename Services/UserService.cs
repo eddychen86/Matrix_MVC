@@ -59,6 +59,20 @@ namespace Matrix.Services
     
                 return await GetUserAsync(user.UserId);
             }
+
+            /// <summary>
+            /// 根據使用者名稱獲取使用者
+            /// </summary>
+            public async Task<UserDto?> GetUserByUsernameAsync(string username)
+            {
+                var user = await _context.Users
+                    .Include(u => u.Person)
+                    .FirstOrDefaultAsync(u => u.UserName == username);
+
+                if (user?.Person == null) return null;
+
+                return await GetUserAsync(user.UserId);
+            }
     
             /// <summary>
             /// 建立使用者
