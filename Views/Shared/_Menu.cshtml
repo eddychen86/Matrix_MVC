@@ -16,7 +16,8 @@
     {
         new { title = Localizer["Language"], icon = "languages", click="toggleLang" },
         new { title = Localizer["HideBar"], icon = "panel-right-open", click="toggleSidebar" },
-        new { title = Localizer["LogOut"], icon = "log-out", click="" }
+        new { title = Localizer["Login"], icon = "log-in", click="" },
+        new { title = Localizer["LogOut"], icon = "log-out", click="" },
     };
 }
 
@@ -29,14 +30,6 @@
             >
                 <img src="~/static/img/Matrix_logo_white.png" alt="Matrix Logo" class="icon-lg">
                 <span>@Localizer["Matrix"]</span>
-            </a>
-            <a asp-area="" asp-controller="Login" asp-action="Index" aria-current="page"
-                class="cts-btn hover:bg-gray-900 title"
-            >
-                <i data-lucide="plus"
-                    class="bg-white rounded-full overflow-hidden flex justify-center items-center icon-lg text-secondary p-1"
-                ></i>
-                <span>@Localizer["Login"]</span>
             </a>
         </li>
         <li>
@@ -57,6 +50,12 @@
                     <span class="title">@i.title</span>
                 </button>
             }
+            <a asp-area="" asp-controller="Login" asp-action="Index" aria-current="page"
+                class="cts-btn hover:bg-gray-200"
+            >
+                <i data-lucide="log-in" class="icon-base"></i>
+                <span class="title">@Localizer["Login"]</span>
+            </a>
         </li>
     </ul>
 </aside>

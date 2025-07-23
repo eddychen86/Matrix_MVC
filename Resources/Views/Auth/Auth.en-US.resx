@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- Title -->
+  <data name="LoginTitle">
+    <value>Login</value>
+  </data>
+  <data name="RegisterTitle">
+    <value>Register</value>
+  </data>
+  <data name="ForgotPasswordTitle">
+    <value>Forgot Password</value>
+  </data>
+
+  <!-- Sub Title -->
+  <data name="WelcomeMsg">
+    <value>Join the blockchain community</value>
+  </data>
+  <data name="ForgotPasswordMsg">
+    <value>Please enter your email address to reset your password.</value>
+  </data>
+
+  <!-- Label -->
+  <data name="UserNameLabel">
+    <value>User Name</value>
+  </data>
+  <data name="EmailLabel">
+    <value>Email Address</value>
+  </data>
+  <data name="PasswordLabel">
+    <value>Password</value>
+  </data>
+  <data name="ConfirmPasswordLabel">
+    <value>Confirm Password</value>
+  </data>
+  <data name="RememberMeLabel">
+    <value>Remember me</value>
+  </data>
+  <data name="ForgotPasswordLabel">
+    <value>Forgot password?</value>
+  </data>
+  <data name="SubmitBtn">
+    <value>Submit</value>
+  </data>
+
+  <!-- Placeholder -->
+  <data name="UserNamePlaceholder">
+    <value>Enter User Name</value>
+  </data>
+  <data name="EmailPlaceholder">
+    <value>Enter Email</value>
+  </data>
+  <data name="PasswordPlaceholder">
+    <value>Enter Password</value>
+  </data>
+  <data name="ConfirmPasswordPlaceholder">
+    <value>Confirm Password</value>
+  </data>
+
+  <!-- Error -->
+  <data name="UserNameInvalid">
+    <value>User name is required.</value>
+  </data>
+  <data name="PasswordInvalid">
+    <value>Password is required.</value>
+  </data>
+  <data name="UserNameFormatError">
+    <value>User name must be more than 3 characters and less than 20 characters.</value>
+  </data>
+  <data name="PasswordFormatError">
+    <value>Password must contain at least one uppercase letter, lowercase letter, digit, and special character.</value>
+  </data>
+  <data name="EmailFormatError">
+    <value>Email must be less than 30 characters.</value>
+  </data>
+
+  <!-- Invisit -->
+  <data name="NewHereMsg">
+    <value>New here? <a>Sign up</a> now!</value>
+  </data>
+  <data name="hasAccountMsg">
+    <value>Already have an account?</value>
+  </data>
+</root>
