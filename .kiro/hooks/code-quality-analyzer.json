@@ -1,0 +1,31 @@
+{
+  "name": "Code Quality Analyzer",
+  "description": "Analyzes modified source code files for potential improvements, code smells, design patterns, and best practices",
+  "trigger": {
+    "type": "file_change",
+    "patterns": [
+      "**/*.cs",
+      "**/*.js",
+      "**/*.ts",
+      "**/*.scss",
+      "**/*.css",
+      "**/*.cshtml"
+    ],
+    "excludePatterns": [
+      "**/bin/**",
+      "**/obj/**",
+      "**/Migrations/**",
+      "**/wwwroot/lib/**",
+      "**/*.min.js",
+      "**/*.min.css"
+    ]
+  },
+  "action": {
+    "type": "agent_request",
+    "request": "Analyze the modified code in #File for potential improvements. Focus on:\n\n1. **Code Smells**: Identify long methods, large classes, duplicate code, complex conditionals, and other maintainability issues\n2. **Design Patterns**: Suggest appropriate design patterns that could improve the code structure\n3. **Best Practices**: Check for adherence to C#/.NET, JavaScript, CSS, and web development best practices\n4. **Performance**: Identify potential performance optimizations\n5. **Readability**: Suggest improvements for code clarity and documentation\n6. **Security**: Flag potential security vulnerabilities or concerns\n\nProvide specific, actionable suggestions while maintaining the existing functionality. Include code examples where helpful."
+  },
+  "settings": {
+    "debounceMs": 2000,
+    "maxExecutionsPerHour": 20
+  }
+}
