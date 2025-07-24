@@ -1,0 +1,69 @@
+<!-- Universal Popup Modal -->
+<div id="popup-overlay" v-show="popupState.isVisible" @@click="closePopup">
+    
+    <div id="popup-container" @@click.stop="">
+        
+        <!-- Header -->
+        <div id="popup-header">
+            <h3 class="title">{{ popupState.title }}</h3>
+            <button @@click="closePopup">
+                <i data-lucide="x" class="icon-base"></i>
+            </button>
+        </div>
+        
+        <!-- Content -->
+        <div class="popup-content">
+            <!-- Search Content -->
+            <div v-show="popupState.type === 'Search'" class="popup-show">
+                <div class="popup-tool">
+                    <div class="search-form">
+                        <input type="text" v-model="searchQuery" class="para">
+                        <button>
+                            <i data-lucide="search" class="icon-base"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="data"></div>
+            </div>
+            
+            <!-- Notify Content -->
+            <div v-show="popupState.type === 'Notify'" class="popup-show">
+                <div class="popup-tool">
+                    <div class="search-form">
+                        <input type="text" v-model="searchQuery" class="para">
+                        <button>
+                            <i data-lucide="search" class="icon-base"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="data"></div>
+            </div>
+            
+            <!-- Follows Content -->
+            <div v-show="popupState.type === 'Follows'" class="popup-show">
+                <div class="popup-tool">
+                    <div class="search-form">
+                        <input type="text" v-model="searchQuery" class="para">
+                        <button>
+                            <i data-lucide="search" class="icon-base"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="data"></div>
+            </div>
+            
+            <!-- Collects Content -->
+            <div v-show="popupState.type === 'Collects'" class="popup-show">
+                <div class="popup-tool">
+                    <div class="search-form">
+                        <input type="text" v-model="searchQuery" class="para">
+                        <button>
+                            <i data-lucide="search" class="icon-base"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="data"></div>
+            </div>
+        </div>
+    </div>
+</div>

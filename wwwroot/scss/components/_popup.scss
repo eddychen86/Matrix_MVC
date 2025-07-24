@@ -1,53 +1,52 @@
 ﻿@layer components {
-    .popup-modal {
-        @apply flex items-center justify-center min-h-screen bg-gray-800 p-6 text-white left-1/2 top-1/2 -translate-1/2;
-    }
+    #popup-overlay {
+        @apply fixed inset-0 z-50 flex items-center justify-center bg-white/30;
+        
+        #popup-container {
+            @apply 
+                bg-[#161616] rounded-[30px] shadow-xl h-[500px] max-h-[700px] overflow-hidden p-8 text-white
+                w-4/5 md:w-2/3 lg:w-3/5
+            ;
+            
+            #popup-header {
+                @apply flex items-center justify-between mb-4;
 
-    .popup-content {
-        @apply
-            max-w-4xl bg-neutral-900 p-6 rounded-xl shadow-xl relative
-            w-full md:w-4/5 lg:w-1/2 min-h-1/3
-        ;
-    }
+                h3 {
+                    @apply font-bold;
+                }
 
-    .popup-header {
-        @apply flex items-center justify-between mb-4;
+                button {
+                    @apply text-red-300 cursor-pointer;
+                }
+            }
 
-        h2 {
-            @apply text-[28px] font-bold;
+            .popup-content {
+                @apply max-h-96;
+
+                .popup-show {
+                    @apply flex flex-col gap-8;
+                }
+
+                .popup-tool {
+                    @apply flex justify-end items-center w-full;
+
+                    .search-form {
+                        @apply relative w-1/2;
+
+                        input {
+                            @apply w-full min-h-14 px-4 bg-stone-400 rounded-full placeholder-gray-400 outline-none;
+                        }
+
+                        button {
+                            @apply absolute top-1/2 right-2 -translate-y-1/2 rounded-full bg-[#161616] overflow-hidden flex justify-center items-center w-12 h-12;
+                        }
+                    }
+                }
+
+                .data {
+                    @apply overflow-y-auto w-full;
+                }
+            }
         }
-
-        select {
-            @apply rounded-md border border-neutral-600 bg-neutral-800 px-3 py-1 text-white text-sm;
-        }
-    }
-
-    .popup-body {
-        @apply grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4;
-    }
-
-    .popup-item {
-        @apply flex flex-col gap-2 bg-neutral-800 p-4 rounded-xl shadow;
-
-        img {
-            @apply w-full h-auto object-cover rounded-md;
-        }
-
-        p {
-            @apply text-sm text-white;
-        }
-    }
-
-    .popup-pagination {
-        @apply mt-6 flex justify-center space-x-2;
-
-        button {
-            @apply w-8 h-8 rounded-full bg-white text-black text-sm flex items-center justify-center hover:scale-105 transition;
-            // ⚠️ 注意：不要加 font-bold，請在 .cshtml 中加 class="active font-bold"
-        }
-    }
-
-    .modal-close-btn {
-        @apply absolute right-4 top-4 text-white text-2xl z-50 hover:text-red-500;
     }
 }
