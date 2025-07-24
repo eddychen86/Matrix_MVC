@@ -1,50 +1,62 @@
 ﻿@layer components {
     #popup-overlay {
-        @apply fixed inset-0 z-50 flex items-center justify-center bg-white/30;
+        @apply fixed inset-0 z-50 flex items-center justify-center bg-white/30 overflow-hidden;
         
         #popup-container {
-            @apply 
-                bg-[#161616] rounded-[30px] shadow-xl h-[500px] max-h-[700px] overflow-hidden p-8 text-white
+            @apply
+                bg-[#161616] rounded-[30px] shadow-xl text-white
                 w-4/5 md:w-2/3 lg:w-3/5
             ;
             
             #popup-header {
-                @apply flex items-center justify-between mb-4;
+                @apply flex items-center justify-between p-8;
 
                 h3 {
                     @apply font-bold;
                 }
 
                 button {
-                    @apply text-red-300 cursor-pointer;
+                    @apply text-white cursor-pointer;
                 }
             }
 
             .popup-content {
-                @apply max-h-96;
+                @apply p-8 overflow-y-auto h-[600px];
 
-                .popup-show {
-                    @apply flex flex-col gap-8;
-                }
+                .popup-data {
+                    @apply w-full grid grid-cols-3 gap-8;
 
-                .popup-tool {
-                    @apply flex justify-end items-center w-full;
+                    .card {
+                        @apply h-[400px] relative overflow-hidden rounded-xl;
 
-                    .search-form {
-                        @apply relative w-1/2;
-
-                        input {
-                            @apply w-full min-h-14 px-4 bg-stone-400 rounded-full placeholder-gray-400 outline-none;
+                        img {
+                            @apply h-full object-cover object-center;
                         }
 
-                        button {
-                            @apply absolute top-1/2 right-2 -translate-y-1/2 rounded-full bg-[#161616] overflow-hidden flex justify-center items-center w-12 h-12;
+                        .card-body {
+                            @apply absolute bottom-0 left-0 z-10 w-full h-1/3;
+
+                            &:before {
+                                @apply content-[''] absolute top-0 left-0 w-full h-full inset-0 bg-gradient-to-t from-black/80 to-transparent;
+                            }
+
+                            .user {
+                                @apply flex gap-4 items-center;
+
+                                img {
+                                    @apply w-8 h-8 rounded-full overflow-hidden;
+                                }
+
+                                h2 {
+                                    @apply text-white font-semibold;
+                                }
+                            }
+
+                            p {
+                                @apply text-gray-400;
+                            }
                         }
                     }
-                }
-
-                .data {
-                    @apply overflow-y-auto w-full;
                 }
             }
         }

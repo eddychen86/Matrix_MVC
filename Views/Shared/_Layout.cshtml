@@ -17,9 +17,9 @@
     <div id="app" class="flex">  
         <partial name="_Menu" />  
 
-        <div class="relative flex w-full flex-col gap-4 p-4 pl-0">  
-            <main class="text-white">  
-                @RenderBody()  
+        <div class="relative flex w-full flex-col gap-4 p-4 pl-0">
+            <main class="text-white">
+                @RenderBody()
             </main>  
             <partial name="_Footer" />  
         </div>
@@ -28,9 +28,10 @@
         @await Component.InvokeAsync("Popup")  
     </div>  
 
-	<script src="~/lib/jquery/jquery.min.js"></script>  
-	<script src="~/lib/vue/dist/vue.global.js"></script>  
-	<script src="~/lib/lucide/dist/umd/lucide.min.js"></script>  
+	<script src="~/lib/jquery/jquery.min.js"></script>
+	<script src="~/lib/vue/dist/vue.global.js"></script>
+	<script src="~/lib/lucide/dist/umd/lucide.min.js"></script>
+	<script src="~/js/useFormatting.js"></script>
 	<script>  
 		lucide.createIcons();  
 
@@ -38,7 +39,9 @@
         
         // Global App State Management
         window.popupApp = createApp({  
-            setup() {  
+            setup() {
+                const { formatDate, timeAgo } = useFormatting();
+
                 // Popup State
                 const popupState = reactive({
                     isVisible: false,
@@ -51,11 +54,34 @@
                 
                 const searchQuery = ref('');
 
+                // Popup Data Storage
+                const popupData = reactive({
+                    Search: [],
+                    Notify: [],
+                    Follows: [],
+                    Collects: []
+                });
+
+                // Update popup data function
+                const updatePopupData = (type, data) => {
+                    if (popupData[type] !== undefined) {
+                        popupData[type] = data;
+                    }
+                };
+
                 // Popup Actions
-                const openPopup = (type) => {
+                const openPopup = async (type) => {
                     popupState.type = type;
                     popupState.title = getPopupTitle(type);
                     popupState.isVisible = true;
+
+                    try {
+                        const res = await fetch('/api/' + type.toLowerCase());
+                        const data = await res.json();
+                        updatePopupData(type, data);
+                    } catch (err) {
+                        console.log('Fetch Error:', err);
+                    }
                 };
                 
                 const closePopup = () => {
@@ -109,6 +135,7 @@
 
                 return {  
                     popupState,
+                    popupData,
                     searchQuery,
                     isCollapsed,
                     openPopup,
@@ -117,7 +144,9 @@
                     toggleLang,
                     // 為新版 popup 提供向後兼容
                     isOpen: computed(() => popupState.isVisible),
-                    closeCollectModal: closePopup
+                    closeCollectModal: closePopup,
+                    formatDate,
+                    timeAgo,
                 };  
             }  
         }).mount('#app');  
