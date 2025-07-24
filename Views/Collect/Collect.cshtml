@@ -1,38 +1,37 @@
 ﻿@model List<Matrix.ViewModels.CollectItemViewModel>
-<!---------------------->
-<main class="collect-page">
-    <button onclick="closeCollectModal()" class="modal-close-btn">&times;</button>
-    <div class="collect-container">
+@{
+    Layout = "~/Views/Shared/_PopUpPartial.cshtml";
+}
+
+<main class="popup-modal">
+    <div class="popup-content relative">
+        <button onclick="closeCollectModal()" class="modal-close-btn">&times;</button>
+
         <!-- 標題列 -->
-        <div class="collect-header">
-            <h2 class="title">收藏</h2>
-            <select class="collect-filter">
+        <div class="popup-header">
+            <h2 class="title">收藏</h2> @* 組長的 title 樣式 *@
+            <select class="subTitle">
                 <option>本月</option>
                 <option>上月</option>
             </select>
         </div>
 
         <!-- 卡片格線 -->
-        <div class="collect-grid">
+        <div class="popup-body">
             @foreach (var item in Model)
             {
-                <div class="collect-card">
-                    <div class="collect-card_image">
-                        <img src="@item.ImageUrl" alt="@item.Title" />
-                        <div class="image-overlay"></div>
-                    </div>
-                    <div class="card-body">
-                        <h2 class="card-title">@item.Title</h2>
-                        <p>加入日期：@item.CollectedAt.ToString("yyyy年MM月dd日")</p>
-                    </div>
+                <div class="popup-item">
+                    <img src="@item.ImageUrl" alt="@item.Title" />
+                    <p class="para">@item.Title</p>
+                    <p class="para">加入日期：@item.CollectedAt.ToString("yyyy年MM月dd日")</p>
                 </div>
             }
         </div>
 
         <!-- 分頁 -->
-        <div class="collect-pagination">
+        <div class="popup-pagination">
             <button>&lt;</button>
-            <button class="active">1</button>
+            <button class="active font-bold">1</button>
             <button>2</button>
             <button>3</button>
             <button>4</button>

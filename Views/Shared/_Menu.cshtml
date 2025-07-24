@@ -6,10 +6,10 @@
 @{
     var menus = new[]
     {
-        new { title = Localizer["Search"], icon = "search", func = "" },
-        new { title = Localizer["Notify"], icon = "bell", func = "" },
-        new { title = Localizer["Follows"], icon = "share-2", func = "" },
-        new { title = Localizer["Collects"], icon = "bookmark", func = "" },
+        new { title = Localizer["Search"], icon = "search", type = "Search" },
+        new { title = Localizer["Notify"], icon = "bell", type = "Notify" },
+        new { title = Localizer["Follows"], icon = "share-2", type = "Follows" },
+        new { title = Localizer["Collects"], icon = "bookmark", type = "Collects" },
     };
 
     var bottoms = new[]
@@ -42,10 +42,10 @@
         <li>
             @foreach (var i in menus)
             {
-                var isCollect = i.title == "Collects";
-                var onclick = isCollect ? "openCollectModal()" : "";
+                @* var isCollect = i.title == "Collects";
+                var onclick = isCollect ? "openCollectModal()" : ""; *@
 
-                <button class="cts-btn hover:bg-gray-900" onclick="@onclick">
+                <button class="cts-btn hover:bg-gray-900" v-on:click="toggleFunc(true, i.type)">
                     <i data-lucide="@i.icon" class="icon-base text-white"></i>
                     <span class="title">@i.title</span>
                 </button>
