@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <data name="Matrix">
+    <value>Matrix</value>
+  </data>
+  <data name="Login">
+    <value>Login</value>
+  </data>
+  <data name="Search">
+    <value>Search</value>
+  </data>
+  <data name="Notify">
+    <value>Notify</value>
+  </data>
+  <data name="Follows">
+    <value>Follows</value>
+  </data>
+  <data name="Collects">
+    <value>Collects</value>
+  </data>
+  <data name="Language">
+    <value>English</value>
+  </data>
+  <data name="HideBar">
+    <value>Hide bar</value>
+  </data>
+  <data name="LogOut">
+    <value>Log out</value>
+  </data>
+</root>

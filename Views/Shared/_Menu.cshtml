@@ -1,16 +1,22 @@
-﻿@{
+@using Microsoft.Extensions.Localization;
+@inject IStringLocalizerFactory LocalizerFactory
+@{
+    var Localizer = LocalizerFactory.Create("Views.Common.Menu", "Matrix");
+}
+@{
     var menus = new[]
     {
-        new { title = "Search", icon = "search", func = "" },
-        new { title = "Notify", icon = "bell", func = "" },
-        new { title = "Follows", icon = "share-2", func = "" },
-        new { title = "Collects", icon = "bookmark", func = "" },
+        new { title = Localizer["Search"], icon = "search", func = "" },
+        new { title = Localizer["Notify"], icon = "bell", func = "" },
+        new { title = Localizer["Follows"], icon = "share-2", func = "" },
+        new { title = Localizer["Collects"], icon = "bookmark", func = "" },
     };
 
     var bottoms = new[]
     {
-        new { title = "Hide bar", icon = "panel-right-open", click="toggleSidebar" },
-        new { title = "Log out", icon = "log-out", click="" }
+        new { title = Localizer["Language"], icon = "languages", click="toggleLang" },
+        new { title = Localizer["HideBar"], icon = "panel-right-open", click="toggleSidebar" },
+        new { title = Localizer["LogOut"], icon = "log-out", click="" }
     };
 }
 
@@ -22,7 +28,7 @@
                 class="cts-btn hover:bg-gray-900 title"
             >
                 <img src="~/static/img/Matrix_logo_white.png" alt="Matrix Logo" class="icon-lg">
-                <span>Matrix</span>
+                <span>@Localizer["Matrix"]</span>
             </a>
             <a asp-area="" asp-controller="Login" asp-action="Index" aria-current="page"
                 class="cts-btn hover:bg-gray-900 title"
@@ -30,7 +36,7 @@
                 <i data-lucide="plus"
                     class="bg-white rounded-full overflow-hidden flex justify-center items-center icon-lg text-secondary p-1"
                 ></i>
-                <span>Login</span>
+                <span>@Localizer["Login"]</span>
             </a>
         </li>
         <li>
@@ -57,6 +63,8 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', () => {
+        // 本地化已啟用
+
         if (typeof Vue !== 'undefined') {
             const { createApp, ref, onMounted } = Vue;
             
@@ -71,8 +79,26 @@
                         lucide.createIcons();
                     };
 
+                    const toggleLang = () => {
+                        // 獲取當前語言設定
+                        const currentLang = document.documentElement.lang || 'zh-TW';
+                        
+                        // 切換語言
+                        const newLang = currentLang === 'zh-TW' ? 'en-US' : 'zh-TW';
+                        
+                        // 設定 cookie 記住用戶偏好（有效期 1 年）
+                        // ASP.NET Core 預設的 culture cookie 名稱是 ".AspNetCore.Culture"
+                        const cultureCookie = `c=${newLang}|uic=${newLang}`;
+                        document.cookie = `.AspNetCore.Culture=${cultureCookie}; path=/; max-age=31536000; SameSite=Lax`;
+                        console.log(`Setting culture cookie: ${cultureCookie}`)
+                        
+                        // 重新載入頁面以套用新語言
+                        window.location.reload();
+                    }
+
                     return {
                         isCollapsed,
+                        toggleLang,
                         toggleSidebar
                     };
                 }

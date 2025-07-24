@@ -28,7 +28,6 @@ namespace Matrix.Migrations
             modelBuilder.Entity("Matrix.Models.Article", b =>
                 {
                     b.Property<Guid>("ArticleId")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("AuthorId")
@@ -64,7 +63,6 @@ namespace Matrix.Migrations
             modelBuilder.Entity("Matrix.Models.ArticleAttachment", b =>
                 {
                     b.Property<Guid>("FileId")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("ArticleId")
@@ -109,7 +107,6 @@ namespace Matrix.Migrations
             modelBuilder.Entity("Matrix.Models.Follow", b =>
                 {
                     b.Property<Guid>("FollowId")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("FollowTime")
@@ -134,7 +131,6 @@ namespace Matrix.Migrations
             modelBuilder.Entity("Matrix.Models.Friendship", b =>
                 {
                     b.Property<Guid>("FriendshipId")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("FriendId")
@@ -161,7 +157,6 @@ namespace Matrix.Migrations
             modelBuilder.Entity("Matrix.Models.Hashtag", b =>
                 {
                     b.Property<Guid>("TagId")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Content")
@@ -180,7 +175,6 @@ namespace Matrix.Migrations
             modelBuilder.Entity("Matrix.Models.LoginRecord", b =>
                 {
                     b.Property<Guid>("LoginId")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("History")
@@ -211,7 +205,6 @@ namespace Matrix.Migrations
             modelBuilder.Entity("Matrix.Models.Notification", b =>
                 {
                     b.Property<Guid>("NotifyId")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("GetId")
@@ -244,7 +237,6 @@ namespace Matrix.Migrations
             modelBuilder.Entity("Matrix.Models.Person", b =>
                 {
                     b.Property<Guid>("PersonId")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("AvatarPath")
@@ -290,7 +282,6 @@ namespace Matrix.Migrations
             modelBuilder.Entity("Matrix.Models.PraiseCollect", b =>
                 {
                     b.Property<Guid>("EventId")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("ArticleId")
@@ -317,7 +308,6 @@ namespace Matrix.Migrations
             modelBuilder.Entity("Matrix.Models.Reply", b =>
                 {
                     b.Property<Guid>("ReplyId")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("ArticleId")
@@ -346,7 +336,6 @@ namespace Matrix.Migrations
             modelBuilder.Entity("Matrix.Models.Report", b =>
                 {
                     b.Property<Guid>("ReportId")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime?>("ProcessTime")
@@ -384,7 +373,6 @@ namespace Matrix.Migrations
             modelBuilder.Entity("Matrix.Models.User", b =>
                 {
                     b.Property<Guid>("UserId")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Country")
@@ -635,8 +623,7 @@ namespace Matrix.Migrations
 
             modelBuilder.Entity("Matrix.Models.User", b =>
                 {
-                    b.Navigation("Person")
-                        .IsRequired();
+                    b.Navigation("Person");
                 });
 #pragma warning restore 612, 618
         }

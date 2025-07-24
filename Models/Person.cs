@@ -1,130 +1,128 @@
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using Microsoft.AspNetCore.Identity;
 
-namespace Matrix.Models;
+namespace Matrix.Models{
 
-/// <summary>
-/// 代表用戶的個人資料實體
-/// </summary>
-public class Person
-{
-  /// <summary>
-  /// 個人資料的唯一識別碼
-  /// </summary>
-  [Key]
-  public Guid PersonId { get; set; }
+    /// <summary>
+    /// 代表用戶的個人資料實體
+    /// </summary>
+    public class Person
+    {
+        /// <summary>
+        /// 個人資料的 ID
+        /// 改用 UUID 以確保唯一性和安全性，並以 ArrayExtension.GenerateOrdered(1)[0] 方法生成一個劇時間排序的唯一的值
+        /// </summary>
+        [Key]
+        public UUID PersonId { get; set; } = ArrayExtension.GenerateOrdered(1)[0];
 
-  /// <summary>
-  /// 關聯用戶的唯一識別碼，外鍵連接到 User
-  /// </summary>
-  public Guid UserId { get; set; }
-  
-  /// <summary>
-  /// 用戶的顯示名稱，最大長度為50個字元
-  /// </summary>
-  [MaxLength(50)]
-  public string? DisplayName { get; set; }
-  
-  /// <summary>
-  /// 用戶的個人簡介，最大長度為300個字元
-  /// </summary>
-  [MaxLength(300)]
-  public string? Bio { get; set; }
-  
-  /// <summary>
-  /// 用戶頭像的檔案路徑
-  /// </summary>
-  [MaxLength(2048)]
-  public string? AvatarPath { get; set; }
-  
-  /// <summary>
-  /// 用戶個人頁面橫幅的檔案路徑
-  /// </summary>
-  [MaxLength(2048)]
-  public string? BannerPath { get; set; }
-  
-  /// <summary>
-  /// 用戶的外部網站連結
-  /// </summary>
-  [MaxLength(2048)]
-  public string? ExternalUrl { get; set; }
-  
-  /// <summary>
-  /// 用戶的隱私設定，0表示公開，1表示私人
-  /// </summary>
-  public int IsPrivate { get; set; } = 0;
-  
-  /// <summary>
-  /// 用戶的區塊鏈錢包地址
-  /// </summary>
-  public string? WalletAddress { get; set; }
-  
-  /// <summary>
-  /// 個人資料的最後修改時間
-  /// </summary>
-  public DateTime? ModifyTime { get; set; }
+        /// <summary>
+        /// 關聯用戶的 UserId，外鍵連接到 User
+        /// </summary>
+        public UUID UserId { get; set; }
+        
+        /// <summary>
+        /// 用戶的顯示名稱，最大長度為50個字元
+        /// </summary>
+        [MaxLength(50)]
+        public string? DisplayName { get; set; }
+        
+        /// <summary>
+        /// 用戶的個人簡介，最大長度為300個字元
+        /// </summary>
+        [MaxLength(300)]
+        public string? Bio { get; set; }
+        
+        /// <summary>
+        /// 用戶頭像的檔案路徑
+        /// </summary>
+        [MaxLength(2048)]
+        public string? AvatarPath { get; set; }
+        
+        /// <summary>
+        /// 用戶個人頁面橫幅的檔案路徑
+        /// </summary>
+        [MaxLength(2048)]
+        public string? BannerPath { get; set; }
+        
+        /// <summary>
+        /// 用戶的外部網站連結
+        /// </summary>
+        [MaxLength(2048)]
+        public string? ExternalUrl { get; set; }
+        
+        /// <summary>
+        /// 用戶的隱私設定，0表示公開，1表示私人
+        /// </summary>
+        public int IsPrivate { get; set; } = 0;
+        
+        /// <summary>
+        /// 用戶的區塊鏈錢包地址
+        /// </summary>
+        public string? WalletAddress { get; set; }
+        
+        /// <summary>
+        /// 個人資料的最後修改時間
+        /// </summary>
+        public DateTime? ModifyTime { get; set; }
 
-  // Navigation properties
-  /// <summary>
-  /// 關聯的用戶帳號，一對一關聯
-  /// </summary>
-  public virtual required User User { get; set; }
-  
-  /// <summary>
-  /// 用戶發布的文章集合
-  /// </summary>
-  public virtual ICollection<Article> Articles { get; set; } = new List<Article>();
-  
-  /// <summary>
-  /// 用戶發布的回覆集合
-  /// </summary>
-  public virtual ICollection<Reply> Replies { get; set; } = new List<Reply>();
-  
-  /// <summary>
-  /// 用戶的讚與收藏記錄集合
-  /// </summary>
-  public virtual ICollection<PraiseCollect> PraiseCollects { get; set; } = new List<PraiseCollect>();
-  
-  /// <summary>
-  /// 用戶的關注記錄集合
-  /// </summary>
-  public virtual ICollection<Follow> Follows { get; set; } = new List<Follow>();
-  
-  /// <summary>
-  /// 用戶發送的通知集合
-  /// </summary>
-  public virtual ICollection<Notification> NotificationsSent { get; set; } = new List<Notification>();
-  
-  /// <summary>
-  /// 用戶接收的通知集合
-  /// </summary>
-  public virtual ICollection<Notification> NotificationsReceived { get; set; } = new List<Notification>();
-  
-  /// <summary>
-  /// 用戶提交的舉報集合
-  /// </summary>
-  public virtual ICollection<Report> ReportsMade { get; set; } = new List<Report>();
-  
-  /// <summary>
-  /// 用戶處理的舉報集合
-  /// </summary>
-  public virtual ICollection<Report> ReportsResolved { get; set; } = new List<Report>();
-  
-  /// <summary>
-  /// 用戶的登入記錄集合
-  /// </summary>
-  public virtual ICollection<LoginRecord> LoginRecords { get; set; } = new List<LoginRecord>();
-  
-  /// <summary>
-  /// 用戶發起的好友關係集合（我加別人）
-  /// </summary>
-  public virtual ICollection<Friendship> Friends { get; set; } = new List<Friendship>();
-  
-  /// <summary>
-  /// 用戶接收的好友關係集合（別人加我）
-  /// </summary>
-  public virtual ICollection<Friendship> FriendOf { get; set; } = new List<Friendship>();
+        // Navigation properties
+        /// <summary>
+        /// 關聯的用戶帳號，一對一關聯
+        /// </summary>
+        public virtual User? User { get; set; }
+        
+        /// <summary>
+        /// 用戶發布的文章集合
+        /// </summary>
+        public virtual ICollection<Article> Articles { get; set; } = [];
+        
+        /// <summary>
+        /// 用戶發布的回覆集合
+        /// </summary>
+        public virtual ICollection<Reply> Replies { get; set; } = [];
+        
+        /// <summary>
+        /// 用戶的讚與收藏記錄集合
+        /// </summary>
+        public virtual ICollection<PraiseCollect> PraiseCollects { get; set; } = [];
+        
+        /// <summary>
+        /// 用戶的關注記錄集合
+        /// </summary>
+        public virtual ICollection<Follow> Follows { get; set; } = [];
+        
+        /// <summary>
+        /// 用戶發送的通知集合
+        /// </summary>
+        public virtual ICollection<Notification> NotificationsSent { get; set; } = [];
+        
+        /// <summary>
+        /// 用戶接收的通知集合
+        /// </summary>
+        public virtual ICollection<Notification> NotificationsReceived { get; set; } = [];
+        
+        /// <summary>
+        /// 用戶提交的舉報集合
+        /// </summary>
+        public virtual ICollection<Report> ReportsMade { get; set; } = [];
+        
+        /// <summary>
+        /// 用戶處理的舉報集合
+        /// </summary>
+        public virtual ICollection<Report> ReportsResolved { get; set; } = [];
+        
+        /// <summary>
+        /// 用戶的登入記錄集合
+        /// </summary>
+        public virtual ICollection<LoginRecord> LoginRecords { get; set; } = [];
+        
+        /// <summary>
+        /// 用戶發起的好友關係集合（我加別人）
+        /// </summary>
+        public virtual ICollection<Friendship> Friends { get; set; } = [];
+        
+        /// <summary>
+        /// 用戶接收的好友關係集合（別人加我）
+        /// </summary>
+        public virtual ICollection<Friendship> FriendOf { get; set; } = [];
+    }
 }
