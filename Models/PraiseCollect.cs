@@ -9,10 +9,11 @@ namespace Matrix.Models{
     public class PraiseCollect
     {
         /// <summary>
-        /// 讚或收藏事件的唯一識別碼
+        /// 讚或收藏事件的 ID
+        /// 改用 UUID 以確保唯一性和安全性，並以 ArrayExtension.GenerateOrdered(1)[0] 方法生成一個劇時間排序的唯一的值
         /// </summary>
         [Key]
-        public Guid EventId { get; set; }
+        public UUID EventId { get; set; } = ArrayExtension.GenerateOrdered(1)[0];
         
         /// <summary>
         /// 操作類型，例如：0表示讚，1表示收藏
@@ -20,14 +21,14 @@ namespace Matrix.Models{
         public int Type { get; set; }
         
         /// <summary>
-        /// 執行操作的用戶識別碼
+        /// 執行操作的 UserId
         /// </summary>
-        public Guid UserId { get; set; }
+        public UUID UserId { get; set; }
         
         /// <summary>
-        /// 被讚或收藏的文章識別碼
+        /// 被讚或收藏的 ArticleId
         /// </summary>
-        public Guid ArticleId { get; set; }
+        public UUID ArticleId { get; set; }
         
         /// <summary>
         /// 操作的建立時間

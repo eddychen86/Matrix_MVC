@@ -8,16 +8,17 @@ namespace Matrix.Models{
     public class ArticleAttachment
     {
         /// <summary>
-        /// 附件檔案的唯一識別碼
+        /// 附件檔案的 ID
+        /// 改用 UUID 以確保唯一性和安全性，並以 ArrayExtension.GenerateOrdered(1)[0] 方法生成一個劇時間排序的唯一的值
         /// </summary>
         [Key]
-        public Guid FileId { get; set; }
+        public UUID FileId { get; set; } = ArrayExtension.GenerateOrdered(1)[0];
 
         /// <summary>
-        /// 關聯文章的唯一識別碼
+        /// 關聯文章的 ArticleId
         /// </summary>
         [Required]
-        public Guid ArticleId { get; set; }
+        public UUID ArticleId { get; set; }
 
         /// <summary>
         /// 附件檔案的儲存路徑

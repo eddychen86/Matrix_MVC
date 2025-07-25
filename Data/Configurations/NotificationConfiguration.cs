@@ -35,6 +35,9 @@ namespace Matrix.Data.Configurations
             /// </summary>
             builder.HasKey(n => n.NotifyId);
 
+            builder.Property(n => n.NotifyId)
+                .HasDefaultValueSql("NEWSEQUENTIALID()");
+
             // === 欄位配置 ===
             /// <summary>
             /// 配置 GetId 欄位屬性

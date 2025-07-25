@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Matrix.Data.Configurations;
 using Matrix.Models;
 
 namespace Matrix.Data{
@@ -10,6 +11,17 @@ namespace Matrix.Data{
     public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : DbContext(options)
     {
         /// <summary>
+        /// 配置資料庫約定，特別是針對自訂型別 UUID 的全域轉換規則。
+        /// </summary>
+        /// <param name="configurationBuilder">用於設定資料庫約定的建構器。</param>
+        protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
+        {
+            // 設定所有 UUID 型別的屬性都使用 UuidConverter 進行資料庫轉換
+            // 這讓 EF Core 知道如何將 UUID 物件與資料庫中的 Guid 欄位對應
+            configurationBuilder.Properties<UUID>().HaveConversion<UuidConverter>();
+        }
+        
+        /// <summary>
         /// 配置實體模型的關聯性、約束條件和資料庫行為
         /// </summary>
         /// <param name="modelBuilder">用於建構實體模型的模型建構器</param>
@@ -18,20 +30,14 @@ namespace Matrix.Data{
             base.OnModelCreating(modelBuilder);
 
             /// <summary>
-            /// 配置 ArticleHashtag 實體的複合主鍵
-            /// 用途：建立文章與標籤之間的多對多關聯表，防止重複的文章標籤組合
-            /// 關聯類型：多對多關聯的中間表
-            /// 主鍵設定：使用 ArticleId 和 TagId 組成複合主鍵，確保每篇文章的每個標籤只能有一個關聯記錄
+            /// 設定 ArticleHashtag 的複合主鍵，確保文章和標籤間多對多關聯的唯一性
             /// </summary>
-            modelBuilder.Entity<ArticleHashtag>()
+            modelBuilder
+                .Entity<ArticleHashtag>()
                 .HasKey(ah => new { ah.ArticleId, ah.TagId });
 
             /// <summary>
-            /// 配置 Person 與 User 之間的一對一關聯
-            /// 用途：建立使用者帳戶與個人資料之間的一對一對應關係
-            /// 關聯類型：一對一關聯 (One-to-One)
-            /// 外鍵設定：Person 表中的 UserId 作為外鍵，指向 User 表的主鍵
-            /// 必要性：設定為必須關聯，每個個人資料都必須對應一個使用者帳戶
+            /// 設定 Person 與 User 的一對一關聯，使用 Person.UserId 作為外鍵並設為必要關聯
             /// </summary>
             modelBuilder.Entity<Person>()
                 .HasOne(p => p.User)
@@ -40,11 +46,7 @@ namespace Matrix.Data{
                 .IsRequired();  // 確保關聯是必須的
 
             /// <summary>
-            /// 配置 Notification 與 Person 之間的接收者關聯
-            /// 用途：建立通知與接收者之間的一對多關聯，一個人可以接收多個通知
-            /// 關聯類型：一對多關聯 (One-to-Many)
-            /// 外鍵設定：Notification 表中的 GetId 作為外鍵，指向 Person 表的主鍵
-            /// 刪除行為：設定為 Restrict，防止刪除有通知記錄的人員資料，維護資料完整性
+            /// 設定通知接收者關聯，一人可接收多個通知，使用 GetId 作為外鍵，限制刪除以維護資料完整性
             /// </summary>
             modelBuilder.Entity<Notification>()
                 .HasOne(n => n.Receiver)
@@ -53,11 +55,7 @@ namespace Matrix.Data{
                 .OnDelete(DeleteBehavior.Restrict);
 
             /// <summary>
-            /// 配置 Notification 與 Person 之間的發送者關聯
-            /// 用途：建立通知與發送者之間的一對多關聯，一個人可以發送多個通知
-            /// 關聯類型：一對多關聯 (One-to-Many)
-            /// 外鍵設定：Notification 表中的 SendId 作為外鍵，指向 Person 表的主鍵
-            /// 刪除行為：設定為 Restrict，防止刪除有通知記錄的人員資料，維護資料完整性
+            /// 設定通知發送者關聯，一人可發送多個通知，使用 SendId 作為外鍵，限制刪除以維護資料完整性
             /// </summary>
             modelBuilder.Entity<Notification>()
                 .HasOne(n => n.Sender)
@@ -66,11 +64,7 @@ namespace Matrix.Data{
                 .OnDelete(DeleteBehavior.Restrict);
 
             /// <summary>
-            /// 配置 Report 與 Person 之間的舉報者關聯
-            /// 用途：建立檢舉記錄與舉報者之間的一對多關聯，一個人可以提出多個檢舉
-            /// 關聯類型：一對多關聯 (One-to-Many)
-            /// 外鍵設定：Report 表中的 ReporterId 作為外鍵，指向 Person 表的主鍵
-            /// 刪除行為：設定為 Restrict，防止刪除有檢舉記錄的人員資料，維護檢舉歷史記錄
+            /// 設定舉報者關聯，一人可提出多個檢舉，使用 ReporterId 作為外鍵，限制刪除以保留舉報歷史
             /// </summary>
             modelBuilder.Entity<Report>()
                 .HasOne(r => r.Reporter)
@@ -79,11 +73,7 @@ namespace Matrix.Data{
                 .OnDelete(DeleteBehavior.Restrict);
 
             /// <summary>
-            /// 配置 Report 與 Person 之間的處理者關聯
-            /// 用途：建立檢舉記錄與處理者之間的一對多關聯，一個人可以處理多個檢舉
-            /// 關聯類型：一對多關聯 (One-to-Many)
-            /// 外鍵設定：Report 表中的 ResolverId 作為外鍵，指向 Person 表的主鍵
-            /// 刪除行為：設定為 Restrict，防止刪除有處理記錄的人員資料，維護檢舉處理歷史
+            /// 設定檢舉處理者關聯，一人可處理多個檢舉，使用 ResolverId 作為外鍵，限制刪除以保留處理歷史
             /// </summary>
             modelBuilder.Entity<Report>()
                 .HasOne(r => r.Resolver)
@@ -92,11 +82,7 @@ namespace Matrix.Data{
                 .OnDelete(DeleteBehavior.Restrict);
 
             /// <summary>
-            /// 配置 PraiseCollect 與 Person 之間的使用者關聯
-            /// 用途：建立讚美收藏記錄與使用者之間的一對多關聯，一個使用者可以有多個讚美收藏
-            /// 關聯類型：一對多關聯 (One-to-Many)
-            /// 外鍵設定：PraiseCollect 表中的 UserId 作為外鍵，指向 Person 表的主鍵
-            /// 刪除行為：設定為 Restrict，防止刪除有讚美收藏記錄的使用者，維護使用者行為歷史
+            /// 設定使用者讚美收藏關聯，一人可有多個讚美收藏，使用 UserId 作為外鍵，限制刪除以保留用戶行為
             /// </summary>
             modelBuilder.Entity<PraiseCollect>()
                 .HasOne(pc => pc.User)
@@ -105,11 +91,7 @@ namespace Matrix.Data{
                 .OnDelete(DeleteBehavior.Restrict); // 或 NoAction
 
             /// <summary>
-            /// 配置 PraiseCollect 與 Article 之間的文章關聯
-            /// 用途：建立讚美收藏記錄與文章之間的一對多關聯，一篇文章可以有多個讚美收藏
-            /// 關聯類型：一對多關聯 (One-to-Many)
-            /// 外鍵設定：PraiseCollect 表中的 ArticleId 作為外鍵，指向 Article 表的主鍵
-            /// 刪除行為：設定為 Cascade，當文章被刪除時，相關的讚美收藏記錄也會被自動刪除
+            /// 設定文章讚美收藏關聯，一篇文章可有多個讚美收藏，使用 ArticleId 作為外鍵，刪除文章時級聯刪除
             /// </summary>
             modelBuilder.Entity<PraiseCollect>()
                 .HasOne(pc => pc.Article)
@@ -118,11 +100,7 @@ namespace Matrix.Data{
                 .OnDelete(DeleteBehavior.Cascade); // 這個可以保留
 
             /// <summary>
-            /// 配置 Reply 與 Person 之間的使用者關聯
-            /// 用途：建立回覆記錄與使用者之間的一對多關聯，一個使用者可以發表多個回覆
-            /// 關聯類型：一對多關聯 (One-to-Many)
-            /// 外鍵設定：Reply 表中的 UserId 作為外鍵，指向 Person 表的主鍵
-            /// 刪除行為：設定為 Restrict，防止刪除有回覆記錄的使用者，維護回覆歷史記錄
+            /// 設定使用者回覆關聯，一人可發表多個回覆，使用 UserId 作為外鍵，限制刪除以保留回覆歷史
             /// </summary>
             modelBuilder.Entity<Reply>()
                 .HasOne(r => r.User)
@@ -131,11 +109,7 @@ namespace Matrix.Data{
                 .OnDelete(DeleteBehavior.Restrict); // 或 NoAction
 
             /// <summary>
-            /// 配置 Reply 與 Article 之間的文章關聯
-            /// 用途：建立回覆記錄與文章之間的一對多關聯，一篇文章可以有多個回覆
-            /// 關聯類型：一對多關聯 (One-to-Many)
-            /// 外鍵設定：Reply 表中的 ArticleId 作為外鍵，指向 Article 表的主鍵
-            /// 刪除行為：設定為 Cascade，當文章被刪除時，相關的回覆記錄也會被自動刪除
+            /// 設定文章回覆關聯，一篇文章可有多個回覆，使用 ArticleId 作為外鍵，刪除文章時級聯刪除
             /// </summary>
             modelBuilder.Entity<Reply>()
                 .HasOne(r => r.Article)
@@ -144,11 +118,7 @@ namespace Matrix.Data{
                 .OnDelete(DeleteBehavior.Cascade); // 這個可以保留
 
             /// <summary>
-            /// 配置 Friendship 與 Person 之間的請求者關聯
-            /// 用途：建立好友關係與好友請求發起者之間的一對多關聯，一個人可以發起多個好友請求
-            /// 關聯類型：一對多關聯 (One-to-Many)
-            /// 外鍵設定：Friendship 表中的 UserId 作為外鍵，指向 Person 表的主鍵
-            /// 刪除行為：設定為 Restrict，防止刪除有好友關係的使用者，維護好友關係完整性
+            /// 設定好友請求發起者關聯，一人可發起多個好友請求，使用 UserId 作為外鍵，限制刪除以維護關係完整性
             /// </summary>
             modelBuilder.Entity<Friendship>()
                 .HasOne(f => f.Requester)
@@ -157,11 +127,7 @@ namespace Matrix.Data{
                 .OnDelete(DeleteBehavior.Restrict);
 
             /// <summary>
-            /// 配置 Friendship 與 Person 之間的接收者關聯
-            /// 用途：建立好友關係與好友請求接收者之間的一對多關聯，一個人可以接收多個好友請求
-            /// 關聯類型：一對多關聯 (One-to-Many)
-            /// 外鍵設定：Friendship 表中的 FriendId 作為外鍵，指向 Person 表的主鍵
-            /// 刪除行為：設定為 Restrict，防止刪除有好友關係的使用者，維護好友關係完整性
+            /// 設定好友請求接收者關聯，一人可接收多個好友請求，使用 FriendId 作為外鍵，限制刪除以維護關係完整性
             /// </summary>
             modelBuilder.Entity<Friendship>()
                 .HasOne(f => f.Recipient)
@@ -170,11 +136,7 @@ namespace Matrix.Data{
                 .OnDelete(DeleteBehavior.Restrict);
                 
             /// <summary>
-            /// 配置 ArticleAttachment 與 Article 之間的文章附件關聯
-            /// 用途：建立文章附件與文章之間的一對多關聯，一篇文章可以有多個附件
-            /// 關聯類型：一對多關聯 (One-to-Many)
-            /// 外鍵設定：ArticleAttachment 表中的 ArticleId 作為外鍵，指向 Article 表的主鍵
-            /// 刪除行為：設定為 Cascade，當文章被刪除時，相關的附件記錄也會被自動刪除
+            /// 設定文章附件關聯，一篇文章可有多個附件，使用 ArticleId 作為外鍵，刪除文章時級聯刪除
             /// </summary>
             modelBuilder.Entity<ArticleAttachment>()
                 .HasOne(aa => aa.Article)
@@ -183,12 +145,8 @@ namespace Matrix.Data{
                 .OnDelete(DeleteBehavior.Cascade);
                 
             /// <summary>
-            /// 配置 Follow 與 Person 之間的追蹤關聯
-            /// 用途：建立追蹤記錄與追蹤者之間的一對多關聯，一個人可以追蹤多個對象
-            /// 關聯類型：一對多關聯 (One-to-Many)
-            /// 外鍵設定：Follow 表中的 UserId 作為外鍵，指向 Person 表的主鍵
-            /// 刪除行為：設定為 Restrict，防止刪除有追蹤記錄的使用者，維護追蹤關係完整性
-            /// 注意：FollowedId 不設定外鍵關聯，因為它可能指向不同類型的實體（如 Person、Article 等）
+            /// 設定追蹤者關聯，一人可追蹤多個對象，使用 UserId 作為外鍵，限制刪除以維護追蹤關係
+            /// FollowedId 不設外鍵，可指向不同實體類型
             /// </summary>
             modelBuilder.Entity<Follow>()
                 .HasOne(f => f.User)
@@ -201,67 +159,67 @@ namespace Matrix.Data{
         }
 
         /// <summary>
-        /// 取得或設定使用者資料表的 DbSet
+        /// 使用者資料表
         /// </summary>
         public DbSet<User> Users { get; set; } = null!;
         
         /// <summary>
-        /// 取得或設定個人資料表的 DbSet
+        /// 個人資料表
         /// </summary>
         public DbSet<Person> Persons { get; set; } = null!;
         
         /// <summary>
-        /// 取得或設定文章資料表的 DbSet
+        /// 文章資料表
         /// </summary>
         public DbSet<Article> Articles { get; set; } = null!;
         
         /// <summary>
-        /// 取得或設定回覆資料表的 DbSet
+        /// 回覆資料表
         /// </summary>
         public DbSet<Reply> Replies { get; set; } = null!;
         
         /// <summary>
-        /// 取得或設定讚美收藏資料表的 DbSet
+        /// 讚美收藏資料表
         /// </summary>
         public DbSet<PraiseCollect> PraiseCollects { get; set; } = null!;
         
         /// <summary>
-        /// 取得或設定追蹤資料表的 DbSet
+        /// 追蹤資料表
         /// </summary>
         public DbSet<Follow> Follows { get; set; } = null!;
         
         /// <summary>
-        /// 取得或設定通知資料表的 DbSet
+        /// 通知資料表
         /// </summary>
         public DbSet<Notification> Notifications { get; set; } = null!;
         
         /// <summary>
-        /// 取得或設定檢舉資料表的 DbSet
+        /// 檢舉資料表
         /// </summary>
         public DbSet<Report> Reports { get; set; } = null!;
         
         /// <summary>
-        /// 取得或設定登入記錄資料表的 DbSet
+        /// 登入記錄資料表
         /// </summary>
         public DbSet<LoginRecord> LoginRecords { get; set; } = null!;
         
         /// <summary>
-        /// 取得或設定標籤資料表的 DbSet
+        /// 標籤資料表
         /// </summary>
         public DbSet<Hashtag> Hashtags { get; set; } = null!;
         
         /// <summary>
-        /// 取得或設定文章標籤關聯資料表的 DbSet
+        /// 文章標籤關聯資料表
         /// </summary>
         public DbSet<ArticleHashtag> ArticleHashtags { get; set; } = null!;
         
         /// <summary>
-        /// 取得或設定好友關係資料表的 DbSet
+        /// 好友關係資料表
         /// </summary>
         public DbSet<Friendship> Friendships { get; set; } = null!;
         
         /// <summary>
-        /// 取得或設定文章附件資料表的 DbSet
+        /// 文章附件資料表
         /// </summary>
         public DbSet<ArticleAttachment> ArticleAttachments { get; set; } = null!;
     }

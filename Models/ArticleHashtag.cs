@@ -8,14 +8,14 @@ namespace Matrix.Models{
     public class ArticleHashtag
     {
         /// <summary>
-        /// 關聯文章的唯一識別碼，作為複合主鍵的一部分
+        /// 關聯文章的 ID，作為複合主鍵的一部分
         /// </summary>
-        public Guid ArticleId { get; set; }
+        public UUID ArticleId { get; set; }
         
         /// <summary>
         /// 關聯標籤的唯一識別碼，作為複合主鍵的一部分
         /// </summary>
-        public Guid TagId { get; set; }
+        public UUID TagId { get; set; }
 
         /// <summary>
         /// 關聯的文章實體

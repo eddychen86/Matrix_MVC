@@ -31,6 +31,13 @@
         "index.js",
         "lib/**"
       ]
+    },
+    {
+      "library": "@ckeditor/ckeditor5-vue@latest",
+      "destination": "wwwroot/lib/ckEditor5/",
+      "files": [
+        "dist/**"
+      ]
     }
   ]
 }

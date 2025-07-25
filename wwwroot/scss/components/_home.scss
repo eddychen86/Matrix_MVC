@@ -39,11 +39,11 @@
     }
 
     .carousel-list {
-        @apply carousel carousel-start w-[602px] gap-4 text-center;
+        @apply carousel carousel-start w-[602px] text-center flex gap-4 overflow-x-auto scroll-smooth;
     }
 
     .carousel-item-custom {
-        @apply carousel-item h-[250px] w-[190px] overflow-hidden rounded-[30px];
+        @apply carousel-item h-[250px] w-[190px] overflow-hidden rounded-[30px] flex-none;
     }
 
     /*  貼文卡片  */
@@ -77,7 +77,7 @@
 
     /*  好友欄位  */
     .friend-panel {
-        @apply sticky top-0 right-0 h-screen w-[300px];
+        @apply sticky top-0 right-0 h-screen w-[300px] z-[1000];
     }
 
     .friend-search-bar {

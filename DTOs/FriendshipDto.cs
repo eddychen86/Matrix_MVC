@@ -1,73 +1,52 @@
 namespace Matrix.DTOs
 {
     /// <summary>
-    /// Friendship 實體的資料傳輸物件 (Data Transfer Object)
-    ///
-    /// 此檔案用於在不同層之間傳輸 Friendship 實體的資料，包括：
-    /// - 用於 API 回應的資料格式
-    /// - 用於前端顯示的好友關係資料結構
-    /// - 用於服務層之間的資料傳遞
-    ///
-    /// 注意事項：
-    /// - 僅能新增與 Friendship 實體相關的屬性
-    /// - 包含適當的 Data Annotations 進行驗證
-    /// - 此 DTO 主要用於讀取操作，顯示好友關係的資訊
-    /// - 包含計算屬性和輔助方法以增強前端使用體驗
+    /// Friendship 實體的資料傳輸物件
     /// </summary>
     public class FriendshipDto
     {
         /// <summary>
         /// 好友關係的唯一識別碼
-        /// 用途：作為好友關係的主要識別
         /// </summary>
         public Guid FriendshipId { get; set; }
 
         /// <summary>
         /// 好友請求發送者的唯一識別碼
-        /// 用途：連結到發送好友請求的使用者
         /// </summary>
         public Guid RequesterId { get; set; }
 
         /// <summary>
         /// 好友請求接收者的唯一識別碼
-        /// 用途：連結到接收好友請求的使用者
         /// </summary>
         public Guid AddresseeId { get; set; }
 
         /// <summary>
         /// 好友關係的狀態
-        /// 用途：控制好友關係的處理狀態
-        /// 值說明：0=待審核, 1=已接受, 2=已拒絕, 3=已封鎖
         /// </summary>
         public int Status { get; set; }
 
         /// <summary>
         /// 好友請求的建立時間
-        /// 用途：顯示好友請求的發送時間
         /// </summary>
         public DateTime CreateTime { get; set; }
 
         /// <summary>
         /// 好友請求的回應時間
-        /// 用途：顯示好友請求被接受或拒絕的時間
         /// </summary>
         public DateTime? ResponseTime { get; set; }
 
         /// <summary>
         /// 好友請求發送者的個人資料
-        /// 用途：顯示發送者的基本資訊
         /// </summary>
         public PersonDto? Requester { get; set; }
 
         /// <summary>
         /// 好友請求接收者的個人資料
-        /// 用途：顯示接收者的基本資訊
         /// </summary>
         public PersonDto? Addressee { get; set; }
 
         /// <summary>
         /// 獲取好友關係狀態的描述文字
-        /// 用途：在前端顯示人類可讀的狀態描述
         /// </summary>
         public string StatusText => Status switch
         {
@@ -80,37 +59,31 @@ namespace Matrix.DTOs
 
         /// <summary>
         /// 判斷好友關係是否為待審核狀態
-        /// 用途：前端快速判斷請求狀態
         /// </summary>
         public bool IsPending => Status == 0;
 
         /// <summary>
         /// 判斷好友關係是否為已接受狀態
-        /// 用途：前端快速判斷好友關係是否有效
         /// </summary>
         public bool IsAccepted => Status == 1;
 
         /// <summary>
         /// 判斷好友關係是否為已拒絕狀態
-        /// 用途：前端快速判斷請求狀態
         /// </summary>
         public bool IsRejected => Status == 2;
 
         /// <summary>
         /// 判斷好友關係是否為已封鎖狀態
-        /// 用途：前端快速判斷請求狀態
         /// </summary>
         public bool IsBlocked => Status == 3;
 
         /// <summary>
-        /// 判斷好友關係是否為有效狀態（已接受的好友關係）
-        /// 用途：前端快速判斷是否為真正的好友關係
+        /// 判斷好友關係是否為有效狀態
         /// </summary>
         public bool IsActiveFriendship => IsAccepted;
 
         /// <summary>
         /// 獲取好友請求發送時間的友善顯示格式
-        /// 用途：在前端顯示人類可讀的時間格式
         /// </summary>
         public string RequestTimeAgoText
         {
@@ -131,7 +104,6 @@ namespace Matrix.DTOs
 
         /// <summary>
         /// 獲取好友請求回應時間的友善顯示格式
-        /// 用途：在前端顯示人類可讀的回應時間格式
         /// </summary>
         public string ResponseTimeAgoText
         {
@@ -154,31 +126,26 @@ namespace Matrix.DTOs
 
         /// <summary>
         /// 獲取好友請求發送者的顯示名稱
-        /// 用途：顯示發送者的名稱
         /// </summary>
         public string RequesterName => Requester?.EffectiveDisplayName ?? "未知使用者";
 
         /// <summary>
         /// 獲取好友請求接收者的顯示名稱
-        /// 用途：顯示接收者的名稱
         /// </summary>
         public string AddresseeName => Addressee?.EffectiveDisplayName ?? "未知使用者";
 
         /// <summary>
         /// 獲取好友請求發送者的頭像
-        /// 用途：顯示發送者的頭像
         /// </summary>
         public string RequesterAvatar => Requester?.EffectiveAvatarUrl ?? "/static/img/default-avatar.png";
 
         /// <summary>
         /// 獲取好友請求接收者的頭像
-        /// 用途：顯示接收者的頭像
         /// </summary>
         public string AddresseeAvatar => Addressee?.EffectiveAvatarUrl ?? "/static/img/default-avatar.png";
 
         /// <summary>
         /// 獲取好友關係的描述文字
-        /// 用途：在前端顯示完整的好友關係描述
         /// </summary>
         public string RelationshipDescription => Status switch
         {
@@ -191,64 +158,55 @@ namespace Matrix.DTOs
 
         /// <summary>
         /// 獲取好友關係的狀態圖示 CSS 類別
-        /// 用途：前端顯示不同狀態的圖示
         /// </summary>
         public string StatusIconClass => Status switch
         {
-            0 => "fa-clock text-warning",          // 待審核
-            1 => "fa-handshake text-success",     // 已接受
-            2 => "fa-times text-danger",          // 已拒絕
-            3 => "fa-ban text-danger",            // 已封鎖
-            _ => "fa-question text-muted"         // 未知狀態
+            0 => "fa-clock text-warning",
+            1 => "fa-handshake text-success",
+            2 => "fa-times text-danger",
+            3 => "fa-ban text-danger",
+            _ => "fa-question text-muted"
         };
 
         /// <summary>
         /// 獲取好友關係的優先級
-        /// 用途：前端排序好友關係的優先級
-        /// 邏輯：數字越大優先級越高
         /// </summary>
         public int Priority => Status switch
         {
-            0 => 4,  // 待審核 - 最高優先級
-            1 => 3,  // 已接受 - 高優先級
-            2 => 2,  // 已拒絕 - 中優先級
-            3 => 1,  // 已封鎖 - 低優先級
-            _ => 0   // 未知狀態 - 最低優先級
+            0 => 4,
+            1 => 3,
+            2 => 2,
+            3 => 1,
+            _ => 0
         };
 
         /// <summary>
         /// 判斷好友請求是否需要立即處理
-        /// 用途：前端判斷是否需要彈出提醒
         /// </summary>
         public bool RequiresImmediateAttention => IsPending;
 
         /// <summary>
         /// 判斷發送者是否為公開帳戶
-        /// 用途：前端判斷是否可以查看發送者的資料
         /// </summary>
         public bool IsRequesterPublic => Requester?.IsPublic ?? false;
 
         /// <summary>
         /// 判斷接收者是否為公開帳戶
-        /// 用途：前端判斷是否可以查看接收者的資料
         /// </summary>
         public bool IsAddresseePublic => Addressee?.IsPublic ?? false;
 
         /// <summary>
         /// 判斷是否可以查看發送者的完整資料
-        /// 用途：前端權限控制
         /// </summary>
         public bool CanViewRequesterProfile => IsRequesterPublic || IsActiveFriendship;
 
         /// <summary>
         /// 判斷是否可以查看接收者的完整資料
-        /// 用途：前端權限控制
         /// </summary>
         public bool CanViewAddresseeProfile => IsAddresseePublic || IsActiveFriendship;
 
         /// <summary>
         /// 獲取好友請求的動作按鈕文字
-        /// 用途：顯示可執行的動作
         /// </summary>
         public List<string> AvailableActions
         {
@@ -258,20 +216,20 @@ namespace Matrix.DTOs
                 
                 switch (Status)
                 {
-                    case 0: // 待審核
+                    case 0:
                         actions.Add("接受");
                         actions.Add("拒絕");
                         actions.Add("封鎖");
                         break;
-                    case 1: // 已接受
+                    case 1:
                         actions.Add("刪除好友");
                         actions.Add("封鎖");
                         break;
-                    case 2: // 已拒絕
+                    case 2:
                         actions.Add("重新發送請求");
                         actions.Add("封鎖");
                         break;
-                    case 3: // 已封鎖
+                    case 3:
                         actions.Add("解除封鎖");
                         break;
                 }
@@ -282,19 +240,16 @@ namespace Matrix.DTOs
 
         /// <summary>
         /// 判斷是否可以執行動作
-        /// 用途：前端判斷是否顯示動作按鈕
         /// </summary>
-        public bool CanTakeAction => Status != 3; // 封鎖狀態也可以執行解除封鎖動作
+        public bool CanTakeAction => Status != 3;
 
         /// <summary>
         /// 獲取好友關係的成立時間
-        /// 用途：顯示好友關係的建立時間
         /// </summary>
         public DateTime? FriendshipEstablishedTime => IsAccepted ? ResponseTime : null;
 
         /// <summary>
         /// 獲取好友關係的持續時間
-        /// 用途：顯示好友關係已持續多長時間
         /// </summary>
         public string FriendshipDurationText
         {
@@ -317,38 +272,31 @@ namespace Matrix.DTOs
 
         /// <summary>
         /// 判斷好友關係是否為今天建立
-        /// 用途：前端分組顯示好友關係
         /// </summary>
         public bool IsToday => CreateTime.Date == DateTime.Today;
 
         /// <summary>
         /// 判斷好友關係是否為昨天建立
-        /// 用途：前端分組顯示好友關係
         /// </summary>
         public bool IsYesterday => CreateTime.Date == DateTime.Today.AddDays(-1);
 
         /// <summary>
         /// 判斷好友關係是否為本週建立
-        /// 用途：前端分組顯示好友關係
         /// </summary>
         public bool IsThisWeek => CreateTime.Date >= DateTime.Today.AddDays(-7);
 
         /// <summary>
         /// 判斷好友關係是否為本月建立
-        /// 用途：前端分組顯示好友關係
         /// </summary>
         public bool IsThisMonth => CreateTime.Date >= DateTime.Today.AddDays(-30);
 
         /// <summary>
         /// 獲取好友關係的互動統計資訊
-        /// 用途：顯示好友之間的互動情況
-        /// 注意：此屬性需要在服務層中設定，因為需要查詢相關的互動資料
         /// </summary>
         public Dictionary<string, int> InteractionStats { get; set; } = [];
 
         /// <summary>
         /// 判斷是否為活躍的好友關係
-        /// 用途：根據互動統計判斷好友關係是否活躍
         /// </summary>
         public bool IsActiveFriendshipInteraction
         {
@@ -362,7 +310,6 @@ namespace Matrix.DTOs
 
         /// <summary>
         /// 獲取好友關係的詳細資訊
-        /// 用途：在詳情頁面顯示完整的好友關係資訊
         /// </summary>
         public Dictionary<string, object> GetDetailInfo()
         {
@@ -394,7 +341,6 @@ namespace Matrix.DTOs
 
         /// <summary>
         /// 根據使用者 ID 獲取對方的資訊
-        /// 用途：在好友列表中根據當前使用者獲取對方的資訊
         /// </summary>
         public PersonDto? GetOtherPerson(Guid currentUserId)
         {
@@ -405,7 +351,6 @@ namespace Matrix.DTOs
 
         /// <summary>
         /// 根據使用者 ID 獲取對方的名稱
-        /// 用途：在好友列表中顯示對方的名稱
         /// </summary>
         public string GetOtherPersonName(Guid currentUserId)
         {
@@ -415,7 +360,6 @@ namespace Matrix.DTOs
 
         /// <summary>
         /// 根據使用者 ID 獲取對方的頭像
-        /// 用途：在好友列表中顯示對方的頭像
         /// </summary>
         public string GetOtherPersonAvatar(Guid currentUserId)
         {
@@ -425,13 +369,11 @@ namespace Matrix.DTOs
 
         /// <summary>
         /// 判斷當前使用者是否為好友請求的發送者
-        /// 用途：前端權限控制和UI顯示
         /// </summary>
         public bool IsRequester(Guid currentUserId) => RequesterId == currentUserId;
 
         /// <summary>
         /// 判斷當前使用者是否為好友請求的接收者
-        /// 用途：前端權限控制和UI顯示
         /// </summary>
         public bool IsAddressee(Guid currentUserId) => AddresseeId == currentUserId;
     }

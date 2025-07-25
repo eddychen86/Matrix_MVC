@@ -21,21 +21,22 @@ namespace Matrix.Models{
     {
         /// <summary>
         /// 好友關係的唯一識別碼
+        /// 改用 UUID 以確保唯一性和安全性，並以 ArrayExtension.GenerateOrdered(1)[0] 方法生成一個劇時間排序的唯一的值
         /// </summary>
         [Key]
-        public Guid FriendshipId { get; set; }
+        public UUID FriendshipId { get; set; } = ArrayExtension.GenerateOrdered(1)[0];
 
         /// <summary>
-        /// 發出好友邀請的使用者識別碼
+        /// 發出好友邀請的 UserId
         /// </summary>
         [Required]
-        public Guid UserId { get; set; }
+        public UUID UserId { get; set; }
 
         /// <summary>
-        /// 接收好友邀請的使用者識別碼
+        /// 接收好友邀請的 UserId
         /// </summary>
         [Required]
-        public Guid FriendId { get; set; }
+        public UUID FriendId { get; set; }
 
         /// <summary>
         /// 好友關係的狀態，包括待確認、已接受、已拒絕或已封鎖

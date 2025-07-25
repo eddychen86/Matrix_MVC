@@ -20,7 +20,7 @@ namespace Matrix.Services
                     .Include(a => a.Author)
                     .Include(a => a.Replies!)
                         .ThenInclude(r => r.User)
-                    .FirstOrDefaultAsync(a => a.ArticleId == id);
+                    .FirstOrDefaultAsync(a => a.ArticleId.ToGuid() == id);
     
                 return article == null ? null : MapToArticleDto(article, true);
             }
@@ -30,12 +30,11 @@ namespace Matrix.Services
             /// </summary>
             public async Task<bool> CreateArticleAsync(CreateArticleDto dto, Guid authorId)
             {
-                var author = await _context.Persons.FirstOrDefaultAsync(p => p.UserId == authorId);
+                var author = await _context.Persons.FirstOrDefaultAsync(p => p.UserId.ToGuid() == authorId);
                 if (author == null) return false;
     
                 _context.Articles.Add(new Article
                 {
-                    ArticleId = Guid.NewGuid(),
                     AuthorId = author.PersonId,
                     Content = dto.Content,
                     IsPublic = dto.IsPublic,
@@ -56,9 +55,9 @@ namespace Matrix.Services
             {
                 var article = await _context.Articles
                     .Include(a => a.Author)
-                    .FirstOrDefaultAsync(a => a.ArticleId == id);
+                    .FirstOrDefaultAsync(a => a.ArticleId.ToGuid() == id);
     
-                if (article?.Author?.UserId != authorId) return false;
+                if (article?.Author?.UserId.ToGuid() != authorId) return false;
     
                 article.Content = content;
                 article.IsPublic = isPublic;
@@ -130,12 +129,11 @@ namespace Matrix.Services
             /// </summary>
             public async Task<bool> CreateReplyAsync(CreateReplyDto dto, Guid authorId)
             {
-                var article = await _context.Articles.FirstOrDefaultAsync(a => a.ArticleId == dto.ArticleId);
+                var article = await _context.Articles.FirstOrDefaultAsync(a => a.ArticleId.ToGuid() == dto.ArticleId);
                 if (article == null) return false;
     
                 _context.Replies.Add(new Reply
                 {
-                    ReplyId = Guid.NewGuid(),
                     ArticleId = dto.ArticleId,
                     UserId = authorId,
                     Content = dto.Content,
@@ -196,7 +194,7 @@ namespace Matrix.Services
                     .Where(a => a.Status == 0 && a.IsPublic == 0);
     
                 if (authorId.HasValue)
-                    query = query.Where(a => a.Author != null && a.Author.UserId == authorId.Value);
+                    query = query.Where(a => a.Author != null && a.Author.UserId.ToGuid() == authorId.Value);
     
                 if (!string.IsNullOrEmpty(searchKeyword))
                     query = query.Where(a => a.Content.Contains(searchKeyword) ||
@@ -207,7 +205,7 @@ namespace Matrix.Services
     
             private async Task<bool> UpdateCountAsync(Guid articleId, Action<Article> updateAction)
             {
-                var article = await _context.Articles.FirstOrDefaultAsync(a => a.ArticleId == articleId);
+                var article = await _context.Articles.FirstOrDefaultAsync(a => a.ArticleId.ToGuid() == articleId);
                 if (article == null) return false;
     
                 updateAction(article);
@@ -219,9 +217,9 @@ namespace Matrix.Services
             {
                 var article = await _context.Articles
                     .Include(a => a.Author)
-                    .FirstOrDefaultAsync(a => a.ArticleId == id);
+                    .FirstOrDefaultAsync(a => a.ArticleId.ToGuid() == id);
     
-                if (article?.Author?.UserId != authorId) return false;
+                if (article?.Author?.UserId.ToGuid() != authorId) return false;
     
                 updateAction(article);
                 await _context.SaveChangesAsync();
