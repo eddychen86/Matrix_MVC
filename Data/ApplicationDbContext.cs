@@ -10,16 +10,20 @@ namespace Matrix.Data{
     /// </summary>
     public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : DbContext(options)
     {
-        /// <summary>
-        /// 配置資料庫約定，特別是針對自訂型別 UUID 的全域轉換規則。
-        /// </summary>
-        /// <param name="configurationBuilder">用於設定資料庫約定的建構器。</param>
-        protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
-        {
-            // 設定所有 UUID 型別的屬性都使用 UuidConverter 進行資料庫轉換
-            // 這讓 EF Core 知道如何將 UUID 物件與資料庫中的 Guid 欄位對應
-            configurationBuilder.Properties<UUID>().HaveConversion<UuidConverter>();
-        }
+        /*
+            暫時廢棄
+
+            /// <summary>
+            /// 配置資料庫約定，特別是針對自訂型別 UUID 的全域轉換規則。
+            /// </summary>
+            /// <param name="configurationBuilder">用於設定資料庫約定的建構器。</param>
+            protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
+            {
+                // 設定所有 UUID 型別的屬性都使用 UuidConverter 進行資料庫轉換
+                // 這讓 EF Core 知道如何將 UUID 物件與資料庫中的 Guid 欄位對應
+                configurationBuilder.Properties<UUID>().HaveConversion<UuidConverter>();
+            }
+        */
         
         /// <summary>
         /// 配置實體模型的關聯性、約束條件和資料庫行為
