@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Matrix.ViewModels;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Matrix.Controllers
 {
@@ -13,7 +14,28 @@ namespace Matrix.Controllers
         [HttpGet]
         public IActionResult Notify()
         {
-            return View();
+            var fakeNotify = new List<NotifyItemViewModel>
+        {
+            new NotifyItemViewModel {
+                SenderName = "Eddy",
+                SenderAvatarUrl = "~/static/img/Cute.png",
+                Message = "Great artwork, love it!",
+                TimeAgo = "2h"
+            },
+            new NotifyItemViewModel {
+                SenderName = "Eason",
+                SenderAvatarUrl = "~/static/img/Cute.png",
+                Message = "Awesome job! Keep going!",
+                TimeAgo = "5h"
+            },
+            new NotifyItemViewModel {
+                SenderName = "Hung",
+                SenderAvatarUrl = "~/static/img/Cute.png",
+                Message = "Can I share this?",
+                TimeAgo = "1d"
+            }
+        };
+            return View("Notify",fakeNotify);
         }
     }
 }
