@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Matrix.Models{
+namespace Matrix.Models
+{
 
     /// <summary>
     /// 代表文章的附件檔案
@@ -12,13 +13,13 @@ namespace Matrix.Models{
         /// 改用 UUID 以確保唯一性和安全性，並以 ArrayExtension.GenerateOrdered(1)[0] 方法生成一個劇時間排序的唯一的值
         /// </summary>
         [Key]
-        public UUID FileId { get; set; } = ArrayExtension.GenerateOrdered(1)[0];
+        public Guid FileId { get; set; } = ArrayExtension.GenerateOrdered(1)[0];
 
         /// <summary>
         /// 關聯文章的 ArticleId
         /// </summary>
         [Required]
-        public UUID ArticleId { get; set; }
+        public Guid ArticleId { get; set; }
 
         /// <summary>
         /// 附件檔案的儲存路徑
@@ -36,7 +37,7 @@ namespace Matrix.Models{
         /// 附件的原始檔案名稱
         /// </summary>
         public string? FileName { get; set; }
-        
+
         /// <summary>
         /// 附件的MIME類型，用於確定檔案的格式和類型
         /// </summary>

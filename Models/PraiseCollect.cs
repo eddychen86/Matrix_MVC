@@ -1,7 +1,8 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Matrix.Models{
+namespace Matrix.Models
+{
 
     /// <summary>
     /// 代表用戶對文章的讚或收藏操作
@@ -13,23 +14,23 @@ namespace Matrix.Models{
         /// 改用 UUID 以確保唯一性和安全性，並以 ArrayExtension.GenerateOrdered(1)[0] 方法生成一個劇時間排序的唯一的值
         /// </summary>
         [Key]
-        public UUID EventId { get; set; } = ArrayExtension.GenerateOrdered(1)[0];
-        
+        public Guid EventId { get; set; } = ArrayExtension.GenerateOrdered(1)[0];
+
         /// <summary>
         /// 操作類型，例如：0表示讚，1表示收藏
         /// </summary>
         public int Type { get; set; }
-        
+
         /// <summary>
         /// 執行操作的 UserId
         /// </summary>
-        public UUID UserId { get; set; }
-        
+        public Guid UserId { get; set; }
+
         /// <summary>
         /// 被讚或收藏的 ArticleId
         /// </summary>
-        public UUID ArticleId { get; set; }
-        
+        public Guid ArticleId { get; set; }
+
         /// <summary>
         /// 操作的建立時間
         /// </summary>
@@ -40,7 +41,7 @@ namespace Matrix.Models{
         /// </summary>
         [ForeignKey("UserId")]
         public virtual Person? User { get; set; }
-        
+
         /// <summary>
         /// 關聯的文章
         /// </summary>

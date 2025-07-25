@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Matrix.Models{
+namespace Matrix.Models
+{
 
     /// <summary>
     /// 代表系統中的標籤實體
@@ -12,14 +13,14 @@ namespace Matrix.Models{
         /// 改用 UUID 以確保唯一性和安全性，並以 ArrayExtension.GenerateOrdered(1)[0] 方法生成一個劇時間排序的唯一的值
         /// </summary>
         [Key]
-        public UUID TagId { get; set; } = ArrayExtension.GenerateOrdered(1)[0];
-        
+        public Guid TagId { get; set; } = ArrayExtension.GenerateOrdered(1)[0];
+
         /// <summary>
         /// 標籤的文字內容，最大長度為10個字元
         /// </summary>
         [Required, MaxLength(10)]
         public required string Content { get; set; }
-        
+
         /// <summary>
         /// 標籤的狀態，0表示正常，其他值表示不同狀態
         /// </summary>
