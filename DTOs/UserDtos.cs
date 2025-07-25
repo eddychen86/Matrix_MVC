@@ -68,9 +68,10 @@ namespace Matrix.DTOs
         /// </summary>
         public string StatusText => Status switch
         {
-            0 => "正常",
-            1 => "停用",
-            2 => "封禁",
+            0 => "未信箱驗證",
+            1 => "啟用",
+            2 => "停用",
+            3 => "封禁",
             _ => "未知"
         };
 
@@ -82,7 +83,7 @@ namespace Matrix.DTOs
             0 => "一般使用者",
             1 => "管理員",
             2 => "超級管理員",
-            _ => "未知角色"
+            _ => "未知"
         };
 
         /// <summary>

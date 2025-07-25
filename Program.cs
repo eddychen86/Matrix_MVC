@@ -1,14 +1,15 @@
 // using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using Matrix.Data;
-using Matrix.Services;
-using DotNetEnv;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Localization;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using System.Globalization;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using Matrix.Middleware;
+using Matrix.Services;
+using Matrix.Data;
+using DotNetEnv;
 
 namespace Matrix;
 
@@ -40,24 +41,26 @@ public class Program
             options.UseLazyLoadingProxies().UseSqlServer(connectionString));
         builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-        // ------------------ 註冊 Service ------------------
+        #region 註冊 Service
 
         builder.Services.AddScoped<Matrix.Services.Interfaces.IUserService, UserService>();
         builder.Services.AddScoped<ArticleService>();
         builder.Services.AddScoped<NotificationService>();
 
-        // -------------------------------------------------
+        #endregion
 
-        // ---------------- 取消使用 Identity ---------------
+        #region 取消使用 Identity
 
         // builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
         //     .AddEntityFrameworkStores<ApplicationDbContext>();
 
-        // -------------------------------------------------
+        #endregion
 
-        // -------------------- JWT 設定 ---------------------
-        var jwtKey = builder.Configuration["Jwt:Key"];
-        var jwtIssuer = builder.Configuration["Jwt:Issuer"];
+        #region JWT 設定
+
+
+        var jwtKey = Environment.GetEnvironmentVariable("JWT_KEY");
+        var jwtIssuer = Environment.GetEnvironmentVariable("JWT_ISSUER");
 
         if (string.IsNullOrEmpty(jwtKey) || string.IsNullOrEmpty(jwtIssuer))
         {
@@ -82,7 +85,7 @@ public class Program
             };
         });
 
-        // -------------------------------------------------
+        #endregion
 
         builder.Services.AddControllersWithViews()
             .AddViewLocalization(); // 啟用視圖本地化
@@ -94,7 +97,8 @@ public class Program
             options.HeaderName = "RequestVerificationToken";
         });
 
-        // -------------------- 本地化設定 --------------------
+        #region 本地化設定
+        
         builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
 
         builder.Services.Configure<RequestLocalizationOptions>(options =>
@@ -119,7 +123,7 @@ public class Program
             // 當所有提供者都沒有結果時，使用預設文化 zh-TW
         });
 
-        // -------------------------------------------------
+        #endregion
 
         var app = builder.Build();
 
@@ -142,6 +146,12 @@ public class Program
         // -------------------------------------------------
 
         app.UseRouting();
+
+        #region JWT 驗證機制
+
+        app.UseMiddleware<JwtCookieMiddleware>();
+
+        #endregion
 
         app.UseAuthentication();
         app.UseAuthorization();

@@ -18,7 +18,7 @@ namespace Matrix.Services
             {
                 var user = await _context.Users
                     .Include(u => u.Person)
-                    .FirstOrDefaultAsync(u => u.UserId.ToGuid() == id);
+                    .FirstOrDefaultAsync(u => u.UserId == id);
     
                 if (user?.Person == null) return null;
     

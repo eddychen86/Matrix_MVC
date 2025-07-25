@@ -93,6 +93,12 @@
   <data name="UsernameOrEmailExists">
     <value>用戶名或電子郵件已存在。</value>
   </data>
+  <data name="AccountNotVerified">
+    <value>您的帳號尚未驗證，請先檢查您的電子郵件並完成帳號驗證。</value>
+  </data>
+  <data name="AccountDisabled">
+    <value>您的帳號已被停用，請聯繫管理員尋求協助。</value>
+  </data>
 
   <!-- Invisit -->
   <data name="NewHereMsg">
