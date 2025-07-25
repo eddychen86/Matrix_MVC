@@ -23,7 +23,6 @@
             <div v-show="popupState.type !== 'Search'">
                 <div class="popup-data">
                     <div v-for="item in popupData[popupState.type]" :key="item.Id">
-                        @* {{ item }} *@
                         <div class="card">
                             <img :src="item.imageUrl" alt="" />
                             <div class="card-body">
