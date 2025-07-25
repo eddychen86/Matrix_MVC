@@ -1,7 +1,8 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Matrix.Models{
+namespace Matrix.Models
+{
 
     /// <summary>
     /// 代表用戶關注關係的實體
@@ -13,17 +14,17 @@ namespace Matrix.Models{
         /// 改用 UUID 以確保唯一性和安全性，並以 ArrayExtension.GenerateOrdered(1)[0] 方法生成一個劇時間排序的唯一的值
         /// </summary>
         [Key]
-        public UUID FollowId { get; set; } = ArrayExtension.GenerateOrdered(1)[0];
+        public Guid FollowId { get; set; } = ArrayExtension.GenerateOrdered(1)[0];
 
         /// <summary>
         /// 關注者的 UserId
         /// </summary>
-        public UUID UserId { get; set; }
+        public Guid UserId { get; set; }
 
         /// <summary>
         /// 被關注對象的 UserId
         /// </summary>
-        public UUID FollowedId { get; set; }
+        public Guid FollowedId { get; set; }
 
         /// <summary>
         /// 關注類型，用於區分不同種類的關注關係

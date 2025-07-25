@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <data name="RegisterTitle">
+    <value>Register</value>
+  </data>
+  <data name="UserNameLabel">
+    <value>User Name</value>
+  </data>
+  <data name="EmailLabel">
+    <value>Email Address</value>
+  </data>
+  <data name="PasswordLabel">
+    <value>Password</value>
+  </data>
+  <data name="ConfirmPasswordLabel">
+    <value>Confirm Password</value>
+  </data>
+  <data name="RegisterButton">
+    <value>Register</value>
+  </data>
+  <data name="LoginLink">
+    <value>Already have an account? Log in</value>
+  </data>
+  <data name="EnterUserName">
+    <value>Enter User Name</value>
+  </data>
+  <data name="EnterEmail">
+    <value>Enter Email</value>
+  </data>
+  <data name="EnterPassword">
+    <value>Enter Password</value>
+  </data>
+  <data name="ConfirmPassword">
+    <value>Confirm Password</value>
+  </data>
+  <data name="JoinTheBlockchainCommunity">
+    <value>Join the blockchain community</value>
+  </data>
+  <data name="Register">
+    <value>Register</value>
+  </data>
+  <data name="Join the blockchain community">
+    <value>Join the blockchain community</value>
+  </data>
+  <data name="Enter User Name">
+    <value>Enter User Name</value>
+  </data>
+  <data name="Enter Email">
+    <value>Enter Email</value>
+  </data>
+  <data name="Enter Password">
+    <value>Enter Password</value>
+  </data>
+  <data name="Confirm Password">
+    <value>Confirm Password</value>
+  </data>
+  <data name="Already have an account?">
+    <value>Already have an account?</value>
+  </data>
+  <data name="Login">
+    <value>Login</value>
+  </data>
+</root>

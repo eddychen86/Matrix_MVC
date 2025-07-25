@@ -26,8 +26,8 @@ namespace Matrix.Services.Interfaces
         /// 建立新使用者
         /// </summary>
         /// <param name="dto">建立使用者資料傳輸物件</param>
-        /// <returns>建立是否成功</returns>
-        Task<bool> CreateUserAsync(CreateUserDto dto);
+        /// <returns>建立成功時返回使用者 ID，失敗時返回 null</returns>
+        Task<Guid?> CreateUserAsync(CreateUserDto dto);
 
         /// <summary>
         /// 更新使用者資料
