@@ -21,6 +21,9 @@ namespace Matrix.DTOs
 
         public string? Email { get; set; }
 
+        public List<String>? Content { get; set; }
+
+
         /// <summary>
         /// 使用者的顯示名稱
         /// </summary>
