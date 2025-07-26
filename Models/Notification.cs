@@ -1,7 +1,8 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Matrix.Models{
+namespace Matrix.Models
+{
 
     /// <summary>
     /// 代表系統通知的實體
@@ -13,33 +14,33 @@ namespace Matrix.Models{
         /// 改用 UUID 以確保唯一性和安全性，並以 ArrayExtension.GenerateOrdered(1)[0] 方法生成一個劇時間排序的唯一的值
         /// </summary>
         [Key]
-        public UUID NotifyId { get; set; } = ArrayExtension.GenerateOrdered(1)[0];
-        
+        public Guid NotifyId { get; set; } = ArrayExtension.GenerateOrdered(1)[0];
+
         /// <summary>
         /// 接收通知的 UserId
         /// </summary>
-        public UUID GetId { get; set; }
-        
+        public Guid GetId { get; set; }
+
         /// <summary>
         /// 發送通知的 UserId
         /// </summary>
-        public UUID SendId { get; set; }
-        
+        public Guid SendId { get; set; }
+
         /// <summary>
         /// 通知的類型，用於區分不同種類的通知
         /// </summary>
         public int Type { get; set; }
-        
+
         /// <summary>
         /// 通知的閱讀狀態，0表示未讀，1表示已讀
         /// </summary>
         public int IsRead { get; set; } = 0;
-        
+
         /// <summary>
         /// 通知發送的時間
         /// </summary>
         public DateTime SentTime { get; set; }
-        
+
         /// <summary>
         /// 通知被閱讀的時間
         /// </summary>
@@ -50,7 +51,7 @@ namespace Matrix.Models{
         /// </summary>
         [ForeignKey("GetId")]
         public virtual required Person Receiver { get; set; }
-        
+
         /// <summary>
         /// 通知發送者的個人資料連結
         /// </summary>

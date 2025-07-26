@@ -81,7 +81,7 @@
     }
 
     .friend-search-bar {
-        @apply flex h-[44px] w-[264px] items-center rounded-[24px] bg-[#323232] pr-4 pl-2 shadow-[2px_2px_4px_rgba(255,255,255,0.1)];
+        @apply flex h-[44px] w-[300px] items-center rounded-[24px] bg-[#323232] pr-4 pl-2 shadow-[2px_2px_4px_rgba(255,255,255,0.1)];
     }
 
     .friend-icon-btn {
@@ -106,5 +106,93 @@
 
     .friend-name {
         @apply ml-3 text-white text-[16px] font-['Source_Sans_Pro'] leading-[19px];
+    }
+
+
+    /* 遮罩 */
+    .edit-modal-overlay {
+        @apply fixed inset-0 z-[1000] bg-white opacity-20;
+    }
+
+    /* Modal 外層 */
+    .edit-modal-container {
+        @apply fixed inset-0 z-[1010] flex items-center justify-center;
+    }
+
+    /* 主 Panel */
+    .edit-modal-panel {
+        @apply relative max-h-[800px] min-h-[450px] w-[600px] rounded-[15px] bg-[#161616] p-6;
+    }
+
+    /* 頭像區 */
+    .edit-modal-avatar {
+        @apply absolute top-[25px] left-[24px] h-[32px] w-[34px] rounded-[24px] bg-cover bg-center bg-no-repeat;
+    }
+
+    /* 使用者名稱 */
+    .edit-modal-username {
+        @apply absolute top-[30px] left-[69px] text-white text-[18px] font-['Roboto'] font-normal leading-[22px];
+    }
+
+    /* 關閉按鈕 */
+    .edit-modal-close-btn {
+        @apply absolute top-[22px] right-[24px] h-[32px] w-[32px] text-white hover:text-gray-300 flex items-center justify-center;
+    }
+
+    .edit-modal-close-icon {
+        @apply h-full w-full fill-current;
+    }
+
+    /* 內容 textarea */
+    .edit-modal-textarea {
+        @apply absolute top-[82px] left-[24px] right-[24px] h-[150px] resize-none rounded-[10px] bg-[#161616] p-4 text-white text-[16px] font-['Source_Sans_Pro'] font-normal leading-[19px] text-justify border border-black focus:outline-none focus:border-white;
+    }
+
+    /* 送出按鈕 */
+    .edit-modal-send-btn {
+        @apply absolute right-[24px] bottom-[20px] flex h-[50px] w-[50px] items-center justify-center rounded-[32px] border-0 bg-[#2a629a] text-white transition duration-200 outline-none hover:bg-[#3476bd];
+    }
+
+    .edit-modal-send-icon {
+        @apply h-[24px] w-[24px] fill-current text-white;
+    }
+
+    /* 圖片預覽 */
+    .edit-modal-img-preview {
+        @apply absolute top-[240px] left-[24px] h-[100px] w-[100px] rounded-[30px] bg-cover bg-center bg-no-repeat;
+    }
+
+    .edit-modal-img-preview-img {
+        @apply h-full w-full object-cover;
+    }
+
+    /* 圖片佔位 */
+    .edit-modal-img-placeholder {
+        @apply absolute top-[240px] left-[144px] flex h-[100px] w-[100px] items-center justify-center rounded-[30px] bg-[#ffffff];
+    }
+
+    .edit-modal-img-placeholder-icon {
+        @apply w-[24px] h-[24px] fill-[#333333];
+    }
+
+    /* 底部三顆工具列 icon 按鈕 */
+    .edit-modal-tool-btn1 {
+        @apply absolute bottom-[29px] left-[24px] h-[32px] w-[32px] text-[#a2a2a2] text-[32px] transition-colors duration-200 hover:text-white flex items-center justify-center;
+    }
+
+    .edit-modal-tool-btn2 {
+        @apply absolute bottom-[29px] left-[72px] h-[32px] w-[32px] text-[#ff7f3e] text-[32px] transition-colors duration-200 hover:text-white flex items-center justify-center;
+    }
+
+    .edit-modal-tool-btn3 {
+        @apply absolute bottom-[29px] left-[124px] h-[32px] w-[32px] text-[#ffda78] text-[32px] transition-colors duration-200 hover:text-white flex items-center justify-center;
+    }
+
+    .edit-modal-tag-btn {
+        @apply absolute top-[344px] left-[24px] mt-2 min-h-[32px] min-w-[40px] rounded-full bg-[#ffda78];
+    }
+
+    .edit-modal-tag-label {
+        @apply text-[#333333] text-[14px] leading-[16px] font-medium font-['Roboto'] px-2;
     }
 }

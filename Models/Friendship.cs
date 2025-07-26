@@ -1,7 +1,8 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Matrix.Models{
+namespace Matrix.Models
+{
 
     /// <summary>
     /// 好友關係狀態的列舉
@@ -24,19 +25,19 @@ namespace Matrix.Models{
         /// 改用 UUID 以確保唯一性和安全性，並以 ArrayExtension.GenerateOrdered(1)[0] 方法生成一個劇時間排序的唯一的值
         /// </summary>
         [Key]
-        public UUID FriendshipId { get; set; } = ArrayExtension.GenerateOrdered(1)[0];
+        public Guid FriendshipId { get; set; } = ArrayExtension.GenerateOrdered(1)[0];
 
         /// <summary>
         /// 發出好友邀請的 UserId
         /// </summary>
         [Required]
-        public UUID UserId { get; set; }
+        public Guid UserId { get; set; }
 
         /// <summary>
         /// 接收好友邀請的 UserId
         /// </summary>
         [Required]
-        public UUID FriendId { get; set; }
+        public Guid FriendId { get; set; }
 
         /// <summary>
         /// 好友關係的狀態，包括待確認、已接受、已拒絕或已封鎖
