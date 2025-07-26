@@ -192,5 +192,107 @@
     @apply rounded-full py-2 pr-3 flex gap-4 justify-center items-center bg-white text-black w-40 right-0;
   }
 }
+@font-face {
+  font-family: SourceSans3;
+  font-style: normal;
+  src: url("/static/fonts/SourceSans3-Regular.ttf") format("truetype");
+}
+@layer components {
+  #auth-body {
+    @apply flex h-full w-full text-white
+      p-2 sm:p-4 md:p-8 relative;
+  }
+  #auth-body #auth-form {
+    @apply rounded-[30px] h-full overflow-x-hidden relative shadow-xl shadow-black/30
+        w-full lg:w-1/2;
+  }
+  #auth-body #auth-form #mock {
+    @apply w-full h-full bg-secondary opacity-80;
+  }
+  #auth-body #auth-form form {
+    @apply absolute top-1/2 left-1/2 -translate-1/2 flex flex-col gap-8;
+  }
+  #auth-body #auth-form form h1 {
+    @apply text-3xl md:text-6xl
+            text-center font-[SourceSans3] font-bold;
+  }
+  #auth-body #auth-form form .input-item {
+    @apply flex flex-col gap-4;
+  }
+  #auth-body #auth-form form .input-item label {
+    @apply text-white;
+  }
+  #auth-body #auth-form form .input-item input {
+    @apply rounded-full bg-white overflow-hidden w-full text-black outline-none
+              p-1 sm:p-2 md:p-4;
+  }
+  #auth-body #auth-form form .input-item_pwd {
+    @apply bg-white rounded-full justify-between items-center relative;
+  }
+  #auth-body #auth-form form .input-item_pwd input {
+    @apply pr-1 sm:pr-7 md:pr-14;
+  }
+  #auth-body #auth-form form .input-item_pwd button {
+    @apply cursor-pointer absolute top-1/2 -translate-y-1/2
+                right-1 sm:right-2 md:right-4;
+  }
+  #auth-body .auth-btn {
+    @apply cursor-pointer border-none rounded-full h-14 bg-[#ff7f3e] text-white flex-1 shadow-none;
+  }
+  #auth-body .third-party-btn {
+    @apply cursor-pointer border-none rounded-full w-14 h-14 shadow-none bg-gray-500;
+  }
+  #auth-body #auth-layout_forgot {
+    @apply absolute top-0 left-0 z-10 w-screen h-screen bg-white/30 text-white transition-all duration-300 ease-in-out;
+  }
+  #auth-body #auth-layout_forgot form {
+    @apply bg-secondary absolute top-1/2 left-1/2 -translate-1/2 p-8 rounded-[30px] shadow-xl flex flex-col gap-4
+          w-4/5 md:w-1/2 lg:w-1/3;
+  }
+  #auth-body #auth-layout_forgot form .close-btn {
+    @apply cursor-pointer absolute top-8 right-8;
+  }
+  #auth-body #auth-layout_forgot form .ctn-input {
+    @apply flex items-center justify-between rounded-full p-1 bg-white;
+  }
+  #auth-body #auth-layout_forgot form .ctn-input input {
+    @apply bg-white outline-none w-full rounded-full text-black
+              py-1 lg:p-3;
+  }
+  #auth-body #auth-layout_forgot form .ctn-input button {
+    @apply cursor-pointer bg-[#2a629a] rounded-full px-6 py-2;
+  }
+  #auth-body .fade-enter-active,
+  #auth-body .fade-leave-active {
+    @apply transition-opacity duration-300 ease-in-out;
+  }
+  #auth-body .fade-enter-from,
+  #auth-body .fade-leave-to {
+    @apply opacity-0;
+  }
+  #auth-body .fade-enter-to,
+  #auth-body .fade-leave-from {
+    @apply opacity-100;
+  }
+  .auth-layout_login {
+    @apply bg-cover bg-center bg-[url("/static/img/LoginBG.jpg")];
+  }
+  .auth-layout_register {
+    @apply bg-cover bg-center bg-[url("/static/img/RegisterBG.jpg")];
+  }
+  .auth-checkbox {
+    @apply checkbox bg-[#ff7f3e] text-white
+    checked:bg-[#ff7f3e];
+  }
+  #auth-error-login {
+    @apply flex items-center gap-4 w-full h-12 rounded-xl overflow-hidden relative border border-red-500;
+  }
+  #auth-error-login .mock {
+    @apply w-full h-full bg-red-300 opacity-30;
+  }
+  #auth-error-login .msg-body {
+    @apply absolute top-1/2 left-4 -translate-y-1/2 z-10 text-red-300 flex items-center gap-4;
+  }
+}
 
 /*# sourceMappingURL=components.css.map */

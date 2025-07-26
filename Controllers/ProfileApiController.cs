@@ -46,8 +46,7 @@ namespace Matrix.Controllers
         {
             try
             {
-                var uuid = UUID.FromGuid(model.id);
-                var person = await _context.Persons.FirstOrDefaultAsync(x=>x.UserId == uuid);
+                var person = await _context.Persons.Include(x => x.User).FirstOrDefaultAsync(x=>x.UserId == model.id);
                 if (person == null)
                 {
                     return NotFound();
@@ -55,6 +54,7 @@ namespace Matrix.Controllers
 
                 var dto = new PersonDto
                 {
+                    Email = person.User?.Email,
                     PersonId = person.PersonId,
                     UserId = person.UserId,
                     DisplayName = person.DisplayName,

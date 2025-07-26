@@ -17,6 +17,10 @@ namespace Matrix.DTOs
         /// </summary>
         public Guid UserId { get; set; }
 
+
+
+        public string? Email { get; set; }
+
         /// <summary>
         /// 使用者的顯示名稱
         /// </summary>
@@ -228,6 +232,8 @@ namespace Matrix.DTOs
             _ => "未知"
         };
 
+        
+
         /// <summary>
         /// 判斷是否有任何欄位被設定
         /// </summary>
@@ -323,5 +329,7 @@ namespace Matrix.DTOs
 
             return false;
         }
+
+        
     }
 }
