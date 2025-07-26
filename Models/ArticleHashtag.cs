@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Matrix.Models{
+namespace Matrix.Models
+{
 
     /// <summary>
     /// 代表文章與標籤之間的多對多關聯
@@ -10,19 +11,19 @@ namespace Matrix.Models{
         /// <summary>
         /// 關聯文章的 ID，作為複合主鍵的一部分
         /// </summary>
-        public UUID ArticleId { get; set; }
-        
+        public Guid ArticleId { get; set; }
+
         /// <summary>
         /// 關聯標籤的唯一識別碼，作為複合主鍵的一部分
         /// </summary>
-        public UUID TagId { get; set; }
+        public Guid TagId { get; set; }
 
         /// <summary>
         /// 關聯的文章實體
         /// </summary>
         [ForeignKey("ArticleId")]
         public virtual Article? Article { get; set; }
-        
+
         /// <summary>
         /// 關聯的標籤實體
         /// </summary>
