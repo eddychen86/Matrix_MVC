@@ -1,4 +1,3 @@
-// using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.IdentityModel.Tokens;
@@ -8,8 +7,11 @@ using System.Globalization;
 using System.Text;
 using Matrix.Middleware;
 using Matrix.Services;
+using Matrix.Services.Extensions;
+using Matrix.Services.Interfaces;
 using Matrix.Data;
 using DotNetEnv;
+// using Microsoft.AspNetCore.Identity;
 
 namespace Matrix;
 
@@ -47,6 +49,8 @@ public class Program
         builder.Services.AddScoped<ArticleService>();
         builder.Services.AddScoped<NotificationService>();
 
+        builder.Services.AddEmailSender(builder.Configuration);
+
         #endregion
 
         #region 取消使用 Identity
@@ -57,7 +61,6 @@ public class Program
         #endregion
 
         #region JWT 設定
-
 
         var jwtKey = Environment.GetEnvironmentVariable("JWT_KEY");
         var jwtIssuer = Environment.GetEnvironmentVariable("JWT_ISSUER");

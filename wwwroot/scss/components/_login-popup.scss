@@ -1,0 +1,86 @@
+// 登入提示 Popup 組件樣式
+.login-popup-overlay {
+    @apply
+        fixed inset-0 bg-black/50 z-50 flex items-center justify-center
+    
+        /* 淡入動畫 */
+        opacity-0 transition-opacity duration-300 ease-in-out
+    ;
+    
+    &.show {
+        @apply opacity-100;
+    }
+    
+    &.hide {
+        @apply opacity-0 pointer-events-none;
+    }
+}
+
+.login-popup-container {
+    @apply 
+        bg-[#161616] rounded-xl shadow-2xl max-w-md w-full m-4 p-6 relative border-2 border-accent
+    
+        /* 彈出動畫 */
+        scale-[.8] translate-y-[20px] transition-transform duration-300 ease-in-out
+    ;
+    
+    .login-popup-overlay.show & {
+        @apply scale-100 translate-y-0;
+    }
+}
+
+.login-popup-header {
+    @apply flex items-center justify-between mb-4;
+    
+    h2 {
+        @apply text-xl font-bold text-white flex items-center gap-2;
+    }
+    
+    .close-btn {
+        @apply text-stone-400 hover:text-white transition-colors cursor-pointer p-1;
+        
+        &:hover {
+            @apply text-orange-500 scale-110;
+        }
+    }
+}
+
+.login-popup-content {
+    @apply text-stone-300 mb-6;
+    
+    p {
+        @apply mb-3 leading-relaxed;
+    }
+    
+    .feature-list {
+        @apply list-disc list-inside space-y-1 text-sm text-stone-400 ml-4;
+    }
+}
+
+.login-popup-actions {
+    @apply flex gap-3 justify-end;
+    
+    .btn-secondary {
+        @apply px-4 py-2 rounded-full border border-stone-600 text-stone-300 hover:text-white hover:border-stone-400 transition-colors;
+    }
+    
+    .btn-primary {
+        @apply px-6 py-2 rounded-full bg-orange-400 text-white hover:bg-orange-600 transition-colors font-medium;
+    }
+}
+
+// 響應式設計
+@media (max-width: 640px) {
+    .login-popup-container {
+        @apply mx-2 p-4;
+    }
+    
+    .login-popup-actions {
+        @apply flex-col;
+        
+        .btn-secondary,
+        .btn-primary {
+            @apply w-full justify-center;
+        }
+    }
+}

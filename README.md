@@ -24,6 +24,7 @@ Then, you also need to install these packages and tools.
 ```
 dotnet add package DotNetEnv
 dotnet add package Microsoft.EntityFrameworkCore.Proxies --version 8.0.11
+dotnet add package MailKit
 ```
 Because this project used DaisyUI UI Library, you need to install tailwindcss CLI and DaisyUI.<br>
 

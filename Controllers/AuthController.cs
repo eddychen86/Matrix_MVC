@@ -10,7 +10,7 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace Matrix.Controllers
 {
-    public class AuthController(IUserService _userService, IConfiguration _configuration, IStringLocalizer<AuthController> _localizer, ILogger<AuthController> _logger) : Controller
+    public class AuthController(IUserService _userService, IStringLocalizer<AuthController> _localizer, ILogger<AuthController> _logger) : Controller
     {
         private static readonly string[] InvalidCredentialsError = ["Invalid user name or password."];
 
@@ -139,17 +139,22 @@ namespace Matrix.Controllers
 
             // 7. 產生 JWT Token，包含用戶 ID、用戶名和角色資訊
             var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes(_configuration["Jwt:Key"] ?? throw new InvalidOperationException("JWT Key not configured."));
+            var jwtKey = Environment.GetEnvironmentVariable("JWT_KEY") ?? throw new InvalidOperationException("JWT Key not configured.");
+            var key = Encoding.UTF8.GetBytes(jwtKey);
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(new List<Claim>
                 {
-                new(ClaimTypes.NameIdentifier, userDto.UserId.ToString()),
-                new(ClaimTypes.Name, userDto.UserName),
-                new(ClaimTypes.Role, userDto.Role.ToString())
+                    new("UserId", userDto.UserId.ToString()),
+                    new(ClaimTypes.Name, userDto.UserName),
+                    new(ClaimTypes.Role, userDto.Role.ToString())
                 }),
                 Expires = DateTime.UtcNow.AddDays(30),
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+                Issuer = Environment.GetEnvironmentVariable("JWT_ISSUER"),
+                         SigningCredentials = new SigningCredentials(
+                            new SymmetricSecurityKey(key),
+                            SecurityAlgorithms.HmacSha256Signature
+                         )
             };
             var token = tokenHandler.CreateToken(tokenDescriptor);
             var tokenString = tokenHandler.WriteToken(token);
@@ -192,6 +197,75 @@ namespace Matrix.Controllers
             // 目前僅返回登入頁面
             ModelState.AddModelError("", "Forgot password functionality is not implemented yet.");
             return View("~/Views/Auth/Login.cshtml", model);
+        }
+
+        /// <summary>
+        /// 檢查用戶當前的認證狀態
+        /// </summary>
+        /// <returns>認證狀態資訊</returns>
+        [HttpGet]
+        [Route("/api/auth/status")]
+        public IActionResult GetAuthStatus()
+        {
+            // 檢查中介軟體是否已設定認證狀態
+            var isAuthenticated = HttpContext.Items["IsAuthenticated"] as bool? ?? false;
+            var isGuest = HttpContext.Items["IsGuest"] as bool? ?? false;
+
+            if (isAuthenticated)
+            {
+                // 用戶已認證，回傳用戶資訊
+                var userId = HttpContext.Items["UserId"] as Guid?;
+                var userName = HttpContext.Items["UserName"] as string;
+                var userRole = HttpContext.Items["UserRole"] as string;
+
+                return Json(new
+                {
+                    success = true,
+                    authenticated = true,
+                    user = new
+                    {
+                        id = userId,
+                        username = userName,
+                        role = userRole
+                    }
+                });
+            }
+
+            // 用戶未認證（訪客狀態）
+            return Json(new
+            {
+                success = true,
+                authenticated = false,
+                guest = isGuest
+            });
+        }
+
+        /// <summary>
+        /// 用戶登出：清除認證 Cookie
+        /// </summary>
+        /// <returns>登出結果</returns>
+        [HttpPost]
+        [Route("/api/auth/logout")]
+        public IActionResult Logout()
+        {
+            // 清除認證 Cookie
+            var cookieOptions = new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.Strict,
+                Expires = DateTime.UtcNow.AddDays(-1)  // 設定為過去時間立即過期
+            };
+
+            Response.Cookies.Append("AuthToken", "", cookieOptions);
+
+            _logger.LogInformation("User logged out successfully");
+
+            return Json(new
+            {
+                success = true,
+                message = "Logged out successfully"
+            });
         }
     }
 }

@@ -46,4 +46,25 @@
   <data name="WelcomeMessage" xml:space="preserve">
     <value>歡迎！</value>
   </data>
+  <data name="Comment" xml:space="preserve">
+    <value>留言</value>
+  </data>
+  <data name="Praise" xml:space="preserve">
+    <value>讚</value>
+  </data>
+  <data name="Follow" xml:space="preserve">
+    <value>追蹤</value>
+  </data>
+  <data name="Collect" xml:space="preserve">
+    <value>收藏</value>
+  </data>
+  <data name="Share" xml:space="preserve">
+    <value>分享</value>
+  </data>
+  <data name="GuestBrowseMsg" xml:space="preserve">
+    <value>登入後可留言</value>
+  </data>
+  <data name="GuestAccount" xml:space="preserve">
+    <value>訪客</value>
+  </data>
 </root>

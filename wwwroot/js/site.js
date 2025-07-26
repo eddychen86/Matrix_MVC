@@ -1,4 +1,134 @@
-﻿// Please see documentation at https://learn.microsoft.com/aspnet/core/client-side/bundling-and-minification
-// for details on configuring this project to bundle and minify static web assets.
+const app = content => {
+    if (typeof Vue === 'undefined') {
+        console.log('Vue is not loaded.');
+        return;
+    }
+    window.popupApp = Vue.createApp(content).mount('#app');
+};
 
-// Write your JavaScript code.
+lucide.createIcons();
+
+app({
+    setup() {
+        const { ref, reactive, computed } = Vue;
+
+        //#region Sidebar State
+
+        const isCollapsed = ref(false);
+        
+        const toggleSidebar = () => {
+            isCollapsed.value = !isCollapsed.value;
+            lucide.createIcons()
+        }
+
+        //#endregion
+
+        //#region Language
+
+        const toggleLang = () => {
+            // current language
+            const curLang = document.documentElement.lang || 'zh-TW'
+
+            // switch language
+            const changeLang = curLang === 'zh-TW' ? 'en-US' : 'zh-TW'
+
+            // set current language in cookie for 1 year
+            // ASP.NET Core 預設的 culture cookie 名稱是 ".AspNetCore.Culture"
+            const cultureCookie = `c=${changeLang}|uic=${changeLang}`
+            document.cookie = `.AspNetCore.Culture=${cultureCookie}; path=/; max-age=31536000; SameSite=Lax`
+            console.log(`Setting culture cookie: ${cultureCookie}`)
+
+            // reload the website let the language change
+            window.location.reload()
+        }
+
+        //#endregion
+
+        //#region Pop-Up Events
+
+        // Popup State
+        const popupState = reactive({
+            isVisible: false,
+            type: '',
+            title: ''
+        });
+
+        // Popup Data Storage
+        const popupData = reactive({
+            Search: [],
+            Notify: [],
+            Follows: [],
+            Collects: []
+        })
+
+        // popup helper
+        const getPopupTitle = type => {
+            const titles = {
+                'Search': '搜尋',
+                'Notify': '通知',
+                'Follows': '追蹤',
+                'Collects': '收藏'
+            }
+
+            return titles[type] || '視窗'
+        }
+
+        // Update popup data
+        const updatePopupData = (type, data) => {
+            if (popupData[type] !== undefined)
+                popupData[type] = data
+        }
+
+        // Popup click
+        const openPopup = async type => {
+            popupState.type = type
+            popupState.title = getPopupTitle(type)
+            popupState.isVisible = true
+
+            try {
+                const res = await fetch('/api/' + type.toLowerCase())
+                const data = await res.json()
+
+                updatePopupData(type, data)
+            } catch (err) {
+                console.log('Fetch Error:', err)
+            }
+        }
+
+        const closePopup = () => {
+            popupState.isVisible = false
+            popupState.type = ''
+        }
+
+        // Global Methods
+        window.toggleFunc = (show, type) => show ? openPopup(type) : closePopup()
+
+        //#endregion
+
+        //#region
+
+        const searchQuery = ref('');
+
+        //#endregion
+
+        return {
+            // language
+            isCollapsed,
+            toggleSidebar,
+            toggleLang,
+
+            // pop-up
+            popupState,
+            popupData,
+            getPopupTitle,
+            openPopup,
+            closePopup,
+            // 為新版 popup 提供向後兼容
+            isOpen: computed(() => popupState.isVisible),
+            closeCollectModal: closePopup,
+
+            //
+            searchQuery,
+        };
+    }
+});
