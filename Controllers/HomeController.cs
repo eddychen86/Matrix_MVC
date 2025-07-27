@@ -1,11 +1,6 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authorization;
-using Matrix.Models;
-using Matrix.Data;
-using Matrix.ViewModels;
-using Microsoft.EntityFrameworkCore;
 
 namespace Matrix.Controllers;
 

@@ -1,12 +1,8 @@
-using Microsoft.AspNetCore.Mvc;
-using Matrix.ViewModels;
-using Matrix.DTOs;
-using Matrix.Services.Interfaces;
-using Microsoft.Extensions.Localization;
+using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
+using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using System.Text;
-using Microsoft.IdentityModel.Tokens;
 
 namespace Matrix.Controllers
 {
@@ -57,13 +53,13 @@ namespace Matrix.Controllers
 
             // 4. 呼叫用戶服務建立新用戶（包含密碼雜湊、重複檢查等邏輯）
             _logger.LogInformation("Debug Mode - CreateUserDto: {@CreateUserDto}", createUserDto);
-            var userId = await _userService.CreateUserAsync(createUserDto);
+            var createResult = await _userService.CreateUserAsync(createUserDto);
 
-            // 5. 檢查用戶建立結果，如果失敗表示用戶名或郵箱已存在
-            if (userId == null)
+            // 5. 檢查用戶建立結果，如果失敗顯示具體錯誤訊息
+            if (createResult.UserId == null)
             {
-                var errors = new Dictionary<string, string[]> { { "UserName", [_localizer["UsernameOrEmailExists"].ToString()] } };
-                _logger.LogWarning("User creation failed: Username or email already exists.");
+                var errors = new Dictionary<string, string[]> { { "UserName", createResult.Errors.ToArray() } };
+                _logger.LogWarning("User creation failed: {Errors}", string.Join(", ", createResult.Errors));
                 return Json(new { success = false, errors });
             }
 

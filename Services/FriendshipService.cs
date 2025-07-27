@@ -1,7 +1,3 @@
-using Matrix.Data;
-using Matrix.DTOs;
-using Matrix.Services.Interfaces;
-
 namespace Matrix.Services
 {
     /// <summary>

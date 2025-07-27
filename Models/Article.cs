@@ -1,5 +1,4 @@
 using System.ComponentModel.DataAnnotations;
-using System.Text; // 引入 StringBuilder，用來高效地組合字串
 
 namespace Matrix.Models
 {

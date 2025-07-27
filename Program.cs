@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using System.Globalization;
 using System.Text;
@@ -50,6 +49,31 @@ public class Program
         builder.Services.AddScoped<NotificationService>();
 
         builder.Services.AddEmailSender(builder.Configuration);
+
+        #endregion
+
+        #region 帳號密碼驗證規則配置
+
+        builder.Services.Configure<Matrix.Services.UserValidationOptions>(options =>
+        {
+            // 用戶名規則
+            options.UserName.RequiredLength = 3;
+            options.UserName.MaximumLength = 20;
+            options.UserName.AllowedCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_";
+            
+            // 密碼規則
+            options.Password.RequiredLength = 8;
+            options.Password.MaximumLength = 20;
+            options.Password.RequireDigit = true;
+            options.Password.RequireLowercase = true;
+            options.Password.RequireUppercase = true;
+            options.Password.RequireNonAlphanumeric = true;
+            options.Password.RequiredUniqueChars = 1;
+            
+            // Email 規則
+            options.Email.MaximumLength = 30;
+            options.Email.RequireConfirmedEmail = false;
+        });
 
         #endregion
 
