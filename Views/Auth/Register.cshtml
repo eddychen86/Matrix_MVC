@@ -16,7 +16,7 @@
 <div id="auth-body">
     <div id="auth-form">
         <div id="mock"></div>
-        <form method="POST" class="w-4/5 md:w-3/4 lg:w-1/2">
+        <form method="POST" class="w-4/5 md:w-3/4 lg:w-1/2" v-on:submit="submitForm">
             @Html.AntiForgeryToken()
             <h1>@ViewData["Title"]</h1>
             <p class="text-center subTitle">@Localizer["WelcomeMsg"]</p>
@@ -39,9 +39,9 @@
             <div class="input-item">
                 <label for="Password" class="subTitle">@Localizer["PasswordLabel"]</label>
                 <div class="input-item_pwd">
-                    <input type="password" asp-for="Password" placeholder="@passwordPlaceholder">
-                    <button id="private-btn" type="button">
-                        <i data-lucide="eye-closed" class="text-secondary subTitle"></i>
+                    <input :type="showPassword ? 'text' : 'password'" asp-for="Password" placeholder="@passwordPlaceholder">
+                    <button type="button" v-on:click="togglePasswordVisibility">
+                        <i :data-lucide="showPassword ? 'eye' : 'eye-closed'" class="text-secondary subTitle"></i>
                     </button>
                 </div>
                 <p asp-validation-for="Password" class="text-red-400 para"></p>
@@ -51,9 +51,9 @@
             <div class="input-item">
                 <label for="ConfirmPassword" class="subTitle">@Localizer["ConfirmPasswordLabel"]</label>
                 <div class="input-item_pwd">
-                    <input type="password" asp-for="PasswordConfirm" placeholder="@confirmPasswordPlaceholder">
-                    <button id="confirm-private-btn" type="button">
-                        <i data-lucide="eye-closed" class="text-secondary subTitle"></i>
+                    <input :type="showConfirmPassword ? 'text' : 'password'" asp-for="PasswordConfirm" placeholder="@confirmPasswordPlaceholder">
+                    <button type="button" v-on:click="toggleConfirmPasswordVisibility">
+                        <i :data-lucide="showConfirmPassword ? 'eye' : 'eye-closed'" class="text-secondary subTitle"></i>
                     </button>
                 </div>
                 <p asp-validation-for="ConfirmPassword" class="text-red-400 para"></p>
@@ -72,6 +72,8 @@
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     <script>
+        // ========== jQuery 代碼 (已註解) ==========
+        /*
         const updateErrorMsg = err => {
             const authError = $('#auth-error-register p');
             const isHidden = $('#auth-error-register').hasClass('hidden')
@@ -84,7 +86,7 @@
             Object.keys(err).forEach(field => {
                 const errMsg = err[field];
 
-                @* console.log(`err: ${err}\nfield: ${field}\nerrMsg: ${errMsg}`) *@
+                // console.log(`err: ${err}\nfield: ${field}\nerrMsg: ${errMsg}`)
 
                 if (errMsg && errMsg.length > 0) {
                     // 嘗試多種選擇器來找到驗證元素
@@ -153,5 +155,134 @@
                 }
             });
         });
+        */
+
+        // ========== Vue.js 應用程式 ==========
+        const { createApp, ref, onMounted } = Vue;
+
+        createApp({
+            setup() {
+                // 響應式數據
+                const showPassword = ref(false);
+                const showConfirmPassword = ref(false);
+                const registerForm = ref({
+                    UserName: '',
+                    Email: '',
+                    Password: '',
+                    PasswordConfirm: ''
+                });
+
+                // 切換密碼顯示/隱藏
+                const togglePasswordVisibility = () => {
+                    showPassword.value = !showPassword.value;
+                    setTimeout(() => lucide.createIcons(), 0);
+                };
+
+                const toggleConfirmPasswordVisibility = () => {
+                    showConfirmPassword.value = !showConfirmPassword.value;
+                    setTimeout(() => lucide.createIcons(), 0);
+                };
+
+                // 更新錯誤訊息
+                const updateErrorMsg = (errors) => {
+                    // 清除之前的錯誤訊息
+                    document.querySelectorAll('.input-item p').forEach(p => p.textContent = '');
+
+                    Object.keys(errors).forEach(field => {
+                        const errMsg = errors[field];
+                        if (errMsg && errMsg.length > 0) {
+                            const el = document.querySelector(`p[asp-validation-for="${field}"]`);
+                            if (el && field) {
+                                el.textContent = errMsg[0];
+                            } else if (!field) {
+                                console.log('General error:', errMsg[0]);
+                            } else {
+                                console.log(`Could not find validation element for ${field}`);
+                            }
+                        }
+                    });
+                };
+
+                // 表單提交
+                const submitForm = async (event) => {
+                    event.preventDefault();
+
+                    try {
+                        // 獲取表單數據
+                        const formData = new FormData(event.target);
+                        const token = formData.get('__RequestVerificationToken');
+
+                        const response = await fetch('/api/register', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'RequestVerificationToken': token
+                            },
+                            body: JSON.stringify({
+                                UserName: registerForm.value.UserName,
+                                Email: registerForm.value.Email,
+                                Password: registerForm.value.Password,
+                                PasswordConfirm: registerForm.value.PasswordConfirm
+                            })
+                        });
+
+                        const result = await response.json();
+
+                        if (result.success && result.redirectUrl) {
+                            window.location.href = result.redirectUrl;
+                        } else if (result.errors) {
+                            updateErrorMsg(result.errors);
+                        }
+                    } catch (error) {
+                        console.error('Register error:', error);
+                    }
+                };
+
+                // 組件掛載後初始化
+                onMounted(() => {
+                    // 綁定表單數據到 DOM 元素
+                    const userNameInput = document.querySelector('input[name="UserName"]');
+                    const emailInput = document.querySelector('input[name="Email"]');
+                    const passwordInput = document.querySelector('input[name="Password"]');
+                    const confirmPasswordInput = document.querySelector('input[name="PasswordConfirm"]');
+
+                    if (userNameInput) {
+                        userNameInput.addEventListener('input', (e) => {
+                            registerForm.value.UserName = e.target.value;
+                        });
+                    }
+
+                    if (emailInput) {
+                        emailInput.addEventListener('input', (e) => {
+                            registerForm.value.Email = e.target.value;
+                        });
+                    }
+
+                    if (passwordInput) {
+                        passwordInput.addEventListener('input', (e) => {
+                            registerForm.value.Password = e.target.value;
+                        });
+                    }
+
+                    if (confirmPasswordInput) {
+                        confirmPasswordInput.addEventListener('input', (e) => {
+                            registerForm.value.PasswordConfirm = e.target.value;
+                        });
+                    }
+
+                    // 初始化 Lucide 圖標
+                    lucide.createIcons();
+                });
+
+                return {
+                    showPassword,
+                    showConfirmPassword,
+                    registerForm,
+                    togglePasswordVisibility,
+                    toggleConfirmPasswordVisibility,
+                    submitForm
+                };
+            }
+        }).mount('#auth-body');
     </script>
 }

@@ -17,6 +17,8 @@
         <script src="~/lib/lucide/dist/umd/lucide.min.js"></script>
 
         <script>
+            // ========== jQuery 代碼 (已註解) ==========
+            /*
             lucide.createIcons();
             $(document).ready(function() {
                 const { createApp, ref, onMounted } = Vue
@@ -42,6 +44,22 @@
                     }
                 }).mount('#auth-body')
             })
+            */
+
+            // ========== Vue.js 應用程式 (全域初始化) ==========
+            // 初始化 Lucide 圖標
+            lucide.createIcons();
+
+            // 等待 DOM 加載完成
+            document.addEventListener('DOMContentLoaded', function() {
+                // 檢查是否為登入頁面，並添加對應的 CSS 類別
+                const isLoginPage = window.location.pathname.toLowerCase() === '/login';
+                const authBody = document.getElementById('auth-body');
+                
+                if (authBody) {
+                    authBody.classList.add(isLoginPage ? 'auth-layout_login' : 'auth-layout_register');
+                }
+            });
         </script>
 
         @await RenderSectionAsync("Scripts", required: false)

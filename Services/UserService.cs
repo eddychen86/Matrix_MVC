@@ -286,11 +286,11 @@ namespace Matrix.Services
         }
 
         /// <summary>
-        /// 驗證使用者登入
+        /// 驗證使用者登入（支援 email 或用戶名）
         /// </summary>
-        public async Task<bool> ValidateUserAsync(string email, string password)
+        public async Task<bool> ValidateUserAsync(string emailOrUsername, string password)
         {
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == emailOrUsername || u.UserName == emailOrUsername);
             return user != null && VerifyPassword(password, user.Password);
         }
 

@@ -27,7 +27,8 @@ namespace Matrix.Models
         public Guid SendId { get; set; }
 
         /// <summary>
-        /// 通知的類型，用於區分不同種類的通知
+        /// 通知的類型，用於區分不同種類的通知，0表示文章留言，1表示使用者私信
+        /// (1 為未來展望)
         /// </summary>
         public int Type { get; set; }
 

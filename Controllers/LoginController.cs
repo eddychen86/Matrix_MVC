@@ -24,7 +24,7 @@ namespace Matrix.Controllers
         [HttpPost, Route("/api/login")]
         public async Task<IActionResult> LoginApi([FromBody] LoginViewModel? model)
         {
-            _logger.LogInformation("登入嘗試: {UserName}", model?.UserName);
+            _logger.LogInformation("\n\n登入嘗試: {UserName}\n\n", model?.UserName);
 
             // 檢查模型和資料格式
             if (model == null || !ModelState.IsValid)
@@ -33,14 +33,14 @@ namespace Matrix.Controllers
             // 驗證帳號密碼
             if (!await _userService.ValidateUserAsync(model.UserName, model.Password ?? string.Empty))
             {
-                _logger.LogWarning("帳號密碼錯誤: {UserName}", model.UserName);
+                _logger.LogWarning("\n\n帳號密碼錯誤: {UserName}, {Password}\n\n", model.UserName, model.Password);
                 return Json(new { success = false, errors = new Dictionary<string, string[]> { { "", InvalidCredentialsError } } });
             }
 
             // 取得用戶資料
             var userDto = await GetUserByIdentifierAsync(model.UserName);
             if (userDto == null)
-                return Json(new { success = false, errors = new { Error = "找不到用戶" } });
+                return Json(new { success = false, errors = new { Error = "\n\n找不到用戶\n\n" } });
 
             // 檢查帳號狀態
             var statusError = CheckUserStatus(userDto);
@@ -51,7 +51,7 @@ namespace Matrix.Controllers
             var token = GenerateJwtToken(userDto);
             SetAuthCookie(token, model.RememberMe);
 
-            return Json(new { success = true });
+            return Json(new { success = true, redirectUrl = "/home/index" });
         }
 
         /// <summary>忘記密碼功能</summary>
@@ -149,6 +149,14 @@ namespace Matrix.Controllers
                 cookieOptions.Expires = DateTime.UtcNow.AddDays(30);
 
             Response.Cookies.Append("AuthToken", token, cookieOptions);
+        }
+
+        /// <summary>密碼加密</summary>
+        private static string HashPassword(string password)
+        {
+            return Convert.ToBase64String(
+                System.Security.Cryptography.SHA256.HashData(
+                    System.Text.Encoding.UTF8.GetBytes(password + "salt")));
         }
 
         #endregion

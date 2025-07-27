@@ -13,12 +13,12 @@ function useFormatting() {
         const minutes = String(dateObj.getMinutes()).padStart(2, '0');
         const ampm = dateObj.getHours() >= 12 ? 'PM' : 'AM';
         const engMonths = [{"01": "Jan"}, {"02": "Feb"}, {"03": "Mar"}, {"04": "Apr"}, {"05": "May"}, {"06": "Jun"}, {"07": "Jul"}, {"08": "Aug"}, {"09": "Sep"}, {"10": "Oct"}, {"11": "Nov"}, {"12": "Dec"}]
-        const date = lang === 'en-US' ? `${engMonths[month]} ${day} ${year}` : `${year} 年 ${month} 月 ${day} 日`
+        const formattedDate = lang === 'en-US' ? `${engMonths[month]} ${day} ${year}` : `${year} 年 ${month} 月 ${day} 日`
 
         if (type === 'date') {
-            return date
+            return formattedDate
         } else {
-            return `${date} ${hours}:${minutes} ${ampm}`
+            return `${formattedDate} ${hours}:${minutes} ${ampm}`
         }
     };
 
