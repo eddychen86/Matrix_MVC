@@ -69,7 +69,10 @@ namespace Matrix.Controllers
                     ExternalUrl = person.ExternalUrl,
                     WalletAddress = person.WalletAddress,
                     IsPrivate = person.IsPrivate,
-                    ModifyTime = person.ModifyTime
+                    ModifyTime = person.ModifyTime,
+                    Website1 = person.Website1,
+                    Website2 = person.Website2,
+                    Website3 = person.Website3
                 };
                 return Ok(dto);
             }

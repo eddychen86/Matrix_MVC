@@ -22,6 +22,10 @@ namespace Matrix.Models
 
         public virtual User? User { get; set; }
 
+        public string? Website1 { get; set; }
+        public string? Website2 { get; set; }
+        public string? Website3 { get; set; }
+
         /// <summary>
         /// 用戶的顯示名稱，最大長度為50個字元
         /// </summary>

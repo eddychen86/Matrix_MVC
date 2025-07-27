@@ -21,6 +21,10 @@ namespace Matrix.DTOs
 
         public string? Email { get; set; }
 
+        public string? Website1 { get; set; }
+        public string? Website2 { get; set; }
+        public string? Website3 { get; set; }
+
         public List<String>? Content { get; set; }
 
 

@@ -53,7 +53,7 @@
         <!-- 左側：個人資訊 -->
 
         <div class="mx-auto w-full max-w-[350px] lg:mx-0">
-            <div class="mb-4 rounded-xl bg-gray-800 p-6 shadow">
+            <div class="mb-4 rounded-xl bg-gray-800 p-10 shadow">
                 <div class="flex items-center gap-4">
                     <div class="flex w-full items-center justify-between">
                         <h2 class="font-bold text-[23px] text-white">Profile Overview</h2>
@@ -66,14 +66,14 @@
                     <p class="mb-4 h-[100px] text-[20px] text-gray-300">{{profile.bio}}</p>
                     <div class="space-y-1 text-[17px] text-gray-400">
                         <div class="mb-[10px]">{{profile.email}}</div>
-                        <div>https://www.jordan.com/</div>
-                        <div>https://www.jordan.com/</div>
-                        <div>https://www.jordan.com/</div>
+                        <div>{{profile.website1}}</div>
+                        <div>{{profile.website2}}</div>
+                        <div>{{profile.website3}}</div>
                     </div>
                 </div>
                 <div class="mt-4 flex flex-col gap-2">
-                    <img src="~/static/img/foodpanda.jpg" class="h-[108px] w-full rounded-lg object-cover" alt="" />
-                    <img src="~/static/img/foodpanda.jpg" class="h-[108px] w-full rounded-lg object-cover" alt="" />
+                    <img src="~/static/img/foodpanda.jpg" class="mt-5 h-[108px] w-full rounded-lg object-cover" alt="" />
+                    <img src="~/static/img/foodpanda.jpg" class="mt-4 h-[108px] w-full rounded-lg object-cover" alt="" />
                 </div>
             </div>
         </div>
@@ -104,8 +104,8 @@
         <div class="relative h-full w-full">
             <div class="h-full w-full bg-white opacity-20"></div>
             <div class="absolute top-1/2 left-1/2 mx-auto flex w-full max-w-lg -translate-x-1/2 -translate-y-1/2 flex-col items-center rounded-xl bg-[#161616] p-6 shadow-2xl sm:p-8 md:max-w-xl">
-                <img src="~/static/img/foodpanda.jpg" class="mb-4 h-[142px] w-[142px] rounded-full border-4 border-black object-cover" alt="avatar" />
-                <h2 class="mb-4 w-full text-center leading-[33px] font-normal text-[33px] text-white">Michael Jordan</h2>
+                <img :src="profile.avatarPath" class="mb-4 h-[142px] w-[142px] rounded-full border-4 border-black object-cover" alt="avatar" />
+                <h2 class="mb-4 w-full text-center leading-[33px] font-normal text-[33px] text-white">{{profile.displayName}}</h2>
                 <div class="mb-4 w-full">
                     <textarea class="bg-opacity-70 h-[100px] w-full resize-none rounded border border-gray-400 bg-black px-4 py-2 text-[18px] text-white focus:border-blue-500 focus:outline-none"
                               placeholder="Introduction..."></textarea>
@@ -188,12 +188,6 @@
           editMode: false,
           isPublic: false,
           profile: {
-          displayName: '',
-          bio: '',
-          avatarPath: '',
-          bannerPath: '',
-          externalUrl: '',
-          walletAddress: '',
           isPrivate: false
           }
 
@@ -220,12 +214,8 @@
                 this.isPublic = !data.isPrivate;  //icon狀態同步
             })
             .catch(err => console.error(err));
-
       }
-
     });
-
-
     app.mount('#app');
 </script>
 
