@@ -64,7 +64,7 @@
     <value>Password is required.</value>
   </data>
   <data name="UserNameFormatError">
-    <value>User name must be more than 3 characters and less than 20 characters.</value>
+    <value>User name must be 3-20 characters, containing only letters, numbers, and underscores.</value>
   </data>
   <data name="PasswordFormatError">
     <value>Password must contain at least one uppercase letter, lowercase letter, digit, and special character.</value>

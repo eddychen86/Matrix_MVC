@@ -67,7 +67,7 @@
     <value>用戶名與密碼未填寫</value>
   </data>
   <data name="UserNameFormatError">
-    <value>用戶名需介於 3 到 20 個字。</value>
+    <value>用戶名需介於 3 到 20 個字，只能包含英文字母、數字和底線。</value>
   </data>
   <data name="PasswordFormatError">
     <value>密碼需至少要有一個大寫字母、一個小寫字母、一個數字、一個特殊符號。</value>

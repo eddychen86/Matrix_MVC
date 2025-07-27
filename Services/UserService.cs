@@ -1,5 +1,10 @@
 using Microsoft.Extensions.Options;
 using System.Text.RegularExpressions;
+using Matrix.Data;
+using Matrix.DTOs;
+using Matrix.Models;
+using Matrix.Services.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace Matrix.Services
 {

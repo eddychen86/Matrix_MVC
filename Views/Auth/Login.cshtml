@@ -57,8 +57,8 @@
     </div>
 
     @* 忘記密碼 pop-up *@
-    <transition name="fade">
-        <div id="auth-layout_forgot" v-on:click="toggleClose" v-show="isForgot">
+    <transition name="fade" class="hidden" :class="isForgot ? 'block' : 'hidden'">
+        <div id="auth-layout_forgot" v-on:click="toggleClose">
             <form method="POST" action="/login/forgot">
                 <h1 class="title">@Localizer["ForgotPasswordTitle"]</h1>
                 <button type="button" class="subTitle" v-on:click="toggleClose">

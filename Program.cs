@@ -5,10 +5,7 @@ using Microsoft.Extensions.Options;
 using System.Globalization;
 using System.Text;
 using Matrix.Middleware;
-using Matrix.Services;
 using Matrix.Services.Extensions;
-using Matrix.Services.Interfaces;
-using Matrix.Data;
 using DotNetEnv;
 // using Microsoft.AspNetCore.Identity;
 
@@ -124,7 +121,7 @@ public class Program
             options.HeaderName = "RequestVerificationToken";
         });
 
-        #region 本地化設定
+        #region 多國語系設定 (Part 1/2)
         
         builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
 
@@ -167,10 +164,12 @@ public class Program
         app.UseHttpsRedirection();
         app.UseStaticFiles();
 
-        // -------------------- 本地化設定 --------------------
+        #region 多國語系設定 (Part 2/2)
+
         var localizationOptions = app.Services.GetRequiredService<IOptions<RequestLocalizationOptions>>();
         app.UseRequestLocalization(localizationOptions.Value);
-        // -------------------------------------------------
+
+        #endregion------------------------
 
         app.UseRouting();
 

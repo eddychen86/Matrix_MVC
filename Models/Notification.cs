@@ -14,7 +14,7 @@ namespace Matrix.Models
         /// 改用 UUID 以確保唯一性和安全性，並以 ArrayExtension.GenerateOrdered(1)[0] 方法生成一個劇時間排序的唯一的值
         /// </summary>
         [Key]
-        public Guid NotifyId { get; set; } = ArrayExtension.GenerateOrdered(1)[0];
+        public Guid NotifyId { get; set; } = Guid.NewGuid();
 
         /// <summary>
         /// 接收通知的 UserId
