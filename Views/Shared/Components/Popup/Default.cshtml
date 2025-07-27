@@ -1,0 +1,50 @@
+﻿<!-- Universal Popup Modal -->
+<div id="popup-overlay" v-show="popupState.isVisible" @@click="closePopup">
+    <div id="popup-container" @@click.stop="">
+        <!-- Header -->
+        <div id="popup-header" class="flex w-full items-center justify-between">
+            <h3 class="title w-1/3">{{ popupState.title }}</h3>
+            <div class="flex w-1/3 justify-end gap-4">
+                <div class="relative w-full">
+                    <input type="text" v-model="searchQuery" class="para h-12 w-full rounded-full border bg-stone-700 px-4 outline-none">
+                    <button class="absolute top-1/2 right-4 -translate-y-1/2">
+                        <i data-lucide="search" class="icon-base"></i>
+                    </button>
+                </div>
+                <button @@click="closePopup">
+                    <i data-lucide="x" class="icon-base text-red-300"></i>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Content -->
+        <div class="popup-content">
+            <!-- Search Content -->
+            <div v-if="popupState.type == 'Collects'">
+                <div class="popup-data">
+                    <div v-for="item in popupData[popupState.type]" :key="item.Id">
+                        <div class="card">
+                            <img :src="item.imageUrl" alt="" />
+                            <div class="card-body">
+                                <div class="absolute bottom-0 left-0 z-10 flex flex-col gap-2 p-4">
+                                    <div class="user">
+                                        <img src="" alt=""/>
+                                        <h2 class="card-title title">{{ item.authorName }}</h2>
+                                    </div>
+                                    <p class="para">{{ formatDate(item.collectedAt) }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div v-if="popupState.type == 'Follow'">
+
+            </div>
+            <div v-if="popupState.type == 'Notify'">
+            </div>
+            <div v-if="popupState.type == 'Search'">
+            </div>
+        </div>
+    </div>
+</div>

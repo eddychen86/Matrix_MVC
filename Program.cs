@@ -47,8 +47,7 @@ public class Program
 
         // -------------------------------------------------
 
-        builder.Services.AddControllersWithViews()
-            .AddViewLocalization(); // 啟用視圖本地化
+        builder.Services.AddControllersWithViews().AddViewLocalization(); // 啟用視圖本地化
         builder.Services.AddRazorPages();
 
         // 配置 Anti-forgery 以支援 Ajax 請求
@@ -57,7 +56,7 @@ public class Program
             options.HeaderName = "RequestVerificationToken";
         });
 
-        // -------------------- 本地化設定 --------------------
+        // -------------------- 多國語系 --------------------
         builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
 
         builder.Services.Configure<RequestLocalizationOptions>(options =>
@@ -99,7 +98,7 @@ public class Program
         app.UseHttpsRedirection();
         app.UseStaticFiles();
 
-        // -------------------- 本地化設定 --------------------
+        // -------------------- 多國語系 --------------------
         var localizationOptions = app.Services.GetRequiredService<IOptions<RequestLocalizationOptions>>();
         app.UseRequestLocalization(localizationOptions.Value);
         // -------------------------------------------------
