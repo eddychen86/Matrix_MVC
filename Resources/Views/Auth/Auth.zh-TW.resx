@@ -82,7 +82,10 @@
     <value>請輸入有效的電子郵件地址。</value>
   </data>
   <data name="PasswordLengthError">
-    <value>密碼需介於 8 到 20 個字。</value>
+    <value>密碼不得超過 20 個字。</value>
+  </data>
+  <data name="UserNameLengthError">
+    <value>用戶名不得超過 20 個字。</value>
   </data>
   <data name="PasswordConfirmRequired">
     <value>確認密碼未填寫。</value>

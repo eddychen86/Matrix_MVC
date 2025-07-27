@@ -79,7 +79,10 @@
     <value>Please enter a valid email address.</value>
   </data>
   <data name="PasswordLengthError">
-    <value>Password must be between 8 and 20 characters.</value>
+    <value>Password must not exceed 20 characters.</value>
+  </data>
+  <data name="UserNameLengthError">
+    <value>User name must not exceed 20 characters.</value>
   </data>
   <data name="PasswordConfirmRequired">
     <value>Password confirmation is required.</value>

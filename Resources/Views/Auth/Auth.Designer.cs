@@ -48,7 +48,7 @@ namespace Matrix.Resources.Views.Auth {
         
         /// <summary>
         ///   Overrides the current thread's CurrentUICulture property for all
-        ///   resource lookups using this strongly-typed resource class.
+        ///   resource lookups using this strongly typed resource class.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
         public static global::System.Globalization.CultureInfo Culture {
@@ -61,25 +61,52 @@ namespace Matrix.Resources.Views.Auth {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Please enter a valid email address..
+        ///   Looks up a localized string similar to 您的帳號已被停用，請聯繫管理員尋求協助。.
         /// </summary>
-        public static string EmailInvalid {
+        public static string AccountDisabled {
             get {
-                return ResourceManager.GetString("EmailInvalid", resourceCulture);
+                return ResourceManager.GetString("AccountDisabled", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Email is required..
+        ///   Looks up a localized string similar to 您的帳號尚未驗證，請先檢查您的電子郵件並完成帳號驗證。.
         /// </summary>
-        public static string EmailRequired {
+        public static string AccountNotVerified {
             get {
-                return ResourceManager.GetString("EmailRequired", resourceCulture);
+                return ResourceManager.GetString("AccountNotVerified", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Email must be less than 30 characters..
+        ///   Looks up a localized string similar to 用戶名與密碼未填寫.
+        /// </summary>
+        public static string BothInvalid {
+            get {
+                return ResourceManager.GetString("BothInvalid", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 確認密碼.
+        /// </summary>
+        public static string ConfirmPasswordLabel {
+            get {
+                return ResourceManager.GetString("ConfirmPasswordLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 請確認密碼.
+        /// </summary>
+        public static string ConfirmPasswordPlaceholder {
+            get {
+                return ResourceManager.GetString("ConfirmPasswordPlaceholder", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 電子郵件不得超過 30 個字.
         /// </summary>
         public static string EmailFormatError {
             get {
@@ -88,43 +115,97 @@ namespace Matrix.Resources.Views.Auth {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Password is required..
+        ///   Looks up a localized string similar to 請輸入有效的電子郵件地址.
         /// </summary>
-        public static string PasswordInvalid {
+        public static string EmailInvalid {
             get {
-                return ResourceManager.GetString("PasswordInvalid", resourceCulture);
+                return ResourceManager.GetString("EmailInvalid", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Password must be between 8 and 20 characters..
+        ///   Looks up a localized string similar to 電子郵件.
         /// </summary>
-        public static string PasswordLengthError {
+        public static string EmailLabel {
             get {
-                return ResourceManager.GetString("PasswordLengthError", resourceCulture);
+                return ResourceManager.GetString("EmailLabel", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Password must contain at least one uppercase letter, lowercase letter, digit, and special character..
+        ///   Looks up a localized string similar to 請輸入電子郵件.
         /// </summary>
-        public static string PasswordFormatError {
+        public static string EmailPlaceholder {
             get {
-                return ResourceManager.GetString("PasswordFormatError", resourceCulture);
+                return ResourceManager.GetString("EmailPlaceholder", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Password confirmation is required..
+        ///   Looks up a localized string similar to 電子郵件未填寫.
         /// </summary>
-        public static string PasswordConfirmRequired {
+        public static string EmailRequired {
             get {
-                return ResourceManager.GetString("PasswordConfirmRequired", resourceCulture);
+                return ResourceManager.GetString("EmailRequired", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Passwords do not match..
+        ///   Looks up a localized string similar to 忘記密碼？.
+        /// </summary>
+        public static string ForgotPasswordLabel {
+            get {
+                return ResourceManager.GetString("ForgotPasswordLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 請輸入您的電子郵件地址以重置密碼。.
+        /// </summary>
+        public static string ForgotPasswordMsg {
+            get {
+                return ResourceManager.GetString("ForgotPasswordMsg", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 忘記密碼.
+        /// </summary>
+        public static string ForgotPasswordTitle {
+            get {
+                return ResourceManager.GetString("ForgotPasswordTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 已經有帳號？.
+        /// </summary>
+        public static string hasAccountMsg {
+            get {
+                return ResourceManager.GetString("hasAccountMsg", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 登入.
+        /// </summary>
+        public static string LoginTitle {
+            get {
+                return ResourceManager.GetString("LoginTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 新來的？.
+        /// </summary>
+        public static string NewHereMsg {
+            get {
+                return ResourceManager.GetString("NewHereMsg", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 密碼不相符.
         /// </summary>
         public static string PasswordCompareError {
             get {
@@ -133,7 +214,97 @@ namespace Matrix.Resources.Views.Auth {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to User name is required..
+        ///   Looks up a localized string similar to 確認密碼未填寫.
+        /// </summary>
+        public static string PasswordConfirmRequired {
+            get {
+                return ResourceManager.GetString("PasswordConfirmRequired", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 密碼需至少要有一個大寫字母、一個小寫字母、一個數字、一個特殊符號.
+        /// </summary>
+        public static string PasswordFormatError {
+            get {
+                return ResourceManager.GetString("PasswordFormatError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 密碼未填寫.
+        /// </summary>
+        public static string PasswordInvalid {
+            get {
+                return ResourceManager.GetString("PasswordInvalid", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 密碼.
+        /// </summary>
+        public static string PasswordLabel {
+            get {
+                return ResourceManager.GetString("PasswordLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 密碼不得超過 20 個字.
+        /// </summary>
+        public static string PasswordLengthError {
+            get {
+                return ResourceManager.GetString("PasswordLengthError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 請輸入密碼.
+        /// </summary>
+        public static string PasswordPlaceholder {
+            get {
+                return ResourceManager.GetString("PasswordPlaceholder", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 註冊.
+        /// </summary>
+        public static string RegisterTitle {
+            get {
+                return ResourceManager.GetString("RegisterTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 記住我？.
+        /// </summary>
+        public static string RememberMeLabel {
+            get {
+                return ResourceManager.GetString("RememberMeLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 送出.
+        /// </summary>
+        public static string SubmitBtn {
+            get {
+                return ResourceManager.GetString("SubmitBtn", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 用戶名需介於 3 到 20 個字，只能包含英文字母、數字和底線.
+        /// </summary>
+        public static string UserNameFormatError {
+            get {
+                return ResourceManager.GetString("UserNameFormatError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 用戶名未填寫.
         /// </summary>
         public static string UserNameInvalid {
             get {
@@ -142,11 +313,47 @@ namespace Matrix.Resources.Views.Auth {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to User name must be more than 3 characters and less than 20 characters..
+        ///   Looks up a localized string similar to 用戶名.
         /// </summary>
-        public static string UserNameFormatError {
+        public static string UserNameLabel {
             get {
-                return ResourceManager.GetString("UserNameFormatError", resourceCulture);
+                return ResourceManager.GetString("UserNameLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 用戶名不得超過 20 個字.
+        /// </summary>
+        public static string UserNameLengthError {
+            get {
+                return ResourceManager.GetString("UserNameLengthError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 請輸入用戶名.
+        /// </summary>
+        public static string UserNamePlaceholder {
+            get {
+                return ResourceManager.GetString("UserNamePlaceholder", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 用戶名或電子郵件已存在.
+        /// </summary>
+        public static string UsernameOrEmailExists {
+            get {
+                return ResourceManager.GetString("UsernameOrEmailExists", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 加入區塊鏈社群.
+        /// </summary>
+        public static string WelcomeMsg {
+            get {
+                return ResourceManager.GetString("WelcomeMsg", resourceCulture);
             }
         }
     }
