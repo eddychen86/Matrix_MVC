@@ -13,6 +13,69 @@
     var confirmPasswordPlaceholder = Localizer["ConfirmPasswordPlaceholder"];
 }
 
+@section Styles {
+    <style>
+        .email-options-popup,
+        .email-error-popup {
+            max-width: 450px;
+            min-width: 350px;
+        }
+
+        .popup-actions {
+            padding: 0 16px 16px 16px;
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+        }
+
+        .popup-btn {
+            padding: 8px 16px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+
+        .popup-btn.primary {
+            background-color: #FF4C29;
+            color: white;
+        }
+
+        .popup-btn.primary:hover {
+            background-color: #E03E1F;
+        }
+
+        .popup-btn.secondary {
+            background-color: #F3F4F6;
+            color: #374151;
+            border: 1px solid #D1D5DB;
+        }
+
+        .popup-btn.secondary:hover {
+            background-color: #E5E7EB;
+        }
+
+        .popup-message h4 {
+            margin: 0 0 8px 0;
+            font-size: 16px;
+            font-weight: 600;
+            color: #111827;
+        }
+
+        .popup-message p {
+            margin: 0;
+            font-size: 14px;
+            line-height: 1.4;
+            color: #6B7280;
+        }
+    </style>
+}
+
 <div id="auth-body">
     <div id="auth-form">
         <div id="mock"></div>
@@ -229,13 +292,237 @@
                         const result = await response.json();
 
                         if (result.success && result.redirectUrl) {
-                            window.location.href = result.redirectUrl;
+                            // 檢查是否有郵件發送標記
+                            if (result.emailSent) {
+                                // 方案一：伺服器已發送確認信，但我們要在前端再次確認或重新發送
+                                showCustomPopup(
+                                    result.message || '註冊成功！',
+                                    'success'
+                                );
+
+                                // 詢問用戶是否需要重新發送確認信
+                                setTimeout(() => {
+                                    showEmailConfirmationOptions(result);
+                                }, 2000);
+
+                            } else if (result.needEmailConfirmation) {
+                                // 方案二：需要前端發送確認信
+                                await handleEmailConfirmation(result, token);
+
+                            } else if (result.redirectUrl) {
+                                // 一般成功情況
+                                if (result.message) {
+                                    showCustomPopup(result.message, 'success');
+                                    setTimeout(() => {
+                                        window.location.href = result.redirectUrl;
+                                    }, 3000);
+                                } else {
+                                    window.location.href = result.redirectUrl;
+                                }
+                            }
                         } else if (result.errors) {
                             updateErrorMsg(result.errors);
+                        } else {
+                            throw new Error(result.message || '註冊失敗');
                         }
                     } catch (error) {
                         console.error('Register error:', error);
                     }
+                };
+
+                // 顯示郵件確認選項
+                const showEmailConfirmationOptions = (registerResult) => {
+                    const popup = document.createElement('div');
+                    popup.className = 'custom-popup custom-popup-info email-options-popup';
+
+                    popup.innerHTML = `
+                        <div class="popup-content">
+                            <div class="popup-icon">
+                                <i data-lucide="mail" style="color: #3B82F6"></i>
+                            </div>
+                            <div class="popup-message">
+                                <h4>確認信已發送</h4>
+                                <p>我們已經將確認信發送到您的郵箱。如果您沒有收到，可以：</p>
+                            </div>
+                        </div>
+                        <div class="popup-actions">
+                            <button class="popup-btn secondary" onclick="checkEmail()">
+                                <i data-lucide="external-link"></i>
+                                前往登入
+                            </button>
+                            <button class="popup-btn primary" onclick="resendEmail()">
+                                <i data-lucide="refresh-cw"></i>
+                                重新發送
+                            </button>
+                        </div>
+                    `;
+
+                    // 添加全域函數
+                    window.checkEmail = () => {
+                        popup.remove();
+                        window.location.href = '/login';
+                    };
+
+                    window.resendEmail = async () => {
+                        popup.remove();
+
+                        const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+                        await handleEmailConfirmation({ needEmailConfirmation: true }, token);
+                    };
+
+                    document.body.appendChild(popup);
+                    setTimeout(() => lucide.createIcons(), 0);
+                };
+
+                // 處理確認信發送（改進版）
+                const handleEmailConfirmation = async (registerResult, token) => {
+                    // 顯示loading popup
+                    const loadingPopup = showCustomPopup('正在發送確認信...', 'loading');
+
+                    try {
+                        const emailResponse = await fetch('/api/auth/SendConfirmationEmail', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'RequestVerificationToken': token
+                            },
+                            body: JSON.stringify({
+                                UserName: registerForm.value.UserName,
+                                Email: registerForm.value.Email,
+                                Password: registerForm.value.Password,
+                                PasswordConfirm: registerForm.value.PasswordConfirm
+                            })
+                        });
+
+                        const emailResult = await emailResponse.json();
+
+                        // 關閉 loading popup
+                        if (loadingPopup && loadingPopup.parentElement) {
+                            loadingPopup.remove();
+                        }
+
+                        if (emailResult.success) {
+                            showCustomPopup(
+                                '確認信發送成功！請檢查您的郵箱並點擊確認連結。',
+                                'success',
+                                () => {
+                                    window.location.href = '/login';
+                                }
+                            );
+                        } else {
+                            showEmailErrorPopup(emailResult.message);
+                        }
+
+                    } catch (emailError) {
+                        console.error('發送確認信失敗:', emailError);
+
+                        // 關閉 loading popup
+                        if (loadingPopup && loadingPopup.parentElement) {
+                            loadingPopup.remove();
+                        }
+
+                        showEmailErrorPopup('網路錯誤，請稍後再試。');
+                    }
+                };
+
+                // 顯示郵件發送錯誤 popup
+                const showEmailErrorPopup = (errorMessage) => {
+                    const popup = document.createElement('div');
+                    popup.className = 'custom-popup custom-popup-warning email-error-popup';
+
+                    popup.innerHTML = `
+                        <div class="popup-content">
+                            <div class="popup-icon">
+                                <i data-lucide="alert-triangle" style="color: #D97706"></i>
+                            </div>
+                            <div class="popup-message">
+                                <h4>確認信發送失敗</h4>
+                                <p>${errorMessage || '發送確認信時發生錯誤，請稍後重試。'}</p>
+                            </div>
+                        </div>
+                        <div class="popup-actions">
+                            <button class="popup-btn secondary" onclick="skipToLogin()">
+                                直接登入
+                            </button>
+                            <button class="popup-btn primary" onclick="retryEmail()">
+                                <i data-lucide="refresh-cw"></i>
+                                重試
+                            </button>
+                        </div>
+                    `;
+
+                    // 添加全域函數
+                    window.skipToLogin = () => {
+                        popup.remove();
+                        window.location.href = '/login';
+                    };
+
+                    window.retryEmail = async () => {
+                        popup.remove();
+                        const token =
+                document.querySelector('input[name="__RequestVerificationToken"]').value;
+                        await handleEmailConfirmation({ needEmailConfirmation: true }, token);
+                    };
+
+                    document.body.appendChild(popup);
+                    setTimeout(() => lucide.createIcons(), 0);
+                };
+
+                // 改進的客製化 popup 函數
+                const showCustomPopup = (message, type = 'info', callback = null) => {
+                    const popup = document.createElement('div');
+                    popup.className = `custom-popup custom-popup-${type}`;
+
+                    const icons = {
+                        success: 'check-circle',
+                        error: 'x-circle',
+                        warning: 'alert-triangle',
+                        loading: 'loader',
+                        info: 'info'
+                    };
+
+                    const colors = {
+                        success: '#059669',
+                        error: '#DC2626',
+                        warning: '#D97706',
+                        loading: '#3B82F6',
+                        info: '#6B7280'
+                    };
+
+                    popup.innerHTML = `
+                        <div class="popup-content">
+                            <div class="popup-icon">
+                                <i data-lucide="${icons[type]}" style="color: ${colors[type]}"></i>
+                            </div>
+                            <div class="popup-message">${message}</div>
+                            ${type !== 'loading' ? `
+                                <button class="popup-close" 
+                onclick="this.parentElement.parentElement.remove()">
+                                    <i data-lucide="x"></i>
+                                </button>
+                            ` : ''}
+                        </div>
+                    `;
+
+                    document.body.appendChild(popup);
+                    setTimeout(() => lucide.createIcons(), 0);
+
+                    if (callback) {
+                        setTimeout(() => {
+                            if (popup.parentElement) {
+                                popup.remove();
+                            }
+                            callback();
+                        }, 3000);
+                    } else if (type !== 'loading') {
+                        setTimeout(() => {
+                            if (popup.parentElement) {
+                                popup.remove();
+                            }
+                        }, 5000);
+                    }
+
+                    return popup; // 返回 popup 元素以便後續操作
                 };
 
                 // 組件掛載後初始化

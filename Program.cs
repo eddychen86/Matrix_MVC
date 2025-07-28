@@ -5,7 +5,6 @@ using Microsoft.Extensions.Options;
 using System.Globalization;
 using System.Text;
 using Matrix.Middleware;
-using Matrix.Services.Extensions;
 using DotNetEnv;
 // using Microsoft.AspNetCore.Identity;
 
@@ -41,11 +40,11 @@ public class Program
 
         #region 註冊 Service
 
-        builder.Services.AddScoped<Matrix.Services.Interfaces.IUserService, UserService>();
+        builder.Services.AddScoped<IUserService, UserService>();
         builder.Services.AddScoped<ArticleService>();
         builder.Services.AddScoped<NotificationService>();
-
-        builder.Services.AddEmailSender(builder.Configuration);
+        builder.Services.AddScoped<AuthController>();
+        // builder.Services.AddEmailSender(builder.Configuration);
 
         #endregion
 
@@ -111,15 +110,15 @@ public class Program
 
         #endregion
 
-        builder.Services.AddControllersWithViews()
-            .AddViewLocalization(); // 啟用視圖本地化
-        builder.Services.AddRazorPages();
+        #region OAuth 設定 (smtp)
 
-        // 配置 Anti-forgery 以支援 Ajax 請求
-        builder.Services.AddAntiforgery(options =>
-        {
-            options.HeaderName = "RequestVerificationToken";
-        });
+        // 綁定 appsettings.json 中的 GoogleOAuth 區塊到我們的設定類別
+        builder.Services.Configure<GoogleOAuthDTOs>(builder.Configuration.GetSection("GoogleOAuth"));
+
+        // 註冊我們的郵件服務，讓 Controller 可以使用
+        builder.Services.AddTransient<IEmailService, GmailService>();
+
+        #endregion
 
         #region 多國語系設定 (Part 1/2)
         
@@ -148,6 +147,16 @@ public class Program
         });
 
         #endregion
+
+        builder.Services.AddControllersWithViews()
+            .AddViewLocalization(); // 啟用視圖本地化
+        builder.Services.AddRazorPages();
+
+        // 配置 Anti-forgery 以支援 Ajax 請求
+        builder.Services.AddAntiforgery(options =>
+        {
+            options.HeaderName = "RequestVerificationToken";
+        });
 
         var app = builder.Build();
 

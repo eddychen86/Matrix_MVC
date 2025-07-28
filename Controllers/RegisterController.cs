@@ -5,7 +5,11 @@ using Matrix.DTOs;
 
 namespace Matrix.Controllers
 {
-    public class RegisterController(IUserService _userService, ILogger<RegisterController> _logger) : Controller
+    public class RegisterController(
+        IUserService _userService,
+        ILogger<RegisterController> _logger,
+        AuthController _authController
+    ) : Controller
     {
         /// <summary>顯示註冊頁面</summary>
         [HttpGet, Route("/register")]
@@ -34,16 +38,40 @@ namespace Matrix.Controllers
             };
 
             var result = await _userService.CreateUserAsync(createUserDto);
-            
+
             // 註冊失敗就回傳錯誤
             if (result.UserId == null)
             {
                 _logger.LogWarning("註冊失敗: {Errors}", string.Join(", ", result.Errors));
                 return Json(new { success = false, errors = new Dictionary<string, string[]> { { "UserName", result.Errors.ToArray() } } });
             }
+            else
+            {
+                // 呼叫 ValidMail 發送確認信
+                try
+                {
+                    // 這裡可以直接呼叫 AuthController 的方法，或是使用 HTTP 請求
+                    // 方案1: 直接注入 AuthController
+                    await _authController.SendConfirmationEmail(model);
 
-            // 註冊成功
-            return Json(new { success = true, redirectUrl = Url.Action("Auth", "login") });
+                    // 方案2: 回傳成功並提示前端發送確認信
+                    return Json(new {
+                        success = true,
+                        needEmailConfirmation = true,
+                        message = "註冊成功！正在發送確認信到您的郵箱...",
+                        email = model.Email
+                    });
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "註冊成功但發送確認信失敗");
+                    return Json(new {
+                        success = true,
+                        message = "註冊成功！但確認信發送失敗，請稍後手動重新發送。",
+                        redirectUrl = "/login"
+                    });
+                }
+            }
         }
 
         #region 私人方法

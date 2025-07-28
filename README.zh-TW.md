@@ -19,14 +19,13 @@ dotnet tool install Microsoft.Web.LibraryManager.Cli
 ```
 dotnet tool run libman restore
 ```
-然後，您還需要安裝 `DotNetEnv`，以便專案可以使用 `.env` 檔案自動連接到資料庫。
+然後，您還需要安裝這些套件和工具。
 <i><b>如果您使用的是 Visual Studio，您可以在 Nuget 擴充功能管理中安裝它。</b></i>
 ```
 dotnet add package DotNetEnv
-```
-最後，安裝用於延遲載入的套件。這允許相關資料在需要時自動載入。
-```
 dotnet add package Microsoft.EntityFrameworkCore.Proxies --version 8.0.11
+dotnet add package MailKit
+dotnet add package Google.Apis.Auth --version 1.70.0
 ```
 因為這個專案使用了 DaisyUI UI 函式庫，所以您需要安裝 tailwindcss CLI 和 DaisyUI.<br>
 
@@ -61,6 +60,7 @@ dotnet add package Microsoft.EntityFrameworkCore.Proxies --version 8.0.11
 檢查所有 EF 工具資訊
 ```
 dotnet list package
+dotnet new view -n <cshtml name> -o <target folder>      # 建立新視圖
 ```
 
 ---

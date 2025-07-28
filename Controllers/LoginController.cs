@@ -9,7 +9,12 @@ using Microsoft.Extensions.Localization;
 
 namespace Matrix.Controllers
 {
-    public class LoginController(IUserService _userService, IStringLocalizer<LoginController> _localizer, ILogger<LoginController> _logger) : Controller
+    public class LoginController(
+        IUserService _userService,
+        IStringLocalizer<LoginController> _localizer,
+        ILogger<LoginController> _logger,
+        AuthController _authController
+    ) : Controller
     {
         private static readonly string[] InvalidCredentialsError = ["Invalid user name or password."];
 
@@ -48,8 +53,8 @@ namespace Matrix.Controllers
                 return statusError;
 
             // 產生 JWT 並設定 Cookie
-            var token = GenerateJwtToken(userDto);
-            SetAuthCookie(token, model.RememberMe);
+            var token = _authController.GenerateJwtToken(userDto.UserId, userDto.UserName, userDto.Role.ToString());
+            _authController.SetAuthCookie(token, model.RememberMe);
 
             return Json(new { success = true, redirectUrl = "/home/index" });
         }
@@ -105,58 +110,6 @@ namespace Matrix.Controllers
             }
 
             return null;
-        }
-
-        /// <summary>產生 JWT Token</summary>
-        private string GenerateJwtToken(UserDto userDto)
-        {
-            var jwtKey = Environment.GetEnvironmentVariable("JWT_KEY") ?? 
-                        throw new InvalidOperationException("JWT Key 沒有設定");
-            var jwtIssuer = Environment.GetEnvironmentVariable("JWT_ISSUER");
-
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.UTF8.GetBytes(jwtKey);
-            
-            var tokenDescriptor = new SecurityTokenDescriptor
-            {
-                Subject = new ClaimsIdentity(new[]
-                {
-                    new Claim("UserId", userDto.UserId.ToString()),
-                    new Claim(ClaimTypes.Name, userDto.UserName),
-                    new Claim(ClaimTypes.Role, userDto.Role.ToString())
-                }),
-                Expires = DateTime.UtcNow.AddDays(30),
-                Issuer = jwtIssuer,
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
-            };
-
-            var token = tokenHandler.CreateToken(tokenDescriptor);
-            return tokenHandler.WriteToken(token);
-        }
-
-        /// <summary>設定登入 Cookie</summary>
-        private void SetAuthCookie(string token, bool rememberMe)
-        {
-            var cookieOptions = new CookieOptions
-            {
-                HttpOnly = true,
-                Secure = true,
-                SameSite = SameSiteMode.Strict
-            };
-
-            // 記住我就設定 30 天過期
-            if (rememberMe)
-                cookieOptions.Expires = DateTime.UtcNow.AddDays(30);
-
-            Response.Cookies.Append("AuthToken", token, cookieOptions);
-        }
-
-        /// <summary>密碼加密</summary>
-        private static string HashPassword(string password)
-        {
-            return Convert.ToBase64String(
-                System.Security.Cryptography.SHA256.HashData(
-                    System.Text.Encoding.UTF8.GetBytes(password + "salt")));
         }
 
         #endregion
