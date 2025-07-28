@@ -4,10 +4,10 @@ namespace Matrix.DTOs
 {
     public class GoogleOAuthDTOs
     {
-        public required string ClientId { get; set; }
-        public required string ClientSecret { get; set; }
-        public required string RefreshToken { get; set; }
-        public required string SenderEmail { get; set; }
+        public string ClientId { get; set; } = "";
+        public string ClientSecret { get; set; } = "";
+        public string RefreshToken { get; set; } = "";
+        public string SenderEmail { get; set; } = "";
     }
 
     public class GoogleTokenResponse

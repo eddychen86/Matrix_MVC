@@ -1,872 +1,315 @@
-// ========================================
-// 1. 核心工具函數 (useFormatting.js)
-// ========================================
+/**
+ * Matrix 統一模組載入器
+ * 負責按正確順序載入所有模組化的 JavaScript 文件
+ * 
+ * 使用方式：
+ * 在 .cshtml 中只需引用這一個文件：
+ * <script src="/js/main.js"></script>
+ * 
+ * 架構：
+ * - 自動處理模組依賴順序
+ * - 統一錯誤處理和載入狀態
+ * - 提供載入進度回饋
+ * - 支援命名空間模式
+ */
 
-function useFormatting() {
-    const formatDate = (date, type = 'date', lang = 'zh-TW') => {
-        if (!date) return '';
-        
-        const dateObj = new Date(date);
-        if (isNaN(dateObj.getTime())) return '';
-        
-        // Simple date formatting without external dependencies
-        const year = dateObj.getFullYear();
-        const month = String(dateObj.getMonth() + 1).padStart(2, '0');
-        const day = String(dateObj.getDate()).padStart(2, '0');
-        const hours = String(dateObj.getHours()).padStart(2, '0');
-        const minutes = String(dateObj.getMinutes()).padStart(2, '0');
-        const ampm = dateObj.getHours() >= 12 ? 'PM' : 'AM';
-        const engMonths = [{"01": "Jan"}, {"02": "Feb"}, {"03": "Mar"}, {"04": "Apr"}, {"05": "May"}, {"06": "Jun"}, {"07": "Jul"}, {"08": "Aug"}, {"09": "Sep"}, {"10": "Oct"}, {"11": "Nov"}, {"12": "Dec"}]
-        const formattedDate = lang === 'en-US' ? `${engMonths[month]} ${day} ${year}` : `${year} 年 ${month} 月 ${day} 日`
+const MatrixLoader = (() => {
+    // 模組載入清單 - 順序很重要！
+    const modules = [
+        // 1. 基礎工具模組（無依賴）
+        { path: '/js/utils/dom.js', name: 'DOM 工具' },
+        { path: '/js/utils/api.js', name: 'API 工具' },
+        { path: '/js/utils/formatting.js', name: '格式化工具' },
 
-        if (type === 'date') {
-            return formattedDate
+        // 2. 核心管理器（依賴工具模組）
+        { path: '/js/core/auth-manager.js', name: '認證管理器' },
+        { path: '/js/core/language-manager.js', name: '語言管理器' },
+        { path: '/js/core/popup-manager.js', name: '彈窗管理器' },
+
+        // 3. Vue Hooks（依賴工具和核心模組）
+        { path: '/js/hooks/usePasswordToggle.js', name: '密碼切換 Hook' },
+        { path: '/js/hooks/useFormValidation.js', name: '表單驗證 Hook' },
+        { path: '/js/hooks/useAuthForm.js', name: '認證表單 Hook' },
+
+        // 4. Vue 組件（依賴 Hooks）
+        { path: '/js/components/main-app.js', name: '主應用組件' },
+        { path: '/js/components/auth-forms.js', name: '認證表單組件' },
+
+        // 5. 頁面專用模組（依賴組件）
+        { path: '/js/pages/home.js', name: '首頁邏輯' },
+        { path: '/js/pages/error.js', name: '錯誤頁面邏輯' },
+
+        // 6. 主應用入口（最後載入，依賴所有模組）
+        { path: '/js/main-new.js', name: 'Matrix 主應用' }
+    ];
+
+    let loadedModules = 0;
+    let isLoading = false;
+    let loadStartTime = 0;
+
+    /**
+     * 動態載入單個 JavaScript 模組
+     * @param {string} src - 模組路徑
+     * @param {string} name - 模組名稱（用於日誌）
+     * @returns {Promise} - 載入 Promise
+     */
+    const loadScript = (src, name) => {
+        return new Promise((resolve, reject) => {
+            // 檢查是否已經載入
+            const existingScript = document.querySelector(`script[src="${src}"]`);
+            if (existingScript) {
+                console.log(`⚠️ ${name} 已載入，跳過`);
+                resolve();
+                return;
+            }
+
+            const script = document.createElement('script');
+            script.src = src;
+            script.async = false; // 確保順序載入
+            
+            script.onload = () => {
+                loadedModules++;
+                const progress = Math.round((loadedModules / modules.length) * 100);
+                console.log(`✅ [${progress}%] ${name} 載入完成`);
+                resolve();
+            };
+            
+            script.onerror = (error) => {
+                console.error(`❌ ${name} 載入失敗:`, error);
+                reject(new Error(`Failed to load ${name} from ${src}`));
+            };
+
+            // 添加到 head 而非 body，確保早期載入
+            document.head.appendChild(script);
+        });
+    };
+
+    /**
+     * 顯示載入進度
+     */
+    const showLoadingProgress = () => {
+        if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
+            console.log(`
+🚀 Matrix 模組載入器啟動
+📦 待載入模組: ${modules.length} 個
+⏱️ 開始時間: ${new Date().toLocaleTimeString()}
+            `);
+        }
+    };
+
+    /**
+     * 顯示載入完成信息
+     */
+    const showLoadingComplete = () => {
+        const loadTime = performance.now() - loadStartTime;
+        const formattedTime = loadTime.toFixed(2);
+        
+        console.log(`
+✅ Matrix 所有模組載入完成！
+📊 載入統計:
+   - 模組數量: ${modules.length}
+   - 載入時間: ${formattedTime}ms
+   - 平均時間: ${(loadTime / modules.length).toFixed(2)}ms/模組
+
+🎯 可用功能:
+   - Matrix.utils.*     // 工具函數
+   - Matrix.core.*      // 核心管理器  
+   - Matrix.hooks.*     // Vue Hooks
+   - Matrix.components.*// Vue 組件
+   - Matrix.pages.*     // 頁面邏輯
+   - Matrix.app.*       // 主應用實例
+
+💡 開發提示:
+   - 使用 Matrix.* 命名空間（推薦）
+   - 向後兼容 window.use* 方式
+        `);
+    };
+
+    /**
+     * 處理載入錯誤
+     * @param {Error} error - 錯誤對象  
+     */
+    const handleLoadingError = (error) => {
+        console.error(`
+❌ Matrix 模組載入失敗！
+錯誤信息: ${error.message}
+
+🔧 可能的解決方案:
+1. 檢查文件路徑是否正確
+2. 確認伺服器正在運行
+3. 檢查瀏覽器控制台的網路錯誤
+4. 確認所有模組文件都存在
+        `);
+
+        // 在頁面上顯示錯誤通知
+        if (document.body) {
+            const errorDiv = document.createElement('div');
+            errorDiv.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: #ff4444;
+                color: white;
+                padding: 15px 20px;
+                border-radius: 8px;
+                z-index: 9999;
+                font-family: system-ui, sans-serif;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                max-width: 300px;
+            `;
+            errorDiv.innerHTML = `
+                <strong>⚠️ 模組載入失敗</strong><br>
+                <small>請檢查瀏覽器控制台以獲取詳細信息</small>
+            `;
+            document.body.appendChild(errorDiv);
+
+            // 5秒後自動移除
+            setTimeout(() => {
+                if (errorDiv.parentNode) {
+                    errorDiv.parentNode.removeChild(errorDiv);
+                }
+            }, 5000);
+        }
+    };
+
+    /**
+     * 檢查依賴項是否可用
+     */
+    const checkDependencies = () => {
+        const requiredGlobals = [
+            { name: 'Vue', check: () => typeof Vue !== 'undefined' },
+            { name: 'Lucide', check: () => typeof lucide !== 'undefined' }
+        ];
+
+        const missingDeps = requiredGlobals
+            .filter(dep => !dep.check())
+            .map(dep => dep.name);
+
+        if (missingDeps.length > 0) {
+            console.warn(`⚠️ 缺少依賴項: ${missingDeps.join(', ')}`);
+            console.warn('某些功能可能無法正常工作');
+        }
+    };
+
+    /**
+     * 主要的模組載入函數
+     */
+    const loadAllModules = async () => {
+        if (isLoading) {
+            console.warn('⚠️ 模組載入已在進行中');
+            return;
+        }
+
+        isLoading = true;
+        loadStartTime = performance.now();
+        loadedModules = 0;
+
+        try {
+            showLoadingProgress();
+            
+            // 順序載入所有模組
+            for (const module of modules) {
+                await loadScript(module.path, module.name);
+            }
+
+            // 檢查依賴項
+            checkDependencies();
+            
+            showLoadingComplete();
+            
+            // 觸發載入完成事件
+            window.dispatchEvent(new CustomEvent('matrixModulesLoaded', {
+                detail: {
+                    loadTime: performance.now() - loadStartTime,
+                    moduleCount: modules.length
+                }
+            }));
+
+        } catch (error) {
+            handleLoadingError(error);
+        } finally {
+            isLoading = false;
+        }
+    };
+
+    /**
+     * 獲取載入狀態
+     */
+    const getLoadingStatus = () => ({
+        isLoading,
+        loadedModules,
+        totalModules: modules.length,
+        progress: Math.round((loadedModules / modules.length) * 100)
+    });
+
+    /**
+     * 重新載入所有模組（開發時使用）
+     */
+    const reloadModules = async () => {
+        if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
+            console.warn('🔄 重新載入所有模組（僅開發模式）');
+            
+            // 移除已載入的 script 標籤
+            modules.forEach(module => {
+                const script = document.querySelector(`script[src="${module.path}"]`);
+                if (script) {
+                    script.remove();
+                }
+            });
+
+            // 重新載入
+            await loadAllModules();
         } else {
-            return `${formattedDate} ${hours}:${minutes} ${ampm}`
+            console.warn('⚠️ 重新載入僅在開發模式下可用');
         }
     };
 
-    const timeAgo = ({date, lang = "zh-TW"}) => {
-        if (!date) return '';
-        
-        const now = new Date();
-        const past = new Date(date);
-        const diffInSeconds = Math.floor((now - past) / 1000);
-        const days = Math.floor(diffInSeconds / 86400);
-
-        if (diffInSeconds < 60) {
-            return lang === "en-US" ? 'Just now' : '剛剛';
-        } else if (diffInSeconds < 3600) {
-            const minutes = Math.floor(diffInSeconds / 60);
-            return lang === "en-US" ? `${minutes} minutes ago` : `${minutes} 分鐘前`;
-        } else if (diffInSeconds < 86400) {
-            const hours = Math.floor(diffInSeconds / 3600);
-            return lang === "en-US" ? `${hours} hours ago` : `${hours} 小時前`;
-        }
-        
-        if (days < 30) {
-            return lang === "en-US" ? `${days} days ago` : `${days} 天前`;
-        } else if (days < 365) {
-            const months = Math.floor(days / 30);
-            return lang === "en-US" ? `${months} months ago` : `${months} 個月前`;
-        }
-
-        const years = Math.floor(days / 365);
-        return lang === "en-US" ? `${years} years ago` : `${years} 年前`;
-    };
-
+    // 公開接口
     return {
-        formatDate,
-        timeAgo
+        load: loadAllModules,
+        getStatus: getLoadingStatus,
+        reload: reloadModules
     };
+})();
+
+/**
+ * 自動初始化（防重複執行）
+ * 等待 DOM 準備就緒後開始載入模組
+ */
+const initMatrixLoader = () => {
+    // 防止重複初始化
+    if (window.MatrixLoaderInitialized) {
+        console.warn('⚠️ Matrix 載入器已初始化，跳過重複執行');
+        return;
+    }
+    
+    window.MatrixLoaderInitialized = true;
+    
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('📄 DOM 載入完成，開始載入 Matrix 模組...');
+            MatrixLoader.load();
+        });
+    } else {
+        console.log('📄 DOM 已準備就緒，立即載入 Matrix 模組...');
+        MatrixLoader.load();
+    }
+};
+
+// 將載入器掛載到全域（開發時使用）
+if (typeof window !== 'undefined') {
+    window.MatrixLoader = MatrixLoader;
 }
 
-// ========================================
-// 2. 認證管理器 (auth-manager.js)
-// ========================================
-
-const createAuthManager = () => {
-    /**
-     * 頁面載入時檢查認證狀態
-     */
-    const checkAuthOnLoad = async () => {
-        try {
-            const response = await fetch('/api/auth/status', {
-                method: 'GET',
-                credentials: 'include',
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            });
-
-            if (response.ok) {
-                const authData = await response.json();
-                
-                if (authData.isAuthenticated) {
-                    console.log('User is authenticated:', authData.user);
-                    handleAuthenticatedUser(authData.user);
-                } else {
-                    console.log('User is not authenticated');
-                    handleUnauthenticatedUser();
-                }
-            } else {
-                console.log('Auth status check failed');
-                handleUnauthenticatedUser();
-            }
-        } catch (error) {
-            console.error('Error checking auth status:', error);
-            handleUnauthenticatedUser();
-        }
-    };
-
-    /**
-     * 處理已認證用戶
-     */
-    const handleAuthenticatedUser = (user) => {
-        // 可以在這裡更新 UI，顯示用戶資訊等
-        document.body.classList.add('authenticated');
-        
-        // 觸發認證狀態變更事件
-        window.dispatchEvent(new CustomEvent('authStatusChanged', {
-            detail: { isAuthenticated: true, user: user }
-        }));
-    };
-
-    /**
-     * 處理未認證用戶
-     */
-    const handleUnauthenticatedUser = () => {
-        document.body.classList.add('unauthenticated');
-        
-        // 觸發認證狀態變更事件
-        window.dispatchEvent(new CustomEvent('authStatusChanged', {
-            detail: { isAuthenticated: false, user: null }
-        }));
-    };
-
-    /**
-     * 登出功能
-     */
-    const logout = async () => {
-        try {
-            const response = await fetch('/api/auth/logout', {
-                method: 'POST',
-                credentials: 'include',
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            });
-
-            if (response.ok) {
-                console.log('Logout successful');
-                // 重新導向到首頁
-                window.location.href = '/';
-            } else {
-                console.error('Logout failed');
-            }
-        } catch (error) {
-            console.error('Error during logout:', error);
-        }
-    };
-
-    // 初始化
-    checkAuthOnLoad();
-
-    return {
-        checkAuthOnLoad,
-        handleAuthenticatedUser,
-        handleUnauthenticatedUser,
-        logout
-    };
-};
-
-// ========================================
-// 3. 登入彈窗管理器 (login-popup.js)
-// ========================================
-
-const createLoginPopupManager = () => {
-    let maxVisibleArticles = 10; // 訪客最多能看的文章數量
-    let articleCount = 0;
-    let isGuest = true;
-    let popupShown = false;
-
-    /**
-     * 檢查認證狀態
-     */
-    const checkAuthStatus = async () => {
-        try {
-            const response = await fetch('/api/auth/status', {
-                credentials: 'include'
-            });
-            
-            if (response.ok) {
-                const authData = await response.json();
-                isGuest = !authData.isAuthenticated;
-            }
-        } catch (error) {
-            console.error('Error checking auth status:', error);
-            isGuest = true;
-        }
-    };
-
-    /**
-     * 設定滾動監控
-     */
-    const setupScrollMonitoring = () => {
-        if (!isGuest) return;
-
-        // 監控文章元素
-        const articles = document.querySelectorAll('[data-article-index]');
-        
-        if (articles.length === 0) return;
-
-        // 使用 Intersection Observer 監控可見性
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    const articleIndex = parseInt(entry.target.dataset.articleIndex);
-                    
-                    if (articleIndex >= maxVisibleArticles && !popupShown) {
-                        showLoginPopup();
-                        popupShown = true;
-                    }
-                }
-            });
-        }, {
-            threshold: 0.5 // 當文章 50% 可見時觸發
-        });
-
-        // 觀察所有文章
-        articles.forEach(article => {
-            observer.observe(article);
-        });
-    };
-
-    /**
-     * 顯示登入彈窗
-     */
-    const showLoginPopup = () => {
-        // 創建彈窗 HTML
-        const popupHTML = `
-            <div id="login-popup-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
-                <div class="bg-white rounded-lg p-6 max-w-md mx-4">
-                    <div class="text-center">
-                        <h3 class="text-lg font-semibold text-gray-900 mb-4">探索更多內容</h3>
-                        <p class="text-gray-600 mb-6">您已瀏覽了免費內容的限制。登入以繼續探索更多精彩內容。</p>
-                        <div class="flex space-x-4">
-                            <a href="/login" class="flex-1 bg-orange-500 text-white py-2 px-4 rounded-full hover:bg-orange-600 transition-colors">
-                                登入
-                            </a>
-                            <button onclick="window.loginPopupManager.hideLoginPopup()" class="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded-full hover:bg-gray-400 transition-colors">
-                                關閉
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        `;
-
-        // 添加到頁面
-        document.body.insertAdjacentHTML('beforeend', popupHTML);
-
-        // 添加樣式
-        addPopupStyles();
-    };
-
-    /**
-     * 隱藏登入彈窗
-     */
-    const hideLoginPopup = () => {
-        const popup = document.getElementById('login-popup-overlay');
-        if (popup) {
-            popup.remove();
-        }
-        popupShown = false;
-    };
-
-    /**
-     * 添加彈窗樣式
-     */
-    const addPopupStyles = () => {
-        if (document.getElementById('login-popup-styles')) return;
-
-        const styles = `
-            <style id="login-popup-styles">
-                #login-popup-overlay {
-                    animation: fadeIn 0.3s ease-out;
-                }
-                
-                #login-popup-overlay > div {
-                    animation: slideIn 0.3s ease-out;
-                }
-                
-                @keyframes fadeIn {
-                    from { opacity: 0; }
-                    to { opacity: 1; }
-                }
-                
-                @keyframes slideIn {
-                    from { 
-                        opacity: 0;
-                        transform: translateY(-20px);
-                    }
-                    to { 
-                        opacity: 1;
-                        transform: translateY(0);
-                    }
-                }
-            </style>
-        `;
-
-        document.head.insertAdjacentHTML('beforeend', styles);
-    };
-
-    /**
-     * 初始化
-     */
-    const init = () => {
-        // 檢查用戶認證狀態
-        checkAuthStatus();
-        
-        // 監聽認證狀態變更
-        window.addEventListener('authStatusChanged', (event) => {
-            isGuest = !event.detail.isAuthenticated;
-            if (!isGuest) {
-                hideLoginPopup();
-            }
-        });
-
-        // 監聽滾動事件
-        setupScrollMonitoring();
-    };
-
-    // 執行初始化
-    init();
-
-    return {
-        checkAuthStatus,
-        setupScrollMonitoring,
-        showLoginPopup,
-        hideLoginPopup,
-        addPopupStyles,
-        init
-    };
-};
-
-// ========================================
-// 4. 主要 Vue.js 應用程式 (site.js)
-// ========================================
-
-const createMainApp = (content) => {
-    if (typeof Vue === 'undefined') {
-        console.log('Vue is not loaded.');
-        return;
-    }
-    window.popupApp = Vue.createApp(content).mount('#app');
-};
-
-const initMainVueApp = () => {
-    createMainApp({
-        setup() {
-            const { ref, reactive, computed } = Vue;
-
-            //#region Sidebar State
-
-            const isCollapsed = ref(false);
-            
-            const toggleSidebar = () => {
-                isCollapsed.value = !isCollapsed.value;
-                lucide.createIcons()
-            }
-
-            //#endregion
-
-            //#region Language
-
-            const toggleLang = () => {
-                // current language
-                const curLang = document.documentElement.lang || 'zh-TW'
-
-                // switch language
-                const changeLang = curLang === 'zh-TW' ? 'en-US' : 'zh-TW'
-
-                // set current language in cookie for 1 year
-                // ASP.NET Core 預設的 culture cookie 名稱是 ".AspNetCore.Culture"
-                const cultureCookie = `c=${changeLang}|uic=${changeLang}`
-                document.cookie = `.AspNetCore.Culture=${cultureCookie}; path=/; max-age=31536000; SameSite=Lax`
-                console.log(`Setting culture cookie: ${cultureCookie}`)
-
-                // reload the website let the language change
-                window.location.reload()
-            }
-
-            //#endregion
-
-            //#region Pop-Up Events
-
-            // Popup State
-            const popupState = reactive({
-                isVisible: false,
-                type: '',
-                title: ''
-            });
-
-            // Popup Data Storage
-            const popupData = reactive({
-                Search: [],
-                Notify: [],
-                Follows: [],
-                Collects: []
-            })
-
-            // popup helper
-            const getPopupTitle = type => {
-                const titles = {
-                    'Search': '搜尋',
-                    'Notify': '通知',
-                    'Follows': '追蹤',
-                    'Collects': '收藏'
-                }
-
-                return titles[type] || '視窗'
-            }
-
-            // Update popup data
-            const updatePopupData = (type, data) => {
-                if (popupData[type] !== undefined)
-                    popupData[type] = data
-            }
-
-            // Popup click
-            const openPopup = async type => {
-                popupState.type = type
-                popupState.title = getPopupTitle(type)
-                popupState.isVisible = true
-
-                try {
-                    const res = await fetch('/api/' + type.toLowerCase())
-                    const data = await res.json()
-
-                    updatePopupData(type, data)
-                } catch (err) {
-                    console.log('Fetch Error:', err)
-                }
-            }
-
-            const closePopup = () => {
-                popupState.isVisible = false
-                popupState.type = ''
-            }
-
-            // Global Methods
-            window.toggleFunc = (show, type) => show ? openPopup(type) : closePopup()
-
-            //#endregion
-
-            //#region Search
-
-            const searchQuery = ref('');
-
-            //#endregion
-
-            return {
-                // language
-                isCollapsed,
-                toggleSidebar,
-                toggleLang,
-
-                // pop-up
-                popupState,
-                popupData,
-                getPopupTitle,
-                openPopup,
-                closePopup,
-                // 為新版 popup 提供向後兼容
-                isOpen: computed(() => popupState.isVisible),
-                closeCollectModal: closePopup,
-
-                // search
-                searchQuery,
-            };
-        }
-    });
-};
-
-// ========================================
-// 5. 登入頁面 Vue.js 應用程式
-// ========================================
-
-const initLoginApp = () => {
-    if (typeof Vue === 'undefined' || !document.getElementById('auth-body')) {
-        return;
-    }
-
-    const { createApp, ref, onMounted } = Vue;
-
-    createApp({
-        setup() {
-            // 響應式數據
-            const isForgot = ref(false);
-            const showPassword = ref(false);
-            const loginForm = ref({
-                UserName: '',
-                Password: '',
-                RememberMe: false
-            });
-
-            // 切換忘記密碼彈窗
-            const toggleOpen = () => isForgot.value = true;
-
-            const toggleClose = (event) => {
-                if (event.target === event.currentTarget) {
-                    isForgot.value = false;
-                }
-            };
-
-            // 切換密碼顯示/隱藏
-            const togglePasswordVisibility = () => {
-                showPassword.value = !showPassword.value;
-                // 重新創建 Lucide 圖標
-                setTimeout(() => lucide.createIcons(), 0);
-            };
-
-            // 更新錯誤訊息
-            const updateErrorMsg = (errors) => {
-                // 清除之前的錯誤訊息
-                document.querySelectorAll('.input-item p').forEach(p => p.textContent = '');
-
-                Object.keys(errors).forEach(field => {
-                    const errMsg = errors[field];
-                    if (errMsg && errMsg.length > 0) {
-                        const el = document.querySelector(`p[asp-validation-for="${field}"]`);
-                        if (el && field) {
-                            el.textContent = errMsg[0];
-                        } else if (!field) {
-                            console.log('General error:', errMsg[0]);
-                        } else {
-                            console.log(`Could not find validation element for ${field}`);
-                        }
-                    }
-                });
-            };
-
-            // 表單提交
-            const submitForm = async (event) => {
-                event.preventDefault();
-
-                try {
-                    // 獲取表單數據
-                    const formData = new FormData(event.target);
-                    const token = formData.get('__RequestVerificationToken');
-
-                    const response = await fetch('/api/login', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'RequestVerificationToken': token
-                        },
-                        body: JSON.stringify({
-                            UserName: loginForm.value.UserName,
-                            Password: loginForm.value.Password,
-                            RememberMe: loginForm.value.RememberMe
-                        })
-                    });
-
-                    const result = await response.json();
-
-                    if (result.success && result.redirectUrl) {
-                        window.location.href = result.redirectUrl;
-                    } else if (result.errors) {
-                        updateErrorMsg(result.errors);
-                    }
-                } catch (error) {
-                    console.error('Login error:', error);
-                }
-            };
-
-            // 組件掛載後初始化
-            onMounted(() => {
-                // 綁定表單數據到 DOM 元素
-                const userNameInput = document.querySelector('input[name="UserName"]');
-                const passwordInput = document.querySelector('input[name="Password"]');
-                const rememberMeInput = document.querySelector('input[name="RememberMe"]');
-
-                if (userNameInput) {
-                    userNameInput.addEventListener('input', (e) => {
-                        loginForm.value.UserName = e.target.value;
-                    });
-                }
-
-                if (passwordInput) {
-                    passwordInput.addEventListener('input', (e) => {
-                        loginForm.value.Password = e.target.value;
-                    });
-                }
-
-                if (rememberMeInput) {
-                    rememberMeInput.addEventListener('change', (e) => {
-                        loginForm.value.RememberMe = e.target.checked;
-                    });
-                }
-
-                // 初始化 Lucide 圖標
-                lucide.createIcons();
-            });
-
-            return {
-                isForgot,
-                showPassword,
-                loginForm,
-                toggleOpen,
-                toggleClose,
-                togglePasswordVisibility,
-                submitForm
-            };
-        }
-    }).mount('#auth-body');
-};
-
-// ========================================
-// 6. 註冊頁面 Vue.js 應用程式
-// ========================================
-
-const initRegisterApp = () => {
-    if (typeof Vue === 'undefined' || !document.getElementById('auth-body')) {
-        return;
-    }
-
-    const { createApp, ref, onMounted } = Vue;
-
-    createApp({
-        setup() {
-            // 響應式數據
-            const showPassword = ref(false);
-            const showConfirmPassword = ref(false);
-            const registerForm = ref({
-                UserName: '',
-                Email: '',
-                Password: '',
-                PasswordConfirm: ''
-            });
-
-            // 切換密碼顯示/隱藏
-            const togglePasswordVisibility = () => {
-                showPassword.value = !showPassword.value;
-                setTimeout(() => lucide.createIcons(), 0);
-            };
-
-            const toggleConfirmPasswordVisibility = () => {
-                showConfirmPassword.value = !showConfirmPassword.value;
-                setTimeout(() => lucide.createIcons(), 0);
-            };
-
-            // 更新錯誤訊息
-            const updateErrorMsg = (errors) => {
-                // 清除之前的錯誤訊息
-                document.querySelectorAll('.input-item p').forEach(p => p.textContent = '');
-
-                Object.keys(errors).forEach(field => {
-                    const errMsg = errors[field];
-                    if (errMsg && errMsg.length > 0) {
-                        const el = document.querySelector(`p[asp-validation-for="${field}"]`);
-                        if (el && field) {
-                            el.textContent = errMsg[0];
-                        } else if (!field) {
-                            console.log('General error:', errMsg[0]);
-                        } else {
-                            console.log(`Could not find validation element for ${field}`);
-                        }
-                    }
-                });
-            };
-
-            // 表單提交
-            const submitForm = async (event) => {
-                event.preventDefault();
-
-                try {
-                    // 獲取表單數據
-                    const formData = new FormData(event.target);
-                    const token = formData.get('__RequestVerificationToken');
-
-                    const response = await fetch('/api/register', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'RequestVerificationToken': token
-                        },
-                        body: JSON.stringify({
-                            UserName: registerForm.value.UserName,
-                            Email: registerForm.value.Email,
-                            Password: registerForm.value.Password,
-                            PasswordConfirm: registerForm.value.PasswordConfirm
-                        })
-                    });
-
-                    const result = await response.json();
-
-                    if (result.success && result.redirectUrl) {
-                        window.location.href = result.redirectUrl;
-                    } else if (result.errors) {
-                        updateErrorMsg(result.errors);
-                    }
-                } catch (error) {
-                    console.error('Register error:', error);
-                }
-            };
-
-            // 組件掛載後初始化
-            onMounted(() => {
-                // 綁定表單數據到 DOM 元素
-                const userNameInput = document.querySelector('input[name="UserName"]');
-                const emailInput = document.querySelector('input[name="Email"]');
-                const passwordInput = document.querySelector('input[name="Password"]');
-                const confirmPasswordInput = document.querySelector('input[name="PasswordConfirm"]');
-
-                if (userNameInput) {
-                    userNameInput.addEventListener('input', (e) => {
-                        registerForm.value.UserName = e.target.value;
-                    });
-                }
-
-                if (emailInput) {
-                    emailInput.addEventListener('input', (e) => {
-                        registerForm.value.Email = e.target.value;
-                    });
-                }
-
-                if (passwordInput) {
-                    passwordInput.addEventListener('input', (e) => {
-                        registerForm.value.Password = e.target.value;
-                    });
-                }
-
-                if (confirmPasswordInput) {
-                    confirmPasswordInput.addEventListener('input', (e) => {
-                        registerForm.value.PasswordConfirm = e.target.value;
-                    });
-                }
-
-                // 初始化 Lucide 圖標
-                lucide.createIcons();
-            });
-
-            return {
-                showPassword,
-                showConfirmPassword,
-                registerForm,
-                togglePasswordVisibility,
-                toggleConfirmPasswordVisibility,
-                submitForm
-            };
-        }
-    }).mount('#auth-body');
-};
-
-// ========================================
-// 7. 錯誤頁面處理
-// ========================================
-
-const initErrorPage = () => {
-    // 初始化 Lucide 圖標
-    lucide.createIcons();
-
-    // 等待 DOM 加載完成
-    document.addEventListener('DOMContentLoaded', function() {
-        // 綁定 "try again" 按鈕事件
-        const tryAgainBtn = document.getElementById('tryAgain');
-        if (tryAgainBtn) {
-            tryAgainBtn.addEventListener('click', function() {
-                window.location.reload();
-            });
-        }
-    });
-};
-
-// ========================================
-// 8. 認證布局處理
-// ========================================
-
-const initAuthLayout = () => {
-    // 初始化 Lucide 圖標
-    lucide.createIcons();
-
-    // 等待 DOM 加載完成
-    document.addEventListener('DOMContentLoaded', function() {
-        // 檢查是否為登入頁面，並添加對應的 CSS 類別
-        const isLoginPage = window.location.pathname.toLowerCase() === '/login';
-        const authBody = document.getElementById('auth-body');
-        
-        if (authBody) {
-            authBody.classList.add(isLoginPage ? 'auth-layout_login' : 'auth-layout_register');
-        }
-    });
-};
-
-// ========================================
-// 9. 全域初始化
-// ========================================
-
-// 創建全域實例
-let matrixApp = {
-    authManager: null,
-    loginPopupManager: null,
+// 立即開始初始化
+initMatrixLoader();
+
+// 監聽載入完成事件的範例（可選）
+window.addEventListener('matrixModulesLoaded', (event) => {
+    const { loadTime, moduleCount } = event.detail;
     
-    init() {
-        // 初始化 Lucide 圖標
-        if (typeof lucide !== 'undefined') {
-            lucide.createIcons();
-        }
-
-        // 初始化認證管理器
-        this.authManager = createAuthManager();
-        
-        // 初始化登入彈窗管理器
-        this.loginPopupManager = createLoginPopupManager();
-
-        // 根據頁面類型初始化相應的應用
-        this.initPageSpecificApps();
-
-        // 設置全域方法
-        this.setupGlobalMethods();
-    },
-
-    initPageSpecificApps() {
-        const path = window.location.pathname.toLowerCase();
-        
-        // 主應用程式 (如果存在 #app 元素)
-        if (document.getElementById('app')) {
-            initMainVueApp();
-        }
-
-        // 登入頁面
-        if (path === '/login' && document.getElementById('auth-body')) {
-            initLoginApp();
-        }
-
-        // 註冊頁面
-        if (path === '/register' && document.getElementById('auth-body')) {
-            initRegisterApp();
-        }
-
-        // 錯誤頁面
-        if (document.getElementById('error-body')) {
-            initErrorPage();
-        }
-
-        // 認證布局
-        if (document.getElementById('auth-body')) {
-            initAuthLayout();
-        }
-    },
-
-    setupGlobalMethods() {
-        // 全域方法設置
-        window.authManager = this.authManager;
-        window.loginPopupManager = this.loginPopupManager;
-        
-        // 全域登出函數
-        window.logout = () => {
-            this.authManager.logout();
-        };
-
-        // 格式化工具
-        window.useFormatting = useFormatting;
-    }
-};
-
-// DOM 載入完成後自動初始化
-document.addEventListener('DOMContentLoaded', function() {
-    matrixApp.init();
-});
-
-// 為了向後兼容，也提供 window 載入事件
-window.addEventListener('load', function() {
-    // 確保 Lucide 圖標正確載入
-    if (typeof lucide !== 'undefined') {
-        lucide.createIcons();
+    // 這裡可以添加載入完成後的自定義邏輯
+    if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
+        console.log(`🎉 Matrix 已準備就緒！載入了 ${moduleCount} 個模組，耗時 ${loadTime.toFixed(2)}ms`);
     }
 });
-
-// 導出主要對象供其他腳本使用
-window.matrixApp = matrixApp;
