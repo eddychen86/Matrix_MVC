@@ -87,18 +87,21 @@
                 <span class="text-xs text-gray-500">{{profile.lastModifiedText}}</span>
             </div> *@
 
-            <div class="mb-[12px] rounded-xl bg-gray-800 p-6" v-for="(item, index) in profile.content" :key="index">
-
+            <div class="mb-[12px] rounded-xl bg-gray-800 p-6" v-for="(article, index) in profile.articles" :key="index">
                 <div class="mb-2 flex flex-col sm:flex-row sm:items-center sm:gap-4">
-                    <img :src="profile.avatarPath" class="mb-2 h-16 w-16 rounded-full object-cover sm:mb-0" />
-                    <h3 class="font-semibold text-[22px] text-white sm:text-[25px]">{{ profile.displayName }}</h3>
+                    <img :src="profile.avatarPath"
+                         class="mb-2 h-16 w-16 rounded-full object-cover sm:mb-0" />
+                    <h3 class="font-semibold text-[22px] text-white sm:text-[25px]">
+                        {{ profile.displayName }}
+                    </h3>
                 </div>
-
-                <p class="mb-2 text-gray-300">{{item}}</p>
+                <p class="mb-2 text-gray-300">{{ article.content }}</p>
                 <span class="text-xs text-gray-500">
-                    一天前
+                    {{article.timeAgoText}}
                 </span>
-                <img src="https://images.unsplash.com/photo-1519125323398-675f0ddb6308?auto=format&fit=facearea&w=400&h=200" class="mt-4 rounded-lg" alt="">
+                <img src="https://images.unsplash.com/photo-1519125323398-675f0ddb6308?auto=format&fit=facearea&w=400&h=200"
+                     class="mt-4 rounded-lg"
+                     alt="" />
             </div>
         </div>
     </div>
@@ -189,11 +192,13 @@
     const app = Vue.createApp({
       data() {
         return {
+          createTime:[],
           content:[],
           editMode: false,
           isPublic: false,
           profile: {
-          isPrivate: false
+          isPrivate: false,
+          articles:[]
           }
 
 
@@ -202,7 +207,8 @@
       methods: {
         toggleIcon() {
           this.isPublic = !this.isPublic;
-        }
+        },
+        
       },
       mounted()
       {

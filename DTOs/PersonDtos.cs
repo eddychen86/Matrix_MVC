@@ -27,6 +27,26 @@ namespace Matrix.DTOs
 
         public List<String>? Content { get; set; }
 
+        public List<ArticleDto> Articles { get; set; } = new List<ArticleDto>();
+
+        public DateTime CreateTime { get; set; }
+
+        public string TimeAgoText
+        {
+            get
+            {
+                var timeSpan = DateTime.Now - CreateTime;
+
+                return timeSpan.TotalDays switch
+                {
+                    > 365 => $"{(int)(timeSpan.TotalDays / 365)} 年前",
+                    > 30 => $"{(int)(timeSpan.TotalDays / 30)} 個月前",
+                    > 7 => $"{(int)(timeSpan.TotalDays / 7)} 週前",
+                    > 1 => $"{(int)timeSpan.TotalDays} 天前",
+                    _ => timeSpan.TotalHours > 1 ? $"{(int)timeSpan.TotalHours} 小時前" : "剛剛"
+                };
+            }
+        }
 
         /// <summary>
         /// 使用者的顯示名稱

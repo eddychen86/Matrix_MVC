@@ -56,9 +56,15 @@ namespace Matrix.Controllers
                     return NotFound();
                 }
 
+
+
                 var dto = new PersonDto
                 {
-                    Content = person.Articles?.Select(a=>a.Content).ToList(),
+                    //Content = person.Articles?.Select(a => a.Content).ToList(),
+                    Articles = person.Articles?.Select(a => new ArticleDto {
+                        Content = a.Content,
+                        CreateTime = a.CreateTime
+                    }).ToList(),
                     Email = person.User?.Email,
                     PersonId = person.PersonId,
                     UserId = person.UserId,
