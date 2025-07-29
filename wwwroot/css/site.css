@@ -642,14 +642,44 @@
       opacity: 20%;
     }
   }
+  .absolute {
+    position: absolute;
+  }
+  .fixed {
+    position: fixed;
+  }
+  .relative {
+    position: relative;
+  }
+  .inset-0 {
+    inset: calc(var(--spacing) * 0);
+  }
   .-top-5 {
     top: calc(var(--spacing) * -5);
   }
   .top-0 {
     top: calc(var(--spacing) * 0);
   }
+  .top-1\/2 {
+    top: calc(1/2 * 100%);
+  }
+  .right-4 {
+    right: calc(var(--spacing) * 4);
+  }
+  .bottom-0 {
+    bottom: calc(var(--spacing) * 0);
+  }
   .left-0 {
     left: calc(var(--spacing) * 0);
+  }
+  .z-10 {
+    z-index: 10;
+  }
+  .z-40 {
+    z-index: 40;
+  }
+  .z-50 {
+    z-index: 50;
   }
   .mx-auto {
     margin-inline: auto;
@@ -804,6 +834,9 @@
   .h-10 {
     height: calc(var(--spacing) * 10);
   }
+  .h-12 {
+    height: calc(var(--spacing) * 12);
+  }
   .h-\[250px\] {
     height: 250px;
   }
@@ -812,6 +845,9 @@
   }
   .min-h-screen {
     min-height: 100vh;
+  }
+  .w-1\/3 {
+    width: calc(1/3 * 100%);
   }
   .w-4\/5 {
     width: calc(4/5 * 100%);
@@ -842,6 +878,10 @@
   }
   .max-w-3xl {
     max-width: var(--container-3xl);
+  }
+  .-translate-y-1\/2 {
+    --tw-translate-y: calc(calc(1/2 * 100%) * -1);
+    translate: var(--tw-translate-x) var(--tw-translate-y);
   }
   .link {
     cursor: pointer;
@@ -884,6 +924,9 @@
   }
   .justify-end {
     justify-content: flex-end;
+  }
+  .gap-2 {
+    gap: calc(var(--spacing) * 2);
   }
   .gap-4 {
     gap: calc(var(--spacing) * 4);
@@ -946,6 +989,12 @@
   .bg-base-100 {
     background-color: var(--color-base-100);
   }
+  .bg-black\/60 {
+    background-color: color-mix(in srgb, #000 60%, transparent);
+    @supports (color: color-mix(in lab, red, red)) {
+      background-color: color-mix(in oklab, var(--color-black) 60%, transparent);
+    }
+  }
   .bg-blue-700 {
     background-color: var(--color-blue-700);
   }
@@ -960,6 +1009,9 @@
   }
   .bg-primary {
     background-color: var(--color-primary);
+  }
+  .bg-stone-700 {
+    background-color: var(--color-stone-700);
   }
   .bg-white {
     background-color: var(--color-white);
@@ -1054,6 +1106,9 @@
   .text-gray-800 {
     color: var(--color-gray-800);
   }
+  .text-red-300 {
+    color: var(--color-red-300);
+  }
   .text-red-400 {
     color: var(--color-red-400);
   }
@@ -1105,6 +1160,10 @@
     transition-property: color, background-color, border-color, outline-color, text-decoration-color, fill, stroke, --tw-gradient-from, --tw-gradient-via, --tw-gradient-to, opacity, box-shadow, transform, translate, scale, rotate, filter, -webkit-backdrop-filter, backdrop-filter, display, visibility, content-visibility, overlay, pointer-events;
     transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
     transition-duration: var(--tw-duration, var(--default-transition-duration));
+  }
+  .outline-none {
+    --tw-outline-style: none;
+    outline-style: none;
   }
   .hover\:bg-blue-800 {
     &:hover {
@@ -1932,6 +1991,117 @@
     color: var(--color-red-300);
   }
 }
+@layer components {
+  #popup-overlay {
+    position: fixed;
+    inset: calc(var(--spacing) * 0);
+    z-index: 50;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    background-color: color-mix(in srgb, #fff 30%, transparent);
+    @supports (color: color-mix(in lab, red, red)) {
+      background-color: color-mix(in oklab, var(--color-white) 30%, transparent);
+    }
+  }
+  #popup-overlay #popup-container {
+    width: calc(4/5 * 100%);
+    border-radius: 30px;
+    background-color: #161616;
+    color: var(--color-white);
+    --tw-shadow: 0 20px 25px -5px var(--tw-shadow-color, rgb(0 0 0 / 0.1)), 0 8px 10px -6px var(--tw-shadow-color, rgb(0 0 0 / 0.1));
+    box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+    @media (width >= 48rem) {
+      width: calc(2/3 * 100%);
+    }
+    @media (width >= 64rem) {
+      width: calc(3/5 * 100%);
+    }
+  }
+  #popup-overlay #popup-container #popup-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: calc(var(--spacing) * 8);
+  }
+  #popup-overlay #popup-container #popup-header h3 {
+    --tw-font-weight: var(--font-weight-bold);
+    font-weight: var(--font-weight-bold);
+  }
+  #popup-overlay #popup-container #popup-header button {
+    cursor: pointer;
+    color: var(--color-white);
+  }
+  #popup-overlay #popup-container .popup-content {
+    height: 600px;
+    overflow-y: auto;
+    padding: calc(var(--spacing) * 8);
+  }
+  #popup-overlay #popup-container .popup-content .popup-data {
+    display: grid;
+    width: 100%;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: calc(var(--spacing) * 8);
+  }
+  #popup-overlay #popup-container .popup-content .popup-data .card {
+    position: relative;
+    height: 400px;
+    overflow: hidden;
+    border-radius: var(--radius-xl);
+  }
+  #popup-overlay #popup-container .popup-content .popup-data .card img {
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+  }
+  #popup-overlay #popup-container .popup-content .popup-data .card .card-body {
+    position: absolute;
+    bottom: calc(var(--spacing) * 0);
+    left: calc(var(--spacing) * 0);
+    z-index: 10;
+    height: calc(1/3 * 100%);
+    width: 100%;
+  }
+  #popup-overlay #popup-container .popup-content .popup-data .card .card-body:before {
+    position: absolute;
+    inset: calc(var(--spacing) * 0);
+    top: calc(var(--spacing) * 0);
+    left: calc(var(--spacing) * 0);
+    height: 100%;
+    width: 100%;
+    --tw-gradient-position: to top in oklab;
+    background-image: linear-gradient(var(--tw-gradient-stops));
+    --tw-gradient-from: color-mix(in srgb, #000 80%, transparent);
+    @supports (color: color-mix(in lab, red, red)) {
+      --tw-gradient-from: color-mix(in oklab, var(--color-black) 80%, transparent);
+    }
+    --tw-gradient-stops: var(--tw-gradient-via-stops, var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position));
+    --tw-gradient-to: transparent;
+    --tw-gradient-stops: var(--tw-gradient-via-stops, var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position));
+    --tw-content: "";
+    content: var(--tw-content);
+  }
+  #popup-overlay #popup-container .popup-content .popup-data .card .card-body .user {
+    display: flex;
+    align-items: center;
+    gap: calc(var(--spacing) * 4);
+  }
+  #popup-overlay #popup-container .popup-content .popup-data .card .card-body .user img {
+    height: calc(var(--spacing) * 8);
+    width: calc(var(--spacing) * 8);
+    overflow: hidden;
+    border-radius: calc(infinity * 1px);
+  }
+  #popup-overlay #popup-container .popup-content .popup-data .card .card-body .user h2 {
+    --tw-font-weight: var(--font-weight-semibold);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-white);
+  }
+  #popup-overlay #popup-container .popup-content .popup-data .card .card-body p {
+    color: var(--color-gray-400);
+  }
+}
 @layer base {
   :where(:root),:root:has(input.theme-controller[value=light]:checked),[data-theme=light] {
     color-scheme: light;
@@ -2218,6 +2388,21 @@
     --depth: 1;
   }
 }
+@property --tw-translate-x {
+  syntax: "*";
+  inherits: false;
+  initial-value: 0;
+}
+@property --tw-translate-y {
+  syntax: "*";
+  inherits: false;
+  initial-value: 0;
+}
+@property --tw-translate-z {
+  syntax: "*";
+  inherits: false;
+  initial-value: 0;
+}
 @property --tw-space-y-reverse {
   syntax: "*";
   inherits: false;
@@ -2305,21 +2490,6 @@
 @property --tw-duration {
   syntax: "*";
   inherits: false;
-}
-@property --tw-translate-x {
-  syntax: "*";
-  inherits: false;
-  initial-value: 0;
-}
-@property --tw-translate-y {
-  syntax: "*";
-  inherits: false;
-  initial-value: 0;
-}
-@property --tw-translate-z {
-  syntax: "*";
-  inherits: false;
-  initial-value: 0;
 }
 @property --tw-tracking {
   syntax: "*";
@@ -2415,6 +2585,9 @@
 @layer properties {
   @supports ((-webkit-hyphens: none) and (not (margin-trim: inline))) or ((-moz-orient: inline) and (not (color:rgb(from red r g b)))) {
     *, ::before, ::after, ::backdrop {
+      --tw-translate-x: 0;
+      --tw-translate-y: 0;
+      --tw-translate-z: 0;
       --tw-space-y-reverse: 0;
       --tw-space-x-reverse: 0;
       --tw-border-style: solid;
@@ -2434,9 +2607,6 @@
       --tw-ring-offset-color: #fff;
       --tw-ring-offset-shadow: 0 0 #0000;
       --tw-duration: initial;
-      --tw-translate-x: 0;
-      --tw-translate-y: 0;
-      --tw-translate-z: 0;
       --tw-tracking: initial;
       --tw-content: "";
       --tw-gradient-position: initial;
