@@ -43,6 +43,22 @@ public class HomeController : Controller
         ViewBag.HotList = hot_list;
         ViewBag.DefaultList = default_list;
 
+        ViewData["CollectList"] = new List<CollectItemViewModel>
+    {
+        new CollectItemViewModel {
+            Title = "收藏假資料 1",
+            ImageUrl = Url.Content("~/static/img/Cute.png"),
+            AuthorName = "大豬豬",
+            CollectedAt = DateTime.Now.AddDays(-1)
+        },
+        new CollectItemViewModel {
+            Title = "收藏假資料 2",
+            ImageUrl = Url.Content("~/static/img/Cute.png"),
+            AuthorName = "小西瓜",
+            CollectedAt = DateTime.Now.AddDays(-2)
+        }
+    };
+
         return View();
     }
 

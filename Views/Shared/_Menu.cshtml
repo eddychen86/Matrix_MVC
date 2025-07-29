@@ -6,10 +6,10 @@
 @{
     var menus = new[]
     {
-        new { title = Localizer["Search"], icon = "search", func = "" },
-        new { title = Localizer["Notify"], icon = "bell", func = "" },
-        new { title = Localizer["Follows"], icon = "share-2", func = "" },
-        new { title = Localizer["Collects"], icon = "bookmark", func = "" },
+        new { title = Localizer["Search"], icon = "search", type = "Search" },
+        new { title = Localizer["Notify"], icon = "bell", type = "Notify" },
+        new { title = Localizer["Follows"], icon = "share-2", type = "Follows" },
+        new { title = Localizer["Collects"], icon = "bookmark", type = "Collects" },
     };
 
     var bottoms = new[]
@@ -20,21 +20,21 @@
     };
 }
 
-<aside id="sidebar-app" class="top-0 left-0 p-4 h-screen">
+<aside id="sidebar-app" class="top-0 left-0 h-screen p-4">
     <ul :class="isCollapsed ? 'sidebar-close' : 'sidebar-open'" class="sidebar">
         <!-- Sidebar content here -->
         <li>
             <a asp-area="" asp-controller="Home" asp-action="Index" aria-current="page"
-                class="cts-btn hover:bg-gray-900 title"
+                class="cts-btn title hover:bg-gray-900"
             >
                 <img src="~/static/img/Matrix_logo_white.png" alt="Matrix Logo" class="icon-lg">
                 <span>@Localizer["Matrix"]</span>
             </a>
             <a asp-area="" asp-controller="Login" asp-action="Index" aria-current="page"
-                class="cts-btn hover:bg-gray-900 title"
+                class="cts-btn title hover:bg-gray-900"
             >
                 <i data-lucide="plus"
-                    class="bg-white rounded-full overflow-hidden flex justify-center items-center icon-lg text-secondary p-1"
+                    class="icon-lg text-secondary flex items-center justify-center overflow-hidden rounded-full bg-white p-1"
                 ></i>
                 <span>@Localizer["Login"]</span>
             </a>
@@ -42,7 +42,10 @@
         <li>
             @foreach (var i in menus)
             {
-                <button class="cts-btn hover:bg-gray-900">
+                @* var isCollect = i.title == "Collects";
+                var onclick = isCollect ? "openCollectModal()" : ""; *@
+
+                <button class="cts-btn hover:bg-gray-900" v-on:click="openPopup('@i.type')">
                     <i data-lucide="@i.icon" class="icon-base text-white"></i>
                     <span class="title">@i.title</span>
                 </button>
@@ -61,50 +64,3 @@
     </ul>
 </aside>
 
-<script>
-    document.addEventListener('DOMContentLoaded', () => {
-        // 本地化已啟用
-
-        if (typeof Vue !== 'undefined') {
-            const { createApp, ref, onMounted } = Vue;
-            
-            createApp({
-                setup() {
-                    const isCollapsed = ref(false);
-
-                    onMounted(() => lucide.createIcons())
-                    const toggleSidebar = async () => {
-                        isCollapsed.value = !isCollapsed.value;
-                        // 等待 DOM 更新後重新初始化圖標
-                        lucide.createIcons();
-                    };
-
-                    const toggleLang = () => {
-                        // 獲取當前語言設定
-                        const currentLang = document.documentElement.lang || 'zh-TW';
-                        
-                        // 切換語言
-                        const newLang = currentLang === 'zh-TW' ? 'en-US' : 'zh-TW';
-                        
-                        // 設定 cookie 記住用戶偏好（有效期 1 年）
-                        // ASP.NET Core 預設的 culture cookie 名稱是 ".AspNetCore.Culture"
-                        const cultureCookie = `c=${newLang}|uic=${newLang}`;
-                        document.cookie = `.AspNetCore.Culture=${cultureCookie}; path=/; max-age=31536000; SameSite=Lax`;
-                        console.log(`Setting culture cookie: ${cultureCookie}`)
-                        
-                        // 重新載入頁面以套用新語言
-                        window.location.reload();
-                    }
-
-                    return {
-                        isCollapsed,
-                        toggleLang,
-                        toggleSidebar
-                    };
-                }
-            }).mount('#sidebar-app');
-        } else {
-            console.error('Vue is not loaded');
-        }
-    })
-</script>
