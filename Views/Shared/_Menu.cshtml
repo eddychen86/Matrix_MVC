@@ -7,18 +7,18 @@
 @{
     var menus = new[]
     {
-        new { title = Localizer["Search"], icon = "search", func = "" },
-        new { title = Localizer["Notify"], icon = "bell", func = "" },
-        new { title = Localizer["Follows"], icon = "share-2", func = "" },
-        new { title = Localizer["Collects"], icon = "bookmark", func = "" },
+        new { title = "Search", icon = "search", func = "" },
+        new { title = "Notify", icon = "bell", func = "" },
+        new { title = "Follows", icon = "share-2", func = "" },
+        new { title = "Collects", icon = "bookmark", func = "" },
     };
 
     var bottoms = new[]
     {
-        new { title = Localizer["Language"], icon = "languages", click = "toggleLang" },
-        new { title = Localizer["HideBar"], icon = "panel-right-open", click = "toggleSidebar" },
+        new { title = "Language", icon = "languages", click = "toggleLang" },
+        new { title = "HideBar", icon = "panel-right-open", click = "toggleSidebar" },
         new { 
-            title = authInfo.IsAuthenticated ? Localizer["LogOut"] : Localizer["Login"], 
+            title = authInfo.IsAuthenticated ? "LogOut" : "Login", 
             icon = authInfo.IsAuthenticated ? "log-out" : "log-in", 
             click = authInfo.IsAuthenticated ? "logout" : "login" 
         },
@@ -33,7 +33,7 @@
                 class="cts-btn hover:bg-gray-900 title"
             >
                 <img src="~/static/img/Matrix_logo_white.png" alt="Matrix Logo" class="icon-lg">
-                <span>@Localizer["Matrix"]</span>
+                <span>Matrix</span>
             </a>
         </li>
         <li>
@@ -41,7 +41,7 @@
             {
                 <button class="cts-btn hover:bg-gray-900">
                     <i data-lucide="@i.icon" class="icon-base text-white"></i>
-                    <span class="title">@i.title</span>
+                    <span class="title" data-i18n="@i.title">@Localizer[@i.title]</span>
                 </button>
             }
         </li>
@@ -51,7 +51,7 @@
                     class="cts-btn hover:bg-gray-200"
                 >
                     <i data-lucide="@i.icon" class="icon-base"></i>
-                    <span class="title">@i.title</span>
+                    <span class="title" data-i18n="@i.title">@Localizer[@i.title]</span>
                 </button>
             }
             @* <a asp-area="" asp-controller="Login" asp-action="Index" aria-current="page"

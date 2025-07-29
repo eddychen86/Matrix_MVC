@@ -33,18 +33,18 @@
   }
 
   .title {
-    @apply text-[28px];
+    @apply text-[24px];
 
     @media screen and (max-width: 1000px) {
-      @apply text-[24px];
+      @apply text-[20px];
     }
 
     @media screen and (max-width: 500px) {
-      @apply text-[22px];
+      @apply text-[18px];
     }
 
     @media screen and (max-width: 300px) {
-      @apply text-[20px];
+      @apply text-[16px];
     }
   }
 

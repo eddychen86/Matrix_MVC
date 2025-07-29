@@ -25,21 +25,87 @@ app({
 
         //#region Language
 
-        const toggleLang = () => {
+        // V1
+        // const toggleLang = () => {
+        //     // current language
+        //     const curLang = document.documentElement.lang || 'zh-TW'
+
+        //     // switch language
+        //     const changeLang = curLang === 'zh-TW' ? 'en-US' : 'zh-TW'
+
+        //     // set current language in cookie for 1 year
+        //     // ASP.NET Core 預設的 culture cookie 名稱是 ".AspNetCore.Culture"
+        //     const cultureCookie = `c=${changeLang}|uic=${changeLang}`
+        //     document.cookie = `.AspNetCore.Culture=${cultureCookie}; path=/; max-age=31536000; SameSite=Lax`
+        //     console.log(`Setting culture cookie: ${cultureCookie}`)
+
+        //     // reload the website let the language change
+        //     window.location.reload()
+        // }
+
+        // V2
+        const toggleLang = async () => {
             // current language
             const curLang = document.documentElement.lang || 'zh-TW'
 
             // switch language
             const changeLang = curLang === 'zh-TW' ? 'en-US' : 'zh-TW'
 
-            // set current language in cookie for 1 year
-            // ASP.NET Core 預設的 culture cookie 名稱是 ".AspNetCore.Culture"
-            const cultureCookie = `c=${changeLang}|uic=${changeLang}`
-            document.cookie = `.AspNetCore.Culture=${cultureCookie}; path=/; max-age=31536000; SameSite=Lax`
-            console.log(`Setting culture cookie: ${cultureCookie}`)
+            try {
+                // 1. 取得新語言的翻譯
+                const response = await fetch(`/api/translation/${changeLang}`)
+                if (!response.ok) {
+                    throw new Error('Failed to load translations')
+                }
+                const translations = await response.json()
 
-            // reload the website let the language change
-            window.location.reload()
+                // 2. 更新頁面文字
+                updatePageText(translations)
+
+                // 3. 設定 cookie 記住用戶偏好
+                const cultureCookie = `c=${changeLang}|uic=${changeLang}`
+                document.cookie = `.AspNetCore.Culture=${cultureCookie}; path=/; max-age=31536000; SameSite=Lax`
+
+                // 4. 更新 html lang 屬性
+                document.documentElement.lang = changeLang
+
+                console.log(`Language switched to: ${changeLang}`)
+
+            } catch (error) {
+                console.error('Error switching language:', error)
+                // 如果 API 失敗，回退到重新載入頁面
+                // window.location.reload()
+                console.log(error)
+            }
+        }
+
+        // 更新頁面文字的函數
+        const updatePageText = (translations) => {
+            // 找到所有帶有 data-i18n 屬性的元素
+            document.querySelectorAll('[data-i18n]').forEach(element => {
+                const key = element.getAttribute('data-i18n')
+
+                if (translations[key]) {
+                    // 檢查元素類型來決定更新方式
+                    if (element.tagName === 'INPUT' && (element.type === 'submit' || element.type === 'button')) {
+                        // 按鈕 input 更新 value
+                        element.value = translations[key]
+                    } else if (element.placeholder !== undefined) {
+                        // 有 placeholder 的元素更新 placeholder
+                        element.placeholder = translations[key]
+                    } else {
+                        // 一般元素更新 textContent
+                        element.textContent = translations[key]
+                    }
+                }
+            })
+
+            // 更新頁面標題（如果有 title 翻譯）
+            if (translations['Title']) {
+                document.title = translations['Title']
+            }
+
+            console.log('Page text updated with new translations')
         }
 
         //#endregion
