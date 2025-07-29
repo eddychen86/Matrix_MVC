@@ -1,33 +1,32 @@
 ﻿<!DOCTYPE html>
-<html lang="zh-tw">
+<html lang="@System.Globalization.CultureInfo.CurrentUICulture.Name">
 
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Matrix</title>
-  <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-  <link rel="stylesheet" href="~/css/components.css" asp-append-version="true" />
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>Matrix</title>
+	<link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+	<link rel="stylesheet" href="~/css/components.css" asp-append-version="true" />
 </head>
 
-<body class="flex bg-primary">
-  <partial name="_Menu" />
+<body class="bg-primary flex">
+	<partial name="_Menu" />
 
-  <div class="w-full p-4 pl-0">
-    <main class="text-white">
-      @* @RenderBody() *@
+  <div class="w-full p-4 pl-0 flex flex-col gap-4">
+    <main class="text-white h-screen overflow-y-auto">
+      @RenderBody()
     </main>
-    @* <partial name="_LoginPartial" /> *@
     <partial name="_Footer" />
   </div>
 
-  <script src="~/lib/jquery/jquery.min.js"></script>
-  <script src="~/lib/vue/dist/vue.global.js"></script>
-  <script src="~/lib/lucide/dist/umd/lucide.min.js"></script>
-  <script>
-    lucide.createIcons();
-  </script>
+	<script src="~/lib/jquery/jquery.min.js"></script>
+	<script src="~/lib/vue/dist/vue.global.js"></script>
+	<script src="~/lib/lucide/dist/umd/lucide.min.js"></script>
+	<script>
+		lucide.createIcons();
+	</script>
 
-  @await RenderSectionAsync("Scripts", required: false)
+	@await RenderSectionAsync("Scripts", required: false)
 </body>
 
 </html>

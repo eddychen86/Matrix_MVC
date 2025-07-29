@@ -1,27 +1,53 @@
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Matrix.Models;
-
-public class ArticleAttachment
+namespace Matrix.Models
 {
-    [Key]
-    public Guid FileId { get; set; }
 
-    [Required]
-    public string ArticleId { get; set; } = "";
+    /// <summary>
+    /// 代表文章的附件檔案
+    /// </summary>
+    public class ArticleAttachment
+    {
+        /// <summary>
+        /// 附件檔案的 ID
+        /// 改用 UUID 以確保唯一性和安全性，並以 ArrayExtension.GenerateOrdered(1)[0] 方法生成一個劇時間排序的唯一的值
+        /// </summary>
+        [Key]
+        public Guid FileId { get; set; } = ArrayExtension.GenerateOrdered(1)[0];
 
-    [Required]
-    public string FilePath { get; set; } = "";
+        /// <summary>
+        /// 關聯文章的 ArticleId
+        /// </summary>
+        [Required]
+        public Guid ArticleId { get; set; }
 
-    [Required]
-    public string Type { get; set; } = ""; // "image" 或 "file"
+        /// <summary>
+        /// 附件檔案的儲存路徑
+        /// </summary>
+        [Required]
+        public string FilePath { get; set; } = "";
 
-    public string? FileName { get; set; }
-    public string? MimeType { get; set; }
+        /// <summary>
+        /// 附件的類型，例如 "image" 或 "file"
+        /// </summary>
+        [Required]
+        public string Type { get; set; } = ""; // "image" 或 "file"
 
-    // 導覽屬性
-    public virtual Article? Article { get; set; }
+        /// <summary>
+        /// 附件的原始檔案名稱
+        /// </summary>
+        public string? FileName { get; set; }
+
+        /// <summary>
+        /// 附件的MIME類型，用於確定檔案的格式和類型
+        /// </summary>
+        public string? MimeType { get; set; }
+
+        // 導覽屬性
+        /// <summary>
+        /// 此附件所屬的文章
+        /// </summary>
+        public virtual Article? Article { get; set; }
+    }
 }
+
