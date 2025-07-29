@@ -1,9 +1,11 @@
 ﻿using Humanizer;
 using Matrix.Data;
 using Matrix.DTOs;
+using Matrix.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 
 namespace Matrix.Controllers
 {
@@ -20,24 +22,67 @@ namespace Matrix.Controllers
 
         //修改個人資料
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(Guid id, [FromBody] PersonDto dto)
+        public async Task<ReturnType> Update(Guid id, [FromBody] PersonDto dto)
         {
-            var entity = await _context.Persons.FindAsync(id);
-            if (entity == null)
-                return NotFound();
 
+            if (id != dto.UserId)
+            {
+                return new ReturnType
+                {
+                    Ok = false,
+                    Message = "3更新失敗!"
+                };
+            }
+            Person pe = await _context.Persons.FirstOrDefaultAsync(p=>p.UserId==id);
+            if (pe == null)
+            {
+                return new ReturnType
+                {
+                    Ok = false,
+                    Message = "2更新失敗!"
+                };
+            }
+            //map DTO to pe
             //更新的欄位
-            entity.DisplayName = dto.DisplayName;
-            entity.Bio = dto.Bio;
-            entity.AvatarPath = dto.AvatarPath;
-            entity.BannerPath = dto.BannerPath;
-            entity.ExternalUrl = dto.ExternalUrl;
-            entity.IsPrivate = dto.IsPrivate;
-            entity.WalletAddress = dto.WalletAddress;
-            entity.ModifyTime = dto.ModifyTime;
+            pe.DisplayName = dto.DisplayName;
+            pe.Bio = dto.Bio;
+            //pe.ModifyTime = dto.ModifyTime;
+            //pe.AvatarPath = dto.AvatarPath;
+            //pe.BannerPath = dto.BannerPath;
+            //pe.ExternalUrl = dto.ExternalUrl;
+            //pe.IsPrivate = dto.IsPrivate;
+            //pe.WalletAddress = dto.WalletAddress;
 
-            await _context.SaveChangesAsync();
-            return NoContent();
+            _context.Entry(pe).State = EntityState.Modified;
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (PersonExists(id))
+                {
+                    return new ReturnType
+                    {
+                        Ok = false,
+                        Message = "1更新失敗!"
+                    };
+                }
+                else
+                {
+                    throw;
+                }
+
+            }
+            return new ReturnType
+            {
+                Ok = true,
+                Message = "更新成功!"
+            };
+
+        }
+        private bool PersonExists(Guid id) { 
+            return _context.Persons.Any(p=>p.PersonId == id);
         }
 
 
@@ -60,7 +105,7 @@ namespace Matrix.Controllers
 
                 var dto = new PersonDto
                 {
-                    //Content = person.Articles?.Select(a => a.Content).ToList(),
+                    Content = person.Articles?.Select(a => a.Content).ToList(),
                     Articles = person.Articles?.Select(a => new ArticleDto {
                         Content = a.Content,
                         CreateTime = a.CreateTime
@@ -88,5 +133,6 @@ namespace Matrix.Controllers
                 return Ok(ex);
             }
         }
+
     }
 }
