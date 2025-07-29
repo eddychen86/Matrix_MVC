@@ -1,10 +1,8 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Localization;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.Extensions.Options;
-using System.Globalization;
 using System.Text;
 using Matrix.Middleware;
+using Matrix.Services;
 using DotNetEnv;
 // using Microsoft.AspNetCore.Identity;
 
@@ -44,6 +42,9 @@ public class Program
         builder.Services.AddScoped<ArticleService>();
         builder.Services.AddScoped<NotificationService>();
         builder.Services.AddScoped<AuthController>();
+        builder.Services.AddHttpContextAccessor(); // 為 CustomLocalizer 提供 HttpContext 訪問
+        builder.Services.AddScoped<ICustomLocalizer, CustomLocalizer>();
+        builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
         // builder.Services.AddEmailSender(builder.Configuration);
 
         #endregion
@@ -120,36 +121,8 @@ public class Program
 
         #endregion
 
-        #region 多國語系設定 (Part 1/2)
-        
-        builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
 
-        builder.Services.Configure<RequestLocalizationOptions>(options =>
-        {
-            var supportedCultures = new[]
-            {
-                new CultureInfo("en-US"),
-                new CultureInfo("zh-TW")
-            };
-
-            options.DefaultRequestCulture = new RequestCulture("zh-TW");
-            options.SupportedCultures = supportedCultures;
-            options.SupportedUICultures = supportedCultures;
-            
-            // 配置本地化提供者順序：Query String > Cookie > Accept-Language > 預設
-            options.RequestCultureProviders = new List<IRequestCultureProvider>
-            {
-                new QueryStringRequestCultureProvider(),
-                new CookieRequestCultureProvider(),
-                new AcceptLanguageHeaderRequestCultureProvider()
-            };
-            // 當所有提供者都沒有結果時，使用預設文化 zh-TW
-        });
-
-        #endregion
-
-        builder.Services.AddControllersWithViews()
-            .AddViewLocalization(); // 啟用視圖本地化
+        builder.Services.AddControllersWithViews();
         builder.Services.AddRazorPages();
 
         // 配置 Anti-forgery 以支援 Ajax 請求
@@ -173,14 +146,10 @@ public class Program
         app.UseHttpsRedirection();
         app.UseStaticFiles();
 
-        #region 多國語系設定 (Part 2/2)
-
-        var localizationOptions = app.Services.GetRequiredService<IOptions<RequestLocalizationOptions>>();
-        app.UseRequestLocalization(localizationOptions.Value);
-
-        #endregion------------------------
 
         app.UseRouting();
+
+        app.UseRequestLocalization();
 
         #region JWT 驗證機制
 

@@ -1,21 +1,26 @@
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
-using System.Text;
-using Matrix.Services.Interfaces;
-using Matrix.ViewModels;
-using Microsoft.Extensions.Localization;
 
 namespace Matrix.Controllers
 {
-    public class LoginController(
-        IUserService _userService,
-        IStringLocalizer<LoginController> _localizer,
-        ILogger<LoginController> _logger,
-        AuthController _authController
-    ) : Controller
+    public class LoginController : Controller
     {
+        private readonly IUserService _userService;
+        private readonly ICustomLocalizer _localizer;
+        private readonly ILogger<LoginController> _logger;
+        private readonly AuthController _authController;
+
+        public LoginController(
+            IUserService userService,
+            ICustomLocalizer localizer,
+            ILogger<LoginController> logger,
+            AuthController authController
+        )
+        {
+            _userService = userService;
+            _localizer = localizer;
+            _logger = logger;
+            _authController = authController;
+        }
         private static readonly string[] InvalidCredentialsError = ["Invalid user name or password."];
 
         /// <summary>顯示登入頁面</summary>

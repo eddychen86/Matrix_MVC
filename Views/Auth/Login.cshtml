@@ -1,15 +1,8 @@
 @model Matrix.ViewModels.LoginViewModel
-@inject IStringLocalizerFactory LocalizerFactory
+@inject ICustomLocalizer Localizer
 @{
-    var Localizer = LocalizerFactory.Create("Views.Auth.Auth", "Matrix");
-}
-@{
-    ViewData["Title"] = Localizer["LoginTitle"];
+    ViewData["Title"] = "登入";
     Layout = "~/Views/Shared/_AuthLayout.cshtml";
-    
-    var userNamePlaceholder = Localizer["UserNamePlaceholder"];
-    var passwordPlaceholder = Localizer["PasswordPlaceholder"];
-    var emailPlaceholder = Localizer["EmailPlaceholder"];
 }
 
 <div id="auth-body">
@@ -18,22 +11,25 @@
         <form method="POST" class="w-4/5 md:w-3/4 lg:w-1/2" v-on:submit="submitForm">
             @Html.AntiForgeryToken()
             <h1>@ViewData["Title"]</h1>
-            <p class="text-center subTitle">@Localizer["WelcomeMsg"]</p>
+            <p class="text-center subTitle" data-i18n="WelcomeMsg">@Localizer["WelcomeMsg"]</p>
             
             @* 用戶名 *@
             <div class="input-item">
-                <label for="UserName" class="subTitle">@Localizer["UserNameLabel"]</label>
-                <input type="text" asp-for="UserName" placeholder="@userNamePlaceholder">
+                <label for="UserName" class="subTitle" data-i18n="UserNameLabel">@Localizer["UserNameLabel"]</label>
+                <input type="text" asp-for="UserName" placeholder="@Localizer["UserNamePlaceholder"]" data-i18n-placeholder="UserNamePlaceholder">
                 <p asp-validation-for="UserName" class="text-red-400 para"></p>
             </div>
             
             @* 密碼 *@
             <div class="input-item">
-                <label for="Password" class="subTitle">@Localizer["PasswordLabel"]</label>
+                <label for="Password" class="subTitle" data-i18n="PasswordLabel">@Localizer["PasswordLabel"]</label>
                 <div class="input-item_pwd">
-                    <input :type="showPassword ? 'text' : 'password'" asp-for="Password" placeholder="@passwordPlaceholder">
-                    <button type="button" v-on:click="togglePasswordVisibility">
-                        <i :data-lucide="showPassword ? 'eye' : 'eye-closed'" class="text-secondary subTitle"></i>
+                    <input :type="showPassword ? 'text' : 'password'" asp-for="Password" placeholder="@Localizer["PasswordPlaceholder"]" data-i18n-placeholder="PasswordPlaceholder">
+                    <button v-if="!showPassword" type="button" v-on:click="togglePasswordVisibility">
+                        <i data-lucide="eye-closed" class="text-secondary subTitle"></i>
+                    </button>
+                    <button v-else type="button" v-on:click="togglePasswordVisibility">
+                        <i data-lucide="eye" class="text-secondary subTitle"></i>
                     </button>
                 </div>
                 <p asp-validation-for="Password" class="text-red-400 para"></p>
@@ -43,16 +39,16 @@
             <div class="flex items-center justify-between">
                 <label class="label flex gap-4 items-center">
                     <input type="checkbox" asp-for="RememberMe" class="auth-checkbox order-indigo-600" />
-                    <span class="subTitle text-white">@Localizer["RememberMeLabel"]</span>
+                    <span class="subTitle text-white" data-i18n="RememberMeLabel">@Localizer["RememberMeLabel"]</span>
                 </label>
-                <button type="button" class="cursor-pointer subTitle" v-on:click="toggleOpen">@Localizer["ForgotPasswordLabel"]</button>
+                <button type="button" class="cursor-pointer subTitle" v-on:click="toggleOpen" data-i18n="ForgotPasswordLabel">@Localizer["ForgotPasswordLabel"]</button>
             </div>
 
             @* 登入按鈕 *@
-            <button type="submit" class="auth-btn subTitle py-2">@Localizer["SubmitBtn"]</button>
+            <button type="submit" class="auth-btn subTitle py-2" data-i18n="SubmitBtn">@Localizer["SubmitBtn"]</button>
 
             @* 註冊 *@
-            <p class="para text-center">@Localizer["NewHereMsg"]<a href="/register" class="font-semibold">@Localizer["RegisterTitle"]</a></p>
+            <p class="para text-center"><span data-i18n="NewHereMsg">@Localizer["NewHereMsg"]</span><a href="/register" class="font-semibold" data-i18n="RegisterTitle">@Localizer["RegisterTitle"]</a></p>
         </form>
     </div>
 
@@ -60,14 +56,14 @@
     <transition name="fade" class="hidden" :class="isForgot ? 'block' : 'hidden'">
         <div id="auth-layout_forgot" v-on:click="toggleClose">
             <form method="POST" action="/login/forgot">
-                <h1 class="title">@Localizer["ForgotPasswordTitle"]</h1>
+                <h1 class="title" data-i18n="ForgotPasswordTitle">@Localizer["ForgotPasswordTitle"]</h1>
                 <button type="button" class="subTitle" v-on:click="toggleClose">
                     <i data-lucide="x" class="close-btn text-error"></i>
                 </button>
-                <p class="para">@Localizer["ForgotPasswordMsg"]</p>
+                <p class="para" data-i18n="ForgotPasswordMsg">@Localizer["ForgotPasswordMsg"]</p>
                 <div class="ctn-input">
-                    <input type="email" class="text-secondary" placeholder="@emailPlaceholder" />
-                    <button type="button" class="subTitle">@Localizer["SubmitBtn"]</button>
+                    <input type="email" class="text-secondary" placeholder="@Localizer["EmailPlaceholder"]" data-i18n-placeholder="EmailPlaceholder" />
+                    <button type="button" class="subTitle" data-i18n="SubmitBtn">@Localizer[""]</button>
                 </div>
             </form>
         </div>
@@ -76,129 +72,5 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
-    <script>
-        const { createApp, ref, onMounted } = Vue;
-
-        createApp({
-            setup() {
-                // 響應式數據
-                const isForgot = ref(false);
-                const showPassword = ref(false);
-                const loginForm = ref({
-                    UserName: '',
-                    Password: '',
-                    RememberMe: false
-                });
-
-                // 切換忘記密碼彈窗
-                const toggleOpen = () => isForgot.value = true;
-
-                const toggleClose = (event) => {
-                    if (event.target === event.currentTarget) {
-                        isForgot.value = false;
-                    }
-                };
-
-                // 切換密碼顯示/隱藏
-                const togglePasswordVisibility = () => {
-                    showPassword.value = !showPassword.value;
-                    // 重新創建 Lucide 圖標
-                    setTimeout(() => lucide.createIcons(), 0);
-                };
-
-                // 更新錯誤訊息
-                const updateErrorMsg = (errors) => {
-                    // 清除之前的錯誤訊息
-                    document.querySelectorAll('.input-item p').forEach(p => p.textContent = '');
-
-                    Object.keys(errors).forEach(field => {
-                        const errMsg = errors[field];
-                        if (errMsg && errMsg.length > 0) {
-                            const el = document.querySelector(`p[asp-validation-for="${field}"]`);
-                            if (el && field) {
-                                el.textContent = errMsg[0];
-                            } else if (!field) {
-                                console.log('General error:', errMsg[0]);
-                            } else {
-                                console.log(`Could not find validation element for ${field}`);
-                            }
-                        }
-                    });
-                };
-
-                // 表單提交
-                const submitForm = async (event) => {
-                    event.preventDefault();
-
-                    try {
-                        // 獲取表單數據
-                        const formData = new FormData(event.target);
-                        const token = formData.get('__RequestVerificationToken');
-
-                        const response = await fetch('/api/login', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'RequestVerificationToken': token
-                            },
-                            body: JSON.stringify({
-                                UserName: loginForm.value.UserName,
-                                Password: loginForm.value.Password,
-                                RememberMe: loginForm.value.RememberMe
-                            })
-                        });
-
-                        const result = await response.json();
-
-                        if (result.success && result.redirectUrl) {
-                            window.location.href = result.redirectUrl;
-                        } else if (result.errors) {
-                            updateErrorMsg(result.errors);
-                        }
-                    } catch (error) {
-                        console.error('Login error:', error);
-                    }
-                };
-
-                // 組件掛載後初始化
-                onMounted(() => {
-                    // 綁定表單數據到 DOM 元素
-                    const userNameInput = document.querySelector('input[name="UserName"]');
-                    const passwordInput = document.querySelector('input[name="Password"]');
-                    const rememberMeInput = document.querySelector('input[name="RememberMe"]');
-
-                    if (userNameInput) {
-                        userNameInput.addEventListener('input', (e) => {
-                            loginForm.value.UserName = e.target.value;
-                        });
-                    }
-
-                    if (passwordInput) {
-                        passwordInput.addEventListener('input', (e) => {
-                            loginForm.value.Password = e.target.value;
-                        });
-                    }
-
-                    if (rememberMeInput) {
-                        rememberMeInput.addEventListener('change', (e) => {
-                            loginForm.value.RememberMe = e.target.checked;
-                        });
-                    }
-
-                    // 初始化 Lucide 圖標
-                    lucide.createIcons();
-                });
-
-                return {
-                    isForgot,
-                    showPassword,
-                    loginForm,
-                    toggleOpen,
-                    toggleClose,
-                    togglePasswordVisibility,
-                    submitForm
-                };
-            }
-        }).mount('#auth-body');
-    </script>
+    <script src="~/js/auth/login-event.js" asp-append-version="true"></script>
 }

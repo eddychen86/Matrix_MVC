@@ -1,91 +1,38 @@
 using System.ComponentModel.DataAnnotations;
-using Matrix.Resources.Views.Auth;
 
 namespace Matrix.ViewModels
 {
   public class RegisterViewModel
   {
-    [Required(
-        ErrorMessageResourceName = "UserNameInvalid",
-        ErrorMessageResourceType = typeof(Auth)
-    )]
-    [StringLength(20, MinimumLength = 3,
-        ErrorMessageResourceName = "UserNameFormatError",
-        ErrorMessageResourceType = typeof(Auth)
-    )]
-    [RegularExpression(@"^[a-zA-Z0-9_]{3,20}$",
-        ErrorMessageResourceName = "UserNameFormatError",
-        ErrorMessageResourceType = typeof(Auth)
-    )]
+    [Required(ErrorMessage = "使用者名稱為必填欄位")]
+    [StringLength(20, MinimumLength = 3, ErrorMessage = "使用者名稱長度必須介於 3-20 個字元")]
+    [RegularExpression(@"^[a-zA-Z0-9_]{3,20}$", ErrorMessage = "使用者名稱只能包含字母、數字和底線")]
     public string UserName { get; set; } = null!;
 
-    [Required(
-        ErrorMessageResourceName = "EmailRequired",
-        ErrorMessageResourceType = typeof(Auth)
-    )]
-    [EmailAddress(
-        ErrorMessageResourceName = "EmailInvalid",
-        ErrorMessageResourceType = typeof(Auth)
-    )]
-    [StringLength(30,
-        ErrorMessageResourceName = "EmailFormatError",
-        ErrorMessageResourceType = typeof(Auth)
-    )]
+    [Required(ErrorMessage = "電子郵件為必填欄位")]
+    [EmailAddress(ErrorMessage = "請輸入有效的電子郵件格式")]
+    [StringLength(30, ErrorMessage = "電子郵件長度不可超過 30 個字元")]
     public string? Email { get; set; }
 
-    [Required(
-        ErrorMessageResourceName = "PasswordInvalid",
-        ErrorMessageResourceType = typeof(Auth)
-    )]
-    [DataType(DataType.Password)]
-    [StringLength(20, MinimumLength = 8,
-        ErrorMessageResourceName = "PasswordLengthError",
-        ErrorMessageResourceType = typeof(Auth)
-    )]
-    [RegularExpression(
-        @"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{8,20}$",
-        ErrorMessageResourceName = "PasswordFormatError",
-        ErrorMessageResourceType = typeof(Auth)
-    )]
+    [Required(ErrorMessage = "密碼為必填欄位")]
+    [StringLength(20, MinimumLength = 8, ErrorMessage = "密碼長度必須介於 8-20 個字元")]
+    [RegularExpression(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,20}$", 
+        ErrorMessage = "密碼必須包含大小寫字母、數字和特殊字元")]
     public string Password { get; set; } = null!;
 
-    [Required(
-        ErrorMessageResourceName = "PasswordConfirmRequired",
-        ErrorMessageResourceType = typeof(Auth)
-    )]
-    [DataType(DataType.Password)]
-    [Compare("Password",
-        ErrorMessageResourceName = "PasswordCompareError",
-        ErrorMessageResourceType = typeof(Auth)
-    )]
+    [Required(ErrorMessage = "確認密碼為必填欄位")]
+    [Compare("Password", ErrorMessage = "確認密碼與密碼不符")]
     public string PasswordConfirm { get; set; } = null!;
   }
 
   public class LoginViewModel
   {
-    [Required(
-        ErrorMessageResourceName = "UserNameInvalid",
-        ErrorMessageResourceType = typeof(Auth)
-    )]
-    [StringLength(20,
-        ErrorMessageResourceName = "UserNameLengthError", 
-        ErrorMessageResourceType = typeof(Auth)
-    )]
+    [Required(ErrorMessage = "使用者名稱或電子郵件為必填欄位")]
     public string UserName { get; set; } = null!;
 
-    [Required(
-        ErrorMessageResourceName = "PasswordInvalid",
-        ErrorMessageResourceType = typeof(Auth)
-    )]
-    [DataType(DataType.Password)]
-    [StringLength(20,
-        ErrorMessageResourceName = "PasswordLengthError",
-        ErrorMessageResourceType = typeof(Auth)
-    )]
+    [Required(ErrorMessage = "密碼為必填欄位")]
     public string Password { get; set; } = null!;
 
-    public bool RememberMe { get; set; }
-
-    public string? ErrorMessage { get; set; }
+    public bool RememberMe { get; set; } = false;
   }
 }

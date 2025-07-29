@@ -1,29 +1,29 @@
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Http;
 
-namespace Matrix.Controllers
+namespace Matrix.Services
 {
-    [ApiController]
-    [Route("api/[controller]")]
-    public class TranslationController : ControllerBase
+    public interface ICustomLocalizer
     {
-        // 靜態翻譯字典，完全脫離 .resx 依賴 - 包含所有原始 .resx 檔案內容
+        string this[string key] { get; }
+    }
+
+    public class CustomLocalizer : ICustomLocalizer
+    {
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        
+        // 靜態翻譯字典，與 TranslationController 保持一致
         private static readonly Dictionary<string, Dictionary<string, string>> AllTranslations = new()
         {
             ["zh-TW"] = new Dictionary<string, string>
             {
                 // === Auth 模組 ===
-                // 標題
                 ["LoginTitle"] = "登入",
                 ["RegisterTitle"] = "註冊",
                 ["ForgotPasswordTitle"] = "忘記密碼",
-                
-                // 副標題/訊息
                 ["WelcomeMsg"] = "加入區塊鏈社群",
                 ["ForgotPasswordMsg"] = "請輸入您的電子郵件地址以重置密碼。",
                 ["NewHereMsg"] = "新來的？",
                 ["hasAccountMsg"] = "已經有帳號？",
-                
-                // 標籤
                 ["UserNameLabel"] = "用戶名",
                 ["EmailLabel"] = "電子郵件",
                 ["PasswordLabel"] = "密碼",
@@ -31,32 +31,12 @@ namespace Matrix.Controllers
                 ["RememberMeLabel"] = "記住我？",
                 ["ForgotPasswordLabel"] = "忘記密碼？",
                 ["SubmitBtn"] = "送出",
-                
-                // 輸入提示
                 ["UserNamePlaceholder"] = "請輸入用戶名",
                 ["EmailPlaceholder"] = "請輸入電子郵件",
                 ["PasswordPlaceholder"] = "請輸入密碼",
                 ["ConfirmPasswordPlaceholder"] = "請確認密碼",
                 
-                // 錯誤訊息
-                ["UserNameInvalid"] = "用戶名未填寫",
-                ["PasswordInvalid"] = "密碼未填寫",
-                ["BothInvalid"] = "用戶名與密碼未填寫",
-                ["UserNameFormatError"] = "用戶名需介於 3 到 20 個字，只能包含英文字母、數字和底線。",
-                ["PasswordFormatError"] = "密碼需至少要有一個大寫字母、一個小寫字母、一個數字、一個特殊符號。",
-                ["EmailFormatError"] = "電子郵件不得超過 30 個字。",
-                ["EmailRequired"] = "電子郵件未填寫。",
-                ["EmailInvalid"] = "請輸入有效的電子郵件地址。",
-                ["PasswordLengthError"] = "密碼不得超過 20 個字。",
-                ["UserNameLengthError"] = "用戶名不得超過 20 個字。",
-                ["PasswordConfirmRequired"] = "確認密碼未填寫。",
-                ["PasswordCompareError"] = "密碼不相符。",
-                ["UsernameOrEmailExists"] = "用戶名或電子郵件已存在。",
-                ["AccountNotVerified"] = "您的帳號尚未驗證，請先檢查您的電子郵件並完成帳號驗證。",
-                ["AccountDisabled"] = "您的帳號已被停用，請聯繫管理員尋求協助。",
-                
                 // === Common 模組 ===
-                // 通用按鈕和操作
                 ["OK"] = "確定",
                 ["Cancel"] = "取消",
                 ["Yes"] = "是",
@@ -70,8 +50,6 @@ namespace Matrix.Controllers
                 ["Error"] = "錯誤",
                 ["Success"] = "成功",
                 ["WelcomeMessage"] = "歡迎！",
-                
-                // 社交功能
                 ["Comment"] = "留言",
                 ["Praise"] = "讚",
                 ["Follow"] = "追蹤",
@@ -144,18 +122,13 @@ namespace Matrix.Controllers
             ["en-US"] = new Dictionary<string, string>
             {
                 // === Auth 模組 ===
-                // 標題
                 ["LoginTitle"] = "Login",
                 ["RegisterTitle"] = "Register",
                 ["ForgotPasswordTitle"] = "Forgot Password",
-                
-                // 副標題/訊息
                 ["WelcomeMsg"] = "Join the blockchain community",
                 ["ForgotPasswordMsg"] = "Please enter your email address to reset your password.",
                 ["NewHereMsg"] = "New here? Let ",
                 ["hasAccountMsg"] = "Already have an account?",
-                
-                // 標籤
                 ["UserNameLabel"] = "User Name",
                 ["EmailLabel"] = "Email Address",
                 ["PasswordLabel"] = "Password",
@@ -163,29 +136,12 @@ namespace Matrix.Controllers
                 ["RememberMeLabel"] = "Remember me",
                 ["ForgotPasswordLabel"] = "Forgot password?",
                 ["SubmitBtn"] = "Submit",
-                
-                // 輸入提示
                 ["UserNamePlaceholder"] = "Enter User Name",
                 ["EmailPlaceholder"] = "Enter Email",
                 ["PasswordPlaceholder"] = "Enter Password",
                 ["ConfirmPasswordPlaceholder"] = "Confirm Password",
                 
-                // 錯誤訊息
-                ["UserNameInvalid"] = "User name is required.",
-                ["PasswordInvalid"] = "Password is required.",
-                ["UserNameFormatError"] = "User name must be 3-20 characters, containing only letters, numbers, and underscores.",
-                ["PasswordFormatError"] = "Password must contain at least one uppercase letter, lowercase letter, digit, and special character.",
-                ["EmailFormatError"] = "Email must be less than 30 characters.",
-                ["EmailRequired"] = "Email is required.",
-                ["EmailInvalid"] = "Please enter a valid email address.",
-                ["PasswordLengthError"] = "Password must not exceed 20 characters.",
-                ["UserNameLengthError"] = "User name must not exceed 20 characters.",
-                ["PasswordConfirmRequired"] = "Password confirmation is required.",
-                ["PasswordCompareError"] = "Passwords do not match.",
-                ["UsernameOrEmailExists"] = "Username or email already exists.",
-                
                 // === Common 模組 ===
-                // 通用按鈕和操作
                 ["OK"] = "OK",
                 ["Cancel"] = "Cancel",
                 ["Yes"] = "Yes",
@@ -199,8 +155,6 @@ namespace Matrix.Controllers
                 ["Error"] = "Error",
                 ["Success"] = "Success",
                 ["WelcomeMessage"] = "Welcome!",
-                
-                // 社交功能
                 ["Comment"] = "Comment",
                 ["Praise"] = "Praise",
                 ["Follow"] = "Follow",
@@ -271,17 +225,53 @@ namespace Matrix.Controllers
             }
         };
 
-        [HttpGet("{culture}")]
-        public IActionResult GetTranslations(string culture)
+        public CustomLocalizer(IHttpContextAccessor httpContextAccessor)
         {
-            // 檢查是否為支援的語言
-            if (!AllTranslations.ContainsKey(culture))
-            {
-                return BadRequest($"Unsupported culture: {culture}");
-            }
-
-            return Ok(AllTranslations[culture]);
+            _httpContextAccessor = httpContextAccessor;
         }
 
+        public string this[string key]
+        {
+            get
+            {
+                // 獲取當前語言，預設為繁體中文
+                var currentCulture = GetCurrentCulture();
+                
+                // 如果找到翻譯則返回，否則返回 key 本身
+                if (AllTranslations.ContainsKey(currentCulture) && 
+                    AllTranslations[currentCulture].ContainsKey(key))
+                {
+                    return AllTranslations[currentCulture][key];
+                }
+                
+                // 找不到翻譯時回退到中文
+                if (currentCulture != "zh-TW" && 
+                    AllTranslations["zh-TW"].ContainsKey(key))
+                {
+                    return AllTranslations["zh-TW"][key];
+                }
+                
+                // 都找不到則返回 key
+                return key;
+            }
+        }
+
+        private string GetCurrentCulture()
+        {
+            // 從 Cookie 中獲取語言設定
+            var httpContext = _httpContextAccessor.HttpContext;
+            if (httpContext?.Request.Cookies.ContainsKey(".AspNetCore.Culture") == true)
+            {
+                var cultureCookie = httpContext.Request.Cookies[".AspNetCore.Culture"];
+                if (!string.IsNullOrEmpty(cultureCookie) && cultureCookie.Contains("c="))
+                {
+                    var culture = cultureCookie.Split('|')[0].Replace("c=", "");
+                    return culture;
+                }
+            }
+            
+            // 預設返回繁體中文
+            return "zh-TW";
+        }
     }
 }

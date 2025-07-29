@@ -1,23 +1,23 @@
 const app = content => {
     if (typeof Vue === 'undefined') {
-        console.log('Vue is not loaded.');
-        return;
+        console.log('Vue is not loaded.')
+        return
     }
-    window.popupApp = Vue.createApp(content).mount('#app');
-};
+    window.popupApp = Vue.createApp(content).mount('#app')
+}
 
-lucide.createIcons();
+lucide.createIcons()
 
 app({
     setup() {
-        const { ref, reactive, computed } = Vue;
+        const { ref, reactive, computed, } = Vue
 
         //#region Sidebar State
 
-        const isCollapsed = ref(false);
+        const isCollapsed = ref(false)
         
         const toggleSidebar = () => {
-            isCollapsed.value = !isCollapsed.value;
+            isCollapsed.value = !isCollapsed.value
             lucide.createIcons()
         }
 
@@ -25,25 +25,6 @@ app({
 
         //#region Language
 
-        // V1
-        // const toggleLang = () => {
-        //     // current language
-        //     const curLang = document.documentElement.lang || 'zh-TW'
-
-        //     // switch language
-        //     const changeLang = curLang === 'zh-TW' ? 'en-US' : 'zh-TW'
-
-        //     // set current language in cookie for 1 year
-        //     // ASP.NET Core 預設的 culture cookie 名稱是 ".AspNetCore.Culture"
-        //     const cultureCookie = `c=${changeLang}|uic=${changeLang}`
-        //     document.cookie = `.AspNetCore.Culture=${cultureCookie}; path=/; max-age=31536000; SameSite=Lax`
-        //     console.log(`Setting culture cookie: ${cultureCookie}`)
-
-        //     // reload the website let the language change
-        //     window.location.reload()
-        // }
-
-        // V2
         const toggleLang = async () => {
             // current language
             const curLang = document.documentElement.lang || 'zh-TW'
@@ -54,9 +35,7 @@ app({
             try {
                 // 1. 取得新語言的翻譯
                 const response = await fetch(`/api/translation/${changeLang}`)
-                if (!response.ok) {
-                    throw new Error('Failed to load translations')
-                }
+                if (!response.ok) throw new Error('Failed to load translations')
                 const translations = await response.json()
 
                 // 2. 更新頁面文字
@@ -64,7 +43,7 @@ app({
 
                 // 3. 設定 cookie 記住用戶偏好
                 const cultureCookie = `c=${changeLang}|uic=${changeLang}`
-                document.cookie = `.AspNetCore.Culture=${cultureCookie}; path=/; max-age=31536000; SameSite=Lax`
+                document.cookie = `.AspNetCore.Culture=${cultureCookie} path=/ max-age=31536000 SameSite=Lax`
 
                 // 4. 更新 html lang 屬性
                 document.documentElement.lang = changeLang
@@ -100,11 +79,14 @@ app({
                 }
             })
 
-            // 更新頁面標題（如果有 title 翻譯）
-            if (translations['Title']) {
-                document.title = translations['Title']
-            }
+            // 處理 data-i18n-placeholder 屬性的元素
+            document.querySelectorAll('[data-i18n-placeholder]').forEach(element => {
+                const key = element.getAttribute('data-i18n-placeholder')
+                if (translations[key]) element.placeholder = translations[key]
+            })
 
+            // 更新頁面標題（如果有 title 翻譯）
+            if (translations['Title']) document.title = translations['Title']
             console.log('Page text updated with new translations')
         }
 
@@ -117,7 +99,7 @@ app({
             isVisible: false,
             type: '',
             title: ''
-        });
+        })
 
         // Popup Data Storage
         const popupData = reactive({
@@ -141,8 +123,7 @@ app({
 
         // Update popup data
         const updatePopupData = (type, data) => {
-            if (popupData[type] !== undefined)
-                popupData[type] = data
+            if (popupData[type] !== undefined) popupData[type] = data
         }
 
         // Popup click
@@ -178,35 +159,29 @@ app({
             try {
                 const response = await fetch('/api/auth/logout', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    }
-                });
+                    headers: { 'Content-Type': 'application/json', }
+                })
 
-                const result = await response.json();
+                const result = await response.json()
 
                 if (result.success) {
-                    console.log('Logout successful');
+                    console.log('Logout successful')
                     // 跳轉到首頁或登入頁
-                    window.location.href = '/';
-                } else {
-                    console.error('Logout failed');
-                }
+                    window.location.href = '/'
+                } else console.error('Logout failed')
             } catch (error) {
-                console.error('Error during logout:', error);
+                console.error('Error during logout:', error)
             }
-        };
+        }
 
         // 登入跳轉功能
-        const login = () => {
-            window.location.href = '/login';
-        };
+        const login = () => window.location.href = '/login'
 
         //#endregion
 
         //#region Search
 
-        const searchQuery = ref('');
+        const searchQuery = ref('')
 
         //#endregion
 
@@ -232,6 +207,6 @@ app({
 
             //
             searchQuery,
-        };
+        }
     }
-});
+})

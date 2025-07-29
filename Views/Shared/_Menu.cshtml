@@ -1,7 +1,7 @@
 @using Matrix.Extensions
-@inject IStringLocalizerFactory LocalizerFactory
+@using Matrix.Services
+@inject ICustomLocalizer Localizer
 @{
-    var Localizer = LocalizerFactory.Create("Views.Common.Menu", "Matrix");
     var authInfo = Context.GetAuthInfo();
 }
 @{
@@ -33,7 +33,7 @@
                 class="cts-btn hover:bg-gray-900 title"
             >
                 <img src="~/static/img/Matrix_logo_white.png" alt="Matrix Logo" class="icon-lg">
-                <span>Matrix</span>
+                <span data-i18n="Matrix">@Localizer["Matrix"]</span>
             </a>
         </li>
         <li>
@@ -41,7 +41,7 @@
             {
                 <button class="cts-btn hover:bg-gray-900">
                     <i data-lucide="@i.icon" class="icon-base text-white"></i>
-                    <span class="title" data-i18n="@i.title">@Localizer[@i.title]</span>
+                    <span class="title" data-i18n="@i.title">@Localizer[i.title]</span>
                 </button>
             }
         </li>
@@ -51,15 +51,9 @@
                     class="cts-btn hover:bg-gray-200"
                 >
                     <i data-lucide="@i.icon" class="icon-base"></i>
-                    <span class="title" data-i18n="@i.title">@Localizer[@i.title]</span>
+                    <span class="title" data-i18n="@i.title">@Localizer[i.title]</span>
                 </button>
             }
-            @* <a asp-area="" asp-controller="Login" asp-action="Index" aria-current="page"
-                class="cts-btn hover:bg-gray-200"
-            >
-                <i data-lucide="log-in" class="icon-base"></i>
-                <span class="title">@Localizer["Login"]</span>
-            </a> *@
         </li>
     </ul>
 </aside>
