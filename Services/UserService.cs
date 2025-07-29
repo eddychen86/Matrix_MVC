@@ -104,9 +104,10 @@ namespace Matrix.Services
             public (bool IsValid, string ErrorMessage) ValidatePassword(string password)
             {
                 var options = _validationOptions.Value.Password;
+                var specialCharPattern = @"[!@#$%^&*()_+\-=\[\]{}|;':"",./<>?]";
                 
                 if (string.IsNullOrEmpty(password))
-                    return (false, "密碼不能為空");
+                return (false, "密碼不能為空");
                 
                 if (password.Length < options.RequiredLength)
                     return (false, $"密碼長度不能少於 {options.RequiredLength} 字元");
@@ -125,9 +126,12 @@ namespace Matrix.Services
                 
                 if (options.RequireNonAlphanumeric && password.All(char.IsLetterOrDigit))
                     return (false, "密碼必須包含至少一個特殊字元");
+
+                if (options.RequireNonAlphanumeric && !Regex.IsMatch(password, specialCharPattern))
+                    return (false, "密碼必須包含至少一個特殊符號(!@#$%^&*等)");
                 
                 if (password.Distinct().Count() < options.RequiredUniqueChars)
-                    return (false, $"密碼必須包含至少 {options.RequiredUniqueChars} 個不同的字元");
+                return (false, $"密碼必須包含至少 {options.RequiredUniqueChars} 個不同的字元");
                 
                 return (true, string.Empty);
             }

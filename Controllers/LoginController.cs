@@ -54,9 +54,9 @@ namespace Matrix.Controllers
 
             // 產生 JWT 並設定 Cookie
             var token = _authController.GenerateJwtToken(userDto.UserId, userDto.UserName, userDto.Role.ToString());
-            _authController.SetAuthCookie(token, model.RememberMe);
+            _authController.SetAuthCookie(Response, token, model.RememberMe);
 
-            return Json(new { success = true, redirectUrl = "/home/index" });
+            return Json(new { success = true, redirectUrl = "/home" });
         }
 
         /// <summary>忘記密碼功能</summary>
@@ -70,8 +70,6 @@ namespace Matrix.Controllers
             ModelState.AddModelError("", "忘記密碼功能尚未實作");
             return View("~/Views/Auth/Login.cshtml", model);
         }
-
-        #region 私人方法
 
         /// <summary>回傳驗證錯誤的統一格式</summary>
         private IActionResult ValidationErrorResponse()
@@ -111,7 +109,5 @@ namespace Matrix.Controllers
 
             return null;
         }
-
-        #endregion
     }
 }

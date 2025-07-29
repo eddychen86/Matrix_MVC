@@ -1,6 +1,8 @@
+@using Matrix.Extensions
 @inject IStringLocalizerFactory LocalizerFactory
 @{
     var Localizer = LocalizerFactory.Create("Views.Common.Menu", "Matrix");
+    var authInfo = Context.GetAuthInfo();
 }
 @{
     var menus = new[]
@@ -13,10 +15,13 @@
 
     var bottoms = new[]
     {
-        new { title = Localizer["Language"], icon = "languages", click="toggleLang" },
-        new { title = Localizer["HideBar"], icon = "panel-right-open", click="toggleSidebar" },
-        new { title = Localizer["Login"], icon = "log-in", click="" },
-        new { title = Localizer["LogOut"], icon = "log-out", click="" },
+        new { title = Localizer["Language"], icon = "languages", click = "toggleLang" },
+        new { title = Localizer["HideBar"], icon = "panel-right-open", click = "toggleSidebar" },
+        new { 
+            title = authInfo.IsAuthenticated ? Localizer["LogOut"] : Localizer["Login"], 
+            icon = authInfo.IsAuthenticated ? "log-out" : "log-in", 
+            click = authInfo.IsAuthenticated ? "logout" : "login" 
+        },
     };
 }
 
@@ -49,12 +54,12 @@
                     <span class="title">@i.title</span>
                 </button>
             }
-            <a asp-area="" asp-controller="Login" asp-action="Index" aria-current="page"
+            @* <a asp-area="" asp-controller="Login" asp-action="Index" aria-current="page"
                 class="cts-btn hover:bg-gray-200"
             >
                 <i data-lucide="log-in" class="icon-base"></i>
                 <span class="title">@Localizer["Login"]</span>
-            </a>
+            </a> *@
         </li>
     </ul>
 </aside>

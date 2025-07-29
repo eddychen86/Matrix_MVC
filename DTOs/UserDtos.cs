@@ -136,7 +136,7 @@ namespace Matrix.DTOs
         /// </summary>
         [Required(ErrorMessage = "密碼為必填欄位")]
         [StringLength(20, MinimumLength = 8, ErrorMessage = "密碼長度必須介於 8 到 20 個字元之間")]
-        [RegularExpression(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,20}$",
+        [RegularExpression(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[#@$!%*?&])[A-Za-z\d#@$!%*?&]{8,20}$",
             ErrorMessage = "密碼必須包含至少一個大寫字母、一個小寫字母、一個數字、一個特殊符號")]
         public string Password { get; set; } = string.Empty;
 

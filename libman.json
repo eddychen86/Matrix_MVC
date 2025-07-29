@@ -6,7 +6,8 @@
       "library": "vue@3.5.17",
       "destination": "wwwroot/lib/vue/",
       "files": [
-        "dist/vue.global.js"
+        "dist/vue.global.js",
+        "dist/vue.global.prod.js"
       ]
     },
     {

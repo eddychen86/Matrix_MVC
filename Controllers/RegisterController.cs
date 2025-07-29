@@ -74,8 +74,6 @@ namespace Matrix.Controllers
             }
         }
 
-        #region 私人方法
-
         /// <summary>回傳驗證錯誤的統一格式</summary>
         private IActionResult ValidationErrorResponse()
         {
@@ -88,7 +86,5 @@ namespace Matrix.Controllers
             
             return Json(new { success = false, errors });
         }
-
-        #endregion
     }
 }

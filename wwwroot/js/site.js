@@ -105,7 +105,40 @@ app({
 
         //#endregion
 
-        //#region
+        //#region Auth Functions
+
+        // 登出功能
+        const logout = async () => {
+            try {
+                const response = await fetch('/api/auth/logout', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    console.log('Logout successful');
+                    // 跳轉到首頁或登入頁
+                    window.location.href = '/';
+                } else {
+                    console.error('Logout failed');
+                }
+            } catch (error) {
+                console.error('Error during logout:', error);
+            }
+        };
+
+        // 登入跳轉功能
+        const login = () => {
+            window.location.href = '/login';
+        };
+
+        //#endregion
+
+        //#region Search
 
         const searchQuery = ref('');
 
@@ -116,6 +149,10 @@ app({
             isCollapsed,
             toggleSidebar,
             toggleLang,
+
+            // auth
+            logout,
+            login,
 
             // pop-up
             popupState,

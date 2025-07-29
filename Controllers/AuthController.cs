@@ -349,7 +349,7 @@ namespace Matrix.Controllers
         }
 
         /// <summary>設定登入 Cookie</summary>
-        public void SetAuthCookie(string token, bool rememberMe = false)
+        public void SetAuthCookie(HttpResponse response, string token, bool rememberMe = false)
         {
             var cookieOptions = new CookieOptions
             {
@@ -362,7 +362,7 @@ namespace Matrix.Controllers
             if (rememberMe)
                 cookieOptions.Expires = DateTime.UtcNow.AddDays(30);
 
-            Response.Cookies.Append("AuthToken", token, cookieOptions);
+            response.Cookies.Append("AuthToken", token, cookieOptions);
         }
 
         /// <summary>生成確認信內容</summary>
