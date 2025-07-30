@@ -31,8 +31,6 @@ Matrix is a sanctuary for Web3 pioneers and deep-tech enthusiasts, designed to f
     dotnet add package DotNetEnv
     dotnet add package Microsoft.EntityFrameworkCore.Proxies --version 8.0.11
     dotnet add package MailKit
-    dotnet add package Google.Apis.Auth --version 1.70.0
-    dotnet add package Hangfire.AspNetCore --version 1.8.20
     ```
 <br />
 Because this project used DaisyUI UI Library, you need to install tailwindcss CLI and DaisyUI.<br>
