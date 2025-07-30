@@ -11,14 +11,14 @@ namespace Matrix.Controllers
         AuthController _authController
     ) : Controller
     {
-        /// <summary>顯示註冊頁面</summary>
+        // TODO:顯示註冊頁面
         [HttpGet, Route("/register")]
         public ActionResult Index()
         {
             return View("~/Views/Auth/Register.cshtml", new RegisterViewModel());
         }
 
-        /// <summary>處理註冊 API 請求</summary>
+        // TODO:處理註冊 API 請求
         [HttpPost, Route("/api/register")]
         public async Task<IActionResult> RegisterApi([FromBody] RegisterViewModel? model)
         {
@@ -55,7 +55,8 @@ namespace Matrix.Controllers
                     await _authController.SendConfirmationEmail(model);
 
                     // 方案2: 回傳成功並提示前端發送確認信
-                    return Json(new {
+                    return Json(new
+                    {
                         success = true,
                         needEmailConfirmation = true,
                         message = "註冊成功！正在發送確認信到您的郵箱...",
@@ -65,7 +66,8 @@ namespace Matrix.Controllers
                 catch (Exception ex)
                 {
                     _logger.LogError(ex, "註冊成功但發送確認信失敗");
-                    return Json(new {
+                    return Json(new
+                    {
                         success = true,
                         message = "註冊成功！但確認信發送失敗，請稍後手動重新發送。",
                         redirectUrl = "/login"
@@ -74,7 +76,7 @@ namespace Matrix.Controllers
             }
         }
 
-        /// <summary>回傳驗證錯誤的統一格式</summary>
+        // TODO:回傳驗證錯誤的統一格式
         private IActionResult ValidationErrorResponse()
         {
             var errors = ModelState
@@ -83,7 +85,7 @@ namespace Matrix.Controllers
                     kvp => kvp.Key,
                     kvp => kvp.Value!.Errors.Select(e => e.ErrorMessage).ToArray()
                 );
-            
+
             return Json(new { success = false, errors });
         }
     }

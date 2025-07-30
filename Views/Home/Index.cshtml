@@ -49,8 +49,7 @@
                 @for (int i = 0; i < ViewBag.DefaultList.Count; i++)
                 {
                     var item = ViewBag.DefaultList[i];
-                    <article class="bg-accent rounded-xl p-6 mb-6 border border-accent/20 hover:border-accent/40 transition-colors" 
-                             data-article-index="@i">
+                    <article class="bg-accent rounded-xl p-6 mb-6 border border-accent/20 hover:border-accent/40 transition-colors" data-article-index="@i">
                         @* 文章標題區 *@
                         <div class="flex items-center justify-between mb-4">
                             <div class="flex items-center gap-3">
@@ -85,8 +84,7 @@
                         @if (item.image != null)
                         {
                             <div class="mb-4 rounded-lg overflow-hidden">
-                                <img src="@item.image.FilePath" alt="" 
-                                     class="w-full max-h-96 object-cover hover:scale-105 transition-transform duration-300" />
+                                <img src="@item.image.FilePath" alt="" class="w-full max-h-96 object-cover hover:scale-105 transition-transform duration-300" />
                             </div>
                         }
 
@@ -154,6 +152,13 @@
     </aside>
 </section>
 
+@* 加在這裡：浮出視窗與灰色背景 *@
+@* <div id="collect-overlay" class="fixed inset-0 z-40 hidden bg-black/60"></div>
+
+<div id="collect-modal" class="fixed inset-0 z-50 hidden items-center justify-center">
+    @await Html.PartialAsync("_CollectModalPartial", (List<Matrix.ViewModels.CollectItemViewModel>)ViewData["CollectList"])
+</div>
+
 @section Scripts {
     <script>
         // 將 ViewBag 資料傳遞給前端 JavaScript
@@ -175,4 +180,4 @@
             }
         };
     </script>
-}
+} *@

@@ -39,6 +39,13 @@
       "files": [
         "dist/**"
       ]
+    },
+    {
+      "library": "date-fns@latest",
+      "destination": "wwwroot/lib/date-fns/",
+      "files": [
+        "cdn.min.js"
+      ]
     }
   ]
 }

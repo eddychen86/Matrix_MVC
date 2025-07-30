@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Matrix.Controllers
 {
-    /// <summary>認證相關的 API - 狀態檢查和登出</summary>
+    // TODO:認證相關的 API - 狀態檢查和登出
     public class AuthController(
         ILogger<AuthController> _logger,
         IEmailService _emailService
@@ -18,7 +18,7 @@ namespace Matrix.Controllers
     // ApplicationDbContext _context
     ) : Controller
     {
-        /// <summary>檢查用戶當前的認證狀態</summary>
+        // TODO:檢查用戶當前的認證狀態
         [HttpGet, Route("/api/auth/status")]
         public IActionResult GetAuthStatus()
         {
@@ -47,7 +47,7 @@ namespace Matrix.Controllers
             });
         }
 
-        /// <summary>用戶登出：清除認證 Cookie</summary>
+        // TODO:用戶登出：清除認證 Cookie
         [HttpPost, Route("/api/auth/logout")]
         public IActionResult Logout()
         {
@@ -71,7 +71,7 @@ namespace Matrix.Controllers
             return View();
         }
 
-        /// <summary>Google Token 交換</summary>
+        // TODO:Google Token 交換
         public async Task<GoogleTokenResponse?> ExchangeCodeForTokensAsync(string code)
         {
             var tokenEndpoint = "https://oauth2.googleapis.com/token";
@@ -121,7 +121,7 @@ namespace Matrix.Controllers
             }
         }
 
-        /// <summary>取得 Google UserInfo</summary>
+        // TODO:取得 Google UserInfo
         public async Task<GoogleUserInfo?> GetGoogleUserInfoAsync(string accessToken)
         {
             var userInfoEndpoint = "https://www.googleapis.com/oauth2/v2/userinfo";
@@ -155,7 +155,7 @@ namespace Matrix.Controllers
             }
         }
 
-        /// <summary>Google 授權系統</summary>
+        // TODO:Google 授權系統
         public async Task<IActionResult> GoogleCallback(string code, string state, string error)
         {
             // 第一步：檢查是否有錯誤
@@ -245,7 +245,7 @@ namespace Matrix.Controllers
             return RedirectToAction("login", "Auth");
         }
 
-        /// <summary>取得模型驗證錯誤</summary>
+        // TODO:取得模型驗證錯誤
         private Dictionary<string, string[]> GetModelStateErrors()
         {
             return ModelState
@@ -256,7 +256,7 @@ namespace Matrix.Controllers
                 );
         }
 
-        /// <summary>發送確認信</summary>
+        // TODO:發送確認信
         [HttpPost]
         public async Task<IActionResult> SendConfirmationEmail(RegisterViewModel model)
         {
@@ -305,7 +305,7 @@ namespace Matrix.Controllers
             }
         }
 
-        /// <summary>產生 JWT Token (接受個別參數)</summary>
+        // TODO:產生 JWT Token (接受個別參數)
         public string GenerateJwtToken(Guid userId, string userName, string role)
         {
             var jwtKey = Environment.GetEnvironmentVariable("JWT_KEY") ??
@@ -332,7 +332,7 @@ namespace Matrix.Controllers
             return tokenHandler.WriteToken(token);
         }
 
-        /// <summary>生成電子郵件確認 Token（簡化版）</summary>
+        // TODO:生成電子郵件確認 Token（簡化版）
         private string GenerateEmailConfirmationToken(string userName, string email)
         {
             var payload = new
@@ -348,7 +348,7 @@ namespace Matrix.Controllers
             return Convert.ToBase64String(bytes);
         }
 
-        /// <summary>設定登入 Cookie</summary>
+        // TODO:設定登入 Cookie
         public void SetAuthCookie(HttpResponse response, string token, bool rememberMe = false)
         {
             var cookieOptions = new CookieOptions
@@ -365,7 +365,7 @@ namespace Matrix.Controllers
             response.Cookies.Append("AuthToken", token, cookieOptions);
         }
 
-        /// <summary>生成確認信內容</summary>
+        // TODO:生成確認信內容
         private string GenerateConfirmationEmailBody(string userName, string confirmationLink)
         {
             return $@"

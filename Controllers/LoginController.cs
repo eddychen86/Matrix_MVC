@@ -23,14 +23,14 @@ namespace Matrix.Controllers
         }
         private static readonly string[] InvalidCredentialsError = ["Invalid user name or password."];
 
-        /// <summary>顯示登入頁面</summary>
+        // TODO:顯示登入頁面
         [HttpGet, Route("/login")]
         public ActionResult Index()
         {
             return View("~/Views/Auth/Login.cshtml", new LoginViewModel());
         }
 
-        /// <summary>處理登入 API 請求</summary>
+        // TODO:處理登入 API 請求
         [HttpPost, Route("/api/login")]
         public async Task<IActionResult> LoginApi([FromBody] LoginViewModel? model)
         {
@@ -64,7 +64,7 @@ namespace Matrix.Controllers
             return Json(new { success = true, redirectUrl = "/home" });
         }
 
-        /// <summary>忘記密碼功能</summary>
+        // TODO:忘記密碼功能
         [HttpPost, Route("api/login/forgot")]
         public ActionResult ForgotPassword(LoginViewModel model)
         {
@@ -76,7 +76,7 @@ namespace Matrix.Controllers
             return View("~/Views/Auth/Login.cshtml", model);
         }
 
-        /// <summary>回傳驗證錯誤的統一格式</summary>
+        // TODO:回傳驗證錯誤的統一格式
         private IActionResult ValidationErrorResponse()
         {
             var errors = ModelState
@@ -85,18 +85,18 @@ namespace Matrix.Controllers
                     kvp => kvp.Key,
                     kvp => kvp.Value!.Errors.Select(e => e.ErrorMessage).ToArray()
                 );
-            
+
             return Json(new { success = false, errors });
         }
 
-        /// <summary>用帳號或信箱找用戶</summary>
+        // TODO:用帳號或信箱找用戶
         private async Task<UserDto?> GetUserByIdentifierAsync(string identifier)
         {
-            return await _userService.GetUserByEmailAsync(identifier) ?? 
+            return await _userService.GetUserByEmailAsync(identifier) ??
                    await _userService.GetUserByUsernameAsync(identifier);
         }
 
-        /// <summary>檢查用戶狀態是否正常</summary>
+        // TODO:檢查用戶狀態是否正常
         private IActionResult? CheckUserStatus(UserDto userDto)
         {
             var errorMessage = userDto.Status switch
