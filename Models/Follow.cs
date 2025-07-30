@@ -28,6 +28,7 @@ namespace Matrix.Models
 
         /// <summary>
         /// 關注類型，用於區分不同種類的關注關係
+        /// 0: 文章、1: 使用者
         /// </summary>
         public int Type { get; set; }
 

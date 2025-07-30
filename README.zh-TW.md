@@ -26,6 +26,7 @@ dotnet add package DotNetEnv
 dotnet add package Microsoft.EntityFrameworkCore.Proxies --version 8.0.11
 dotnet add package MailKit
 dotnet add package Google.Apis.Auth --version 1.70.0
+dotnet add package Hangfire.AspNetCore --version 1.8.20
 ```
 因為這個專案使用了 DaisyUI UI 函式庫，所以您需要安裝 tailwindcss CLI 和 DaisyUI.<br>
 
