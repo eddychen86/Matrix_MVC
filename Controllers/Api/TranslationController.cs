@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 
-namespace Matrix.Controllers
+namespace Matrix.Controllers.Api
 {
     [ApiController]
     [Route("api/[controller]")]

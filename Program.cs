@@ -4,6 +4,7 @@ using System.Text;
 using Matrix.Middleware;
 using Matrix.Services;
 using DotNetEnv;
+using Matrix.Controllers;
 // using Microsoft.AspNetCore.Identity;
 
 namespace Matrix;
@@ -36,12 +37,31 @@ public class Program
             options.UseLazyLoadingProxies().UseSqlServer(connectionString));
         builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
+        #region 註冊 Repository
+
+        // 註冊 Repository
+        builder.Services.AddScoped<IUserRepository, UserRepository>();
+        builder.Services.AddScoped<IPersonRepository, PersonRepository>();
+        builder.Services.AddScoped<IArticleRepository, ArticleRepository>();
+        builder.Services.AddScoped<IReplyRepository, ReplyRepository>();
+        builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
+        builder.Services.AddScoped<IFollowRepository, FollowRepository>();
+        builder.Services.AddScoped<IFriendshipRepository, FriendshipRepository>();
+        builder.Services.AddScoped<IPraiseCollectRepository, PraiseCollectRepository>();
+        builder.Services.AddScoped<IReportRepository, ReportRepository>();
+        builder.Services.AddScoped<IHashtagRepository, HashtagRepository>();
+        builder.Services.AddScoped<IArticleAttachmentRepository, ArticleAttachmentRepository>();
+        builder.Services.AddScoped<IArticleHashtagRepository, ArticleHashtagRepository>();
+        builder.Services.AddScoped<ILoginRecordRepository, LoginRecordRepository>();
+        
+        #endregion
+
         #region 註冊 Service
 
         builder.Services.AddScoped<IUserService, UserService>();
         builder.Services.AddScoped<ArticleService>();
         builder.Services.AddScoped<NotificationService>();
-        builder.Services.AddScoped<AuthController>();
+        builder.Services.AddScoped<Matrix.Controllers.AuthController>();
         builder.Services.AddHttpContextAccessor(); // 為 CustomLocalizer 提供 HttpContext 訪問
         builder.Services.AddScoped<ICustomLocalizer, CustomLocalizer>();
         builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
