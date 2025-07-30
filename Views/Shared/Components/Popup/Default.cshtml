@@ -38,10 +38,24 @@
                     </div>
                 </div>
             </div>
-            <div v-if="popupState.type == 'Follow'">
-
-            </div>
             <div v-if="popupState.type == 'Notify'">
+                <div class="popup-data-notify space-y-4">
+                    <div v-for="item in popupData[popupState.type]" :key="item.senderName" class="item-center flex justify-between rounded-lg bg-neutral-800 px-4 py-3 transition hover:bg-neutral-700">
+                        <div class="flex items-center space-x-4">
+                            <img :src="item.senderAvatarUrl" class="h-10 w-10 rounded-full border border-gray-600" />
+                            <div>
+                                <p class="font-semibold">{{ item.senderName }}</p>
+                                <p class="text-sm text-gray-400">{{ item.message }}</p>
+                            </div>
+                        </div>
+                        <div class="flex flex-col items-end space-y-1">
+                            <span class="text-xs text-gray-500">{{ timeAgo(item.sentTime) }}</span>
+                            <button class="text-sm text-blue-400 hover:underline">Reply</button>
+                        </div>
+                   </div>
+                </div>
+            </div>
+            <div v-if="popupState.type == 'Follow'">
             </div>
             <div v-if="popupState.type == 'Search'">
             </div>

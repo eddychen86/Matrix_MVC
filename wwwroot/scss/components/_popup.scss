@@ -1,10 +1,9 @@
 ﻿@layer components {
     #popup-overlay {
         @apply fixed inset-0 z-50 flex items-center justify-center bg-white/30 overflow-hidden;
-        
+
         #popup-container {
-            @apply
-                bg-[#161616] rounded-[30px] shadow-xl text-white
+            @apply bg-[#161616] rounded-[30px] shadow-xl text-white
                 w-4/5 md:w-2/3 lg:w-3/5
             ;
             
@@ -21,7 +20,11 @@
             }
 
             .popup-content {
-                @apply p-8 overflow-y-auto h-[600px];
+                @apply p-8 overflow-y-auto h-[600px] ;
+
+                //Notify
+                .popup-data-notify {
+                    @apply w-full  gap-8;}
 
                 .popup-data {
                     @apply w-full grid grid-cols-3 gap-8;
@@ -60,5 +63,5 @@
                 }
             }
         }
+        }
     }
-}
