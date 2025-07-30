@@ -11,18 +11,19 @@ namespace Matrix.Controllers
         {
             ["zh-TW"] = new Dictionary<string, string>
             {
-                // === Auth 模組 ===
+                #region Auth 模組
+
                 // 標題
                 ["LoginTitle"] = "登入",
                 ["RegisterTitle"] = "註冊",
                 ["ForgotPasswordTitle"] = "忘記密碼",
-                
+
                 // 副標題/訊息
                 ["WelcomeMsg"] = "加入區塊鏈社群",
                 ["ForgotPasswordMsg"] = "請輸入您的電子郵件地址以重置密碼。",
                 ["NewHereMsg"] = "新來的？",
                 ["hasAccountMsg"] = "已經有帳號？",
-                
+
                 // 標籤
                 ["UserNameLabel"] = "用戶名",
                 ["EmailLabel"] = "電子郵件",
@@ -31,13 +32,13 @@ namespace Matrix.Controllers
                 ["RememberMeLabel"] = "記住我？",
                 ["ForgotPasswordLabel"] = "忘記密碼？",
                 ["SubmitBtn"] = "送出",
-                
+
                 // 輸入提示
                 ["UserNamePlaceholder"] = "請輸入用戶名",
                 ["EmailPlaceholder"] = "請輸入電子郵件",
                 ["PasswordPlaceholder"] = "請輸入密碼",
                 ["ConfirmPasswordPlaceholder"] = "請確認密碼",
-                
+
                 // 錯誤訊息
                 ["UserNameInvalid"] = "用戶名未填寫",
                 ["PasswordInvalid"] = "密碼未填寫",
@@ -54,8 +55,11 @@ namespace Matrix.Controllers
                 ["UsernameOrEmailExists"] = "用戶名或電子郵件已存在。",
                 ["AccountNotVerified"] = "您的帳號尚未驗證，請先檢查您的電子郵件並完成帳號驗證。",
                 ["AccountDisabled"] = "您的帳號已被停用，請聯繫管理員尋求協助。",
-                
-                // === Common 模組 ===
+
+                #endregion
+
+                #region Common 模組
+
                 // 通用按鈕和操作
                 ["OK"] = "確定",
                 ["Cancel"] = "取消",
@@ -70,7 +74,7 @@ namespace Matrix.Controllers
                 ["Error"] = "錯誤",
                 ["Success"] = "成功",
                 ["WelcomeMessage"] = "歡迎！",
-                
+
                 // 社交功能
                 ["Comment"] = "留言",
                 ["Praise"] = "讚",
@@ -79,8 +83,11 @@ namespace Matrix.Controllers
                 ["Share"] = "分享",
                 ["GuestBrowseMsg"] = "登入後可留言",
                 ["GuestAccount"] = "訪客",
-                
-                // === Menu 模組 ===
+
+                #endregion
+
+                #region Menu 模組
+
                 ["Matrix"] = "Matrix",
                 ["Login"] = "登入",
                 ["Search"] = "搜尋",
@@ -90,8 +97,11 @@ namespace Matrix.Controllers
                 ["Language"] = "繁體中文",
                 ["HideBar"] = "隱藏側欄",
                 ["LogOut"] = "登出",
-                
-                // === Home 模組 ===
+
+                #endregion
+
+                #region Home 模組
+
                 ["Home"] = "首頁",
                 ["Welcome"] = "歡迎",
                 ["HomePage"] = "首頁",
@@ -105,14 +115,19 @@ namespace Matrix.Controllers
                 ["AllContentViewedTitle"] = "您已瀏覽完所有可用內容",
                 ["LoginForMoreContentMsg"] = "登入後即可瀏覽更多精彩文章與留言討論",
                 ["LoginNowBtn"] = "立即登入",
-                
-                // === Profile 模組 ===
+
+                #endregion
+
+                #region Profile 模組
                 ["ProfileName"] = "個人資料名稱",
                 ["ProfileDescription"] = "個人資料描述",
                 ["EditProfile"] = "編輯個人資料",
                 ["SaveProfile"] = "儲存個人資料",
-                
-                // === Admin 模組 ===
+
+                #endregion
+
+                #region Admin 模組
+
                 ["DashboardTitle"] = "管理儀表板",
                 ["TotalUsers"] = "使用者總數",
                 ["TotalRecords"] = "記錄總數",
@@ -132,29 +147,31 @@ namespace Matrix.Controllers
                 ["ReportName"] = "報告名稱",
                 ["ReportDate"] = "報告日期",
                 ["ReportType"] = "報告類型",
-                
+
                 // 其他常用
                 ["Title"] = "Matrix",
                 ["Email"] = "電子郵件",
                 ["Password"] = "密碼",
                 ["ConfirmPassword"] = "確認密碼",
                 ["Register"] = "註冊"
+                
+                #endregion
             },
             
             ["en-US"] = new Dictionary<string, string>
             {
-                // === Auth 模組 ===
+                #region Auth 模組
                 // 標題
                 ["LoginTitle"] = "Login",
                 ["RegisterTitle"] = "Register",
                 ["ForgotPasswordTitle"] = "Forgot Password",
-                
+
                 // 副標題/訊息
                 ["WelcomeMsg"] = "Join the blockchain community",
                 ["ForgotPasswordMsg"] = "Please enter your email address to reset your password.",
                 ["NewHereMsg"] = "New here? Let ",
                 ["hasAccountMsg"] = "Already have an account?",
-                
+
                 // 標籤
                 ["UserNameLabel"] = "User Name",
                 ["EmailLabel"] = "Email Address",
@@ -163,13 +180,13 @@ namespace Matrix.Controllers
                 ["RememberMeLabel"] = "Remember me",
                 ["ForgotPasswordLabel"] = "Forgot password?",
                 ["SubmitBtn"] = "Submit",
-                
+
                 // 輸入提示
                 ["UserNamePlaceholder"] = "Enter User Name",
                 ["EmailPlaceholder"] = "Enter Email",
                 ["PasswordPlaceholder"] = "Enter Password",
                 ["ConfirmPasswordPlaceholder"] = "Confirm Password",
-                
+
                 // 錯誤訊息
                 ["UserNameInvalid"] = "User name is required.",
                 ["PasswordInvalid"] = "Password is required.",
@@ -183,8 +200,11 @@ namespace Matrix.Controllers
                 ["PasswordConfirmRequired"] = "Password confirmation is required.",
                 ["PasswordCompareError"] = "Passwords do not match.",
                 ["UsernameOrEmailExists"] = "Username or email already exists.",
-                
-                // === Common 模組 ===
+
+                #endregion
+
+                #region Common 模組
+
                 // 通用按鈕和操作
                 ["OK"] = "OK",
                 ["Cancel"] = "Cancel",
@@ -199,7 +219,7 @@ namespace Matrix.Controllers
                 ["Error"] = "Error",
                 ["Success"] = "Success",
                 ["WelcomeMessage"] = "Welcome!",
-                
+
                 // 社交功能
                 ["Comment"] = "Comment",
                 ["Praise"] = "Praise",
@@ -208,8 +228,11 @@ namespace Matrix.Controllers
                 ["Share"] = "Share",
                 ["GuestBrowseMsg"] = "Login",
                 ["GuestAccount"] = "Guest",
-                
-                // === Menu 模組 ===
+
+                #endregion
+
+                #region Menu 模組
+
                 ["Matrix"] = "Matrix",
                 ["Login"] = "Login",
                 ["Search"] = "Search",
@@ -219,8 +242,11 @@ namespace Matrix.Controllers
                 ["Language"] = "English",
                 ["HideBar"] = "Hide bar",
                 ["LogOut"] = "Log out",
-                
-                // === Home 模組 ===
+
+                #endregion
+
+                #region Home 模組
+
                 ["Home"] = "Home",
                 ["Welcome"] = "Welcome",
                 ["HomePage"] = "Home Page",
@@ -234,14 +260,20 @@ namespace Matrix.Controllers
                 ["AllContentViewedTitle"] = "You have viewed all available content",
                 ["LoginForMoreContentMsg"] = "Login to browse more exciting articles and join discussions",
                 ["LoginNowBtn"] = "Login Now",
-                
-                // === Profile 模組 ===
+
+                #endregion
+
+                #region Profile 模組
+
                 ["ProfileName"] = "Profile Name",
                 ["ProfileDescription"] = "Profile Description",
                 ["EditProfile"] = "Edit Profile",
                 ["SaveProfile"] = "Save Profile",
-                
-                // === Admin 模組 ===
+
+                #endregion
+
+                #region Admin 模組
+
                 ["DashboardTitle"] = "Admin Dashboard",
                 ["TotalUsers"] = "Total Users",
                 ["TotalRecords"] = "Total Records",
@@ -261,13 +293,15 @@ namespace Matrix.Controllers
                 ["ReportName"] = "Report Name",
                 ["ReportDate"] = "Report Date",
                 ["ReportType"] = "Report Type",
-                
+
                 // 其他常用
                 ["Title"] = "Matrix",
                 ["Email"] = "Email",
                 ["Password"] = "Password",
                 ["ConfirmPassword"] = "Confirm Password",
                 ["Register"] = "Register"
+                
+                #endregion
             }
         };
 

@@ -1,7 +1,4 @@
-﻿using Matrix.Data;
-using Matrix.ViewModels;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Mvc;
 
 namespace Matrix.Controllers
 {
@@ -39,9 +36,7 @@ namespace Matrix.Controllers
             { 
                 SenderName = n.Sender.DisplayName ?? "匿名",
                 SenderAvatarUrl = n.Sender.AvatarPath ?? "/static/img/default-avatar.png",
-                Message = n.Type == 0 ?"有人留言了你的貼文"
-                          : n.Type == 1 ? "有人私訊你"
-                          :"有新通知",
+                Message = n.Type == 0 ? "有人留言了你的貼文" : n.Type == 1 ? "有人私訊你" :"有新通知",
                 SentTime = n.SentTime
             }).ToList();
 

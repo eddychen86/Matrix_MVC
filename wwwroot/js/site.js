@@ -179,7 +179,7 @@ app({
 
         //#endregion
 
-        //#region Search
+        //#region 側邊欄 pop-up 視窗功能
 
         const searchQuery = ref('')
 
@@ -205,7 +205,7 @@ app({
             isOpen: computed(() => popupState.isVisible),
             closeCollectModal: closePopup,
 
-            //
+            // 側邊欄 pop-up 視窗功能
             searchQuery,
         }
     }

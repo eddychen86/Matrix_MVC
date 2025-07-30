@@ -137,9 +137,7 @@ namespace Matrix.Controllers
 
                     if (res.IsSuccessStatusCode)
                     {
-                        var userInfo = JsonSerializer.Deserialize<GoogleUserInfo>(jsonRes, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-
-                        return userInfo;
+                        return JsonSerializer.Deserialize<GoogleUserInfo>(jsonRes, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });;
                     }
                     else
                     {
@@ -161,8 +159,7 @@ namespace Matrix.Controllers
             // 第一步：檢查是否有錯誤
             if (!string.IsNullOrEmpty(error))
             {
-                // 使用者拒絕了授權，或是發生了其他錯誤
-                // 您可以在此記錄錯誤訊息 (error)，並導向到一個錯誤頁面
+                // 使用者拒絕了授權，或是發生了其他錯誤，會導向到一個錯誤頁面
                 ViewBag.ErrorMessage = $"授權失敗，錯誤原因：{error}";
                 return Json(new { success = false, message = "AuthorizationFailed", error });
             }

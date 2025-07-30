@@ -1,7 +1,4 @@
 using Microsoft.AspNetCore.Mvc;
-using Matrix.Services.Interfaces;
-using Matrix.ViewModels;
-using Matrix.DTOs;
 
 namespace Matrix.Controllers
 {
