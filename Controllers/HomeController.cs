@@ -37,11 +37,14 @@ public class HomeController : Controller
                     : null
             })
             .ToListAsync();
+
         var hot_list = articles.Take(5);
         var default_list = articles;
+        var friend_list = articles.Take(5);
 
         ViewBag.HotList = hot_list;
         ViewBag.DefaultList = default_list;
+        ViewBag.FriendList = friend_list;
 
         return View();
     }
