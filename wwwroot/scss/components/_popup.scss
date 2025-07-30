@@ -26,6 +26,10 @@
                 .popup-data-notify {
                     @apply w-full  gap-8;}
 
+                 //Follow
+                .popup-data-follow {
+                    @apply w-full  gap-8;}
+
                 .popup-data {
                     @apply w-full grid grid-cols-3 gap-8;
 
@@ -63,5 +67,5 @@
                 }
             }
         }
-        }
+    }
     }

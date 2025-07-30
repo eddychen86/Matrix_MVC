@@ -1,6 +1,7 @@
 ﻿using Matrix.Data;
 using Matrix.ViewModels;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace Matrix.Controllers
 {
@@ -21,54 +22,7 @@ namespace Matrix.Controllers
         [HttpGet]
         public IActionResult Collect()
         {
-            // 寫死的假資料
-            //var fakeData = new List<CollectItemViewModel>
-            //{
-            //    new()
-            //    {
-            //        Title = "test 00",
-            //        ImageUrl = Url.Content("~/static/img/Cute.png"),
-            //        AuthorName = "小西瓜",
-            //        CollectedAt = DateTime.Now.AddDays(-1)
-            //    },
-            //    new()
-            //    {
-            //        Title = "test 01",
-            //        ImageUrl = Url.Content("~/static/img/Cute.png"),
-            //        AuthorName = "大豬豬",
-            //        CollectedAt = DateTime.Now.AddDays(-2)
-            //    },
-            //    new()
-            //    {
-            //        Title = "test 02",
-            //        ImageUrl = Url.Content("~/static/img/Cute.png"),
-            //        AuthorName = "笑笑貓",
-            //        CollectedAt = DateTime.Now.AddDays(-3)
-            //    },
-            //    new()
-            //    {
-            //        Title = "test 03",
-            //        ImageUrl = Url.Content("~/static/img/Cute.png"),
-            //        AuthorName = "小西瓜",
-            //        CollectedAt = DateTime.Now.AddDays(-1)
-            //    },
-            //    new()
-            //    {
-            //        Title = "test 04",
-            //        ImageUrl = Url.Content("~/static/img/Cute.png"),
-            //        AuthorName = "大豬豬",
-            //        CollectedAt = DateTime.Now.AddDays(-2)
-            //    },
-            //    new()
-            //    {
-            //        Title = "test 05",
-            //        ImageUrl = Url.Content("~/static/img/Cute.png"),
-            //        AuthorName = "笑笑貓",
-            //        CollectedAt = DateTime.Now.AddDays(-3)
-            //    }
-            //};
-
-            //return View(fakeData); // 把資料傳給 Collect.cshtml
+            
 
             var collects = _context.PraiseCollects
                .Where(p => p.Type == 1) // 只撈收藏的
@@ -142,13 +96,15 @@ namespace Matrix.Controllers
             //return Json(fakeData); // 返回 JSON 格式
 
             var collects = _context.PraiseCollects
+                .Include(p => p.Article) // 載入文章資料
+                 .ThenInclude(a => a.Attachments) // 載入文章作者
                 .Where(p => p.Type == 1)
                 .OrderByDescending(p => p.CreateTime)
                 .Take(30)
                 .Select(p => new CollectItemViewModel
                 {
                     Title = p.Article.Content.Substring(0, 10),
-                    ImageUrl = "https://i.imgur.com/GD4d09R.png",
+                    ImageUrl = p.Article.Attachments.Where(a=>a.Type=="image").Select(a => a.FilePath).FirstOrDefault() ?? Url.Content("~/static/img/Cute.png"), // 使用文章的第一張圖片或預設圖片
                     AuthorName = p.User.DisplayName ?? "匿名",
                     CollectedAt = p.CreateTime
                 })
