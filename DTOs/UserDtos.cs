@@ -250,6 +250,7 @@ namespace Matrix.DTOs
         /// 驗證輸入資料的完整性
         /// </summary>
         public bool IsValid
+
         {
             get
             {

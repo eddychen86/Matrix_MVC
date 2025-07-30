@@ -29,6 +29,8 @@ namespace Matrix.DTOs
 
         public List<ArticleDto> Articles { get; set; } = new List<ArticleDto>();
 
+        public string Password { get; set; } = null!;
+
         public DateTime CreateTime { get; set; }
 
         public string TimeAgoText

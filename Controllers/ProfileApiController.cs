@@ -42,10 +42,27 @@ namespace Matrix.Controllers
                     Message = "2更新失敗!"
                 };
             }
+
+            User pas = await _context.Users.FirstOrDefaultAsync(p => p.UserId == id);
+            if (pas == null)
+            {
+                return new ReturnType
+                {
+                    Ok = false,
+                    Message = "2更新失敗!"
+                };
+            }
+
+
             //map DTO to pe
             //更新的欄位
             pe.DisplayName = dto.DisplayName;
             pe.Bio = dto.Bio;
+            pas.Password = dto.Password;
+            pas.Email = dto.Email;
+            pe.Website1 = dto.Website1;
+            pe.Website2 = dto.Website2;
+            pe.Website3 = dto.Website3;
             //pe.ModifyTime = dto.ModifyTime;
             //pe.AvatarPath = dto.AvatarPath;
             //pe.BannerPath = dto.BannerPath;
@@ -110,6 +127,7 @@ namespace Matrix.Controllers
                         Content = a.Content,
                         CreateTime = a.CreateTime
                     }).ToList(),
+                    Password = person.User?.Password,
                     Email = person.User?.Email,
                     PersonId = person.PersonId,
                     UserId = person.UserId,
