@@ -7,10 +7,10 @@
 @{
     var menus = new[]
     {
-        new { title = "Search", icon = "search", func = "" },
-        new { title = "Notify", icon = "bell", func = "" },
-        new { title = "Follows", icon = "share-2", func = "" },
-        new { title = "Collects", icon = "bookmark", func = "" },
+        new { type = "Search", icon = "search" },
+        new { type = "Notify", icon = "bell" },
+        new { type = "Follows", icon = "share-2" },
+        new { type = "Collects", icon = "bookmark" },
     };
 
     var bottoms = new[]
@@ -39,17 +39,15 @@
         <li>
             @foreach (var i in menus)
             {
-                <button class="cts-btn hover:bg-gray-900">
+                <button class="cts-btn hover:bg-gray-900" v-on:click="openPopup('@i.type')">
                     <i data-lucide="@i.icon" class="icon-base text-white"></i>
-                    <span class="title" data-i18n="@i.title">@Localizer[i.title]</span>
+                    <span class="title" data-i18n="@i.type">@Localizer[i.type]</span>
                 </button>
             }
         </li>
         <li>
             @foreach (var i in bottoms) {
-                <button v-on:click="@i.click" :class="isCollapsed ? 'sidebar-btn-none-text' : ''"
-                    class="cts-btn hover:bg-gray-200"
-                >
+                <button v-on:click="@i.click" :class="isCollapsed ? 'sidebar-btn-none-text' : ''" class="cts-btn hover:bg-gray-200">
                     <i data-lucide="@i.icon" class="icon-base"></i>
                     <span class="title" data-i18n="@i.title">@Localizer[i.title]</span>
                 </button>

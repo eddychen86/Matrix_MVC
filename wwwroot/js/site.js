@@ -11,6 +11,8 @@ lucide.createIcons()
 app({
     setup() {
         const { ref, reactive, computed, } = Vue
+        const { formatDate, timeAgo } = useFormatting()
+
 
         //#region Sidebar State
 
@@ -207,6 +209,10 @@ app({
 
             // 側邊欄 pop-up 視窗功能
             searchQuery,
+
+            // hooks
+            formatDate,
+            timeAgo,
         }
     }
 })

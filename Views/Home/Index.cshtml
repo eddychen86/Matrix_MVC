@@ -91,14 +91,22 @@
                         @* 文章操作列 *@
                         <div class="flex items-center justify-between pt-4 border-t border-accent/20">
                             <div class="flex items-center gap-4">
-                                <button class="flex items-center gap-2 text-gray-400 hover:text-orange transition-colors">
-                                    <i data-lucide="heart" class="w-4 h-4"></i>
-                                </button>
                                 @if (ViewBag.IsAuthenticated == true)
                                 {
                                     <button class="flex items-center gap-2 text-gray-400 hover:text-orange transition-colors">
+                                        <i data-lucide="heart" class="w-4 h-4"></i>
+                                    </button>
+                                    <button class="flex items-center gap-2 text-gray-400 hover:text-orange transition-colors">
                                         <i data-lucide="message-circle" class="w-4 h-4"></i>
                                         <span data-i18n="Comment">@Localizer["Comment"]</span>
+                                    </button>
+                                    <button class="flex items-center gap-2 text-gray-400 hover:text-orange transition-colors">
+                                        <i data-lucide="share" class="w-4 h-4"></i>
+                                        <span data-i18n="Share">@Localizer["Share"]</span>
+                                    </button>
+                                    <button class="flex items-center gap-2 text-gray-400 hover:text-orange transition-colors">
+                                        <i data-lucide="bookmark" class="w-4 h-4"></i>
+                                        <span data-i18n="Collect">@Localizer["Collect"]</span>
                                     </button>
                                 }
                                 else
@@ -108,15 +116,7 @@
                                         <span data-i18n="GuestBrowseMsg">@Localizer["GuestBrowseMsg"]</span>
                                     </span>
                                 }
-                                <button class="flex items-center gap-2 text-gray-400 hover:text-orange transition-colors">
-                                    <i data-lucide="share" class="w-4 h-4"></i>
-                                    <span data-i18n="Share">@Localizer["Share"]</span>
-                                </button>
                             </div>
-                            <button class="flex items-center gap-2 text-gray-400 hover:text-orange transition-colors">
-                                <i data-lucide="bookmark" class="w-4 h-4"></i>
-                                <span data-i18n="Collect">@Localizer["Collect"]</span>
-                            </button>
                         </div>
                     </article>
                 }
@@ -130,7 +130,7 @@
             }
 
             @* 訪客限制提示（僅在訪客狀態下顯示） *@
-            @if (ViewBag.IsGuest == true && ViewBag.IsAuthenticated == false)
+            @* @if (ViewBag.IsGuest == true && ViewBag.IsAuthenticated == false)
             {
                 <div class="text-center py-8 border-t border-accent/20">
                     <div class="bg-secondary rounded-xl p-6 border border-accent/20">
@@ -142,7 +142,7 @@
                         </a>
                     </div>
                 </div>
-            }
+            } *@
         </div>
     </div>
 

@@ -22,7 +22,13 @@ function useFormatting() {
         }
     };
 
-    const timeAgo = ({date, lang = "zh-TW"}) => {
+    const timeAgo = (date, lang = "zh-TW") => {
+        // Handle both object parameter {date, lang} and direct date parameter
+        if (typeof date === 'object' && date.date) {
+            lang = date.lang || "zh-TW";
+            date = date.date;
+        }
+        
         if (!date) return '';
         
         const now = new Date();

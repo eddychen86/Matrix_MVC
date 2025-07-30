@@ -81,7 +81,7 @@ namespace Matrix.Controllers
                 ["Follow"] = "追蹤",
                 ["Collect"] = "收藏",
                 ["Share"] = "分享",
-                ["GuestBrowseMsg"] = "登入後可留言",
+                ["GuestBrowseMsg"] = "登入後可操作",
                 ["GuestAccount"] = "訪客",
 
                 #endregion
@@ -226,7 +226,7 @@ namespace Matrix.Controllers
                 ["Follow"] = "Follow",
                 ["Collect"] = "Collect",
                 ["Share"] = "Share",
-                ["GuestBrowseMsg"] = "Login",
+                ["GuestBrowseMsg"] = "Need to login",
                 ["GuestAccount"] = "Guest",
 
                 #endregion
