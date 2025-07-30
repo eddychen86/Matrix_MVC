@@ -26,14 +26,6 @@
       ]
     },
     {
-      "library": "chokidar@latest",
-      "destination": "wwwroot/lib/chokidar/",
-      "files": [
-        "index.js",
-        "lib/**"
-      ]
-    },
-    {
       "library": "@ckeditor/ckeditor5-vue@latest",
       "destination": "wwwroot/lib/ckEditor5/",
       "files": [

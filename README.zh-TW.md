@@ -11,23 +11,26 @@ Matrix 是一個為 Web3 先驅和深度技術愛好者打造的庇護所，旨�
 
 
 ## 步驟
-首先，如果您沒有或不使用 Visual Studio，您需要安裝 libman，請在您的終端機中輸入此命令列：
-```
-dotnet tool install Microsoft.Web.LibraryManager.Cli
-```
-安裝 libman 後，您需要將相依性套件安裝到 `wwwroot/lib` 資料夾中。
-```
-dotnet tool run libman restore
-```
-然後，您還需要安裝這些套件和工具。
-<i><b>如果您使用的是 Visual Studio，您可以在 Nuget 擴充功能管理中安裝它。</b></i>
-```
-dotnet add package DotNetEnv
-dotnet add package Microsoft.EntityFrameworkCore.Proxies --version 8.0.11
-dotnet add package MailKit
-dotnet add package Google.Apis.Auth --version 1.70.0
-dotnet add package Hangfire.AspNetCore --version 1.8.20
-```
+1. 請先安裝 NodeJS
+2. 如果您沒有或不使用 Visual Studio，您需要安裝 libman，請在您的終端機中輸入此命令列：
+    ```
+    dotnet tool install Microsoft.Web.LibraryManager.Cli
+    npm i -g sass
+    ```
+3. 安裝 libman 後，您需要將相依性套件安裝到 `wwwroot/lib` 資料夾中。
+    ```
+    dotnet tool run libman restore
+    ```
+4. 您還需要安裝這些套件和工具。
+    <i><b>如果您使用的是 Visual Studio，您可以在 Nuget 擴充功能管理中安裝它。</b></i>
+    ```
+    dotnet add package DotNetEnv
+    dotnet add package Microsoft.EntityFrameworkCore.Proxies --version 8.0.11
+    dotnet add package MailKit
+    dotnet add package Google.Apis.Auth --version 1.70.0
+    dotnet add package Hangfire.AspNetCore --version 1.8.20
+    ```
+<br />
 因為這個專案使用了 DaisyUI UI 函式庫，所以您需要安裝 tailwindcss CLI 和 DaisyUI.<br>
 
   1. 取得 Tailwind CSS 執行檔
@@ -43,8 +46,8 @@ dotnet add package Hangfire.AspNetCore --version 1.8.20
       ```
       使檔案可執行 (適用於 Linux 和 MacOS)：`chmod +x tailwindcss`
 
-  2. 取得 daisyUI 捆綁的 JS 檔案 (已有)
-  3. 監看 CSS
+  1. 取得 daisyUI 捆綁的 JS 檔案 (已有)
+  2. 監看 CSS
       當您執行以下命令時，"tailwindcss" 將在背景中被監聽。
       ###### MacOS
       ```
