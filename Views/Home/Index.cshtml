@@ -3,7 +3,7 @@
     ViewData["Title"] = "News";
 }
 
-<section class="page-wrapper">
+<section id="main" class="page-wrapper">
     <div class="news-container">
         <div id="news_list" class="news-list">
 
@@ -17,21 +17,21 @@
                     </svg>
                 </button>
 
-                <ul id="hotCarousel" class="carousel-list">
+                <ul ref="Carousel" id="hotCarousel" class="carousel-list">
                     @foreach (var item in ViewBag.HotList)
                     {
                         <li class="carousel-item-custom">
                             <div class="card">
                                 <figure>
-                                    <img src="@(item.image?.FilePath ?? "/img/placeholder.png")" alt="" />
+                                    <img src="@item.image?.FilePath" alt="" />
                                 </figure>
                                 <div class="card-body">
                                     <div>
-                                        <img src="@(item.Author?.AvatarPath ?? "/img/avatar_default.png")" alt="">
+                                        <img src="@item.Author?.AvatarPath" alt="">
                                         <h2 class="card-title">@item.Author?.DisplayName</h2>
                                     </div>
                                     <div class="card-actions justify-end">
-                                        <p>@item.Article.Content</p>
+                                        <p>@item.Article?.Content</p>
                                     </div>
                                 </div>
                             </div>
@@ -47,110 +47,171 @@
                 </button>
             </div>
 
-            <h3 class="section-title">News</h3>
 
-            @foreach (var post in ViewBag.HotList)
-            {
-                <div class="post-card">
-                    <img src="@(post.Author?.AvatarPath ?? "/img/avatar_default.png")" class="post-avatar" />
 
-                    <div class="post-author">
-                        <span class="author-name">@(post.Author?.DisplayName ?? "Unknown")</span>
-                        <time class="post-time">@post.Article.CreateTime.ToString("yyyy/MM/dd HH:mm")</time>
-                    </div>
-
-                    <p class="post-content">@post.Article.Content</p>
-
-                    <div class="carousel-item">
-                        @if (post.image != null)
-                        {
-                            <img src="@post.image.FilePath" class="post-image" />
-                        }
-                    </div>
+            <!-- 發文 -->
+            <div id="postEditorApp">
+                <div id="newPost" class="flex h-[70px] w-[602px] justify-between">
+                    <h3 class="section-title">News</h3>
+                    <button v-on:click="openModel" class=" w-[80px] h-[[32px] flex items-center mt-4 mb-4 text-center pl-1 gap-1 bg-white rounded-[12px] text-black text-[20px] leading-[38px] font-['Roboto'] font-medium transition hover:bg-gray-300 ">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m3.75 9v6m3-3H9m1.5-12H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
+                        </svg>
+                        Post
+                    </button>
                 </div>
-            }
 
+                <!-- 遮罩 -->
+                <div v-if="isOpenModel" id="overlay" class="fixed inset-0 z-[1000] bg-white opacity-20"></div>
+
+                @{
+                    var User = new { DisplayName = "Jack", Avatar = "#" };
+                }
+
+                    <!-- 編輯發文容器 -->
+                    <div v-if="isOpenModel" id="postModel" class="fixed inset-0 z-[1010] flex items-center justify-center">
+                        <div class="relative max-h-[800px] min-h-[450px] w-[600px] rounded-[15px] bg-[#161616] p-6">
+                            <div class="absolute top-[25px] left-[24px] h-[32px] w-[34px] rounded-[24px] bg-cover bg-center bg-no-repeat"
+                             style="background-image: url('@(User.Avatar)')">
+                            </div>
+                            <div class="absolute top-[30px] left-[69px] text-white text-[18px] font-['Roboto'] font-normal leading-[22px]">
+                                @User.DisplayName
+                            </div>
+                            <button v-on:click="closeModel" class="absolute top-[22px] right-[24px] h-[32px] w-[32px] text-white hover:text-gray-300">
+                                <svg viewBox="0 0 24 24" class="h-full w-full fill-current">
+                                    <path d="M6 6 L18 18 M6 18 L18 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                                </svg>
+                            </button>
+                            <textarea id="editor" class="absolute top-[82px] left-[24px] right-[24px] h-[150px] resize-none rounded-[10px] bg-[#161616] p-4 text-black text-[16px] font-['Source_Sans_Pro'] font-normal leading-[19px] text-justify border border-black focus:outline-none focus:border-white" placeholder="Write your post here..."></textarea>
+                            <button class="absolute right-[24px] bottom-[20px] flex h-[50px] w-[50px] items-center justify-center rounded-[32px] border-0 bg-[#2a629a] text-white transition duration-200 outline-none hover:bg-[#3476bd]">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                                     class="h-[24px] w-[24px] fill-current text-white">
+                                    <path d="M0 0h24v24H0z" fill="none" />
+                                    <path d="M2.01 21 23 12 2.01 3 2 10l15 2-15 2z" />
+                                </svg>
+                            </button>
+
+                            <div class="absolute top-[240px] left-[24px] h-[100px] w-[100px] rounded-[30px] bg-cover bg-center bg-no-repeat">
+                                <img src="https://cataas.com/cat" alt="" class="h-full w-full object-cover" />
+                            </div>
+
+                            <div class="absolute top-[240px] left-[144px] flex h-[100px] w-[100px] items-center justify-center rounded-[30px] bg-[#ffffff]">
+                                <svg xmlns="http://www.w3.org/2000/svg" style="width: 24px; height: 24px; overflow: visible; fill: rgb(51, 51, 51);" viewBox="0 0 24 24">
+                                    <path fill="none" d="M0 0h24v24H0z"></path>
+                                    <path d="m20.41 8.41-4.83-4.83c-.37-.37-.88-.58-1.41-.58H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V9.83c0-.53-.21-1.04-.59-1.42zM7 7h7v2H7V7zm10 10H7v-2h10v2zm0-4H7v-2h10v2z"></path>
+                                </svg>
+                            </div>
+
+
+                            <button type="button" class="absolute bottom-[29px] left-[24px] h-[32px] w-[32px] text-[#a2a2a2] text-[32px] transition-colors duration-200 hover:text-[#c2c2c2]">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-[24px] w-[24px] fill-current" viewBox="0 0 24 24">
+                                    <path d="M0 0h24v24H0z" fill="none"></path>
+                                    <path d="M16.5 6v11.5c0 2.21-1.79 4-4 4s-4-1.79-4-4V5a2.5 2.5 0 0 1 5 0v10.5c0 .55-.45 1-1 1s-1-.45-1-1V6H10v9.5a2.5 2.5 0 0 0 5 0V5c0-2.21-1.79-4-4-4S7 2.79 7 5v12.5c0 3.04 2.46 5.5 5.5 5.5s5.5-2.46 5.5-5.5V6h-1.5z"></path>
+                                </svg>
+                            </button>
+
+                            <button type="button" class="absolute bottom-[29px] left-[72px] h-[32px] w-[32px] text-[#ff7f3e] text-[32px] transition-colors duration-200 hover:text-[#ff9f66]">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-[24px] w-[24px] fill-current" viewBox="0 0 24 24">
+                                    <path d="M0 0h24v24H0z" fill="none"></path>
+                                    <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"></path>
+                                </svg>
+                            </button>
+
+                            <button type="button" class="absolute bottom-[29px] left-[124px] h-[32px] w-[32px] text-[#ffda78] text-[32px] transition-colors duration-200 hover:text-[#ffe8a8]">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-[24px] w-[24px] fill-current" viewBox="0 0 448 512">
+                                    <path d="M48 32H197.5C214.5 32 230.7 38.74 242.7 50.75L418.7 226.7C443.7 251.7 443.7 292.3 418.7 317.3L285.3 450.7C260.3 475.7 219.7 475.7 194.7 450.7L18.75 274.7C6.743 262.7 0 246.5 0 229.5V80C0 53.49 21.49 32 48 32L48 32zM112 176C129.7 176 144 161.7 144 144C144 126.3 129.7 112 112 112C94.33 112 80 126.3 80 144C80 161.7 94.33 176 112 176z"></path>
+                                </svg>
+                            </button>
+
+                            <button class="absolute top-[344px] left-[24px] mt-2 min-h-[32px] min-w-[40px] rounded-full bg-[#ffda78]">
+                                <span class="text-[#333333] text-[14px] leading-[16px] font-medium font-['Roboto'] px-2">
+                                    WEB3.0
+                                </span>
+                            </button>
+                        </div>
+                    </div>
+
+                <!-- 貼文區 -->
+                @foreach (var post in ViewBag.DefaultList)
+                {
+                    <div class="post-card">
+                        <img src="@post.Author?.AvatarPath" class="post-avatar" />
+
+                        <div class="post-author">
+                            <span class="author-name">@post.Author?.DisplayName</span>
+                            <time class="post-time">@post.Article?.CreateTime</time>
+                        </div>
+
+                        <p class="post-content">@post.Article?.Content</p>
+
+                        <div class="carousel-item">
+                            @if (post.image != null)
+                            {
+                                <img src="@post.image?.FilePath" class="post-image" />
+                            }
+                        </div>
+                    </div>
+                }
+
+            </div>
         </div>
-    </div>
 
-    <!-- 好友欄位 -->
-    @await Html.PartialAsync("_Friends")
+    </div>
+    @await Html.PartialAsync("_Friend")
 
 
 </section>
 
-@* <!-- 遮罩 -->
-<div class="edit-modal-overlay"></div>
-
-@{
-    var demoUser = new { Name = "Jack", Avatar = "https://cataas.com/cat" };
-}
-
-<!-- 編輯發文容器 -->
-<div class="edit-modal-container">
-    <div class="edit-modal-panel">
-        <div class="edit-modal-avatar"
-             style="background-image: url('@(demoUser.Avatar)')">
-        </div>
-        <div class="edit-modal-username">
-            @demoUser.Name
-        </div>
-        <button class="edit-modal-close-btn">
-            <svg viewBox="0 0 24 24" class="edit-modal-close-icon">
-                <path d="M6 6 L18 18 M6 18 L18 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
-            </svg>
-        </button>
-        <textarea class="edit-modal-textarea" placeholder="Write your post here..."></textarea>
-        <button class="edit-modal-send-btn">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
-                 class="edit-modal-send-icon">
-                <path d="M0 0h24v24H0z" fill="none" />
-                <path d="M2.01 21 23 12 2.01 3 2 10l15 2-15 2z" />
-            </svg>
-        </button>
-
-        <div class="edit-modal-img-preview">
-            <img src="/images/preview.png" alt="" class="edit-modal-img-preview-img" />
-        </div>
-
-        <div class="edit-modal-img-placeholder">
-            <svg xmlns="http://www.w3.org/2000/svg" class="edit-modal-img-placeholder-icon" style="overflow: visible; fill: rgb(51, 51, 51);" viewBox="0 0 24 24">
-                <path fill="none" d="M0 0h24v24H0z"></path>
-                <path d="m20.41 8.41-4.83-4.83c-.37-.37-.88-.58-1.41-.58H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V9.83c0-.53-.21-1.04-.59-1.42zM7 7h7v2H7V7zm10 10H7v-2h10v2zm0-4H7v-2h10v2z"></path>
-            </svg>
-        </div>
-
-        <button type="button" class="edit-modal-tool-btn1">
-            <svg xmlns="http://www.w3.org/2000/svg" style="width: 24px; height: 24px; overflow: visible; fill: rgb(162, 162, 162);" viewBox="0 0 24 24">
-                <path d="M0 0h24v24H0z" fill="none"></path>
-                <path d="M16.5 6v11.5c0 2.21-1.79 4-4 4s-4-1.79-4-4V5a2.5 2.5 0 0 1 5 0v10.5c0 .55-.45 1-1 1s-1-.45-1-1V6H10v9.5a2.5 2.5 0 0 0 5 0V5c0-2.21-1.79-4-4-4S7 2.79 7 5v12.5c0 3.04 2.46 5.5 5.5 5.5s5.5-2.46 5.5-5.5V6h-1.5z"></path>
-            </svg>
-        </button>
-        <button type="button" class="edit-modal-tool-btn2">
-            <svg xmlns="http://www.w3.org/2000/svg" style="width: 24px; height: 24px; overflow: visible; fill: rgb(255, 127, 62);" viewBox="0 0 24 24">
-                <path d="M0 0h24v24H0z" fill="none"></path>
-                <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"></path>
-            </svg>
-        </button>
-        <button type="button" class="edit-modal-tool-btn3">
-            <svg xmlns="http://www.w3.org/2000/svg" style="width: 24px; height: 24px; overflow: visible; fill: rgb(255, 218, 120);" viewBox="0 0 448 512">
-                <path d="M48 32H197.5C214.5 32 230.7 38.74 242.7 50.75L418.7 226.7C443.7 251.7 443.7 292.3 418.7 317.3L285.3 450.7C260.3 475.7 219.7 475.7 194.7 450.7L18.75 274.7C6.743 262.7 0 246.5 0 229.5V80C0 53.49 21.49 32 48 32L48 32zM112 176C129.7 176 144 161.7 144 144C144 126.3 129.7 112 112 112C94.33 112 80 126.3 80 144C80 161.7 94.33 176 112 176z"></path>
-            </svg>
-        </button>
-        <button class="edit-modal-tag-btn">
-            <span class="edit-modal-tag-label">
-                WEB3.0
-            </span>
-        </button>
-    </div>
-</div> *@
-
-
-
 
 
 @section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.ckeditor.com/ckeditor5/39.0.1/classic/ckeditor.js"></script>
     <script>
+          const app = Vue.createApp({
+            data() {
+                return {
+                    isOpenModel: false,
+                    editorInstance: null
+                };
+            },
+            watch: {
+                isOpenModel(nv) {
+                    if (nv) {
+                        this.$nextTick(() => {
+                            ClassicEditor.create(document.querySelector('#editor'), {
+                                toolbar: [
+                                    'undo', 'redo', '|', 'bold', 'italic',
+                                    'fontSize', 'fontFamily', 'fontColor', 'fontBackgroundColor'
+                                ]
+                            }).then(editor => {
+                                this.editorInstance = editor;
+                            });
+                        });
+                    } else {
+                        if (this.editorInstance) {
+                            this.editorInstance.destroy();
+                            this.editorInstance = null;
+                        }
+                    }
+                }
+            },
+            methods: {
+                openModel() { this.isOpenModel = true; },
+                closeModel() { this.isOpenModel = false; }
+            }
+        });
+        app.mount('#postEditorApp');
+
+
+
+        document.getElementById('hotPrev').onclick = function() {
+            document.getElementById('hotCarousel').scrollBy({left:-50,behavior:'smooth'});
+        };
+        document.getElementById('hotNext').onclick = function() {
+            document.getElementById('hotCarousel').scrollBy({left:50,behavior:'smooth'});
+        };
     </script>
 }
+
 
