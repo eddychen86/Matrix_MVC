@@ -28,7 +28,7 @@ class AuthManager {
                     console.log('User is authenticated:', authData.user);
                     this.handleAuthenticatedUser(authData.user);
                 } else {
-                    console.log('User is not authenticated');
+                    // console.log('User is not authenticated');
                     this.handleUnauthenticatedUser();
                 }
             } else {
