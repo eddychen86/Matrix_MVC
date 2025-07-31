@@ -7,16 +7,14 @@ namespace Matrix.Repository
     /// <summary>
     /// 回覆資料存取實作
     /// </summary>
-    public class ReplyRepository : BaseRepository<Reply>, IReplyRepository
+    public class ReplyRepository(ApplicationDbContext context) : BaseRepository<Reply>(context), IReplyRepository
     {
-        public ReplyRepository(ApplicationDbContext context) : base(context) { }
-
         public async Task<IEnumerable<Reply>> GetByArticleIdAsync(Guid articleId)
         {
             return await _dbSet
-                .Include(r => r.Author)
+                .Include(r => r.User)
                 .Where(r => r.ArticleId == articleId)
-                .OrderBy(r => r.CreateTime)
+                .OrderBy(r => r.ReplyTime)
                 .ToListAsync();
         }
 
@@ -24,29 +22,23 @@ namespace Matrix.Repository
         {
             return await _dbSet
                 .Include(r => r.Article)
-                .Where(r => r.AuthorId == authorId)
-                .OrderByDescending(r => r.CreateTime)
+                .Where(r => r.UserId == authorId)
+                .OrderByDescending(r => r.ReplyTime)
                 .ToListAsync();
         }
 
-        public async Task<IEnumerable<Reply>> GetChildRepliesAsync(Guid parentReplyId)
+        public Task<IEnumerable<Reply>> GetChildRepliesAsync(Guid parentReplyId)
         {
-            return await _dbSet
-                .Include(r => r.Author)
-                .Where(r => r.ParentReplyId == parentReplyId)
-                .OrderBy(r => r.CreateTime)
-                .ToListAsync();
+            // 注意：目前的 Reply Model 不支援巢狀回覆 (缺少 ParentReplyId)，因此此功能無法實作。
+            // return Task.FromResult(Enumerable.Empty<Reply>());
+            throw new NotImplementedException("Reply Model does not support child replies.");
         }
 
-        public async Task<IEnumerable<Reply>> GetReplyTreeAsync(Guid articleId)
+        public Task<IEnumerable<Reply>> GetReplyTreeAsync(Guid articleId)
         {
-            // 取得所有該文章的回覆（包含子回覆）
-            return await _dbSet
-                .Include(r => r.Author)
-                .Where(r => r.ArticleId == articleId)
-                .OrderBy(r => r.ParentReplyId == null ? 0 : 1) // 父回覆優先
-                .ThenBy(r => r.CreateTime)
-                .ToListAsync();
+            // 注意：目前的 Reply Model 不支援巢狀回覆，因此無法建構回覆樹。
+            // 僅回傳該文章的第一層回覆。
+            return GetByArticleIdAsync(articleId);
         }
 
         public async Task<int> CountRepliesByArticleAsync(Guid articleId)

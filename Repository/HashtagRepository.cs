@@ -14,22 +14,27 @@ namespace Matrix.Repository
         public async Task<Hashtag?> GetByNameAsync(string name)
         {
             return await _dbSet
-                .FirstOrDefaultAsync(h => h.Name == name);
+                .FirstOrDefaultAsync(h => h.Content == name);
         }
 
         public async Task<IEnumerable<Hashtag>> GetPopularTagsAsync(int count = 10)
         {
-            return await _dbSet
-                .OrderByDescending(h => h.UsageCount)
+            var popularTagIds = await _context.Set<ArticleHashtag>()
+                .GroupBy(ah => ah.TagId)
+                .OrderByDescending(g => g.Count())
                 .Take(count)
+                .Select(g => g.Key)
+                .ToListAsync();
+
+            return await _dbSet
+                .Where(h => popularTagIds.Contains(h.TagId))
                 .ToListAsync();
         }
 
         public async Task<IEnumerable<Hashtag>> SearchTagsAsync(string keyword, int page = 1, int pageSize = 20)
         {
             return await _dbSet
-                .Where(h => h.Name.Contains(keyword))
-                .OrderByDescending(h => h.UsageCount)
+                .Where(h => h.Content.Contains(keyword))
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
@@ -37,8 +42,8 @@ namespace Matrix.Repository
 
         public async Task<int> GetTagUsageCountAsync(Guid hashtagId)
         {
-            var hashtag = await _dbSet.FindAsync(hashtagId);
-            return hashtag?.UsageCount ?? 0;
+            return await _context.Set<ArticleHashtag>()
+                .CountAsync(ah => ah.TagId == hashtagId);
         }
 
         public async Task<IEnumerable<Hashtag>> GetOrCreateTagsAsync(IEnumerable<string> tagNames)
@@ -56,9 +61,8 @@ namespace Matrix.Repository
                 {
                     var newTag = new Hashtag
                     {
-                        Name = tagName.Trim(),
-                        UsageCount = 0,
-                        CreateTime = DateTime.Now
+                        Content = tagName.Trim(),
+                        ArticleHashtags = new List<ArticleHashtag>()
                     };
                     await _dbSet.AddAsync(newTag);
                     tags.Add(newTag);
@@ -69,38 +73,50 @@ namespace Matrix.Repository
             return tags;
         }
 
-        public async Task UpdateTagUsageAsync(Guid hashtagId, int usageChange)
+        public Task UpdateTagUsageAsync(Guid hashtagId, int usageChange)
         {
-            var hashtag = await _dbSet.FindAsync(hashtagId);
-            if (hashtag != null)
-            {
-                hashtag.UsageCount = Math.Max(0, hashtag.UsageCount + usageChange);
-                await _context.SaveChangesAsync();
-            }
+            // 這個方法在目前的架構下沒有意義，標籤的使用次數由 ArticleHashtag 的記錄決定
+            throw new NotImplementedException("Tag usage is determined by ArticleHashtag records, not a direct count.");
         }
 
         public async Task<IEnumerable<Hashtag>> GetRelatedTagsAsync(Guid hashtagId, int count = 5)
         {
-            // 這是一個簡化的實作，實際可能需要更複雜的關聯分析
-            // 這裡返回使用次數相近的標籤作為相關標籤
-            var targetTag = await _dbSet.FindAsync(hashtagId);
-            if (targetTag == null) return Enumerable.Empty<Hashtag>();
+            var articleIdsWithTargetTag = await _context.Set<ArticleHashtag>()
+                .Where(ah => ah.TagId == hashtagId)
+                .Select(ah => ah.ArticleId)
+                .ToListAsync();
+
+            if (!articleIdsWithTargetTag.Any()) return Enumerable.Empty<Hashtag>();
+
+            var relatedTagIds = await _context.Set<ArticleHashtag>()
+                .Where(ah => articleIdsWithTargetTag.Contains(ah.ArticleId) && ah.TagId != hashtagId)
+                .GroupBy(ah => ah.TagId)
+                .OrderByDescending(g => g.Count())
+                .Take(count)
+                .Select(g => g.Key)
+                .ToListAsync();
 
             return await _dbSet
-                .Where(h => h.HashtagId != hashtagId)
-                .OrderBy(h => Math.Abs(h.UsageCount - targetTag.UsageCount))
-                .Take(count)
+                .Where(h => relatedTagIds.Contains(h.TagId))
                 .ToListAsync();
         }
 
         public async Task CleanupUnusedTagsAsync()
         {
-            var unusedTags = await _dbSet
-                .Where(h => h.UsageCount == 0)
+            var usedTagIds = await _context.Set<ArticleHashtag>()
+                .Select(ah => ah.TagId)
+                .Distinct()
                 .ToListAsync();
 
-            _dbSet.RemoveRange(unusedTags);
-            await _context.SaveChangesAsync();
+            var unusedTags = await _dbSet
+                .Where(h => !usedTagIds.Contains(h.TagId))
+                .ToListAsync();
+
+            if (unusedTags.Any())
+            {
+                _dbSet.RemoveRange(unusedTags);
+                await _context.SaveChangesAsync();
+            }
         }
     }
 }

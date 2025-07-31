@@ -22,10 +22,7 @@ dotnet tool run libman restore
 Then, you also need to install these packages and tools.
 <i><b>If you are using Visual Studio, you can install it in Nuget Extensions Management.</b></i>
 ```
-dotnet add package DotNetEnv
 dotnet add package Microsoft.EntityFrameworkCore.Proxies --version 8.0.11
-dotnet add package MailKit
-dotnet add package Google.Apis.Auth --version 1.70.0
 ```
 Because this project used DaisyUI UI Library, you need to install tailwindcss CLI and DaisyUI.<br>
 

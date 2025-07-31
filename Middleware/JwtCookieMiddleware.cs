@@ -119,12 +119,12 @@ namespace Matrix.Middleware
             try
             {
                 // 取得 JWT 設定
-                var jwtKey = Environment.GetEnvironmentVariable("JWT_KEY");
-                var jwtIssuer = Environment.GetEnvironmentVariable("JWT_ISSUER");
+                var jwtKey = _conf["Jwt:Key"];
+                var jwtIssuer = _conf["Jwt:Issuer"];
 
                 if (string.IsNullOrEmpty(jwtKey) || string.IsNullOrEmpty(jwtIssuer))
                 {
-                    _logger.LogError("JWT Key or Issuer not configured in environment variables");
+                    _logger.LogError("JWT Key or Issuer not configured in appsettings.json or user secrets.");
                     return null;
                 }
 

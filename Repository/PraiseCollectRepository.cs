@@ -9,13 +9,16 @@ namespace Matrix.Repository
     /// </summary>
     public class PraiseCollectRepository : BaseRepository<PraiseCollect>, IPraiseCollectRepository
     {
+        private const int PraiseType = 0;
+        private const int CollectType = 1;
+
         public PraiseCollectRepository(ApplicationDbContext context) : base(context) { }
 
         public async Task<PraiseCollect?> GetUserPraiseCollectAsync(Guid userId, Guid articleId)
         {
+            // 這個方法在目前的 Model 設計下意義不大，因為一個用戶可以同時對一篇文章點讚和收藏（兩筆記錄）
+            // 但為了符合介面，我們回傳第一筆找到的記錄
             return await _dbSet
-                .Include(pc => pc.User)
-                .Include(pc => pc.Article)
                 .FirstOrDefaultAsync(pc => pc.UserId == userId && pc.ArticleId == articleId);
         }
 
@@ -34,8 +37,8 @@ namespace Matrix.Repository
         {
             return await _dbSet
                 .Include(pc => pc.Article)
-                .Where(pc => pc.UserId == userId && pc.IsCollected)
-                .OrderByDescending(pc => pc.CollectTime)
+                .Where(pc => pc.UserId == userId && pc.Type == CollectType)
+                .OrderByDescending(pc => pc.CreateTime)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
@@ -45,8 +48,8 @@ namespace Matrix.Repository
         {
             return await _dbSet
                 .Include(pc => pc.Article)
-                .Where(pc => pc.UserId == userId && pc.IsPraised)
-                .OrderByDescending(pc => pc.PraiseTime)
+                .Where(pc => pc.UserId == userId && pc.Type == PraiseType)
+                .OrderByDescending(pc => pc.CreateTime)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
@@ -55,76 +58,84 @@ namespace Matrix.Repository
         public async Task<bool> HasUserPraisedAsync(Guid userId, Guid articleId)
         {
             return await _dbSet
-                .AnyAsync(pc => pc.UserId == userId && pc.ArticleId == articleId && pc.IsPraised);
+                .AnyAsync(pc => pc.UserId == userId && pc.ArticleId == articleId && pc.Type == PraiseType);
         }
 
         public async Task<bool> HasUserCollectedAsync(Guid userId, Guid articleId)
         {
             return await _dbSet
-                .AnyAsync(pc => pc.UserId == userId && pc.ArticleId == articleId && pc.IsCollected);
+                .AnyAsync(pc => pc.UserId == userId && pc.ArticleId == articleId && pc.Type == CollectType);
         }
 
         public async Task<int> CountPraisesAsync(Guid articleId)
         {
             return await _dbSet
-                .CountAsync(pc => pc.ArticleId == articleId && pc.IsPraised);
+                .CountAsync(pc => pc.ArticleId == articleId && pc.Type == PraiseType);
         }
 
         public async Task<int> CountCollectionsAsync(Guid articleId)
         {
             return await _dbSet
-                .CountAsync(pc => pc.ArticleId == articleId && pc.IsCollected);
+                .CountAsync(pc => pc.ArticleId == articleId && pc.Type == CollectType);
         }
 
         public async Task UpdatePraiseStatusAsync(Guid userId, Guid articleId, bool isPraised)
         {
-            var praiseCollect = await _dbSet
-                .FirstOrDefaultAsync(pc => pc.UserId == userId && pc.ArticleId == articleId);
-
-            if (praiseCollect == null && isPraised)
+            if (isPraised)
             {
-                praiseCollect = new PraiseCollect
+                // 如果已經按過讚，就什麼都不做
+                if (await HasUserPraisedAsync(userId, articleId)) return;
+
+                var praise = new PraiseCollect
                 {
                     UserId = userId,
                     ArticleId = articleId,
-                    IsPraised = true,
-                    PraiseTime = DateTime.Now,
+                    Type = PraiseType,
                     CreateTime = DateTime.Now
                 };
-                await _dbSet.AddAsync(praiseCollect);
+                await _dbSet.AddAsync(praise);
             }
-            else if (praiseCollect != null)
+            else
             {
-                praiseCollect.IsPraised = isPraised;
-                praiseCollect.PraiseTime = isPraised ? DateTime.Now : null;
+                // 找到對應的讚並刪除
+                var praise = await _dbSet
+                    .FirstOrDefaultAsync(pc => pc.UserId == userId && pc.ArticleId == articleId && pc.Type == PraiseType);
+                
+                if (praise != null)
+                {
+                    _dbSet.Remove(praise);
+                }
             }
-
             await _context.SaveChangesAsync();
         }
 
         public async Task UpdateCollectStatusAsync(Guid userId, Guid articleId, bool isCollected)
         {
-            var praiseCollect = await _dbSet
-                .FirstOrDefaultAsync(pc => pc.UserId == userId && pc.ArticleId == articleId);
-
-            if (praiseCollect == null && isCollected)
+            if (isCollected)
             {
-                praiseCollect = new PraiseCollect
+                // 如果已經收藏過，就什麼都不做
+                if (await HasUserCollectedAsync(userId, articleId)) return;
+
+                var collect = new PraiseCollect
                 {
                     UserId = userId,
                     ArticleId = articleId,
-                    IsCollected = true,
-                    CollectTime = DateTime.Now,
+                    Type = CollectType,
                     CreateTime = DateTime.Now
                 };
-                await _dbSet.AddAsync(praiseCollect);
+                await _dbSet.AddAsync(collect);
             }
-            else if (praiseCollect != null)
+            else
             {
-                praiseCollect.IsCollected = isCollected;
-                praiseCollect.CollectTime = isCollected ? DateTime.Now : null;
-            }
+                // 找到對應的收藏並刪除
+                var collect = await _dbSet
+                    .FirstOrDefaultAsync(pc => pc.UserId == userId && pc.ArticleId == articleId && pc.Type == CollectType);
 
+                if (collect != null)
+                {
+                    _dbSet.Remove(collect);
+                }
+            }
             await _context.SaveChangesAsync();
         }
     }

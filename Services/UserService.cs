@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 using System.Text.RegularExpressions;
 using Matrix.DTOs;
@@ -14,11 +15,16 @@ namespace Matrix.Services
     {
         private readonly IUserRepository _userRepository;
         private readonly IOptions<UserValidationOptions> _validationOptions;
+        private readonly IPasswordHasher<User> _passwordHasher;
 
-        public UserService(IUserRepository userRepository, IOptions<UserValidationOptions> validationOptions)
+        public UserService(
+            IUserRepository userRepository,
+            IOptions<UserValidationOptions> validationOptions,
+            IPasswordHasher<User> passwordHasher)
         {
             _userRepository = userRepository;
             _validationOptions = validationOptions;
+            _passwordHasher = passwordHasher;
         }
 
         /// <summary>
@@ -103,10 +109,13 @@ namespace Matrix.Services
                 Role = 0,
                 UserName = dto.UserName,
                 Email = dto.Email,
-                Password = HashPassword(dto.Password),
+                // Password = HashPassword(dto.Password), // <-- 舊的不安全做法
                 CreateTime = DateTime.Now,
                 Status = 0
             };
+
+            // 使用 Identity 的 PasswordHasher 來產生安全的雜湊值
+            user.Password = _passwordHasher.HashPassword(user, dto.Password);
 
             // 添加並保存 User
             await _userRepository.AddAsync(user);
@@ -271,12 +280,12 @@ namespace Matrix.Services
             };
         }
 
-        private static string HashPassword(string password)
-        {
-            return Convert.ToBase64String(
-                System.Security.Cryptography.SHA256.HashData(
-                    System.Text.Encoding.UTF8.GetBytes(password + "salt")));
-        }
+        // private static string HashPassword(string password)
+        // {
+        //     return Convert.ToBase64String(
+        //         System.Security.Cryptography.SHA256.HashData(
+        //             System.Text.Encoding.UTF8.GetBytes(password + "salt")));
+        // }
 
         #endregion
 
@@ -305,6 +314,30 @@ namespace Matrix.Services
         public Task<(List<UserDto> Items, int TotalCount)> SearchAsync(string? keyword = null, int page = 1, int pageSize = 20)
         {
             throw new NotImplementedException("需要實作搜尋方法");
+        }
+
+        /// <summary>
+        /// 根據 ID 獲取用戶實體
+        /// </summary>
+        public async Task<User?> GetUserEntityAsync(Guid id)
+        {
+            return await _userRepository.GetByIdAsync(id);
+        }
+
+        /// <summary>
+        /// 直接更新用戶實體
+        /// </summary>
+        public async Task<bool> UpdateUserEntityAsync(User user)
+        {
+            try
+            {
+                await _userRepository.UpdateAsync(user);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
         }
 
         #endregion

@@ -14,11 +14,11 @@ namespace Matrix.Repository
         public async Task<IEnumerable<Friendship>> GetFriendsAsync(Guid userId, int page = 1, int pageSize = 20)
         {
             return await _dbSet
-                .Include(f => f.RequesterUser)
-                .Include(f => f.AddresseeUser)
-                .Where(f => (f.RequesterUserId == userId || f.AddresseeUserId == userId) && 
-                           f.Status == 1) // 假設 Status 1 表示已接受
-                .OrderByDescending(f => f.ResponseDate ?? f.RequestDate)
+                .Include(f => f.Requester)
+                .Include(f => f.Recipient)
+                .Where(f => (f.UserId == userId || f.FriendId == userId) && 
+                           f.Status == FriendshipStatus.Accepted)
+                .OrderByDescending(f => f.RequestDate) // Model 中沒有 ResponseDate，暫用 RequestDate
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
@@ -27,8 +27,8 @@ namespace Matrix.Repository
         public async Task<IEnumerable<Friendship>> GetPendingFriendRequestsAsync(Guid userId)
         {
             return await _dbSet
-                .Include(f => f.RequesterUser)
-                .Where(f => f.AddresseeUserId == userId && f.Status == 0) // 假設 Status 0 表示待處理
+                .Include(f => f.Requester)
+                .Where(f => f.FriendId == userId && f.Status == FriendshipStatus.Pending)
                 .OrderByDescending(f => f.RequestDate)
                 .ToListAsync();
         }
@@ -36,8 +36,8 @@ namespace Matrix.Repository
         public async Task<IEnumerable<Friendship>> GetSentFriendRequestsAsync(Guid userId)
         {
             return await _dbSet
-                .Include(f => f.AddresseeUser)
-                .Where(f => f.RequesterUserId == userId && f.Status == 0)
+                .Include(f => f.Recipient)
+                .Where(f => f.UserId == userId && f.Status == FriendshipStatus.Pending)
                 .OrderByDescending(f => f.RequestDate)
                 .ToListAsync();
         }
@@ -45,40 +45,40 @@ namespace Matrix.Repository
         public async Task<bool> AreFriendsAsync(Guid userId1, Guid userId2)
         {
             return await _dbSet
-                .AnyAsync(f => ((f.RequesterUserId == userId1 && f.AddresseeUserId == userId2) ||
-                               (f.RequesterUserId == userId2 && f.AddresseeUserId == userId1)) &&
-                              f.Status == 1);
+                .AnyAsync(f => ((f.UserId == userId1 && f.FriendId == userId2) ||
+                               (f.UserId == userId2 && f.FriendId == userId1)) &&
+                              f.Status == FriendshipStatus.Accepted);
         }
 
         public async Task<Friendship?> GetFriendshipAsync(Guid userId1, Guid userId2)
         {
             return await _dbSet
-                .Include(f => f.RequesterUser)
-                .Include(f => f.AddresseeUser)
-                .FirstOrDefaultAsync(f => (f.RequesterUserId == userId1 && f.AddresseeUserId == userId2) ||
-                                         (f.RequesterUserId == userId2 && f.AddresseeUserId == userId1));
+                .Include(f => f.Requester)
+                .Include(f => f.Recipient)
+                .FirstOrDefaultAsync(f => (f.UserId == userId1 && f.FriendId == userId2) ||
+                                         (f.UserId == userId2 && f.FriendId == userId1));
         }
 
         public async Task<int> CountFriendsAsync(Guid userId)
         {
             return await _dbSet
-                .CountAsync(f => (f.RequesterUserId == userId || f.AddresseeUserId == userId) && 
-                                f.Status == 1);
+                .CountAsync(f => (f.UserId == userId || f.FriendId == userId) && 
+                                f.Status == FriendshipStatus.Accepted);
         }
 
         public async Task<int> CountPendingRequestsAsync(Guid userId)
         {
             return await _dbSet
-                .CountAsync(f => f.AddresseeUserId == userId && f.Status == 0);
+                .CountAsync(f => f.FriendId == userId && f.Status == FriendshipStatus.Pending);
         }
 
-        public async Task UpdateFriendshipStatusAsync(Guid friendshipId, int status)
+        public async Task UpdateFriendshipStatusAsync(Guid friendshipId, FriendshipStatus status)
         {
             var friendship = await _dbSet.FindAsync(friendshipId);
             if (friendship != null)
             {
                 friendship.Status = status;
-                friendship.ResponseDate = DateTime.Now;
+                // friendship.ResponseDate = DateTime.Now; // Model 中無此欄位
                 await _context.SaveChangesAsync();
             }
         }

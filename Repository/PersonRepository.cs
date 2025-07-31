@@ -30,7 +30,7 @@ namespace Matrix.Repository
         {
             return await _dbSet
                 .Include(p => p.User)
-                .Where(p => !p.IsPrivate)
+                .Where(p => p.IsPrivate == 0)
                 .OrderByDescending(p => p.ModifyTime)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)

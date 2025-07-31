@@ -18,22 +18,6 @@
       ]
     },
     {
-      "library": "sass@latest",
-      "destination": "wwwroot/lib/sass/",
-      "files": [
-        "sass.dart.js",
-        "package.json"
-      ]
-    },
-    {
-      "library": "chokidar@latest",
-      "destination": "wwwroot/lib/chokidar/",
-      "files": [
-        "index.js",
-        "lib/**"
-      ]
-    },
-    {
       "library": "@ckeditor/ckeditor5-vue@latest",
       "destination": "wwwroot/lib/ckEditor5/",
       "files": [

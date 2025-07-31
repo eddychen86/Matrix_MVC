@@ -29,6 +29,6 @@ namespace Matrix.Repository.Interfaces
         Task<int> CountPendingRequestsAsync(Guid userId);
 
         /// <summary>更新好友關係狀態</summary>
-        Task UpdateFriendshipStatusAsync(Guid friendshipId, int status);
+        Task UpdateFriendshipStatusAsync(Guid friendshipId, FriendshipStatus status);
     }
 }

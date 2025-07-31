@@ -22,10 +22,7 @@ dotnet tool run libman restore
 然後，您還需要安裝這些套件和工具。
 <i><b>如果您使用的是 Visual Studio，您可以在 Nuget 擴充功能管理中安裝它。</b></i>
 ```
-dotnet add package DotNetEnv
 dotnet add package Microsoft.EntityFrameworkCore.Proxies --version 8.0.11
-dotnet add package MailKit
-dotnet add package Google.Apis.Auth --version 1.70.0
 ```
 因為這個專案使用了 DaisyUI UI 函式庫，所以您需要安裝 tailwindcss CLI 和 DaisyUI.<br>
 

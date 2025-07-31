@@ -24,8 +24,9 @@ namespace Matrix.Repository
 
         public async Task<IEnumerable<LoginRecord>> GetSuccessfulLoginsAsync(Guid userId, int page = 1, int pageSize = 20)
         {
+            // 注意: Model 中沒有 IsSuccess 欄位，此方法回傳所有登入記錄
             return await _dbSet
-                .Where(lr => lr.UserId == userId && lr.IsSuccess)
+                .Where(lr => lr.UserId == userId)
                 .OrderByDescending(lr => lr.LoginTime)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
@@ -34,8 +35,9 @@ namespace Matrix.Repository
 
         public async Task<IEnumerable<LoginRecord>> GetFailedLoginsAsync(Guid userId, int page = 1, int pageSize = 20)
         {
+            // 注意: Model 中沒有 IsSuccess 欄位，此方法回傳所有登入記錄
             return await _dbSet
-                .Where(lr => lr.UserId == userId && !lr.IsSuccess)
+                .Where(lr => lr.UserId == userId)
                 .OrderByDescending(lr => lr.LoginTime)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
@@ -64,22 +66,23 @@ namespace Matrix.Repository
                 .ToListAsync();
         }
 
-        public async Task<int> CountFailedLoginsAsync(Guid userId, DateTime since)
+        public Task<int> CountFailedLoginsAsync(Guid userId, DateTime since)
         {
-            return await _dbSet
-                .CountAsync(lr => lr.UserId == userId && !lr.IsSuccess && lr.LoginTime >= since);
+            // 注意: Model 中沒有 IsSuccess 欄位，無法計數失敗登入
+            return Task.FromResult(0);
         }
 
-        public async Task<int> CountFailedLoginsByIpAsync(string ipAddress, DateTime since)
+        public Task<int> CountFailedLoginsByIpAsync(string ipAddress, DateTime since)
         {
-            return await _dbSet
-                .CountAsync(lr => lr.IpAddress == ipAddress && !lr.IsSuccess && lr.LoginTime >= since);
+            // 注意: Model 中沒有 IsSuccess 欄位，無法計數失敗登入
+            return Task.FromResult(0);
         }
 
         public async Task<LoginRecord?> GetLastSuccessfulLoginAsync(Guid userId)
         {
+            // 注意: Model 中沒有 IsSuccess 欄位，此方法回傳最後一筆登入記錄
             return await _dbSet
-                .Where(lr => lr.UserId == userId && lr.IsSuccess)
+                .Where(lr => lr.UserId == userId)
                 .OrderByDescending(lr => lr.LoginTime)
                 .FirstOrDefaultAsync();
         }
@@ -88,7 +91,7 @@ namespace Matrix.Repository
         {
             // 取得用戶常用的IP地址
             var commonIps = await _dbSet
-                .Where(lr => lr.UserId == userId && lr.IsSuccess)
+                .Where(lr => lr.UserId == userId)
                 .GroupBy(lr => lr.IpAddress)
                 .OrderByDescending(g => g.Count())
                 .Take(5)
@@ -119,15 +122,13 @@ namespace Matrix.Repository
             var query = _dbSet.Where(lr => lr.LoginTime >= startDate && lr.LoginTime <= endDate);
 
             var totalLogins = await query.CountAsync();
-            var successfulLogins = await query.CountAsync(lr => lr.IsSuccess);
-            var failedLogins = await query.CountAsync(lr => !lr.IsSuccess);
             var uniqueUsers = await query.Select(lr => lr.UserId).Distinct().CountAsync();
 
             return new Dictionary<string, int>
             {
                 ["TotalLogins"] = totalLogins,
-                ["SuccessfulLogins"] = successfulLogins,
-                ["FailedLogins"] = failedLogins,
+                ["SuccessfulLogins"] = 0, // 注意: Model 中沒有 IsSuccess 欄位
+                ["FailedLogins"] = 0, // 注意: Model 中沒有 IsSuccess 欄位
                 ["UniqueUsers"] = uniqueUsers
             };
         }

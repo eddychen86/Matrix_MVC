@@ -39,8 +39,7 @@ namespace Matrix.Repository
                 .Include(a => a.Author)
                 .Include(a => a.Attachments)
                 .Where(a => a.IsPublic == 0 && 
-                           (a.Title.Contains(keyword) || 
-                            a.Content.Contains(keyword)))
+                           a.Content.Contains(keyword)) // 修正: 移除 Title，只搜尋 Content
                 .OrderByDescending(a => a.CreateTime)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
@@ -53,7 +52,7 @@ namespace Matrix.Repository
                 .Include(a => a.Author)
                 .Include(a => a.Attachments)
                 .Where(a => a.IsPublic == 0)
-                .OrderByDescending(a => a.ViewCount)
+                .OrderByDescending(a => a.PraiseCount) // 修正: ViewCount -> PraiseCount
                 .ThenByDescending(a => a.CreateTime)
                 .Take(count)
                 .ToListAsync();
@@ -71,8 +70,8 @@ namespace Matrix.Repository
         {
             return await _dbSet
                 .Include(a => a.Author)
-                .Include(a => a.Replies)
-                    .ThenInclude(r => r.Author)
+                .Include(a => a.Replies!) // 修正: 使用空值容許運算子
+                    .ThenInclude(r => r.User) // 修正: r.Author -> r.User
                 .FirstOrDefaultAsync(a => a.ArticleId == articleId);
         }
 
@@ -104,7 +103,7 @@ namespace Matrix.Repository
             var likeCount = await _context.PraiseCollects
                 .CountAsync(pc => pc.ArticleId == articleId && pc.Type == 0); // 假設 Type 0 是按讚
 
-            return (article.ViewCount, likeCount, article.Replies?.Count ?? 0);
+            return (0, likeCount, article.Replies?.Count ?? 0); // 修正: 移除 ViewCount
         }
     }
 }

@@ -90,5 +90,19 @@ namespace Matrix.Services.Interfaces
         /// <param name="userName">使用者名稱</param>
         /// <returns>是否已存在</returns>
         Task<bool> IsUserNameExistsAsync(string userName);
+
+        /// <summary>
+        /// 直接更新用戶實體
+        /// </summary>
+        /// <param name="user">用戶實體</param>
+        /// <returns>更新是否成功</returns>
+        Task<bool> UpdateUserEntityAsync(User user);
+
+        /// <summary>
+        /// 根據 ID 獲取用戶實體
+        /// </summary>
+        /// <param name="id">用戶 ID</param>
+        /// <returns>用戶實體，如果不存在則返回 null</returns>
+        Task<User?> GetUserEntityAsync(Guid id);
     }
 }

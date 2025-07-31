@@ -16,19 +16,17 @@ namespace Matrix.Repository
             return await _dbSet
                 .Include(ah => ah.Hashtag)
                 .Where(ah => ah.ArticleId == articleId)
-                .OrderBy(ah => ah.CreateTime)
-                .ToListAsync();
+                .ToListAsync(); // 修正: 移除對不存在的 CreateTime 的排序
         }
 
         public async Task<IEnumerable<ArticleHashtag>> GetByHashtagIdAsync(Guid hashtagId, int page = 1, int pageSize = 20)
         {
             return await _dbSet
                 .Include(ah => ah.Article)
-                .Where(ah => ah.HashtagId == hashtagId)
-                .OrderByDescending(ah => ah.CreateTime)
+                .Where(ah => ah.TagId == hashtagId) // 修正: HashtagId -> TagId
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
-                .ToListAsync();
+                .ToListAsync(); // 修正: 移除對不存在的 CreateTime 的排序
         }
 
         public async Task AddArticleHashtagsAsync(Guid articleId, IEnumerable<Guid> hashtagIds)
@@ -36,8 +34,8 @@ namespace Matrix.Repository
             var articleHashtags = hashtagIds.Select(hashtagId => new ArticleHashtag
             {
                 ArticleId = articleId,
-                HashtagId = hashtagId,
-                CreateTime = DateTime.Now
+                TagId = hashtagId // 修正: HashtagId -> TagId
+                // CreateTime = DateTime.Now // Model 中無此欄位
             });
 
             await _dbSet.AddRangeAsync(articleHashtags);
@@ -57,7 +55,7 @@ namespace Matrix.Repository
         public async Task DeleteByHashtagIdAsync(Guid hashtagId)
         {
             var articleHashtags = await _dbSet
-                .Where(ah => ah.HashtagId == hashtagId)
+                .Where(ah => ah.TagId == hashtagId) // 修正: HashtagId -> TagId
                 .ToListAsync();
 
             _dbSet.RemoveRange(articleHashtags);
@@ -67,7 +65,7 @@ namespace Matrix.Repository
         public async Task<bool> HasTagAsync(Guid articleId, Guid hashtagId)
         {
             return await _dbSet
-                .AnyAsync(ah => ah.ArticleId == articleId && ah.HashtagId == hashtagId);
+                .AnyAsync(ah => ah.ArticleId == articleId && ah.TagId == hashtagId); // 修正: HashtagId -> TagId
         }
 
         public async Task<int> CountTagsByArticleAsync(Guid articleId)
@@ -77,7 +75,7 @@ namespace Matrix.Repository
 
         public async Task<int> CountArticlesByTagAsync(Guid hashtagId)
         {
-            return await _dbSet.CountAsync(ah => ah.HashtagId == hashtagId);
+            return await _dbSet.CountAsync(ah => ah.TagId == hashtagId); // 修正: HashtagId -> TagId
         }
 
         public async Task UpdateArticleHashtagsAsync(Guid articleId, IEnumerable<Guid> hashtagIds)

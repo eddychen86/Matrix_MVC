@@ -16,7 +16,7 @@
     var bottoms = new[]
     {
         new { title = "Language", icon = "languages", click = "toggleLang" },
-        new { title = "HideBar", icon = "panel-right-open", click = "toggleSidebar" },
+        new { title = "HideBar", icon = "panel-left", click = "toggleSidebar" },
         new { 
             title = authInfo.IsAuthenticated ? "LogOut" : "Login", 
             icon = authInfo.IsAuthenticated ? "log-out" : "log-in", 
@@ -47,9 +47,7 @@
         </li>
         <li>
             @foreach (var i in bottoms) {
-                <button v-on:click="@i.click" :class="isCollapsed ? 'sidebar-btn-none-text' : ''"
-                    class="cts-btn hover:bg-gray-200"
-                >
+                <button v-on:click="@i.click" :class="isCollapsed ? 'sidebar-btn-none-text' : ''" class="cts-btn">
                     <i data-lucide="@i.icon" class="icon-base"></i>
                     <span class="title" data-i18n="@i.title">@Localizer[i.title]</span>
                 </button>

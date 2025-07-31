@@ -11,12 +11,12 @@ namespace Matrix.Controllers.Api
     {
         private readonly IUserService _userService;
         private readonly ILogger<RegisterController> _logger;
-        private readonly Matrix.Controllers.AuthController _authController;
+        private readonly Matrix.Controllers.Api.AuthController _authController;
 
         public RegisterController(
             IUserService userService,
             ILogger<RegisterController> logger,
-            Matrix.Controllers.AuthController authController
+            Matrix.Controllers.Api.AuthController authController
         )
         {
             _userService = userService;
@@ -53,24 +53,22 @@ namespace Matrix.Controllers.Api
             }
             else
             {
-                // 呼叫 ValidMail 發送確認信
+                // 註冊成功，自動發送確認信
                 try
                 {
-                    // 這裡可以直接呼叫 AuthController 的方法，或是使用 HTTP 請求
-                    // 方案1: 直接注入 AuthController
                     await _authController.SendConfirmationEmail(model);
-
-                    // 方案2: 回傳成功並提示前端發送確認信
+                    
                     return ApiSuccess(new {
-                        needEmailConfirmation = true,
-                        email = model.Email
-                    }, "註冊成功！正在發送確認信到您的郵箱...");
+                        redirectUrl = "/login",
+                        emailSent = true
+                    }, "註冊成功！確認信已發送到您的郵箱，請查收並點擊確認連結。");
                 }
                 catch (Exception ex)
                 {
                     _logger.LogError(ex, "註冊成功但發送確認信失敗");
                     return ApiSuccess(new { 
-                        redirectUrl = "/login"
+                        redirectUrl = "/login",
+                        emailSent = false
                     }, "註冊成功！但確認信發送失敗，請稍後手動重新發送。");
                 }
             }
