@@ -1,0 +1,60 @@
+@using Matrix.Extensions
+@using Matrix.Services
+@inject ICustomLocalizer Localizer
+@{
+    var authInfo = Context.GetAuthInfo();
+}
+@{
+    var menus = new[]
+    {
+        new { type = "Dashboard", icon = "layout-dashboard" },
+        new { type = "Users", icon = "user" },
+        new { type = "Posts", icon = "rss" },
+        new { type = "Reports", icon = "flag" },
+        new { type = "Logs", icon = "bug" },
+    };
+
+    var bottoms = new[]
+    {
+        new { title = "Language", icon = "languages", click = "toggleLang" },
+        new { title = "HideBar", icon = "panel-left", click = "toggleSidebar" },
+        new { 
+            title = authInfo.IsAuthenticated ? "LogOut" : "Login", 
+            icon = authInfo.IsAuthenticated ? "log-out" : "log-in", 
+            click = authInfo.IsAuthenticated ? "logout" : "login" 
+        },
+    };
+}
+
+<aside id="sidebar-app" class="top-0 left-0 p-4 h-screen">
+    <ul :class="isCollapsed ? 'sidebar-close' : 'sidebar-open'" class="sidebar">
+        <!-- Sidebar content here -->
+        <li>
+            <a asp-area="" asp-controller="Home" asp-action="Index" aria-current="page" class="cts-btn hover:bg-gray-900 title">
+                <img src="~/static/img/Matrix_logo_white.png" alt="Matrix Logo" class="icon-lg">
+                <span data-i18n="Matrix">@Localizer["Matrix"]</span>
+            </a>
+            @* <button class="cts-btn hover:bg-gray-900" v-on:click="openPopup('@i.type')">
+                <img src="" alt="" class="icon-base" />
+                <span class="title"></span>
+            </button> *@
+        </li>
+        <li>
+            @foreach (var i in menus)
+            {
+                <button class="cts-btn hover:bg-gray-900" v-on:click="openPopup('@i.type')">
+                    <i data-lucide="@i.icon" class="icon-base text-white"></i>
+                    <span class="title" data-i18n="@i.type">@Localizer[i.type]</span>
+                </button>
+            }
+        </li>
+        <li>
+            @foreach (var i in bottoms) {
+                <button v-on:click="@i.click" :class="isCollapsed ? 'sidebar-btn-none-text' : ''" class="cts-btn">
+                    <i data-lucide="@i.icon" class="icon-base"></i>
+                    <span class="title" data-i18n="@i.title">@Localizer[i.title]</span>
+                </button>
+            }
+        </li>
+    </ul>
+</aside>

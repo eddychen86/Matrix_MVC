@@ -177,6 +177,12 @@ public class Program
         app.UseAuthentication();
         app.UseAuthorization();
 
+        // Areas 路由 (優先處理)
+        app.MapControllerRoute(
+            name: "areas",
+            pattern: "{area:exists}/{controller=Dashboard}/{action=Index}/{id?}");
+
+        // 預設路由
         app.MapControllerRoute(
             name: "default",
             pattern: "{controller=Home}/{action=Index}/{id?}");
