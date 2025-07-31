@@ -63,7 +63,7 @@
                     </div>
                 </div>
                 <div class="mt-3">
-                    <p class="mb-4 h-[100px] text-[20px] text-gray-300">{{profile.bio}}</p>
+                    <p class="mb-4 h-[100px] text-[16px] text-gray-300">{{profile.bio}}</p>
                     <div class="space-y-1 text-[17px] text-gray-400">
                         <div class="mt-8">{{profile.email}}</div>
                         <div class="mt-3">{{profile.website1}}</div>
@@ -72,8 +72,13 @@
                     </div>
                 </div>
                 <div class="mt-4 flex flex-col gap-2">
-                    <img src="~/static/img/foodpanda.jpg" class="mt-5 h-[108px] w-full rounded-lg object-cover" alt="" />
-                    <img src="~/static/img/foodpanda.jpg" class="mt-4 h-[108px] w-full rounded-lg object-cover" alt="" />
+                    <img
+                        v-for="(article, idx) in profile.articles.slice(0, 2)"
+                        :key="article.articleId"
+                        :src="'/api/ProfileApi/GetPicture/' + article.articleId + '?v=' + rand"
+                        class="mt-4 h-[108px] w-full rounded-lg object-cover"
+                        alt=""
+                     />
                 </div>
             </div>
         </div>
@@ -100,8 +105,8 @@
                     {{article.timeAgoText}}
                 </span>
 
-                <img src="https://images.unsplash.com/photo-1519125323398-675f0ddb6308?auto=format&fit=facearea&w=400&h=200"
-                     class="mt-4 rounded-lg"
+                <img v-bind:src="'/api/ProfileApi/GetPicture/'+article.articleId+'?v='+rand"
+                     class="mt-4 h-auto w-3/4 rounded-lg"
                      alt="" />
             </div>
         </div>
@@ -116,34 +121,68 @@
                 <img :src="profile.avatarPath" class="mb-4 h-[142px] w-[142px] rounded-full border-4 border-black object-cover" alt="avatar" />
                 <h2 class="mb-4 w-full text-center leading-[33px] font-normal text-[33px] text-white">{{profile.displayName}}</h2>
                 <div class="mb-4 w-full">
-                    <textarea class="bg-opacity-70 h-[100px] w-full resize-none rounded border border-gray-400 bg-black px-4 py-2 text-[18px] text-white focus:border-blue-500 focus:outline-none"
-                              placeholder="Introduction..."></textarea>
+                    <textarea class="bg-opacity-70 h-[100px] w-full resize-none rounded border border-gray-400 bg-black px-4 py-2 leading-snug text-[18px] text-white focus:border-blue-500 focus:outline-none"
+                           placeholder="Introduction..."
+                           v-model="profile.bio"
+                           type="text"
+                           maxlength="125"
+                    ></textarea>
                 </div>
 
                 <div class="w-full space-y-4">
                     <div class="flex w-full flex-col items-start text-[18px] text-white sm:flex-row sm:items-center">
-                        <label class="w-full font-normal sm:w-1/3">User Name</label>
-                        <input type="text" placeholder="User Name..." class="mt-2 h-[54px] w-full rounded border border-gray-400 bg-black px-4 text-[16px] text-white focus:border-blue-500 focus:outline-none sm:mt-0 sm:w-2/3" />
+                        <label class="w-full font-normal sm:w-1/3">DisplayName</label>
+                        <input type="text" placeholder="DisplayName..." 
+                               class="mt-2 h-[54px] w-full rounded border border-gray-400 bg-black px-4 text-[16px] text-white focus:border-blue-500 focus:outline-none sm:mt-0 sm:w-2/3"
+                               v-model="profile.displayName"
+                               maxlength="15"
+                               />
                     </div>
                     <div class="flex w-full flex-col items-start text-[18px] text-white sm:flex-row sm:items-center">
                         <label class="w-full font-normal sm:w-1/3">Email</label>
-                        <input type="text" placeholder="Email..." class="mt-2 h-[54px] w-full rounded border border-gray-400 bg-black px-4 text-[16px] text-white focus:border-blue-500 focus:outline-none sm:mt-0 sm:w-2/3" />
+                        <input 
+                            type="text" 
+                            placeholder="Email..." 
+                            class="mt-2 h-[54px] w-full rounded border border-gray-400 bg-black px-4 text-[16px] text-white focus:border-blue-500 focus:outline-none sm:mt-0 sm:w-2/3"
+                            v-model="profile.email"
+                            maxlength="27"
+                            
+                        />
                     </div>
                     <div class="flex w-full flex-col items-start text-[18px] text-white sm:flex-row sm:items-center">
                         <label class="w-full font-normal sm:w-1/3">Password</label>
-                        <input type="text" placeholder="Password..." class="mt-2 h-[54px] w-full rounded border border-gray-400 bg-black px-4 text-[16px] text-white focus:border-blue-500 focus:outline-none sm:mt-0 sm:w-2/3" />
+                        <input type="text" placeholder="Password..." 
+                               class="mt-2 h-[54px] w-full rounded border border-gray-400 bg-black px-4 text-[16px] text-white focus:border-blue-500 focus:outline-none sm:mt-0 sm:w-2/3"
+                               v-model="profile.password"
+                               />
                     </div>
                     <div class="flex w-full flex-col text-[18px] text-white sm:flex-row">
                         <label class="mt-[5px] w-full font-normal sm:w-1/3">Website</label>
                         <div class="mt-2 w-full space-y-2 sm:mt-0 sm:w-2/3">
-                            <input type="text" placeholder="Website..." class="h-[40px] w-full rounded border border-gray-400 bg-black px-4 text-[15px] text-white focus:border-blue-500 focus:outline-none" />
-                            <input type="text" placeholder="Website..." class="h-[40px] w-full rounded border border-gray-400 bg-black px-4 text-[15px] text-white focus:border-blue-500 focus:outline-none" />
-                            <input type="text" placeholder="Website..." class="h-[40px] w-full rounded border border-gray-400 bg-black px-4 text-[15px] text-white focus:border-blue-500 focus:outline-none" />
+                            <input type="text" placeholder="Website..." 
+                                   class="h-[40px] w-full rounded border border-gray-400 bg-black px-4 text-[15px] text-white focus:border-blue-500 focus:outline-none"
+                                   v-model="profile.website1"
+                                   maxlength="33"
+                                   />
+                            <input type="text" placeholder="Website..." 
+                                   class="h-[40px] w-full rounded border border-gray-400 bg-black px-4 text-[15px] text-white focus:border-blue-500 focus:outline-none"
+                                   v-model="profile.website2"
+                                   maxlength="33"
+                                   />
+                            <input type="text" placeholder="Website..." 
+                                   class="h-[40px] w-full rounded border border-gray-400 bg-black px-4 text-[15px] text-white focus:border-blue-500 focus:outline-none"
+                                   v-model="profile.website3"
+                                   maxlength="33"
+                                   />
                         </div>
                     </div>
                     <div class="flex w-full flex-col items-start text-[18px] text-white sm:flex-row sm:items-center">
                         <label class="w-full font-normal sm:w-1/3">Wallet Address</label>
-                        <input type="text" placeholder="Wallet Address..." class="mt-2 h-[54px] w-full rounded border border-gray-400 bg-black px-4 text-[16px] text-white focus:border-blue-500 focus:outline-none sm:mt-0 sm:w-2/3" />
+                        <div class="flex h-[54px] w-full items-center bg-[#161616] px-4 text-white sm:w-2/3">
+                            <span class="fa-solid fa-crown text-[25px]"></span>
+                        </div>
+
+
                     </div>
                     <!-- Toggle Switch: Private ↔ Public -->
                     <div class="flex w-full flex-col items-start text-[18px] text-white sm:flex-row sm:items-center">
@@ -193,6 +232,7 @@
     const app = Vue.createApp({
       data() {
         return {
+          rand:Date.now(),
           createTime:[],
           content:[],
           editMode: false,
@@ -230,7 +270,7 @@
       }
 
     });
-
+    
 
     app.mount('#app');
 </script>
