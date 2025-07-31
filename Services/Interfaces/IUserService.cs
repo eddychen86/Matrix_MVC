@@ -118,5 +118,28 @@ namespace Matrix.Services.Interfaces
         /// 更新使用者的個人資料，包含處理頭像和橫幅的檔案上傳
         /// </summary>
         Task<PersonDto?> UpdateProfileAsync(Guid userId, ApiUpdateProfileDto dto);
+
+        /// <summary>
+        /// 根據使用者 ID 獲取個人資料和相關文章
+        /// </summary>
+        /// <param name="userId">使用者 ID</param>
+        /// <returns>個人資料 DTO，包含相關文章</returns>
+        Task<PersonDto?> GetProfileByIdAsync(Guid userId);
+
+        /// <summary>
+        /// 更新個人資料（包括密碼和網站連結）
+        /// </summary>
+        /// <param name="userId">使用者 ID</param>
+        /// <param name="dto">個人資料 DTO</param>
+        /// <returns>更新結果</returns>
+        Task<ReturnType<object>> UpdatePersonProfileAsync(Guid userId, PersonDto dto);
+
+        /// <summary>
+        /// 更新使用者狀態
+        /// </summary>
+        /// <param name="userId">使用者 ID</param>
+        /// <param name="status">新的狀態值</param>
+        /// <returns>更新是否成功</returns>
+        Task<bool> UpdateUserStatusAsync(Guid userId, int status);
     }
 }

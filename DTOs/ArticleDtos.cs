@@ -117,26 +117,6 @@ namespace Matrix.DTOs
             }
         }
 
-        /// <summary>
-        /// 獲取文章發布時間的友善顯示格式
-        /// 用途：在前端顯示人類可讀的時間格式
-        /// </summary>
-        public string TimeAgoText
-        {
-            get
-            {
-                var timeSpan = DateTime.Now - CreateTime;
-
-                return timeSpan.TotalDays switch
-                {
-                    > 365 => $"{(int)(timeSpan.TotalDays / 365)} 年前",
-                    > 30 => $"{(int)(timeSpan.TotalDays / 30)} 個月前",
-                    > 7 => $"{(int)(timeSpan.TotalDays / 7)} 週前",
-                    > 1 => $"{(int)timeSpan.TotalDays} 天前",
-                    _ => timeSpan.TotalHours > 1 ? $"{(int)timeSpan.TotalHours} 小時前" : "剛剛"
-                };
-            }
-        }
 
         /// <summary>
         /// 獲取文章的回覆數量

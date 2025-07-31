@@ -36,7 +36,11 @@ public class Program
 
         // Add services to the container.
         builder.Services.AddDbContext<ApplicationDbContext>(options =>
-            options.UseLazyLoadingProxies().UseSqlServer(connectionString));
+            options.UseSqlServer(connectionString, sqlOptions => 
+            {
+                sqlOptions.CommandTimeout(60); // 增加到 60 秒
+                sqlOptions.EnableRetryOnFailure(3, TimeSpan.FromSeconds(5), null); // 啟用重試機制
+            }));
         builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
         #region 註冊 Repository
@@ -61,10 +65,21 @@ public class Program
 
         #region 註冊 Service
 
+        // 註冊記憶體快取
+        builder.Services.AddMemoryCache();
+        
+        // 註冊 AutoMapper
+        builder.Services.AddAutoMapper(cfg => {
+            cfg.AddProfile<Matrix.Mappings.AutoMapperProfile>();
+        });
+
         builder.Services.AddScoped<IFileService, FileService>();
         builder.Services.AddScoped<IUserService, UserService>();
+        builder.Services.AddScoped<IAuthorizationService, AuthorizationService>();
         builder.Services.AddScoped<ICollectService, CollectService>();
-        builder.Services.AddScoped<ArticleService>();
+        builder.Services.AddScoped<IPraiseService, PraiseService>();
+        builder.Services.AddScoped<IReplyService, ReplyService>();
+        builder.Services.AddScoped<IArticleService, ArticleService>();
         builder.Services.AddScoped<NotificationService>();
         builder.Services.AddScoped<Matrix.Controllers.AuthController>();
         builder.Services.AddHttpContextAccessor(); // 為 CustomLocalizer 提供 HttpContext 訪問
@@ -178,6 +193,11 @@ public class Program
         {
             // 自訂 ModelBinding 錯誤訊息提供者
             options.ModelBindingMessageProvider.SetValueMustNotBeNullAccessor(_ => "此欄位為必填");
+        })
+        .AddJsonOptions(options =>
+        {
+            // 防止 JSON 序列化循環引用
+            options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
         });
         builder.Services.AddRazorPages();
 
@@ -222,6 +242,8 @@ public class Program
 
         app.UseAuthentication();
         app.UseAuthorization();
+
+        app.MapControllers(); // 啟用 API 控制器的屬性路由
 
         // Areas 路由 (優先處理)
         app.MapControllerRoute(

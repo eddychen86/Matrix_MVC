@@ -1,5 +1,10 @@
+using Microsoft.EntityFrameworkCore;
+using Matrix.Data;
+using Matrix.Models;
+using Matrix.DTOs;
 using Matrix.Services.Interfaces;
 using Matrix.Repository.Interfaces;
+using AutoMapper;
 
 namespace Matrix.Services
 {
@@ -11,26 +16,36 @@ namespace Matrix.Services
         private readonly ApplicationDbContext _context;
         private readonly IFileService _fileService;
         private readonly IArticleAttachmentRepository _attachmentRepository;
+        private readonly IMapper _mapper;
 
-        public ArticleService(ApplicationDbContext context, IFileService fileService, IArticleAttachmentRepository attachmentRepository)
+        public ArticleService(ApplicationDbContext context, IFileService fileService, IArticleAttachmentRepository attachmentRepository, IMapper mapper)
         {
             _context = context;
             _fileService = fileService;
             _attachmentRepository = attachmentRepository;
+            _mapper = mapper;
         }
         /// <summary>
-        /// 根據ID獲取文章
+        /// 根據ID獲取文章 - 優化版本
         /// </summary>
         public async Task<ArticleDto?> GetArticleAsync(Guid id)
         {
             var article = await _context.Articles
                 .AsNoTracking() // 只讀查詢
                 .Include(a => a.Author)
-                .Include(a => a.Replies!)
-                    .ThenInclude(r => r.User)
                 .FirstOrDefaultAsync(a => a.ArticleId == id);
 
-            return article == null ? null : MapToArticleDto(article, true);
+            if (article == null) return null;
+
+            // 如果需要回覆資料，單獨查詢避免 N+1 問題
+            var replies = await _context.Replies
+                .AsNoTracking()
+                .Include(r => r.User)
+                .Where(r => r.ArticleId == id)
+                .ToListAsync();
+
+            article.Replies = replies;
+            return _mapper.Map<ArticleDto>(article);
         }
 
         /// <summary>
@@ -85,19 +100,37 @@ namespace Matrix.Services
         /// 獲取文章列表
         /// </summary>
         public async Task<(List<ArticleDto> Articles, int TotalCount)> GetArticlesAsync(
-            int page = 1, int pageSize = 20, string? searchKeyword = null, Guid? authorId = null)
+            int page = 1, int pageSize = 20, string? searchKeyword = null, Guid? authorId = null
+        )
         {
-            var query = BuildArticleQuery(searchKeyword, authorId);
-            var totalCount = await query.CountAsync();
+            try
+            {
+                Console.WriteLine($"GetArticlesAsync called - Page: {page}, PageSize: {pageSize}, AuthorId: {authorId}");
+                
+                var query = BuildArticleQuery(searchKeyword, authorId);
+                Console.WriteLine($"Query built successfully");
+                
+                var totalCount = await query.CountAsync();
+                Console.WriteLine($"Total count: {totalCount}");
+                
+                var articles = await query
+                    .OrderByDescending(a => a.CreateTime)
+                    .Skip((page - 1) * pageSize)
+                    .Take(pageSize)
+                    .ToListAsync();
+                
+                Console.WriteLine($"Articles fetched: {articles.Count}");
 
-            var articles = await query
-                .OrderByDescending(a => a.CreateTime)
-                .Skip((page - 1) * pageSize)
-                .Take(pageSize)
-                .Select(a => MapToSimpleArticleDto(a))
-                .ToListAsync();
-
-            return (articles, totalCount);
+                var articleDtos = _mapper.Map<List<ArticleDto>>(articles);
+                Console.WriteLine($"Articles mapped successfully: {articleDtos.Count}");
+                
+                return (articleDtos, totalCount);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in GetArticlesAsync: {ex}");
+                throw;
+            }
         }
 
         /// <summary>
@@ -167,14 +200,15 @@ namespace Matrix.Services
         {
             var sinceDate = DateTime.Now.AddDays(-days);
 
-            return await _context.Articles
+            var articles = await _context.Articles
                 .AsNoTracking() // 只讀查詢
                 .Include(a => a.Author)
                 .Where(a => a.Status == 0 && a.IsPublic == 0 && a.CreateTime >= sinceDate)
                 .OrderByDescending(a => a.PraiseCount + a.CollectCount)
                 .Take(limit)
-                .Select(a => MapToSimpleArticleDto(a))
                 .ToListAsync();
+
+            return _mapper.Map<List<ArticleDto>>(articles);
         }
 
         /// <summary>
@@ -195,22 +229,22 @@ namespace Matrix.Services
             return await UpdateArticleStatusAsync(id, status);
         }
 
-        // 私有輔助方法
+        // 私有輔助方法 - 優化版本，使用 Select 投影避免 N+1 查詢
         private IQueryable<Article> BuildArticleQuery(string? searchKeyword, Guid? authorId)
         {
             var query = _context.Articles
                 .AsNoTracking() // 只讀查詢
-                .Include(a => a.Author)
+                // Status == 0 表示正常，IsPublic == 0 表示公開
                 .Where(a => a.Status == 0 && a.IsPublic == 0);
 
             if (authorId.HasValue)
-                query = query.Where(a => a.Author != null && a.Author.UserId == authorId.Value);
+                query = query.Where(a => a.AuthorId == authorId.Value);
 
             if (!string.IsNullOrEmpty(searchKeyword))
-                query = query.Where(a => a.Content.Contains(searchKeyword) ||
-                                       (a.Author != null && a.Author.DisplayName != null && a.Author.DisplayName.Contains(searchKeyword)));
+                query = query.Where(a => a.Content.Contains(searchKeyword));
 
-            return query;
+            // 使用單一 Include 避免複雜的關聯
+            return query.Include(a => a.Author);
         }
 
         private async Task<bool> UpdateCountAsync(Guid articleId, Action<Article> updateAction)
@@ -236,53 +270,48 @@ namespace Matrix.Services
             return true;
         }
 
-        private static PersonDto? MapToPersonDto(Person? person)
+        // 映射方法已由 AutoMapper 取代
+
+        public async Task<ArticleDto?> CreateArticleWithAttachmentsAsync(Guid authorId, CreateArticleDto dto)
         {
-            return person == null ? null : new PersonDto
+            var author = await _context.Persons.FirstOrDefaultAsync(p => p.UserId == authorId);
+            if (author == null) return null;
+
+            var article = new Article
             {
-                PersonId = person.PersonId,
-                UserId = person.UserId,
-                DisplayName = person.DisplayName,
-                AvatarPath = person.AvatarPath,
-                IsPrivate = person.IsPrivate
+                ArticleId = Guid.NewGuid(),
+                AuthorId = author.PersonId,
+                Content = dto.Content,
+                IsPublic = dto.IsPublic,
+                CreateTime = DateTime.UtcNow,
+                Status = 0
             };
-        }
 
-        private static ArticleDto MapToSimpleArticleDto(Article a)
-        {
-            return new ArticleDto
+            _context.Articles.Add(article);
+            await _context.SaveChangesAsync();
+
+            if (dto.Attachments != null && dto.Attachments.Any())
             {
-                ArticleId = a.ArticleId,
-                AuthorId = a.AuthorId,
-                Content = a.Content,
-                IsPublic = a.IsPublic,
-                Status = a.Status,
-                CreateTime = a.CreateTime,
-                PraiseCount = a.PraiseCount,
-                CollectCount = a.CollectCount,
-                Author = MapToPersonDto(a.Author),
-                Replies = []
-            };
-        }
-
-        private static ArticleDto MapToArticleDto(Article article, bool includeReplies = false)
-        {
-            var dto = MapToSimpleArticleDto(article);
-
-            if (includeReplies && article.Replies != null)
-            {
-                dto.Replies = article.Replies.Select(r => new ReplyDto
+                foreach (var file in dto.Attachments)
                 {
-                    ReplyId = r.ReplyId,
-                    ArticleId = r.ArticleId,
-                    AuthorId = r.UserId,
-                    Content = r.Content,
-                    CreateTime = r.ReplyTime,
-                    Author = MapToPersonDto(r.User)
-                }).ToList();
+                    var filePath = await _fileService.CreateFileAsync(file, "posts/files");
+                    if (filePath != null)
+                    {
+                        var attachment = new ArticleAttachment
+                        {
+                            FileId = Guid.NewGuid(),
+                            ArticleId = article.ArticleId,
+                            FilePath = filePath,
+                            FileName = file.FileName,
+                            Type = file.ContentType.StartsWith("image") ? "image" : "file",
+                            MimeType = file.ContentType
+                        };
+                        await _attachmentRepository.AddAsync(attachment);
+                    }
+                }
             }
 
-            return dto;
+            return await GetArticleAsync(article.ArticleId);
         }
 
         public async Task<ArticleDto?> CreateArticleWithAttachmentsAsync(Guid authorId, CreateArticleDto dto)

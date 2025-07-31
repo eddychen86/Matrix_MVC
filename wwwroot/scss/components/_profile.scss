@@ -1,37 +1,126 @@
 @layer components {
-  #profile-header {
-    @apply relative mb-30;
-
-    #profile-banner {
-      @apply h-40 w-full object-cover rounded-[30px];
+  .profile {
+    
+    &-header {
+      @apply relative h-56 w-full mb-26 col-span-7;
     }
+
+    &-banner {
+      @apply size-full rounded-[30px] object-cover object-right;
+    }
+
+    &-avatar{
+      @apply absolute top-2/3 left-1/12 flex gap-4 items-end justify-between w-[calc(100%-600px)];
+
+      img {
+        @apply size-40 rounded-full outline-[1em] outline-[#161616] object-cover object-center;
+      }
+
+      &_body {
+        @apply flex gap-8 items-end;
+
   
-    #profile-avatar {
-      @apply flex items-center gap-4 absolute top-25 left-20 justify-between;
-  
-      #profile-avatar_img {
-        @apply p-4 bg-[#161616] rounded-full;
-  
-        img {
-          @apply h-36 w-36 object-cover object-center rounded-full;
+        h3 {
+          @apply mb-4 font-semibold text-5xl;
         }
       }
-  
-      #profile-name {
-        @apply mt-10 flex items-center gap-4;
-  
-        h1 {
-          @apply font-bold p-0;
+
+      button {
+        @apply mb-4 px-6 py-3 bg-white text-black rounded-full float-end;
+      }
+    }
+
+    &-info {
+      @apply flex flex-col gap-8 p-8 rounded-[30px] relative col-span-2;
+
+      .editPen {
+        @apply absolute top-6 right-6 z-10 rounded-full size-10 p-2 cursor-pointer transition-colors duration-300 flex justify-center items-center;
+
+        &:hover {
+          @apply bg-stone-800;
+        }
+      }
+
+      li {
+        @apply flex flex-col gap-4;
+        
+        h4 {
+          @apply font-semibold;
+        }
+
+        ul, p {
+          @apply indent-3;
         }
       }
     }
-  }
 
-  #profile-body {
-    @apply w-[calc(100%-320px)] flex gap-4;
+    &-content {
+      @apply flex flex-col gap-4 col-span-3;
 
-    #profile-user_info {
-      @apply w-1/3 rounded-[30px] bg-accent p-6 flex flex-col gap-4;
+      article {
+        @apply rounded-[30px] p-6 border border-accent/20 hover:border-accent/40 transition-colors;
+        .profile-content {
+          @apply flex flex-col gap-4;
+
+          &_header {
+            @apply flex items-center justify-between;
+  
+            .author {
+              &-info {
+                @apply flex items-center gap-4;
+              }
+  
+              &-avatar {
+                @apply w-10 h-10 rounded-full flex items-center justify-center overflow-hidden;
+  
+                & img {
+                  @apply w-full h-full object-cover object-center;
+                }
+  
+                & span {
+                  @apply text-white font-bold flex items-center justify-center size-10 rounded-full;
+                }
+              }
+            }
+          }
+
+          &_state {
+            @apply flex items-center gap-6;
+
+            button {
+              @apply flex items-center gap-1 text-gray-400 cursor-pointer transition-colors duration-300 hover:bg-stone-700 rounded-full px-3 py-1;
+            }
+          }
+        }
+      }
+    }
+
+    &-edit {
+      @apply fixed top-0 left-0 h-full w-full z-30;
+
+      .mock {
+        @apply bg-white/20 h-full w-full absolute top-0 left-0;
+      }
+
+      &_layout {
+        @apply absolute rounded-[30px] p-8 z-40 top-1/2 left-1/2 transform -translate-1/2 flex flex-col gap-8 w-[700px];
+
+        li {
+          @apply flex flex-col gap-2;
+        }
+
+        .avatar {
+          @apply flex-row justify-between items-center;
+
+          img {
+            @apply min-w-36 min-h-36 max-w-36 max-h-36 rounded-full object-cover object-center;
+          }
+
+          button {
+            @apply flex gap-4 px-4 py-2 bg-blue-700 rounded-full;
+          }
+        }
+      }
     }
   }
 }

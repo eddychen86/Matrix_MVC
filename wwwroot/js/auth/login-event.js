@@ -42,7 +42,7 @@ createApp({
                 if (errMsg && errMsg.length > 0) {
                     // 直接使用 data-valmsg-for 選擇器
                     const el = document.querySelector(`p[data-valmsg-for="${field}"]`)
-                    
+
                     if (el) {
                         el.textContent = errMsg[0]
                         console.log(`Set error for ${field}:`, errMsg[0]) // Debug log
@@ -65,6 +65,9 @@ createApp({
                 // 獲取表單數據
                 const formData = new FormData(event.target)
                 const token = formData.get('__RequestVerificationToken')
+                const userName = formData.get('UserName') || loginForm.value.UserName
+                const password = formData.get('Password') || loginForm.value.Password
+                const rememberMe = formData.get('RememberMe') === 'true' || loginForm.value.RememberMe
 
                 const response = await fetch('/api/login', {
                     method: 'POST',
@@ -73,19 +76,35 @@ createApp({
                         'RequestVerificationToken': token
                     },
                     body: JSON.stringify({
-                        UserName: loginForm.value.UserName,
-                        Password: loginForm.value.Password,
-                        RememberMe: loginForm.value.RememberMe
+                        UserName: userName,
+                        Password: password,
+                        RememberMe: rememberMe
                     })
                 })
 
-                const result = await response.json()
-                console.log('API Response:', result) // Debug log
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`)
+                }
 
-                if (result.success && result.data?.redirectUrl) {
-                    // 成功時保持 loading 狀態直到頁面跳轉
-                    window.location.href = result.data.redirectUrl
+                const result = await response.json()
+
+                if (result.success) {
+                    if (result.data?.redirectUrl) {
+                        // 成功時保持 loading 狀態直到頁面跳轉
+                        console.log(
+                            'Redirecting to:', result.data.redirectUrl,
+                            "window.location.href", window.location.origin
+                        )
+                        setTimeout(() => {
+                            // history.pushState(null, '', '/dashboard/overview/index')
+                            window.location.href = result.data.redirectUrl
+                        }, 5000)
+                    } else {
+                        console.error('No redirectUrl provided in response')
+                        isSubmitting.value = false
+                    }
                 } else {
+                    console.log('Login failed:', result.message)
                     // 失敗時重置提交狀態
                     isSubmitting.value = false
                     if (result.errors) updateErrorMsg(result.errors)

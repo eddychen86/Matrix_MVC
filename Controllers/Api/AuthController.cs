@@ -21,14 +21,27 @@ namespace Matrix.Controllers.Api
 
             if (isAuthenticated)
             {
+                // 直接從 HttpContext.Items 中獲取已解析的用戶信息，避免資料庫查詢
+                var userId = HttpContext.Items["UserId"] as Guid?;
+                var userName = HttpContext.Items["UserName"] as string;
+                var userEmail = HttpContext.Items["UserEmail"] as string;
+                var userRole = HttpContext.Items["UserRole"] as int?;
+                var userStatus = HttpContext.Items["UserStatus"] as int?;
+                var lastLoginTime = HttpContext.Items["LastLoginTime"] as DateTime?;
+
                 return ApiSuccess(new
                 {
                     authenticated = true,
                     user = new
                     {
-                        id = HttpContext.Items["UserId"] as Guid?,
-                        username = HttpContext.Items["UserName"] as string,
-                        role = HttpContext.Items["UserRole"] as string
+                        id = userId,
+                        username = userName,
+                        email = userEmail,
+                        role = userRole ?? 0,
+                        status = userStatus ?? 0,
+                        isAdmin = (userRole ?? 0) >= 2,
+                        isMember = (userStatus ?? 0) == 1,
+                        lastLoginTime = lastLoginTime
                     }
                 });
             }
