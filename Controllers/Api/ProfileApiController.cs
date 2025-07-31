@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 
-namespace Matrix.Controllers
+namespace Matrix.Controllers.Api
 {
     [Route("api/[controller]")]
     [ApiController]
@@ -102,7 +102,7 @@ namespace Matrix.Controllers
             return _context.Persons.Any(p=>p.PersonId == id);
         }
 
-
+        
         [HttpPost()]
         public async Task<ActionResult<PersonDto>> GetProfileById([FromBody] ProfileGetUserDto model) 
         {
@@ -151,6 +151,27 @@ namespace Matrix.Controllers
                 return Ok(ex);
             }
         }
+        //GET:api/ArticleApi/Getpicture/1
+        //上傳圖片
+        [HttpGet("GetPicture/{id}")]
+
+        public async Task<FileResult> GetPicture(Guid id) 
+        {
+            string Filename = Path.Combine("wwwroot", "static", "img", "noimages.jpg");
+            Article e = await _context.Articles.FindAsync(id);
+            byte[] ImageContent = e?.ArticleCover != null?
+                e.ArticleCover:
+                System.IO.File.ReadAllBytes(Filename);
+            //e有值取  ArticleCover  沒有值就取null
+
+            return File(ImageContent, "image/jpeg");
+        }
+        private bool ArticleExists(Guid id) 
+        {
+            return _context.Articles.Any(e => e.ArticleId == id);
+        }
+        
+
 
     }
 }

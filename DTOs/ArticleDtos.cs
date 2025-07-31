@@ -24,6 +24,8 @@ namespace Matrix.DTOs
             [StringLength(4000, ErrorMessage = "文章內容長度不能超過 4000 個字元")]
             public string Content { get; set; } = string.Empty;
 
+            public IFormFile? ArticleCover { get; set; }
+
     
             /// <summary>
             /// 文章的公開狀態
