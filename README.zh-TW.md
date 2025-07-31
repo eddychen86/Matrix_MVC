@@ -24,7 +24,6 @@ Matrix 是一個為 Web3 先驅和深度技術愛好者打造的庇護所，旨�
 4. 您還需要安裝這些套件和工具。
     <i><b>如果您使用的是 Visual Studio，您可以在 Nuget 擴充功能管理中安裝它。</b></i>
     ```
-    dotnet add package DotNetEnv
     dotnet add package Microsoft.EntityFrameworkCore.Proxies --version 8.0.11
     dotnet add package MailKit
     ```

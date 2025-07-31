@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace Matrix.Controllers;
 
-public class HomeController : Controller
+public class HomeController : WebControllerBase
 {
     private readonly ApplicationDbContext _context;
     private readonly ILogger<HomeController> _logger;

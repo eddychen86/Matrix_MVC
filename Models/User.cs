@@ -69,7 +69,7 @@ namespace Matrix.Models
         public DateTime? LastLoginTime { get; set; }
 
         /// <summary>
-        /// 帳號狀態，0表示啟用，1表示停用，2表示被封禁
+        /// 帳號狀態，0表示未確認，1表示已確認，2表示被封禁
         /// </summary>
         public int Status { get; set; } = 0;
 

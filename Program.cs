@@ -1,9 +1,10 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Matrix.Middleware;
 using Matrix.Services;
-using DotNetEnv;
+using Matrix.Controllers;
 // using Microsoft.AspNetCore.Identity;
 
 namespace Matrix;
@@ -19,29 +20,45 @@ public class Program
         builder.Logging.AddConsole();
         builder.Logging.AddDebug();
 
-        // 載入 .env
-        DotNetEnv.Env.Load();
+        // 從配置中獲取連接字串 (會自動從 appsettings.json, secrets.json, 環境變數等來源載入)
+        var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
-        var dbServer = Environment.GetEnvironmentVariable("DB_SERVER");
-        var dbName = Environment.GetEnvironmentVariable("DB_NAME");
-        var dbAccount = Environment.GetEnvironmentVariable("DB_ACCOUNT");
-        var dbPwd = Environment.GetEnvironmentVariable("DB_PWD");
-
-        var connectionString = $"Server={dbServer};Database={dbName};User Id={dbAccount};Password={dbPwd};MultipleActiveResultSets=true";
-
-        builder.Configuration["ConnectionStrings:DefaultConnection"] = connectionString;
+        if (string.IsNullOrEmpty(connectionString))
+        {
+            throw new InvalidOperationException("DefaultConnection connection string is not configured.");
+        }
 
         // Add services to the container.
         builder.Services.AddDbContext<ApplicationDbContext>(options =>
             options.UseLazyLoadingProxies().UseSqlServer(connectionString));
         builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
+        #region 註冊 Repository
+
+        // 註冊 Repository
+        builder.Services.AddScoped<IUserRepository, UserRepository>();
+        builder.Services.AddScoped<IPersonRepository, PersonRepository>();
+        builder.Services.AddScoped<IArticleRepository, ArticleRepository>();
+        builder.Services.AddScoped<IReplyRepository, ReplyRepository>();
+        builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
+        builder.Services.AddScoped<IFollowRepository, FollowRepository>();
+        builder.Services.AddScoped<IFriendshipRepository, FriendshipRepository>();
+        builder.Services.AddScoped<IPraiseCollectRepository, PraiseCollectRepository>();
+        builder.Services.AddScoped<IReportRepository, ReportRepository>();
+        builder.Services.AddScoped<IHashtagRepository, HashtagRepository>();
+        builder.Services.AddScoped<IArticleAttachmentRepository, ArticleAttachmentRepository>();
+        builder.Services.AddScoped<IArticleHashtagRepository, ArticleHashtagRepository>();
+        builder.Services.AddScoped<ILoginRecordRepository, LoginRecordRepository>();
+        builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
+        
+        #endregion
+
         #region 註冊 Service
 
         builder.Services.AddScoped<IUserService, UserService>();
         builder.Services.AddScoped<ArticleService>();
         builder.Services.AddScoped<NotificationService>();
-        builder.Services.AddScoped<AuthController>();
+        builder.Services.AddScoped<Matrix.Controllers.AuthController>();
         builder.Services.AddHttpContextAccessor(); // 為 CustomLocalizer 提供 HttpContext 訪問
         builder.Services.AddScoped<ICustomLocalizer, CustomLocalizer>();
         builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
@@ -83,8 +100,8 @@ public class Program
 
         #region JWT 設定
 
-        var jwtKey = Environment.GetEnvironmentVariable("JWT_KEY");
-        var jwtIssuer = Environment.GetEnvironmentVariable("JWT_ISSUER");
+        var jwtKey = builder.Configuration["JWT:Key"];
+        var jwtIssuer = builder.Configuration["JWT:Issuer"];
 
         if (string.IsNullOrEmpty(jwtKey) || string.IsNullOrEmpty(jwtIssuer))
         {
@@ -111,10 +128,10 @@ public class Program
 
         #endregion
 
-        #region OAuth 設定 (smtp)
+        #region SMTP 設定
 
-        // 綁定 appsettings.json 中的 GoogleOAuth 區塊到我們的設定類別
-        builder.Services.Configure<GoogleOAuthDTOs>(builder.Configuration.GetSection("GoogleOAuth"));
+        // 綁定配置中的 GoogleSMTP 區塊到我們的設定類別 (從 user secrets 讀取)
+        builder.Services.Configure<GoogleSmtpDTOs>(builder.Configuration.GetSection("GoogleSMTP"));
 
         // 註冊我們的郵件服務，讓 Controller 可以使用
         builder.Services.AddTransient<IEmailService, GmailService>();
@@ -125,11 +142,14 @@ public class Program
         builder.Services.AddControllersWithViews();
         builder.Services.AddRazorPages();
 
-        // 配置 Anti-forgery 以支援 Ajax 請求
+        #region 配置 Anti-forgery 以支援 Ajax 請求
+
         builder.Services.AddAntiforgery(options =>
         {
             options.HeaderName = "RequestVerificationToken";
         });
+
+        #endregion
 
         var app = builder.Build();
 
@@ -145,10 +165,7 @@ public class Program
 
         app.UseHttpsRedirection();
         app.UseStaticFiles();
-
-
         app.UseRouting();
-
         app.UseRequestLocalization();
 
         #region JWT 驗證機制

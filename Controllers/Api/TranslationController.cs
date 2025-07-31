@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 
-namespace Matrix.Controllers
+namespace Matrix.Controllers.Api
 {
     [ApiController]
     [Route("api/[controller]")]
@@ -147,7 +147,66 @@ namespace Matrix.Controllers
                 ["ReportName"] = "報告名稱",
                 ["ReportDate"] = "報告日期",
                 ["ReportType"] = "報告類型",
-
+                
+                // === 確認模組 ===
+                ["InvalidConfirmLink"] = "無效的確認連結",
+                ["UserNotExistOrExpired"] = "用戶不存在或確認連結已失效",
+                ["AccountAlreadyConfirmed"] = "您的帳號已經確認過了，可以直接登入",
+                ["EmailConfirmSuccess"] = "郵件確認成功！您現在可以正常使用您的帳號了",
+                ["ConfirmProcessError"] = "確認過程中發生錯誤，請稍後再試",
+                ["UserNotExistPleaseRegister"] = "用戶不存在，請先註冊",
+                ["WelcomeRegisterConfirmEmail"] = "歡迎註冊！請確認您的電子郵件地址",
+                ["ConfirmEmailSent"] = "確認信已發送，請檢查您的電子郵件。",
+                ["SendConfirmEmailError"] = "發送確認信時發生錯誤，請稍後再試。",
+                
+                // === 確認信內容 ===
+                ["EmailWelcomeTitle"] = "歡迎加入 Matrix",
+                ["EmailWelcomeSubtitle"] = "Welcome to the Matrix.",
+                ["EmailGreeting"] = "嗨 {0}，",
+                ["EmailMainContent"] = "感謝您註冊 Matrix 平台！這是一個為 Web3 先鋒和深度技術愛好者打造的純淨討論空間。為了確保您的帳戶安全，請點擊下方按鈕來驗證您的電子郵件地址。",
+                ["EmailConfirmButton"] = "確認電子郵件",
+                ["EmailAlternativeText"] = "如果按鈕無法點擊，請複製以下連結到瀏覽器：",
+                ["EmailFooterText"] = "此連結將在 24 小時後失效。",
+                ["EmailBrandMotto"] = "The world is a fog, filled with out-of-focus noise. We choose to become an eternal lighthouse.",
+                
+                // === 確認頁面 ===
+                ["ConfirmPageTitle"] = "郵件確認",
+                ["pleaseWait"] = "請稍候...",
+                ["processingConfirmRequest"] = "正在處理確認請求",
+                ["verifyingEmailLink"] = "驗證您的郵件確認連結中...",
+                ["confirmSuccessTitle"] = "確認成功！",
+                ["confirmFailedTitle"] = "確認失敗",
+                ["emailVerificationComplete"] = "郵件驗證完成",
+                ["verificationProblem"] = "驗證過程中發生問題",
+                ["processingConfirmError"] = "處理您的確認請求時發生了問題。",
+                ["verificationCompleteLabel"] = "驗證完成",
+                ["canUseFullFeatures"] = "您現在可以使用完整的 Matrix 平台功能了。",
+                ["verificationFailedLabel"] = "驗證失敗",
+                ["checkLinkOrContact"] = "請檢查您的確認連結是否有效，或聯繫客服人員協助。",
+                ["goToLogin"] = "前往登入",
+                ["reRegister"] = "重新註冊",
+                ["backToHome"] = "返回首頁",
+                ["cannotGetResult"] = "無法獲取確認結果，請重新嘗試。",
+                ["useConfirmLink"] = "請透過郵件中的確認連結來訪問此頁面。",
+                ["PleaseWait"] = "請稍候...",
+                ["ProcessingConfirmRequest"] = "正在處理確認請求",
+                ["VerifyingEmailLink"] = "驗證您的郵件確認連結中...",
+                ["ConfirmSuccessTitle"] = "確認成功！",
+                ["ConfirmFailedTitle"] = "確認失敗",
+                ["EmailVerificationComplete"] = "郵件驗證完成",
+                ["VerificationProblem"] = "驗證過程中發生問題",
+                ["ProcessingConfirmError"] = "處理您的確認請求時發生了問題。",
+                ["VerificationCompleteLabel"] = "驗證完成",
+                ["CanUseFullFeatures"] = "您現在可以使用完整的 Matrix 平台功能了。",
+                ["VerificationFailedLabel"] = "驗證失敗",
+                ["CheckLinkOrContact"] = "請檢查您的確認連結是否有效，或聯繫客服人員協助。",
+                ["GoToLogin"] = "前往登入",
+                ["ReRegister"] = "重新註冊",
+                ["BackToHome"] = "返回首頁",
+                ["ProcessingResultError"] = "處理確認結果時發生錯誤。",
+                ["CannotGetResult"] = "無法獲取確認結果，請重新嘗試。",
+                ["UseConfirmLink"] = "請透過郵件中的確認連結來訪問此頁面。",
+                
                 // 其他常用
                 ["Title"] = "Matrix",
                 ["Email"] = "電子郵件",
@@ -293,7 +352,66 @@ namespace Matrix.Controllers
                 ["ReportName"] = "Report Name",
                 ["ReportDate"] = "Report Date",
                 ["ReportType"] = "Report Type",
-
+                
+                // === 確認模組 ===
+                ["InvalidConfirmLink"] = "Invalid confirmation link",
+                ["UserNotExistOrExpired"] = "User does not exist or confirmation link has expired",
+                ["AccountAlreadyConfirmed"] = "Your account has already been confirmed, you can log in directly",
+                ["EmailConfirmSuccess"] = "Email confirmation successful! You can now use your account normally",
+                ["ConfirmProcessError"] = "An error occurred during the confirmation process, please try again later",
+                ["UserNotExistPleaseRegister"] = "User does not exist, please register first",
+                ["WelcomeRegisterConfirmEmail"] = "Welcome to register! Please confirm your email address",
+                ["ConfirmEmailSent"] = "Confirmation email has been sent, please check your email.",
+                ["SendConfirmEmailError"] = "An error occurred while sending confirmation email, please try again later.",
+                
+                // === 確認信內容 ===
+                ["EmailWelcomeTitle"] = "Welcome to Matrix",
+                ["EmailWelcomeSubtitle"] = "Welcome to the Matrix.",
+                ["EmailGreeting"] = "Hi {0},",
+                ["EmailMainContent"] = "Thank you for registering on the Matrix platform! This is a pure discussion space designed for Web3 pioneers and deep-tech enthusiasts. To ensure your account security, please click the button below to verify your email address.",
+                ["EmailConfirmButton"] = "Confirm Email",
+                ["EmailAlternativeText"] = "If the button doesn't work, please copy the following link to your browser:",
+                ["EmailFooterText"] = "This link will expire in 24 hours.",
+                ["EmailBrandMotto"] = "The world is a fog, filled with out-of-focus noise. We choose to become an eternal lighthouse.",
+                
+                // === 確認頁面 ===
+                ["ConfirmPageTitle"] = "Email Confirmation",
+                ["pleaseWait"] = "Please wait...",
+                ["processingConfirmRequest"] = "Processing confirmation request",
+                ["verifyingEmailLink"] = "Verifying your email confirmation link...",
+                ["confirmSuccessTitle"] = "Confirmation Successful!",
+                ["confirmFailedTitle"] = "Confirmation Failed",
+                ["emailVerificationComplete"] = "Email verification complete",
+                ["verificationProblem"] = "Problem occurred during verification",
+                ["processingConfirmError"] = "An error occurred while processing your confirmation request.",
+                ["verificationCompleteLabel"] = "Verification Complete",
+                ["canUseFullFeatures"] = "You can now use all Matrix platform features.",
+                ["verificationFailedLabel"] = "Verification Failed",
+                ["checkLinkOrContact"] = "Please check if your confirmation link is valid, or contact customer service for assistance.",
+                ["goToLogin"] = "Go to Login",
+                ["reRegister"] = "Re-register",
+                ["backToHome"] = "Back to Home",
+                ["cannotGetResult"] = "Unable to get confirmation result, please try again.",
+                ["useConfirmLink"] = "Please access this page through the confirmation link in your email.",
+                ["PleaseWait"] = "Please wait...",
+                ["ProcessingConfirmRequest"] = "Processing confirmation request",
+                ["VerifyingEmailLink"] = "Verifying your email confirmation link...",
+                ["ConfirmSuccessTitle"] = "Confirmation Successful!",
+                ["ConfirmFailedTitle"] = "Confirmation Failed",
+                ["EmailVerificationComplete"] = "Email verification complete",
+                ["VerificationProblem"] = "Problem occurred during verification",
+                ["ProcessingConfirmError"] = "An error occurred while processing your confirmation request.",
+                ["VerificationCompleteLabel"] = "Verification Complete",
+                ["CanUseFullFeatures"] = "You can now use all Matrix platform features.",
+                ["VerificationFailedLabel"] = "Verification Failed",
+                ["CheckLinkOrContact"] = "Please check if your confirmation link is valid, or contact customer service for assistance.",
+                ["GoToLogin"] = "Go to Login",
+                ["ReRegister"] = "Re-register",
+                ["BackToHome"] = "Back to Home",
+                ["ProcessingResultError"] = "An error occurred while processing the confirmation result.",
+                ["CannotGetResult"] = "Unable to get confirmation result, please try again.",
+                ["UseConfirmLink"] = "Please access this page through the confirmation link in your email.",
+                
                 // 其他常用
                 ["Title"] = "Matrix",
                 ["Email"] = "Email",
