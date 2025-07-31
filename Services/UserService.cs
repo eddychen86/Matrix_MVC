@@ -64,6 +64,18 @@ namespace Matrix.Services
         }
 
         /// <summary>
+        /// 根據使用者名稱或電子郵件獲取使用者
+        /// </summary>
+        public async Task<UserDto?> GetUserByIdentifierAsync(string identifier)
+        {
+            var user = await _userRepository.GetByIdentifierAsync(identifier);
+
+            if (user?.Person == null) return null;
+
+            return MapToUserDto(user);
+        }
+
+        /// <summary>
         /// 驗證使用者登入（支援 email 或用戶名）
         /// </summary>
         public async Task<bool> ValidateUserAsync(string emailOrUsername, string password)
@@ -332,6 +344,7 @@ namespace Matrix.Services
             try
             {
                 await _userRepository.UpdateAsync(user);
+                await _userRepository.SaveChangesAsync();
                 return true;
             }
             catch

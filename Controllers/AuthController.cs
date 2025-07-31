@@ -69,8 +69,69 @@ namespace Matrix.Controllers
         [HttpGet, Route("/confirm")]
         public IActionResult ConfirmResult()
         {
-            // 將 TempData 中的確認結果傳遞給 View
-            ViewBag.ConfirmResult = TempData["ConfirmResult"]?.ToString();
+            bool isLoading;
+            bool success;
+            string message;
+
+            var serverResult = TempData["ConfirmResult"]?.ToString();
+            if (!string.IsNullOrEmpty(serverResult))
+            {
+                try
+                {
+                    using var document = JsonDocument.Parse(serverResult);
+                    var root = document.RootElement;
+                    
+                    isLoading = false;
+                    success = root.GetProperty("success").GetBoolean();
+                    message = root.GetProperty("message").GetString() ?? "";
+                }
+                catch
+                {
+                    isLoading = false;
+                    success = false;
+                    message = _localizer["ProcessingResultError"];
+                }
+            }
+            else
+            {
+                // 檢查是否從確認連結重定向而來
+                var fromParam = Request.Query["from"].FirstOrDefault();
+                isLoading = false;
+                success = false;
+                
+                if (fromParam == "confirm")
+                {
+                    message = _localizer["CannotGetResult"];
+                }
+                else
+                {
+                    message = _localizer["UseConfirmLink"];
+                }
+            }
+
+            ViewBag.IsLoading = isLoading;
+            ViewBag.Success = success;
+            ViewBag.Message = message;
+            
+            // 根據狀態預處理所有本地化字串
+            ViewBag.StatusIcon = success ? "✓" : "✗";
+            ViewBag.Title = success ? _localizer["ConfirmSuccessTitle"] : _localizer["ConfirmFailedTitle"];
+            ViewBag.Subtitle = success ? _localizer["EmailVerificationComplete"] : _localizer["VerificationProblem"];
+            ViewBag.FallbackMessage = _localizer["ProcessingConfirmError"];
+            
+            // 成功狀態的文字
+            ViewBag.VerificationCompleteLabel = _localizer["VerificationCompleteLabel"];
+            ViewBag.CanUseFullFeatures = _localizer["CanUseFullFeatures"];
+            
+            // 失敗狀態的文字
+            ViewBag.VerificationFailedLabel = _localizer["VerificationFailedLabel"];
+            ViewBag.CheckLinkOrContact = _localizer["CheckLinkOrContact"];
+            
+            // 按鈕文字
+            ViewBag.GoToLogin = _localizer["GoToLogin"];
+            ViewBag.ReRegister = _localizer["ReRegister"];
+            ViewBag.BackToHome = _localizer["BackToHome"];
+            
             return View("~/Views/Auth/Confirm.cshtml");
         }
 

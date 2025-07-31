@@ -130,8 +130,8 @@ public class Program
 
         #region SMTP 設定
 
-        // 綁定配置中的 GoogleSmtp 區塊到我們的設定類別
-        builder.Services.Configure<GoogleSmtpDTOs>(builder.Configuration.GetSection("GoogleSmtp"));
+        // 綁定配置中的 GoogleSMTP 區塊到我們的設定類別 (從 user secrets 讀取)
+        builder.Services.Configure<GoogleSmtpDTOs>(builder.Configuration.GetSection("GoogleSMTP"));
 
         // 註冊我們的郵件服務，讓 Controller 可以使用
         builder.Services.AddTransient<IEmailService, GmailService>();

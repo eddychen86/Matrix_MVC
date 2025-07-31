@@ -88,7 +88,6 @@ namespace Matrix.Repository
         public async Task<User?> GetByIdentifierAsync(string identifier)
         {
             return await _dbSet
-                .Include(u => u.Person)
                 .FirstOrDefaultAsync(u => u.UserName == identifier || u.Email == identifier);
         }
 

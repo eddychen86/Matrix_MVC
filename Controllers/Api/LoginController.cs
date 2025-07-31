@@ -29,7 +29,7 @@ namespace Matrix.Controllers.Api
         [HttpPost]
         public async Task<IActionResult> Login([FromBody] LoginViewModel? model)
         {
-            _logger.LogInformation("登入嘗試: {UserName}", model?.UserName);
+            _logger.LogInformation("\n\n登入嘗試: {UserName}", model?.UserName);
 
             // 檢查模型和資料格式
             if (model == null || !ModelState.IsValid)
@@ -42,10 +42,17 @@ namespace Matrix.Controllers.Api
                 return ApiError("帳號或密碼錯誤", new Dictionary<string, string[]> { { "", InvalidCredentialsError } });
             }
 
+            _logger.LogInformation("\n\naccount: {0}\npassword: {1}\n\n", model.UserName, model.Password);
+
             // 取得用戶資料
             var userDto = await GetUserByIdentifierAsync(model.UserName);
             if (userDto == null)
+            {
+                _logger.LogWarning("找不到用戶: {UserName}", userDto);
                 return ApiError("找不到用戶");
+            }
+
+            _logger.LogInformation("尋獲用戶: {0}", userDto);
 
             // 檢查帳號狀態
             var statusError = CheckUserStatus(userDto);
@@ -73,8 +80,7 @@ namespace Matrix.Controllers.Api
         /// <summary>用帳號或信箱找用戶</summary>
         private async Task<UserDto?> GetUserByIdentifierAsync(string identifier)
         {
-            return await _userService.GetUserByEmailAsync(identifier) ?? 
-                   await _userService.GetUserByUsernameAsync(identifier);
+            return await _userService.GetUserByIdentifierAsync(identifier);
         }
 
         /// <summary>檢查用戶狀態是否正常</summary>
