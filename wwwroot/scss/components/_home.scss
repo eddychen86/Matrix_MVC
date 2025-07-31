@@ -39,7 +39,7 @@
     }
 
     .carousel-list {
-        @apply carousel carousel-start w-[602px] text-center flex gap-4 overflow-x-auto scroll-smooth;
+        @apply carousel carousel-start w-[600px] text-center flex gap-4 overflow-x-auto scroll-smooth;
     }
 
     .carousel-item-custom {
@@ -84,8 +84,8 @@
         @apply flex h-[44px] w-[300px] items-center rounded-[24px] bg-[#323232] pr-4 pl-2 shadow-[2px_2px_4px_rgba(255,255,255,0.1)];
     }
 
-    .friend-icon-btn {
-        @apply mr-2 flex h-[35px] w-[35px] max-w-[35px] min-w-[35px] cursor-pointer items-center justify-center rounded-full border-0 bg-[#787878] p-0 outline-none;
+    .friend-icon-div {
+        @apply mr-2 flex h-[35px] w-[35px] max-w-[35px] min-w-[35px] cursor-default items-center justify-center rounded-full border-0 bg-[#787878] p-0 outline-none;
     }
 
     .friend-icon {
