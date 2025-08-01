@@ -1,0 +1,67 @@
+@using Matrix.Services.Interfaces
+@inject ICustomLocalizer Localizer
+@{
+    ViewData["Title"] = Localizer["ConfirmPageTitle"];
+    Layout = "~/Views/Shared/_AuthLayout.cshtml";
+    
+    // 從 ViewBag 取得 Controller 處理好的資料
+    bool isLoading = ViewBag.IsLoading ?? true;
+    bool success = ViewBag.Success ?? false;
+    string message = ViewBag.Message ?? "";
+    
+    // 取得預處理的本地化字串
+    string statusIcon = ViewBag.StatusIcon ?? "";
+    string title = ViewBag.Title ?? "";
+    string subtitle = ViewBag.Subtitle ?? "";
+    string fallbackMessage = ViewBag.FallbackMessage ?? "";
+    string verificationLabel = success ? ViewBag.VerificationCompleteLabel : ViewBag.VerificationFailedLabel;
+    string verificationCintent = success ? ViewBag.CanUseFullFeatures : ViewBag.CheckLinkOrContact;
+    string goToLogin = ViewBag.GoToLogin ?? "";
+    string reRegister = ViewBag.ReRegister ?? "";
+    string backToHome = ViewBag.BackToHome ?? "";
+}
+
+<main class="cf-body">
+    <div class="cf-box @(success ? "cf-box_success" : "cf-box_error")">
+        <div class="cf-title">
+            <div>
+                <h1 class="cf-statecode @(success ? "text-green-400" : "text-red-400")">@statusIcon</h1>
+                <h1 class="cf-box_title">@subtitle</h1>
+            </div>
+        </div>
+        <div class="cf-content">
+            <p class="cf-content_subTitle title">
+                @(string.IsNullOrEmpty(message) ? fallbackMessage : message)
+            </p>
+
+            <div class="cf-info @(success ? "cf-info_success" : "cf-info_error")">
+                <div class="@(success ? "text-green-400" : "text-red-400")">
+                    <i data-lucide="check-circle" class="w-5 h-5"></i>
+                    <span>@verificationLabel</span>
+                </div>
+                <p class="@(success ? "text-green-300" : "text-red-300")">@verificationCintent</p>
+            </div>
+        </div>
+
+        <div class="cf-btn_group">
+            @if (success)
+            {
+                <a href="/login" class="cf-btn_home">
+                    <i data-lucide="log-in" class="w-5 h-5"></i>
+                    @goToLogin
+                </a>
+            }
+            else
+            {
+                <a href="/register" class="cf-btn_register">
+                    <i data-lucide="user-plus" class="w-5 h-5"></i>
+                    @reRegister
+                </a>
+            }
+            <a href="/" class="cf-btn_home">
+                <i data-lucide="house" class="w-5 h-5"></i>
+                @backToHome
+            </a>
+        </div>
+    </div>
+</main>

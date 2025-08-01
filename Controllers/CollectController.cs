@@ -1,4 +1,5 @@
-﻿using Matrix.Data;
+﻿using Microsoft.AspNetCore.Mvc;
+using Matrix.Data;
 using Matrix.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -43,57 +44,11 @@ namespace Matrix.Controllers
 
         // API endpoint for popup data
         [HttpGet]
-        [Route("/api/collects")]
+        [Route("/api/Collects")]
         public IActionResult GetCollectsData()
         {
-            // 同樣的假資料，但返回 JSON
-            //var fakeData = new List<CollectItemViewModel>
-            //{
-            //    new()
-            //    {
-            //        Title = "test 00",
-            //        ImageUrl = Url.Content("~/static/img/Cute.png"),
-            //        AuthorName = "小西瓜",
-            //        CollectedAt = DateTime.Now.AddDays(-1)
-            //    },
-            //    new()
-            //    {
-            //        Title = "test 01",
-            //        ImageUrl = Url.Content("~/static/img/Cute.png"),
-            //        AuthorName = "大豬豬",
-            //        CollectedAt = DateTime.Now.AddDays(-2)
-            //    },
-            //    new()
-            //    {
-            //        Title = "test 02",
-            //        ImageUrl = Url.Content("~/static/img/Cute.png"),
-            //        AuthorName = "笑笑貓",
-            //        CollectedAt = DateTime.Now.AddDays(-3)
-            //    },
-            //    new()
-            //    {
-            //        Title = "test 03",
-            //        ImageUrl = Url.Content("~/static/img/Cute.png"),
-            //        AuthorName = "小西瓜",
-            //        CollectedAt = DateTime.Now.AddDays(-1)
-            //    },
-            //    new()
-            //    {
-            //        Title = "test 04",
-            //        ImageUrl = Url.Content("~/static/img/Cute.png"),
-            //        AuthorName = "大豬豬",
-            //        CollectedAt = DateTime.Now.AddDays(-2)
-            //    },
-            //    new()
-            //    {
-            //        Title = "test 05",
-            //        ImageUrl = Url.Content("~/static/img/Cute.png"),
-            //        AuthorName = "笑笑貓",
-            //        CollectedAt = DateTime.Now.AddDays(-3)
-            //    }
-            //};
-
-            //return Json(fakeData); // 返回 JSON 格式
+            // TODO: 未來改為從登入者取得 PersonId，例如 User.Identity.Name → User → Person.Id
+            var currentUserId = Guid.Parse("36a9c596-b298-49b5-8300-7c3479aed145");
 
             var collects = _context.PraiseCollects
                 .Include(p => p.Article) // 載入文章資料
@@ -101,6 +56,7 @@ namespace Matrix.Controllers
                 .Where(p => p.Type == 1)
                 .OrderByDescending(p => p.CreateTime)
                 .Take(30)
+                .ToList()
                 .Select(p => new CollectItemViewModel
                 {
                     Title = p.Article.Content.Substring(0, 10),

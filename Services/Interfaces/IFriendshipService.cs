@@ -1,5 +1,3 @@
-using Matrix.DTOs;
-
 namespace Matrix.Services.Interfaces
 {
     /// <summary>

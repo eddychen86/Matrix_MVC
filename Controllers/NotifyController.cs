@@ -1,7 +1,4 @@
-﻿using Matrix.Data;
-using Matrix.ViewModels;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Mvc;
 
 namespace Matrix.Controllers
 {
@@ -18,14 +15,13 @@ namespace Matrix.Controllers
             return View();
         }
 
-
         //GET:Notify
         [HttpGet]
-        [Route("/api/notify")]
+        [Route("/api/Notify")]
         public IActionResult GetNotifyData()
         {
             // TODO: 未來改為從登入者取得 PersonId，例如 User.Identity.Name → User → Person.Id
-            var currentUserId = Guid.Parse("7ffbe594-de54-452a-92b0-311631587369");
+            var currentUserId = Guid.Parse("36a9c596-b298-49b5-8300-7c3479aed145");
 
             var notifications = _context.Notifications
                 .Where(n => n.GetId == currentUserId)
@@ -34,19 +30,15 @@ namespace Matrix.Controllers
                 .Take(10)
                 .ToList();
 
-
             var notifyList = notifications.Select(n => new NotifyItemViewModel
             { 
                 SenderName = n.Sender.DisplayName ?? "匿名",
                 SenderAvatarUrl = n.Sender.AvatarPath ?? "/static/img/default-avatar.png",
-                Message = n.Type == 0 ?"有人留言了你的貼文"
-                          : n.Type == 1 ? "有人私訊你"
-                          :"有新通知",
+                Message = n.Type == 0 ? "有人留言了你的貼文" : n.Type == 1 ? "有人私訊你" :"有新通知",
                 SentTime = n.SentTime
             }).ToList();
 
             return Json(notifyList);
-
         }
     }
 }

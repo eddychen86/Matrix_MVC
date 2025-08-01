@@ -13,8 +13,9 @@
 
     #auth-form {
       @apply
-        rounded-[30px] h-full overflow-x-hidden relative shadow-xl shadow-black/30
+        rounded-[30px] overflow-x-hidden overflow-y-auto relative shadow-xl shadow-black/30
         w-full lg:w-1/2
+        min-h-[600px] sm:min-h-[800px] md:min-h-[1000px] h-full
       ;
 
       #mock {

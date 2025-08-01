@@ -1,13 +1,110 @@
-@layer components {
-  .arrow {
-    @apply absolute z-10 top-1/2 -translate-y-1/2 bg-gray-500 w-[50px] h-[50px] flex justify-center items-center rounded-full;
-
-    &-l {
-      @apply left-0;
+﻿@layer components {
+    /* 箭頭按鈕 */
+    .arrow {
+        @apply absolute top-1/2 -translate-y-1/2 z-30 w-[50px] h-[50px] flex items-center justify-center rounded-full bg-white text-black shadow transition hover:bg-gray-200 focus:outline-none;
     }
 
-    &-r {
-      @apply left-0;
+    .arrow-l {
+        @apply -left-6;
     }
-  }
+
+    .arrow-r {
+        @apply -right-6;
+    }
+
+    .icon {
+        @apply w-[14px] h-[14px] fill-current text-black;
+    }
+
+    /*  頁面容器  */
+    .page-wrapper {
+        @apply flex min-h-screen w-full;
+    }
+
+    .news-container {
+        @apply flex-grow p-6 pb-[200px];
+    }
+
+    .news-list {
+        @apply mx-auto flex w-max flex-col items-center;
+    }
+
+    .section-title {
+        @apply self-start mb-4 mt-4 text-white text-[32px] leading-[38px] font-['Roboto'] font-medium;
+    }
+
+    /*  熱門區塊  */
+    .carousel-wrapper {
+        @apply relative mx-auto flex w-max;
+    }
+
+    .carousel-list {
+        @apply carousel carousel-start w-[602px] text-center flex gap-4 overflow-x-auto scroll-smooth;
+    }
+
+    .carousel-item-custom {
+        @apply carousel-item h-[250px] w-[190px] overflow-hidden rounded-[30px] flex-none;
+    }
+
+    /*  貼文卡片  */
+    .post-card {
+        @apply relative mx-auto mb-5 max-h-[502px] min-h-[220px] w-[602px] rounded-[10px] bg-[#323232] p-6;
+    }
+
+    .post-avatar {
+        @apply absolute top-6 left-6 h-[50px] w-[50px] rounded-full object-cover;
+    }
+
+    .post-author {
+        @apply absolute top-[29px] ml-[66px] flex flex-col gap-[3px];
+    }
+
+    .author-name {
+        @apply text-white text-[16px] font-['Source_Sans_Pro'] font-semibold leading-[19px];
+    }
+
+    .post-time {
+        @apply text-gray-400 text-[14px] font-['Source_Sans_Pro'] font-normal leading-[16px];
+    }
+
+    .post-content {
+        @apply absolute top-[92px] left-[29px] right-[30px] text-white text-[16px] font-['Source_Sans_Pro'] font-normal leading-[19px];
+    }
+
+    .post-image {
+        @apply h-[300px] w-[552px] rounded-[24px] object-cover;
+    }
+
+    /*  好友欄位  */
+    .friend-panel {
+        @apply sticky top-0 right-0 h-screen w-[300px] z-[1000];
+    }
+
+    .friend-search-bar {
+        @apply flex h-[44px] w-[264px] items-center rounded-[24px] bg-[#323232] pr-4 pl-2 shadow-[2px_2px_4px_rgba(255,255,255,0.1)];
+    }
+
+    .friend-icon-btn {
+        @apply mr-2 flex h-[35px] w-[35px] max-w-[35px] min-w-[35px] cursor-pointer items-center justify-center rounded-full border-0 bg-[#787878] p-0 outline-none;
+    }
+
+    .friend-icon {
+        @apply h-[14px] w-[14px] fill-[#323232] text-[#323232] text-[14px];
+    }
+
+    .friend-search-input {
+        @apply flex-1 bg-transparent text-[#a1a1a1] text-[14px] font-['Roboto'] leading-[16px] outline-none placeholder-[#a1a1a1];
+    }
+
+    .friend-item {
+        @apply flex items-center rounded-lg px-2 py-2 transition hover:bg-[#222];
+    }
+
+    .friend-avatar {
+        @apply h-[50px] w-[50px] rounded-full object-cover;
+    }
+
+    .friend-name {
+        @apply ml-3 text-white text-[16px] font-['Source_Sans_Pro'] leading-[19px];
+    }
 }

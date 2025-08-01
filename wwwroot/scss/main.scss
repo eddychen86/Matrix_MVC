@@ -3,4 +3,7 @@
 @use 'components/home';
 @use 'components/error';
 @use 'components/auth';
-@use 'components/popup'
+@use 'components/login-popup';
+@use 'components/profile';
+@use 'components/popup';
+@use 'components/confirm';

@@ -14,7 +14,7 @@ namespace Matrix.Models
         /// 改用 UUID 以確保唯一性和安全性，並以 ArrayExtension.GenerateOrdered(1)[0] 方法生成一個劇時間排序的唯一的值
         /// </summary>
         [Key]
-        public Guid UserId { get; set; } = ArrayExtension.GenerateOrdered(1)[0];
+        public Guid UserId { get; set; } = Guid.NewGuid();
 
         /// <summary>
         /// 用戶的權限等級，0表示一般用戶，其他值表示不同權限等級
@@ -69,7 +69,7 @@ namespace Matrix.Models
         public DateTime? LastLoginTime { get; set; }
 
         /// <summary>
-        /// 帳號狀態，0表示啟用，1表示停用，2表示被封禁
+        /// 帳號狀態，0表示未確認，1表示已確認，2表示被封禁
         /// </summary>
         public int Status { get; set; } = 0;
 

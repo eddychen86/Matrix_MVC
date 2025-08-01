@@ -1,5 +1,3 @@
-using Matrix.Models;
-
 namespace Matrix.Services.Interfaces
 {
     /// <summary>

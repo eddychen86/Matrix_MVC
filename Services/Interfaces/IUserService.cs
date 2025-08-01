@@ -1,5 +1,3 @@
-using Matrix.DTOs;
-
 namespace Matrix.Services.Interfaces
 {
     /// <summary>
@@ -23,11 +21,25 @@ namespace Matrix.Services.Interfaces
         Task<UserDto?> GetUserByEmailAsync(string email);
 
         /// <summary>
+        /// 根據使用者名稱獲取使用者資料
+        /// </summary>
+        /// <param name="username">使用者名稱</param>
+        /// <returns>使用者資料傳輸物件，如果不存在則返回 null</returns>
+        Task<UserDto?> GetUserByUsernameAsync(string username);
+
+        /// <summary>
+        /// 根據使用者名稱或電子郵件獲取使用者資料
+        /// </summary>
+        /// <param name="identifier">使用者名稱或電子郵件</param>
+        /// <returns>使用者資料傳輸物件，如果不存在則返回 null</returns>
+        Task<UserDto?> GetUserByIdentifierAsync(string identifier);
+
+        /// <summary>
         /// 建立新使用者
         /// </summary>
         /// <param name="dto">建立使用者資料傳輸物件</param>
-        /// <returns>建立成功時返回使用者 ID，失敗時返回 null</returns>
-        Task<Guid?> CreateUserAsync(CreateUserDto dto);
+        /// <returns>建立結果：使用者ID（成功時）和錯誤列表</returns>
+        Task<(Guid? UserId, List<string> Errors)> CreateUserAsync(CreateUserDto dto);
 
         /// <summary>
         /// 更新使用者資料
@@ -85,5 +97,19 @@ namespace Matrix.Services.Interfaces
         /// <param name="userName">使用者名稱</param>
         /// <returns>是否已存在</returns>
         Task<bool> IsUserNameExistsAsync(string userName);
+
+        /// <summary>
+        /// 直接更新用戶實體
+        /// </summary>
+        /// <param name="user">用戶實體</param>
+        /// <returns>更新是否成功</returns>
+        Task<bool> UpdateUserEntityAsync(User user);
+
+        /// <summary>
+        /// 根據 ID 獲取用戶實體
+        /// </summary>
+        /// <param name="id">用戶 ID</param>
+        /// <returns>用戶實體，如果不存在則返回 null</returns>
+        Task<User?> GetUserEntityAsync(Guid id);
     }
 }

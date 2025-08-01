@@ -2,9 +2,9 @@
 {
     public class NotifyItemViewModel
     {
-        public string SenderName { get; set; }
-        public string SenderAvatarUrl { get; set; }
-        public string Message { get; set; }
+        public string SenderName { get; set; } = null!;
+        public string SenderAvatarUrl { get; set; } = null!;
+        public string Message { get; set; } = null!;
         public DateTime SentTime { get; set; }
     }
 }

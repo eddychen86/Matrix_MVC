@@ -1,5 +1,4 @@
 using System.ComponentModel.DataAnnotations;
-using System.Text; // 引入 StringBuilder，用來高效地組合字串
 
 namespace Matrix.Models
 {
@@ -14,7 +13,7 @@ namespace Matrix.Models
         /// 改用 UUID 以確保唯一性和安全性，並以 ArrayExtension.GenerateOrdered(1)[0] 方法生成一個劇時間排序的唯一的值
         /// </summary>
         [Key]
-        public Guid ArticleId { get; set; } = ArrayExtension.GenerateOrdered(1)[0];
+        public Guid ArticleId { get; set; } = Guid.NewGuid();
 
         /// <summary>
         /// 文章作者的 UserId

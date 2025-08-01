@@ -1,162 +1,52 @@
-@{  
-    ViewData["Title"] = "Matrix";  
-}  
+@{
+    ViewData["Title"] = "Matrix";
+}
 
-<!DOCTYPE html>  
-<html lang="@System.Globalization.CultureInfo.CurrentUICulture.Name">  
+<!DOCTYPE html>
+<html lang="@System.Globalization.CultureInfo.CurrentUICulture.Name">
 
-<head>  
-	<meta charset="utf-8" />  
-	<meta name="viewport" content="width=device-width, initial-scale=1.0" />  
-	<title>Matrix</title>  
-	<link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />  
-	<link rel="stylesheet" href="~/css/components.css" asp-append-version="true" />  
-</head>  
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Matrix</title>
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/components.css" asp-append-version="true" />
+</head>
 
 <body class="bg-primary">
-    <div id="app" class="flex">  
-        <partial name="_Menu" />  
+    <div id="app" class="flex">
+        <partial name="_Menu" />
 
-        <div class="relative flex w-full flex-col gap-4 p-4 pl-0">
+        <div class="relative flex w-full flex-col gap-4 p-4 pl-0 h-screen overflow-y-auto">
             <main class="text-white">
                 @RenderBody()
-            </main>  
-            <partial name="_Footer" />  
+            </main>
+            <partial name="_Footer" />
         </div>
-        
+
         <!-- Universal Popup Component -->
-        @await Component.InvokeAsync("Popup")  
-    </div>  
+        @await Component.InvokeAsync("Popup")
+    </div>
 
-	<script src="~/lib/jquery/jquery.min.js"></script>
-	<script src="~/lib/vue/dist/vue.global.js"></script>
-	<script src="~/lib/lucide/dist/umd/lucide.min.js"></script>
-	<script src="~/js/useFormatting.js"></script>
-	<script>  
-		lucide.createIcons();  
+    <script src="~/lib/jquery/jquery.min.js"></script>
 
-        const { createApp, ref, reactive, computed } = Vue;  
-        
-        // Global App State Management
-        window.popupApp = createApp({  
-            setup() {
-                const { formatDate, timeAgo } = useFormatting();
+    @* 非開發環境 (標準版) *@
+    <environment include="Development">
+        <script src="~/lib/vue/dist/vue.global.prod.js" asp-append-version="true"></script>
+    </environment>
+    @*   開發環境 (精簡版) *@
+    <environment exclude="Development">
+        <script src="~/lib/vue/dist/vue.global.js" asp-append-version="true"></script>
+    </environment>
 
-                // Popup State
-                const popupState = reactive({
-                    isVisible: false,
-                    type: '',
-                    title: ''
-                });
-                
-                // Sidebar State (from Menu)
-                const isCollapsed = ref(false);
-                
-                const searchQuery = ref('');
+    <script src="~/lib/lucide/dist/umd/lucide.min.js"></script>
 
-                // Popup Data Storage
-                const popupData = reactive({
-                    Search: [],
-                    Notify: [],
-                    Follows: [],
-                    Collects: []
-                });
+    <script src="~/js/hooks/useFormatting.js" asp-append-version="true"></script>
+    <script src="~/js/auth/auth-manager.js" asp-append-version="true"></script>
+    <script src="~/js/auth/login-popup.js" asp-append-version="true"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
 
-                // Update popup data function
-                const updatePopupData = (type, data) => {
-                    if (popupData[type] !== undefined) {
-                        popupData[type] = data;
-                    }
-                };
-
-                // Popup Actions
-                const openPopup = async (type) => {
-                    popupState.type = type;
-                    popupState.title = getPopupTitle(type);
-                    popupState.isVisible = true;
-
-                    try {
-                        const res = await fetch('/api/' + type.toLowerCase());
-                        const data = await res.json();
-                        updatePopupData(type, data);
-                    } catch (err) {
-                        console.log('Fetch Error:', err);
-                    }
-                };
-                
-                const closePopup = () => {
-                    popupState.isVisible = false;
-                    popupState.type = '';
-                };
-                
-                // Sidebar Actions (from Menu)
-                const toggleSidebar = async () => {
-                    isCollapsed.value = !isCollapsed.value;
-                    // 等待 DOM 更新後重新初始化圖標
-                    lucide.createIcons();
-                };
-
-                const toggleLang = () => {
-                    // 獲取當前語言設定
-                    const currentLang = document.documentElement.lang || 'zh-TW';
-                    
-                    // 切換語言
-                    const newLang = currentLang === 'zh-TW' ? 'en-US' : 'zh-TW';
-                    
-                    // 設定 cookie 記住用戶偏好（有效期 1 年）
-                    // ASP.NET Core 預設的 culture cookie 名稱是 ".AspNetCore.Culture"
-                    const cultureCookie = `c=${newLang}|uic=${newLang}`;
-                    document.cookie = `.AspNetCore.Culture=${cultureCookie}; path=/; max-age=31536000; SameSite=Lax`;
-                    console.log(`Setting culture cookie: ${cultureCookie}`)
-                    
-                    // 重新載入頁面以套用新語言
-                    window.location.reload();
-                };
-                
-                // Helper Functions
-                const getPopupTitle = (type) => {
-                    const titles = {
-                        'Search': '搜尋',
-                        'Notify': '通知', 
-                        'Follows': '追蹤',
-                        'Collects': '收藏'
-                    };
-                    return titles[type] || '視窗';
-                };
-
-                // Global Methods
-                window.toggleFunc = (show, type) => {
-                    if (show) {
-                        openPopup(type);
-                    } else {
-                        closePopup();
-                    }
-                };
-
-                //DeBug
-                 window.popupData = popupData;
-                 window.popupState = popupState;
-
-                return {  
-                    popupState,
-                    popupData,
-                    searchQuery,
-                    isCollapsed,
-                    openPopup,
-                    closePopup,
-                    toggleSidebar,
-                    toggleLang,
-                    // 為新版 popup 提供向後兼容
-                    isOpen: computed(() => popupState.isVisible),
-                    closeCollectModal: closePopup,
-                    formatDate,
-                    timeAgo,
-                };  
-            }  
-        }).mount('#app');  
-	</script>  
-
-	@await RenderSectionAsync("Scripts", required: false)  
-</body>  
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
 
 </html>

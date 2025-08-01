@@ -1,135 +1,184 @@
+using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
-using Matrix.ViewModels;
-using Matrix.DTOs;
-using Matrix.Services;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
+using Microsoft.Extensions.Configuration;
 using Matrix.Services.Interfaces;
-using System.Threading.Tasks;
-using Matrix.Models;
 
 namespace Matrix.Controllers
 {
-    public class AuthController(IUserService _userService) : Controller
+    /// <summary>認證相關的 Web 控制器</summary>
+    public class AuthController(
+        ILogger<AuthController> _logger,
+        IConfiguration _configuration,
+        IUserService _userService,
+        ICustomLocalizer _localizer
+    ) : WebControllerBase
     {
-
-        [HttpGet]
-        [Route("/register")]
-        public ActionResult Register()
+        /// <summary>確認用戶郵件</summary>
+        [HttpGet, Route("/confirm/{id}")]
+        public async Task<IActionResult> ConfirmEmail(string id)
         {
-            return View("~/Views/Auth/Register.cshtml", new RegisterViewModel());
+            try
+            {
+                var result = new { success = false, message = "" };
+
+                // 嘗試解析 userId
+                if (!Guid.TryParse(id, out Guid userId))
+                {
+                    result = new { success = false, message = _localizer["InvalidConfirmLink"] };
+                }
+                else
+                {
+                    // 查找用戶
+                    var user = await _userService.GetUserEntityAsync(userId);
+                    if (user == null)
+                    {
+                        result = new { success = false, message = _localizer["UserNotExistOrExpired"] };
+                    }
+                    else if (user.Status == 1)
+                    {
+                        result = new { success = true, message = _localizer["AccountAlreadyConfirmed"] };
+                    }
+                    else
+                    {
+                        // 更新用戶狀態為已確認
+                        user.Status = 1;
+                        await _userService.UpdateUserEntityAsync(user);
+                        _logger.LogInformation("用戶 {Email} 郵件確認成功", user.Email);
+                        result = new { success = true, message = _localizer["EmailConfirmSuccess"] };
+                    }
+                }
+
+                // 將結果存儲到 TempData，然後重定向到確認頁面
+                TempData["ConfirmResult"] = System.Text.Json.JsonSerializer.Serialize(result);
+                return Redirect("/confirm?from=confirm");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "郵件確認過程中發生錯誤");
+                var errorResult = new { success = false, message = _localizer["ConfirmProcessError"] };
+                TempData["ConfirmResult"] = System.Text.Json.JsonSerializer.Serialize(errorResult);
+                return Redirect("/confirm?from=confirm");
+            }
         }
 
-        [HttpPost]
-        [Route("/api/register")]
-        public async Task<IActionResult> Register([FromBody] RegisterViewModel model)
+        /// <summary>顯示確認結果頁面</summary>
+        [HttpGet, Route("/confirm")]
+        public IActionResult ConfirmResult()
         {
-            if (!ModelState.IsValid)
+            bool isLoading;
+            bool success;
+            string message;
+
+            var serverResult = TempData["ConfirmResult"]?.ToString();
+            if (!string.IsNullOrEmpty(serverResult))
             {
-                var errors = ModelState
-                    .Where(kvp => kvp.Value != null && kvp.Value.Errors.Count > 0)
-                    .ToDictionary(
-                        kvp => kvp.Key,
-                        kvp => kvp.Value!.Errors.Select(e => e.ErrorMessage).ToArray()
-                    );
-                return Json(new { success = false, errors });
+                try
+                {
+                    using var document = JsonDocument.Parse(serverResult);
+                    var root = document.RootElement;
+                    
+                    isLoading = false;
+                    success = root.GetProperty("success").GetBoolean();
+                    message = root.GetProperty("message").GetString() ?? "";
+                }
+                catch
+                {
+                    isLoading = false;
+                    success = false;
+                    message = _localizer["ProcessingResultError"];
+                }
+            }
+            else
+            {
+                // 檢查是否從確認連結重定向而來
+                var fromParam = Request.Query["from"].FirstOrDefault();
+                isLoading = false;
+                success = false;
+                
+                if (fromParam == "confirm")
+                {
+                    message = _localizer["CannotGetResult"];
+                }
+                else
+                {
+                    message = _localizer["UseConfirmLink"];
+                }
             }
 
-            // 創建 CreateUserDto
-            var createUserDto = new CreateUserDto
+            ViewBag.IsLoading = isLoading;
+            ViewBag.Success = success;
+            ViewBag.Message = message;
+            
+            // 根據狀態預處理所有本地化字串
+            ViewBag.StatusIcon = success ? "✓" : "✗";
+            ViewBag.Title = success ? _localizer["ConfirmSuccessTitle"] : _localizer["ConfirmFailedTitle"];
+            ViewBag.Subtitle = success ? _localizer["EmailVerificationComplete"] : _localizer["VerificationProblem"];
+            ViewBag.FallbackMessage = _localizer["ProcessingConfirmError"];
+            
+            // 成功狀態的文字
+            ViewBag.VerificationCompleteLabel = _localizer["VerificationCompleteLabel"];
+            ViewBag.CanUseFullFeatures = _localizer["CanUseFullFeatures"];
+            
+            // 失敗狀態的文字
+            ViewBag.VerificationFailedLabel = _localizer["VerificationFailedLabel"];
+            ViewBag.CheckLinkOrContact = _localizer["CheckLinkOrContact"];
+            
+            // 按鈕文字
+            ViewBag.GoToLogin = _localizer["GoToLogin"];
+            ViewBag.ReRegister = _localizer["ReRegister"];
+            ViewBag.BackToHome = _localizer["BackToHome"];
+            
+            return View("~/Views/Auth/Confirm.cshtml");
+        }
+
+        /// <summary>產生 JWT Token (接受個別參數)</summary>
+        public string GenerateJwtToken(Guid userId, string userName, string role)
+        {
+            var jwtKey = _configuration["JWT:Key"] ??
+                        throw new InvalidOperationException("JWT Key 沒有設定");
+            var jwtIssuer = _configuration["JWT:Issuer"];
+
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var key = Encoding.UTF8.GetBytes(jwtKey);
+
+            var tokenDescriptor = new SecurityTokenDescriptor
             {
-                UserName = model.UserName,
-                Email = model.Email ?? "example@mail.com", // 暫時處理，實際應該要求輸入 Email
-                Password = model.Password,
-                PasswordConfirm = model.PasswordConfirm ?? model.Password
+                Subject = new ClaimsIdentity(new[]
+                {
+                    new Claim("UserId", userId.ToString()),
+                    new Claim(ClaimTypes.Name, userName),
+                    new Claim(ClaimTypes.Role, role)
+                }),
+                Expires = DateTime.UtcNow.AddDays(30),
+                Issuer = jwtIssuer,
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
 
-            // 使用 UserService 創建使用者
-            var userId = await _userService.CreateUserAsync(createUserDto);
-            if (userId == null)
-            {
-                ModelState.AddModelError("UserName", "Username or email already exists.");
-                return View("~/Views/Auth/Register.cshtml", model);
-            }
-
-            // 註冊成功後，重定向到登入頁面
-            return RedirectToAction("login");
+            var token = tokenHandler.CreateToken(tokenDescriptor);
+            return tokenHandler.WriteToken(token);
         }
 
-        [HttpGet]
-        [Route("/login")]
-        public ActionResult Login()
+
+        // TODO:設定登入 Cookie
+        public void SetAuthCookie(HttpResponse response, string token, bool rememberMe = false)
         {
-            return View("~/Views/Auth/Login.cshtml", new LoginViewModel());
+            var cookieOptions = new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.Strict
+            };
+
+            // 記住我就設定 30 天過期
+            if (rememberMe)
+                cookieOptions.Expires = DateTime.UtcNow.AddDays(30);
+
+            response.Cookies.Append("AuthToken", token, cookieOptions);
         }
 
-        [HttpPost]
-        [Route("/login")]
-        public ActionResult LoginPost(LoginViewModel model)
-        {
-            // 備援處理：當 JavaScript 失效時的表單提交
-            ModelState.AddModelError("", "Please enable JavaScript for proper login functionality.");
-            return View("~/Views/Auth/Login.cshtml", model);
-        }
-
-        [HttpPost]
-        [Route("/api/login")]
-        public async Task<IActionResult> LoginApi([FromBody] LoginViewModel model)
-        {
-            if (!ModelState.IsValid)
-            {
-                var errors = ModelState
-                    .Where(kvp => kvp.Value != null && kvp.Value.Errors.Count > 0)
-                    .ToDictionary(
-                        kvp => kvp.Key,
-                        kvp => kvp.Value!.Errors.Select(e => e.ErrorMessage).ToArray()
-                    );
-                return Json(new { success = false, errors });
-            }
-
-            // 使用 UserService 驗證使用者
-            var isValid = await _userService.ValidateUserAsync(model.UserName, model.Password);
-            if (!isValid)
-            {
-                ModelState.AddModelError("", "Invalid user name or password.");
-                var errors = ModelState
-                    .Where(kvp => kvp.Value != null && kvp.Value.Errors.Count > 0)
-                    .ToDictionary(
-                        kvp => kvp.Key,
-                        kvp => kvp.Value!.Errors.Select(e => e.ErrorMessage).ToArray()
-                    );
-                return Json(new { success = false, errors });
-            }
-
-            // 取得使用者資料以判斷角色
-            var userDto = await _userService.GetUserByEmailAsync(model.UserName);
-            if (userDto == null)
-            {
-                userDto = await _userService.GetUserByEmailAsync(model.UserName); // 先嘗試 Email，如果沒有再嘗試其他方式
-            }
-
-            return Json(new
-            {
-                success = true,
-                redirectUrl = userDto?.Role == 1 ? Url.Action("Index", "Admin") : Url.Action("Index", "Home")
-            });
-        }
-
-        [HttpPost]
-        [Route("/login/forgot")]
-        public ActionResult ForgotPwd(LoginViewModel model)
-        {
-            if (!ModelState.IsValid)
-            {
-                return View("~/Views/Auth/Login.cshtml", model);
-            }
-
-            /*
-            SMTP 郵件發送邏輯可以在這裡實現
-            */
-
-            // 這裡可以添加忘記密碼的邏輯，例如發送重置密碼郵件等
-            // 目前僅返回登入頁面
-            ModelState.AddModelError("", "Forgot password functionality is not implemented yet.");
-            return View("~/Views/Auth/Login.cshtml", model);
-        }
     }
 }
