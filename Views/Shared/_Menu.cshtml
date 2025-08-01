@@ -3,8 +3,10 @@
 @inject ICustomLocalizer Localizer
 @{
     var authInfo = Context.GetAuthInfo();
-}
-@{
+    var isLogin = authInfo.IsAuthenticated;
+    var username = authInfo.UserName;
+    @* var userImg = authInfo.UserImg; *@
+
     var menus = new[]
     {
         new { type = "Search", icon = "search" },
@@ -18,9 +20,9 @@
         new { title = "Language", icon = "languages", click = "toggleLang" },
         new { title = "HideBar", icon = "panel-left", click = "toggleSidebar" },
         new { 
-            title = authInfo.IsAuthenticated ? "LogOut" : "Login", 
-            icon = authInfo.IsAuthenticated ? "log-out" : "log-in", 
-            click = authInfo.IsAuthenticated ? "logout" : "login" 
+            title = isLogin ? "LogOut" : "Login", 
+            icon = isLogin ? "log-out" : "log-in", 
+            click = isLogin ? "logout" : "login" 
         },
     };
 }
@@ -33,10 +35,12 @@
                 <img src="~/static/img/Matrix_logo_white.png" alt="Matrix Logo" class="icon-lg">
                 <span data-i18n="Matrix">@Localizer["Matrix"]</span>
             </a>
-            @* <button class="cts-btn hover:bg-gray-900" v-on:click="openPopup('@i.type')">
-                <img src="" alt="" class="icon-base" />
-                <span class="title"></span>
-            </button> *@
+            @if (isLogin) {
+                <a asp-area="" asp-controller="Progile" asp-action="Index" aria-current="page" class="cts-btn hover:bg-gray-900">
+                    <img src="" alt="" class="icon-base" />
+                    <span class="title">@username</span>
+                </a>
+            }
         </li>
         <li>
             @foreach (var i in menus)
