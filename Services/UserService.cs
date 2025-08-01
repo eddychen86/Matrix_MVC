@@ -70,7 +70,7 @@ namespace Matrix.Services
         {
             var user = await _userRepository.GetByIdentifierAsync(identifier);
 
-            if (user?.Person == null) return null;
+            if (user == null) return null;
 
             return MapToUserDto(user);
         }
@@ -276,9 +276,9 @@ namespace Matrix.Services
                 Email = user.Email,
                 CreateTime = user.CreateTime,
                 Status = user.Status,
-                Person = new PersonDto
+                Person = user.Person != null ? new PersonDto
                 {
-                    PersonId = user.Person!.PersonId,
+                    PersonId = user.Person.PersonId,
                     UserId = user.Person.UserId,
                     DisplayName = user.Person.DisplayName,
                     Bio = user.Person.Bio,
@@ -288,7 +288,7 @@ namespace Matrix.Services
                     IsPrivate = user.Person.IsPrivate,
                     WalletAddress = user.Person.WalletAddress,
                     ModifyTime = user.Person.ModifyTime
-                }
+                } : null
             };
         }
 

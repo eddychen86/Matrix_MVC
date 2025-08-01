@@ -71,8 +71,8 @@ createApp({
 
                 const result = await response.json()
 
-                if (result.success && result.redirectUrl) {
-                    window.location.href = result.redirectUrl
+                if (result.success && result.data?.redirectUrl) {
+                    window.location.href = result.data.redirectUrl
                 } else if (result.errors) updateErrorMsg(result.errors)
             } catch (error) {
                 console.error('Login error:', error)
