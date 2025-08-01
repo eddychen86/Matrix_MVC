@@ -35,7 +35,8 @@ public class HomeController : Controller
                 Author = a.Author,
                 image = a.Attachments != null
                     ? a.Attachments.FirstOrDefault(att => att.Type.ToLower() == "image")
-                    : null
+                    : null,
+                file = a.Attachments
             })
             .ToListAsync();
 
@@ -44,6 +45,8 @@ public class HomeController : Controller
 
         ViewBag.HotList = hot_list;
         ViewBag.DefaultList = default_list;
+
+        //取得好友欄位資料
 
         var currentUserId = Guid.Parse("870c0b75-97a3-4e4f-8215-204d5747d28c");
 

@@ -15,13 +15,17 @@
 <body class="bg-primary flex">
     <partial name="_Menu" />
 
-  <div class="flex w-full flex-col gap-4 p-4 pl-0">
-    <main class="min-h-screen text-white">
-      @RenderBody()
-    </main>
-    <partial name="_Footer" />
-  </div>
 
+    <div class="flex w-full flex-row gap-4 p-4 pl-0">
+        <div class="flex min-h-screen flex-1 flex-col">
+            <main class="min-h-screen text-white">
+                @RenderBody()
+            </main>
+            <partial name="_Footer" />
+        </div>
+        <partial name="_FriendsListPartial" model="ViewBag.FriendListdmeo" />
+    </div>
+    
     <script src="~/lib/jquery/jquery.min.js"></script>
     <script src="~/lib/vue/dist/vue.global.js"></script>
     <script src="~/lib/lucide/dist/umd/lucide.min.js"></script>

@@ -9,6 +9,7 @@
 
             <h1 class="section-title">Hot</h1>
 
+            <!-- 上方熱門文章 -->
             <div id="hot_news" class="carousel-wrapper">
                 <!-- 左箭頭 -->
                 <button id="hotPrev" class="arrow arrow-l">
@@ -83,7 +84,7 @@
                             </svg>
                         </button>
 
-                        <!-- 主要內容（**不要放 tag 跟按鈕**）-->
+                        <!-- 主要內容-->
                         <div class="flex flex-1 flex-col gap-4 pt-[10px] pb-[90px]">
                             <!-- 內容輸入 -->
                             <textarea class="w-full max-h-[467px] min-h-[150px] resize-none rounded-[10px] bg-white p-4 text-black text-[16px] font-['Source_Sans_Pro'] font-normal leading-[19px] text-justify"
@@ -177,8 +178,7 @@
         </div>
 
     </div>
-    @* @await Html.PartialAsync("_FriendsListPartial", (List<Matrix.ViewModels.FriendListViewModel>)ViewBag.FriendList) *@
-    @await Html.PartialAsync("_FriendsListPartial", (List<Matrix.ViewModels.FriendListViewModel>)ViewBag.FriendListdmeo)
+
 
 
 
