@@ -35,7 +35,7 @@
 
     <!-- 姓名與按鈕 -->
     <div class="relative mt-8 flex flex-col items-center justify-between px-8 md:flex-row md:pr-[300px]">
-        <div class="flex items-center gap-3 md:ml-[500px]">
+        <div class="flex items-center gap-3 md:ml-[550px]">
             <span class="font-sans text-2xl leading-[40px] font-semibold text-white md:text-[40px]">{{profile.displayName}}</span>
 
             <span :class="['text-xl text-white', isPublic ? 'fa-solid fa-globe' : 'fa-solid fa-user-lock']"></span>
@@ -57,7 +57,7 @@
                 <div class="flex items-center gap-4">
                     <div class="flex w-full items-center justify-between">
                         <h2 class="font-bold text-[23px] text-white">Profile Overview</h2>
-                        <button @@click="editMode = true">
+                        <button @@click="startEdit">
                             <i data-lucide="pen" class="icon-base h-5 w-5 cursor-pointer sm:h-6 sm:w-6"></i>
                         </button>
                     </div>
@@ -215,7 +215,7 @@
                 </div>
 
                 <div class="mt-6 flex justify-center space-x-8">
-                    <button class="flex items-center rounded-xl bg-red-400 px-6 py-3 text-[16px] text-white hover:bg-red-700" @@click="editMode = false">
+                    <button class="flex items-center rounded-xl bg-red-400 px-6 py-3 text-[16px] text-white hover:bg-red-700" @@click="cancel">
                         <i class="fa-solid fa-trash-can mr-2"></i>Cancel
                     </button>
                     <button class="flex items-center rounded-xl bg-blue-400 px-6 py-3 text-[16px] text-white hover:bg-blue-700">
@@ -232,25 +232,48 @@
     const app = Vue.createApp({
       data() {
         return {
-          rand:Date.now(),
+          rand:1,
           createTime:[],
           content:[],
           editMode: false,
           isPublic: false,
           profile: {
           isPrivate: false,
-          articles:[]
+          articles:[],
+          bio:[]
           }
-
-
         };
       },
       methods: {
         toggleIcon() {
           this.isPublic = !this.isPublic;
         },
+        cancel:function(){
+         // alert("cancel");
+         this.editMode = false;
+         // let _this=this;
+         // for(var i=0;i<_this.profile.length ; i++){
+         //    var prifole=_this.profile[i];
+            if(this.profile.backup){
+                this.profile.bio = this.profile.backup.bio;
+                this.profile.displayName = this.profile.backup.displayName;
+                this.profile.email = this.profile.backup.email;
+                this.profile.password = this.profile.backup.password;
+                this.profile.website1 = this.profile.backup.website1;
+                this.profile.website2 = this.profile.backup.website2;
+                this.profile.website3 = this.profile.backup.website3;
+
+                    delete this.profile.backup;
+            }
+         },
+         startEdit(){
+            this.editMode = true;
+            this.profile.backup = JSON.parse(JSON.stringify(this.profile));
+         }
+        
         
       },
+      
       mounted()
       {
         const profileId = '8615C454-4C27-4C41-9256-E609DC8465C5';
