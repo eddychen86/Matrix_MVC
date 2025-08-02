@@ -83,11 +83,20 @@ namespace Matrix.Data.Configurations
                 .HasMaxLength(2048);
 
             /// <summary>
-            /// 配置 ExternalUrl 欄位屬性
+            /// 配置 Website 欄位屬性
             /// 用途：設定外部網站連結的資料庫約束
             /// 長度限制：最大 2048 個字元
             /// 必填：否
             /// </summary>
+            builder.Property(p => p.Website1)
+                .HasMaxLength(2048);
+            
+            builder.Property(p => p.Website2)
+                .HasMaxLength(2048);
+                
+            builder.Property(p => p.Website3)
+                .HasMaxLength(2048);
+                
             builder.Property(p => p.ExternalUrl)
                 .HasMaxLength(2048);
 
