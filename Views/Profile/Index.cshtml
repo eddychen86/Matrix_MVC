@@ -21,6 +21,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha512-..." crossorigin="anonymous" referrerpolicy="no-referrer" />
 <link href="https://unpkg.com/lucide-static/font/lucide.css" rel="stylesheet" />
 <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
 <div id="app" class="relative mx-auto flex w-full max-w-[1920px] flex-col bg-[#161616] text-white">
     <!-- Profile View -->
@@ -214,14 +215,30 @@
 
                 </div>
 
+                <!--     上傳圖片       -->
+
+                <div class="mt-4 flex w-full flex-col items-start text-[18px] text-white sm:flex-row sm:items-center">
+                    <label class="w-full font-normal sm:w-1/3">Picture</label>
+                    <div class="mt-2 flex h-[30px] w-full items-center sm:mt-0 sm:w-2/3">
+                        <input type="file"
+                               class="form-control h-full w-full rounded border border-gray-400 bg-[#161616] px-4 text-[15px] text-white"
+                               v-bind:id="'editFile' + profile.avatarPath"
+                               accept="image/*"
+                               v-on:change="editFileChange($event.target)" />
+                    </div>
+                </div>
+
+                    
+                <!--     cancel and update       -->
                 <div class="mt-6 flex justify-center space-x-8">
                     <button class="flex items-center rounded-xl bg-red-400 px-6 py-3 text-[16px] text-white hover:bg-red-700" @@click="cancel">
                         <i class="fa-solid fa-trash-can mr-2"></i>Cancel
                     </button>
-                    <button class="flex items-center rounded-xl bg-blue-400 px-6 py-3 text-[16px] text-white hover:bg-blue-700">
+                    <button class="flex items-center rounded-xl bg-blue-400 px-6 py-3 text-[16px] text-white hover:bg-blue-700" @@click="update">
                         <i class="fa-solid fa-floppy-disk mr-2"></i>Update
                     </button>
                 </div>
+                
             </div>
         </div>
     </div>
@@ -248,7 +265,7 @@
         toggleIcon() {
           this.isPublic = !this.isPublic;
         },
-        cancel:function(){
+        cancel(){
          // alert("cancel");
          this.editMode = false;
          // let _this=this;
@@ -269,8 +286,62 @@
          startEdit(){
             this.editMode = true;
             this.profile.backup = JSON.parse(JSON.stringify(this.profile));
-         }
-        
+         },
+         update(){
+            // alert(`update:${this.profile.profileId}`);
+            let _this=this;
+                // var form = new FormData();
+                bio:this.profile.bio;
+                displayName:this.profile.displayName;
+                email:this.profile.email;
+                password:this.profile.password;
+                website1:this.profile.website1;
+                website2:this.profile.website2;
+                website3:this.profile.website3;
+                let fileInput = document.querySelector(`#editFile${this.profile.profileId}`);
+                if (fileInput && fileInput.files.length > 0){
+                    form.append("picture",fileInput.files[0]);
+                }
+                    axios.put(`/api/ProfileApi/${this.profile.userId}`,{
+                    headers:{
+                        // "content-type":"multipart/form-data"
+                    }
+                    }).then(Response=>{
+                        alert(Response.data);
+                        _this.filterProfile();
+                        _this.rand = new Data().getTime();
+                        profile.preview = null;
+                    }).catch(err=>{
+                        alert("error");
+                    });
+
+         },
+         editFileChange(inputTypeFile){
+                 //alert(`Change:${inputTypeFile.files[0].name}`);
+                 let _this=this;
+                 _this.readURL(inputTypeFile,inputTypeFile.parentElement.previousSibling,$("#update"));
+         },
+         readURL:function(inputTypeFile,img,btn){
+                        if(inputTypeFile.files[0]!=null){
+                            var file=inputTypeFile.files[0];
+                            var allowTypes="image.*";
+                            if (file.type.match(allowTypes)){
+                                btn.disabled = false;
+                                var reader=new FileReader();
+                                reader.onload=function(e){
+                                    img.src=e.target.result;
+                                    img.title=file.name;
+                                };
+                                reader.readAsDataURL(file);
+
+                            }
+                            else{
+                                alert("不允許的檔案上傳類型！");
+                                btn.disabled = true;
+                                inputTypeFile.value="";
+                            }
+                        }
+         },
         
       },
       
