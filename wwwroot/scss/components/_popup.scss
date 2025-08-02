@@ -80,7 +80,7 @@
         }
     
         &-btn {
-            @apply px-2 py-4 rounded-md border-none cursor-pointer para items-center gap-2 transition-all;
+            @apply px-2 py-4 rounded-md border-none cursor-pointer text-[14px] items-center gap-2 transition-all;
             &primary {
                 @apply bg-[#FF4C29] text-white;
             }
