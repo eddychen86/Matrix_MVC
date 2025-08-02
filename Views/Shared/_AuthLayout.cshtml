@@ -1,50 +1,48 @@
 <!DOCTYPE html>
 <html lang="@System.Globalization.CultureInfo.CurrentUICulture.Name">
 
-    <head>
-        <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Matrix</title>
-        <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-        <link rel="stylesheet" href="~/css/components.css" asp-append-version="true" />
-    </head>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Matrix</title>
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/components.css" asp-append-version="true" />
+    @await RenderSectionAsync("Styles", required: false)
+</head>
 
-    <body class="w-screen h-screen">
-        @RenderBody()
+<body class="w-screen h-screen">
+    @RenderBody()
 
-        <script src="~/lib/jquery/jquery.min.js"></script>
-        <script src="~/lib/vue/dist/vue.global.js"></script>
-        <script src="~/lib/lucide/dist/umd/lucide.min.js"></script>
+    <script src="~/lib/jquery/jquery.min.js"></script>
 
-        <script>
-            lucide.createIcons();
-            $(document).ready(function() {
-                const { createApp, ref, onMounted } = Vue
+    @* 非開發環境 (標準版) *@
+    <environment include="Development">
+        <script src="~/lib/vue/dist/vue.global.prod.js" asp-append-version="true"></script>
+    </environment>
+    @*   開發環境 (精簡版) *@
+    <environment exclude="Development">
+        <script src="~/lib/vue/dist/vue.global.js" asp-append-version="true"></script>
+    </environment>
 
-                createApp({
-                    setup() {
-                        const isLoginPage = ref(window.location.pathname.toLowerCase() === '/login')
-                        const isForgot = ref(false)
-                        
-                        const toggleOpen = () => isForgot.value = true
-                        const toggleClose = () => isForgot.value = false
+    <script src="~/lib/lucide/dist/umd/lucide.min.js"></script>
 
-                        onMounted(() => {
-                            $('#auth-body').addClass(isLoginPage.value ? 'auth-layout_login' : 'auth-layout_register')
-                        })
-                        
-                        return {
-                            isLoginPage,
-                            isForgot,
-                            toggleOpen,
-                            toggleClose
-                        }
-                    }
-                }).mount('#auth-body')
-            })
-        </script>
+    <script>
+        // 初始化 Lucide 圖標
+        lucide.createIcons();
 
-        @await RenderSectionAsync("Scripts", required: false)
-    </body>
+        // 等待 DOM 加載完成
+        document.addEventListener('DOMContentLoaded', function () {
+            // 檢查是否為登入頁面，並添加對應的 CSS 類別
+            const isLoginPage = window.location.pathname.toLowerCase() === '/login';
+            const authBody = document.getElementById('auth-body');
+
+            if (authBody) {
+                authBody.classList.add(isLoginPage ? 'auth-layout_login' : 'auth-layout_register');
+            }
+        });
+    </script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
 
 </html>

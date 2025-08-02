@@ -11,20 +11,27 @@ Matrix is a sanctuary for Web3 pioneers and deep-tech enthusiasts, designed to f
 
 
 ## Steps
-First, you need to install libman if you don't have or doesn't use Visual Studio, please enter this command line to your terminal:
-```
-dotnet tool install Microsoft.Web.LibraryManager.Cli
-```
-After installed libman, you need to install the dependency packages into the `wwwroot/lib` folder.
-```
-dotnet tool run libman restore
-```
-Then, you also need to install these packages and tools.
-<i><b>If you are using Visual Studio, you can install it in Nuget Extensions Management.</b></i>
-```
-dotnet add package DotNetEnv
-dotnet add package Microsoft.EntityFrameworkCore.Proxies --version 8.0.11
-```
+1. You need to install NodeJS
+2. Install sass
+    ```
+    npm i -g sass
+    ```
+3. You need to install libman if you don't have or doesn't use Visual Studio, please enter this command line to your terminal:
+    ```
+    dotnet tool install Microsoft.Web.LibraryManager.Cli
+    npm i -g sass
+    ```
+4. You need to install the dependency packages into the `wwwroot/lib` folder.
+    ```
+    dotnet tool run libman restore
+    ```
+5. You also need to install these packages and tools.
+    <i><b>If you are using Visual Studio, you can install it in Nuget Extensions Management.</b></i>
+    ```
+    dotnet add package Microsoft.EntityFrameworkCore.Proxies --version 8.0.11
+    dotnet add package MailKit
+    ```
+<br />
 Because this project used DaisyUI UI Library, you need to install tailwindcss CLI and DaisyUI.<br>
 
   1. Get Tailwind CSS executable
@@ -40,8 +47,8 @@ Because this project used DaisyUI UI Library, you need to install tailwindcss CL
       ```
       Make the file executable (For Linux and MacOS): `chmod +x tailwindcss`
 
-  2. Get daisyUI bundled JS file (already have)
-  3. Watch CSS
+  1. Get daisyUI bundled JS file (already have)
+  2. Watch CSS
       When you execute the following command, "tailwindcss" will be listened in the background.
       ###### MacOS
       ```
