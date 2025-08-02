@@ -120,3 +120,106 @@ dotnet new view -n <cshtml name> -o <target folder>      # 建立新視圖
 6.  Entity Framework Core 讀取 `ArticleConfiguration` 以了解如何建立 SQL `INSERT` 陳述式，並將資料寫入資料庫。
 
 這種關注點分離使得應用程式更容易維護、測試和擴展。
+
+---
+
+## Code First 規範與最佳實務
+
+本專案遵循 **Entity Framework Core Code First** 方法，這意味著資料庫結構是從程式碼 (Models) 生成的。為了維持程式碼完整性並避免同步問題，請遵循以下指導原則：
+
+### 🚨 **絕對不要** 直接修改資料庫！
+
+進行資料庫變更時，**務必** 使用 Code First 工作流程：
+
+### 正確的資料庫變更工作流程
+
+1. **先修改 Model** 在 `/Models/` 資料夾中
+2. **更新 Configuration** 如有需要，在 `/Data/Configurations/` 中
+3. **建立 Migration** 使用 EF Core 工具
+4. **套用 Migration** 來更新資料庫
+
+### 必要指令
+
+```bash
+# 在模型變更後新增 migration
+dotnet ef migrations add <MigrationName>
+
+# 套用待處理的 migration 到資料庫
+dotnet ef database update
+
+# 移除最後一個 migration (如果尚未套用)
+dotnet ef migrations remove
+
+# 檢查 migration 狀態
+dotnet ef migrations list
+
+# 從 migration 生成 SQL 腳本
+dotnet ef migrations script
+```
+
+### 逐步範例：新增新欄位
+
+1. **將欄位新增到您的 Model：**
+   ```csharp
+   // 在 Models/Person.cs 中
+   [MaxLength(100)]
+   public string? NewField { get; set; }
+   ```
+
+2. **更新 Configuration (如有需要)：**
+   ```csharp
+   // 在 Data/Configurations/PersonConfiguration.cs 中
+   builder.Property(p => p.NewField)
+       .HasMaxLength(100);
+   ```
+
+3. **建立 Migration：**
+   ```bash
+   dotnet ef migrations add AddNewFieldToPerson
+   ```
+
+4. **套用 Migration：**
+   ```bash
+   dotnet ef database update
+   ```
+
+### 常見情況與解決方案
+
+#### 🔄 **如果有人意外直接修改了資料庫：**
+
+1. 手動將缺失的欄位新增到適當的 Model
+2. 如有需要，更新 Configuration
+3. **從資料庫中刪除手動新增的欄位**
+4. 建立新的 migration：`dotnet ef migrations add RestoreCodeFirstIntegrity`
+5. 套用 migration：`dotnet ef database update`
+
+#### 🔍 **檢查同步問題：**
+```bash
+# 如果一切都同步，這將建立一個空的 migration
+dotnet ef migrations add CheckSync
+
+# 如果 migration 是空的，請移除它
+dotnet ef migrations remove
+```
+
+#### 📝 **Migration 命名慣例：**
+- 使用描述性名稱：`AddUserEmailField`、`UpdateArticleConstraints`
+- 使用 PascalCase 格式
+- 包含動作和受影響的實體
+
+### 資料庫連線
+
+專案使用 Entity Framework Core 搭配 SQL Server。連線字串應該在以下位置設定：
+- `appsettings.json` 用於正式環境
+- `appsettings.Development.json` 用於開發環境
+- 或使用 `.env` 檔案 (搭配 DotNetEnv 套件)
+
+### ⚠️ 重要注意事項
+
+- **絕對不要** 對資料庫執行直接的 SQL 命令來變更結構
+- **務必** 先在開發資料庫上測試 migration
+- 在正式環境套用 migration 之前，**務必備份** 您的資料庫
+- 套用前**務必檢查** 生成的 migration 程式碼
+- **務必將** migration 檔案保存在版本控制中
+
+遵循這些指導原則可確保您的資料庫結構與程式碼保持同步，並防止資料遺失或損壞問題。

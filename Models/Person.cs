@@ -45,7 +45,25 @@ namespace Matrix.Models
         public string? BannerPath { get; set; }
 
         /// <summary>
-        /// 用戶的外部網站連結
+        /// 用戶的外部網站連結 1
+        /// </summary>
+        [MaxLength(2048)]
+        public string? Website1 { get; set; }
+
+        /// <summary>
+        /// 用戶的外部網站連結 2
+        /// </summary>
+        [MaxLength(2048)]
+        public string? Website2 { get; set; }
+
+        /// <summary>
+        /// 用戶的外部網站連結 3
+        /// </summary>
+        [MaxLength(2048)]
+        public string? Website3 { get; set; }
+
+        /// <summary>
+        /// 用戶的外部網站連結 (主要連結)
         /// </summary>
         [MaxLength(2048)]
         public string? ExternalUrl { get; set; }
