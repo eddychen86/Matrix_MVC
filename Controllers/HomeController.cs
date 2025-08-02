@@ -62,7 +62,6 @@ public class HomeController : WebControllerBase
         ViewBag.DefaultList = default_list;
 
         //取得好友欄位資料
-
         var currentUserId = Guid.Parse("870c0b75-97a3-4e4f-8215-204d5747d28c");
 
         var friends = await _context.Friendships
@@ -82,74 +81,10 @@ public class HomeController : WebControllerBase
             })
             .ToListAsync();
 
-        //假好友資料
-        var friendListdmeo = new List<Matrix.ViewModels.FriendListViewModel>
-        {
-            new Matrix.ViewModels.FriendListViewModel
-            {
-                UserId = "1",
-                UserName = "DoGG",
-                AvatarPath = "https://images.unsplash.com/photo-1518717758536-85ae29035b6d?auto=format&fit=facearea&w=80&h=80"
-            },
-            new Matrix.ViewModels.FriendListViewModel
-            {
-                UserId = "2",
-                UserName = "短腿橘貓",
-                AvatarPath = "https://images.unsplash.com/photo-1518715308788-3005759c61d4?auto=format&fit=facearea&w=80&h=80"
-            },
-            new Matrix.ViewModels.FriendListViewModel
-            {
-                UserId = "3",
-                UserName = "呆萌虎斑",
-                AvatarPath = "https://images.unsplash.com/photo-1515378791036-0648a3ef77b2?auto=format&fit=facearea&w=80&h=80"
-            },
-            new Matrix.ViewModels.FriendListViewModel
-            {
-                UserId = "4",
-                UserName = "WhiteDoGG",
-                AvatarPath = "https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=facearea&w=80&h=80"
-            },
-            new Matrix.ViewModels.FriendListViewModel
-            {
-                UserId = "5",
-                UserName = "藍眼貓咪",
-                AvatarPath = "https://images.unsplash.com/photo-1508672019048-805c876b67e2?auto=format&fit=facearea&w=80&h=80"
-            },
-            new Matrix.ViewModels.FriendListViewModel
-            {
-                UserId = "6",
-                UserName = "貓咪老大",
-                AvatarPath = "https://images.unsplash.com/photo-1518715308788-3005759c61d4?auto=format&fit=facearea&w=80&h=80"
-            },
-            new Matrix.ViewModels.FriendListViewModel
-            {
-                UserId = "7",
-                UserName = "黑白喵喵",
-                AvatarPath = "https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=facearea&w=80&h=80"
-            },
-            new Matrix.ViewModels.FriendListViewModel
-            {
-                UserId = "8",
-                UserName = "雙下巴貓",
-                AvatarPath = "https://images.unsplash.com/photo-1518715058639-2d3db6be0b18?auto=format&fit=facearea&w=80&h=80"
-            },
-            new Matrix.ViewModels.FriendListViewModel
-            {
-                UserId = "9",
-                UserName = "微笑虎斑",
-                AvatarPath = "https://images.unsplash.com/photo-1518717758536-85ae29035b6d?auto=format&fit=facearea&w=80&h=80"
-            },
-            new Matrix.ViewModels.FriendListViewModel
-            {
-                UserId = "10",
-                UserName = "瞇眼橘貓",
-                AvatarPath = "https://images.unsplash.com/photo-1518715308788-3005759c61d4?auto=format&fit=facearea&w=80&h=80"
-            }
-
-        };
-
         ViewBag.FriendList = friendList;
-        ViewBag.FriendListdmeo = friendListdmeo;
+
+        //取得發文者資料
+
 
         // 傳遞認證狀態給前端
         ViewBag.IsAuthenticated = isAuthenticated;
