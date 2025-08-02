@@ -124,3 +124,106 @@ Here is an explanation of their roles and relationships:
 6.  Entity Framework Core reads the `ArticleConfiguration` to understand how to build the SQL `INSERT` statement and writes the data to the database.
 
 This separation of concerns makes the application easier to maintain, test, and scale.
+
+---
+
+## Code First Guidelines & Best Practices
+
+This project follows the **Entity Framework Core Code First** approach, which means the database schema is generated from the code (Models). To maintain code integrity and avoid synchronization issues, please follow these guidelines:
+
+### 🚨 **NEVER** modify the database directly!
+
+**ALWAYS** use the Code First workflow when making database changes:
+
+### Correct Workflow for Database Changes
+
+1. **Modify the Model** first in the `/Models/` folder
+2. **Update the Configuration** if needed in `/Data/Configurations/`
+3. **Create a Migration** using EF Core tools
+4. **Apply the Migration** to update the database
+
+### Essential Commands
+
+```bash
+# Add a new migration after model changes
+dotnet ef migrations add <MigrationName>
+
+# Apply pending migrations to database
+dotnet ef database update
+
+# Remove the last migration (if not yet applied)
+dotnet ef migrations remove
+
+# Check migration status
+dotnet ef migrations list
+
+# Generate SQL script from migrations
+dotnet ef migrations script
+```
+
+### Step-by-Step Example: Adding a New Field
+
+1. **Add the field to your Model:**
+   ```csharp
+   // In Models/Person.cs
+   [MaxLength(100)]
+   public string? NewField { get; set; }
+   ```
+
+2. **Update Configuration (if needed):**
+   ```csharp
+   // In Data/Configurations/PersonConfiguration.cs
+   builder.Property(p => p.NewField)
+       .HasMaxLength(100);
+   ```
+
+3. **Create Migration:**
+   ```bash
+   dotnet ef migrations add AddNewFieldToPerson
+   ```
+
+4. **Apply Migration:**
+   ```bash
+   dotnet ef database update
+   ```
+
+### Common Scenarios & Solutions
+
+#### 🔄 **If someone accidentally modified the database directly:**
+
+1. Manually add the missing fields to the appropriate Model
+2. Update the Configuration if needed
+3. **Delete the manually added columns from the database**
+4. Create a new migration: `dotnet ef migrations add RestoreCodeFirstIntegrity`
+5. Apply the migration: `dotnet ef database update`
+
+#### 🔍 **Checking for synchronization issues:**
+```bash
+# This will create an empty migration if everything is in sync
+dotnet ef migrations add CheckSync
+
+# If the migration is empty, remove it
+dotnet ef migrations remove
+```
+
+#### 📝 **Migration naming conventions:**
+- Use descriptive names: `AddUserEmailField`, `UpdateArticleConstraints`
+- Use PascalCase format
+- Include the action and affected entity
+
+### Database Connection
+
+The project uses Entity Framework Core with SQL Server. Connection string should be configured in:
+- `appsettings.json` for production
+- `appsettings.Development.json` for development
+- Or use `.env` file (with DotNetEnv package)
+
+### ⚠️ Important Notes
+
+- **Never** run direct SQL commands on the database for schema changes
+- **Always** test migrations on a development database first
+- **Backup** your database before applying migrations in production
+- **Review** generated migration code before applying
+- **Keep** migration files in version control
+
+Following these guidelines ensures that your database schema stays in sync with your code and prevents data loss or corruption issues.
