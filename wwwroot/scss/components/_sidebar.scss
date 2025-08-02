@@ -1,89 +1,68 @@
 @layer components {
   .sidebar {
-    @apply bg-secondary text-white text-3xl h-full rounded-[30px] p-10 flex flex-col justify-between transition-[width] duration-300;
+    @apply bg-secondary text-white text-3xl h-full rounded-[30px] p-5 flex flex-col justify-between transition-[width] duration-300;
 
     li {
-      @apply flex flex-col gap-2 px-5 overflow-hidden;
+      @apply
+        flex flex-col gap-2 overflow-hidden
+        px-3 md:px-5
+      ;
 
       &:last-child {
-        @apply bg-white w-full flex flex-col text-black py-5 rounded-3xl;
+        @apply bg-white w-full flex flex-col text-black p-3 rounded-3xl;
+        button {
+          @apply hover:bg-gray-200 !px-1 w-full;
+        }
       }
 
-      button span,
-      a span {
-        @apply absolute left-18 truncate;
+      span {
+        @apply
+          absolute truncate
+          left-10 md:left-18
+        ;
       }
 
-      button,
-      a {
+      .cts-btn {
+        @apply px-0;
+      }
+
+      button, a {
         @apply overflow-hidden;
       }
     }
 
     // 小螢幕：sidebar-open 表示收合，sidebar-close 表示展開
     &-open {
-      @apply items-center w-[100px];
+      @apply w-[100px];
 
-      button span,
-      a span {
+      span {
         @apply opacity-0;
-      }
-
-      li:last-child {
-        @apply px-1;
-
-        button {
-          @apply px-0;
-        }
       }
     }
 
     &-close {
-      @apply w-[280px];
+      @apply w-[180px];
 
-      button span,
-      a span {
+      span {
         @apply opacity-100;
-      }
-
-      li:last-child button {
-        @apply px-2;
       }
     }
 
     // 大螢幕：恢復原本的邏輯
     @media (min-width: 640px) {
       &-open {
-        @apply w-[280px] lg:w-[350px] items-stretch;
+        @apply w-[200px] md:w-[260px] items-stretch;
 
-        button span,
-        a span {
+        span {
           @apply opacity-100;
-        }
-
-        li:last-child {
-          @apply px-3;
-
-          button {
-            @apply px-2 lg:px-4;
-          }
         }
       }
 
       &-close {
-        @apply items-center w-[100px] lg:w-[150px];
+        @apply w-[100px] md:w-[130px];
 
-        button span,
-        a span {
+        span {
           @apply opacity-0;
-        }
-
-        li:last-child {
-          @apply px-1 lg:px-3;
-
-          button {
-            @apply px-0;
-          }
         }
       }
     }

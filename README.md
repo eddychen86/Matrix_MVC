@@ -11,20 +11,27 @@ Matrix is a sanctuary for Web3 pioneers and deep-tech enthusiasts, designed to f
 
 
 ## Steps
-First, you need to install libman if you don't have or doesn't use Visual Studio, please enter this command line to your terminal:
-```
-dotnet tool install Microsoft.Web.LibraryManager.Cli
-```
-After installed libman, you need to install the dependency packages into the `wwwroot/lib` folder.
-```
-dotnet tool run libman restore
-```
-Then, you also need to install these packages and tools.
-<i><b>If you are using Visual Studio, you can install it in Nuget Extensions Management.</b></i>
-```
-dotnet add package DotNetEnv
-dotnet add package Microsoft.EntityFrameworkCore.Proxies --version 8.0.11
-```
+1. You need to install NodeJS
+2. Install sass
+    ```
+    npm i -g sass
+    ```
+3. You need to install libman if you don't have or doesn't use Visual Studio, please enter this command line to your terminal:
+    ```
+    dotnet tool install Microsoft.Web.LibraryManager.Cli
+    npm i -g sass
+    ```
+4. You need to install the dependency packages into the `wwwroot/lib` folder.
+    ```
+    dotnet tool run libman restore
+    ```
+5. You also need to install these packages and tools.
+    <i><b>If you are using Visual Studio, you can install it in Nuget Extensions Management.</b></i>
+    ```
+    dotnet add package Microsoft.EntityFrameworkCore.Proxies --version 8.0.11
+    dotnet add package MailKit
+    ```
+<br />
 Because this project used DaisyUI UI Library, you need to install tailwindcss CLI and DaisyUI.<br>
 
   1. Get Tailwind CSS executable
@@ -40,8 +47,8 @@ Because this project used DaisyUI UI Library, you need to install tailwindcss CL
       ```
       Make the file executable (For Linux and MacOS): `chmod +x tailwindcss`
 
-  2. Get daisyUI bundled JS file (already have)
-  3. Watch CSS
+  1. Get daisyUI bundled JS file (already have)
+  2. Watch CSS
       When you execute the following command, "tailwindcss" will be listened in the background.
       ###### MacOS
       ```
@@ -117,3 +124,106 @@ Here is an explanation of their roles and relationships:
 6.  Entity Framework Core reads the `ArticleConfiguration` to understand how to build the SQL `INSERT` statement and writes the data to the database.
 
 This separation of concerns makes the application easier to maintain, test, and scale.
+
+---
+
+## Code First Guidelines & Best Practices
+
+This project follows the **Entity Framework Core Code First** approach, which means the database schema is generated from the code (Models). To maintain code integrity and avoid synchronization issues, please follow these guidelines:
+
+### 🚨 **NEVER** modify the database directly!
+
+**ALWAYS** use the Code First workflow when making database changes:
+
+### Correct Workflow for Database Changes
+
+1. **Modify the Model** first in the `/Models/` folder
+2. **Update the Configuration** if needed in `/Data/Configurations/`
+3. **Create a Migration** using EF Core tools
+4. **Apply the Migration** to update the database
+
+### Essential Commands
+
+```bash
+# Add a new migration after model changes
+dotnet ef migrations add <MigrationName>
+
+# Apply pending migrations to database
+dotnet ef database update
+
+# Remove the last migration (if not yet applied)
+dotnet ef migrations remove
+
+# Check migration status
+dotnet ef migrations list
+
+# Generate SQL script from migrations
+dotnet ef migrations script
+```
+
+### Step-by-Step Example: Adding a New Field
+
+1. **Add the field to your Model:**
+   ```csharp
+   // In Models/Person.cs
+   [MaxLength(100)]
+   public string? NewField { get; set; }
+   ```
+
+2. **Update Configuration (if needed):**
+   ```csharp
+   // In Data/Configurations/PersonConfiguration.cs
+   builder.Property(p => p.NewField)
+       .HasMaxLength(100);
+   ```
+
+3. **Create Migration:**
+   ```bash
+   dotnet ef migrations add AddNewFieldToPerson
+   ```
+
+4. **Apply Migration:**
+   ```bash
+   dotnet ef database update
+   ```
+
+### Common Scenarios & Solutions
+
+#### 🔄 **If someone accidentally modified the database directly:**
+
+1. Manually add the missing fields to the appropriate Model
+2. Update the Configuration if needed
+3. **Delete the manually added columns from the database**
+4. Create a new migration: `dotnet ef migrations add RestoreCodeFirstIntegrity`
+5. Apply the migration: `dotnet ef database update`
+
+#### 🔍 **Checking for synchronization issues:**
+```bash
+# This will create an empty migration if everything is in sync
+dotnet ef migrations add CheckSync
+
+# If the migration is empty, remove it
+dotnet ef migrations remove
+```
+
+#### 📝 **Migration naming conventions:**
+- Use descriptive names: `AddUserEmailField`, `UpdateArticleConstraints`
+- Use PascalCase format
+- Include the action and affected entity
+
+### Database Connection
+
+The project uses Entity Framework Core with SQL Server. Connection string should be configured in:
+- `appsettings.json` for production
+- `appsettings.Development.json` for development
+- Or use `.env` file (with DotNetEnv package)
+
+### ⚠️ Important Notes
+
+- **Never** run direct SQL commands on the database for schema changes
+- **Always** test migrations on a development database first
+- **Backup** your database before applying migrations in production
+- **Review** generated migration code before applying
+- **Keep** migration files in version control
+
+Following these guidelines ensures that your database schema stays in sync with your code and prevents data loss or corruption issues.

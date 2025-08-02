@@ -14,7 +14,7 @@ namespace Matrix.Models
         /// 改用 UUID 以確保唯一性和安全性，並以 ArrayExtension.GenerateOrdered(1)[0] 方法生成一個劇時間排序的唯一的值
         /// </summary>
         [Key]
-        public Guid FollowId { get; set; } = ArrayExtension.GenerateOrdered(1)[0];
+        public Guid FollowId { get; set; } = Guid.NewGuid();
 
         /// <summary>
         /// 關注者的 UserId
@@ -28,6 +28,7 @@ namespace Matrix.Models
 
         /// <summary>
         /// 關注類型，用於區分不同種類的關注關係
+        /// 0: 文章、1: 使用者
         /// </summary>
         public int Type { get; set; }
 

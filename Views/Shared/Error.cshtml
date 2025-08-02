@@ -75,13 +75,31 @@
     </section>
 
     <script src="~/lib/jquery/jquery.min.js"></script>
-    <script src="~/lib/vue/dist/vue.global.js"></script>
+
+    @* 非開發環境 (標準版) *@
+	<environment include="Development">
+			<script src="~/lib/vue/dist/vue.global.prod.js" asp-append-version="true"></script>
+	</environment>
+	@*   開發環境 (精簡版) *@
+	<environment exclude="Development">
+			<script src="~/lib/vue/dist/vue.global.js" asp-append-version="true"></script>
+	</environment>
+
     <script src="~/lib/lucide/dist/umd/lucide.min.js"></script>
     <script>
+        // 初始化 Lucide 圖標
         lucide.createIcons();
 
-        const $try = $('#tryAgain')
-        $try.on('click', () => window.location.reload())
+        // 等待 DOM 加載完成
+        document.addEventListener('DOMContentLoaded', function() {
+            // 綁定 "try again" 按鈕事件
+            const tryAgainBtn = document.getElementById('tryAgain');
+            if (tryAgainBtn) {
+                tryAgainBtn.addEventListener('click', function() {
+                    window.location.reload();
+                });
+            }
+        });
     </script>
 </body>
 

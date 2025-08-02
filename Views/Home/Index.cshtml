@@ -1,43 +1,176 @@
 ﻿@model List<Matrix.Models.Article>
-@{
-    ViewData["Title"] = "News";
-}
-
+@using Matrix.Services
+@inject ICustomLocalizer Localizer
 <section class="flex min-h-screen">
     <div id="news_list" class="w-full">
-        <div id="hot_news" class="flex mx-auto w-[650px]">
+        <!-- 熱門文章輪播 -->
+        <div id="hot_news" class="flauto max-w-3xl mb-8">
             <ul class="carousel carousel-center gap-4 w-[600px] text-center">
-                @* @foreach (var item in ViewBag.HotList)
+                @if (ViewBag.HotList != null)
                 {
-                    <li class="carousel-item w-[190px] h-[250px] overflow-hidden rounded-[30px]">
-                        <div class="card bg-base-100 image-full  shadow-sm">
-                            <figure>
-                                <img src="@item." alt="" />
-                            </figure>
-                            <div class="card-body">
-                                <div>
-                                    <img src="" alt="">
-                                    <h2 class="card-title">@(item.Author?.UserName ?? "")</h2>
-                                </div>
-                                <div class="card-actions justify-end">
-                                    <p>@item.Content</p>
+                    @foreach (var item in ViewBag.HotList)
+                    {
+                        <li class="carousel-item w-[190px] h-[250px] overflow-hidden rounded-[30px]">
+                            <div class="card bg-base-100 image-full shadow-sm">
+                                <figure>
+                                    @if (item.image != null)
+                                    {
+                                        <img src="@item.image.FilePath" alt="@item.Article.Content" class="w-full h-full object-cover" />
+                                    }
+                                    else
+                                    {
+                                        <div class="w-full h-full bg-accent flex items-center justify-center">
+                                            <i data-lucide="image" class="w-12 h-12 text-gray-400"></i>
+                                        </div>
+                                    }
+                                </figure>
+                                <div class="card-body">
+                                    <div class="flex items-center gap-2 mb-2">
+                                        <div class="w-8 h-8 bg-orange rounded-full flex items-center justify-center">
+                                            <span class="text-white text-sm font-bold">@item.Author.DisplayName?.Substring(0, 1).ToUpper()</span>
+                                        </div>
+                                        <h2 class="card-title text-sm">@(item.Author?.DisplayName ?? item.Author?.UserId.ToString())</h2>
+                                    </div>
+                                    <div class="card-actions justify-end">
+                                        <p class="text-xs line-clamp-3">@item.Article.Content</p>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    </li>
-                } *@
+                        </li>
+                    }
+                }
             </ul>
         </div>
-        <div>
-            
+
+        <!-- 文章列表 -->
+        <div id="article_list" class="max-w-3xl mx-auto px-4">
+            @if (ViewBag.DefaultList != null)
+            {
+                @for (int i = 0; i < ViewBag.DefaultList.Count; i++)
+                {
+                    var item = ViewBag.DefaultList[i];
+                    <article class="bg-accent rounded-xl p-6 mb-6 border border-accent/20 hover:border-accent/40 transition-colors" data-article-index="@i">
+                        @* 文章標題區 *@
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 bg-orange rounded-full flex items-center justify-center overflow-hidden">
+                                    @if (item.Author.AvatarPath != null){
+                                        <img src="@item.Author.AvatarPath" alt="@item.Author.DisplayName" class="w-full h-full object-cover object-center" />
+                                    } else {
+                                        <span class="text-white font-bold">@item.Author.DisplayName?.Substring(0, 1).ToUpper()</span>
+                                    }
+                                </div>
+                                <div>
+                                    <h3 class="text-white font-medium">@(item.Author?.DisplayName ?? Localizer["GuestAccount"])</h3>
+                                    <p class="text-gray-400 text-sm">@item.Article.CreateTime.ToString("yyyy-MM-dd HH:mm")</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-2 text-gray-400 text-sm">
+                                <i data-lucide="heart" class="w-4 h-4"></i>
+                                <span>@item.Article.PraiseCount</span>
+                                <i data-lucide="bookmark" class="w-4 h-4 ml-2"></i>
+                                <span>@item.Article.CollectCount</span>
+                            </div>
+                        </div>
+
+                        @* 文章內容 *@
+                        <div class="text-gray-300 mb-4 leading-relaxed">
+                            @Html.Raw(item.Article.Content?.Length > 300 
+                                ? item.Article.Content.Substring(0, 300) + "..." 
+                                : item.Article.Content)
+                        </div>
+
+                        @* 文章圖片 *@
+                        @if (item.image != null)
+                        {
+                            <div class="mb-4 rounded-lg overflow-hidden">
+                                <img src="@item.image.FilePath" alt="" class="w-full max-h-96 object-cover hover:scale-105 transition-transform duration-300" />
+                            </div>
+                        }
+
+                        @* 文章操作列 *@
+                        <div class="flex items-center justify-between pt-4 border-t border-accent/20">
+                            <div class="flex items-center gap-4">
+                                @if (ViewBag.IsAuthenticated == true)
+                                {
+                                    <button class="flex items-center gap-2 text-gray-400 hover:text-orange transition-colors">
+                                        <i data-lucide="heart" class="w-4 h-4">@Localizer["Praise"]</i>
+                                    </button>
+                                    <button class="flex items-center gap-2 text-gray-400 hover:text-orange transition-colors">
+                                        <i data-lucide="message-circle" class="w-4 h-4"></i>
+                                        <span data-i18n="Comment">@Localizer["Comment"]</span>
+                                    </button>
+                                    <button class="flex items-center gap-2 text-gray-400 hover:text-orange transition-colors">
+                                        <i data-lucide="share" class="w-4 h-4"></i>
+                                        <span data-i18n="Share">@Localizer["Share"]</span>
+                                    </button>
+                                    <button class="flex items-center gap-2 text-gray-400 hover:text-orange transition-colors">
+                                        <i data-lucide="bookmark" class="w-4 h-4"></i>
+                                        <span data-i18n="Collect">@Localizer["Collect"]</span>
+                                    </button>
+                                }
+                                else
+                                {
+                                    <span class="flex items-center gap-2 text-gray-500 text-sm">
+                                        <i data-lucide="lock" class="w-4 h-4"></i>
+                                        <span data-i18n="GuestBrowseMsg">@Localizer["GuestBrowseMsg"]</span>
+                                    </span>
+                                }
+                            </div>
+                        </div>
+                    </article>
+                }
+            }
+            else
+            {
+                <div class="text-center py-12">
+                    <i data-lucide="inbox" class="w-16 h-16 text-gray-400 mx-auto mb-4"></i>
+                    <p class="text-gray-400 text-lg" data-i18n="NoArticlesMsg">@Localizer["NoArticlesMsg"]</p>
+                </div>
+            }
+
+            @* 訪客限制提示（僅在訪客狀態下顯示） *@
+            @* @if (ViewBag.IsGuest == true && ViewBag.IsAuthenticated == false)
+            {
+                <div class="text-center py-8 border-t border-accent/20">
+                    <div class="bg-secondary rounded-xl p-6 border border-accent/20">
+                        <h3 class="text-white text-lg font-medium mb-2" data-i18n="AllContentViewedTitle">@Localizer["AllContentViewedTitle"]</h3>
+                        <p class="text-gray-400 mb-4" data-i18n="LoginForMoreContentMsg">@Localizer["LoginForMoreContentMsg"]</p>
+                        <a href="/login" class="inline-flex items-center gap-2 bg-orange text-white px-6 py-2 rounded-full hover:bg-orange-600 transition-colors">
+                            <i data-lucide="log-in" class="w-4 h-4"></i>
+                            <span data-i18n="LoginNowBtn">@Localizer["LoginNowBtn"]</span>
+                        </a>
+                    </div>
+                </div>
+            } *@
         </div>
     </div>
-    <aside id="friends_list" class="h-screen w-[300px] border">
 
+    @* 好友列表 *@
+    <aside id="friends_list" class="h-screen w-[300px] border-l border-accent/20 p-4">
+        
     </aside>
 </section>
 
 @section Scripts {
     <script>
+        // 將 ViewBag 資料傳遞給前端 JavaScript
+        window.matrixAuthData = {
+            isAuthenticated: @Html.Raw(ViewBag.IsAuthenticated?.ToString().ToLower() ?? "false"),
+            isGuest: @Html.Raw(ViewBag.IsGuest?.ToString().ToLower() ?? "false"),
+            articleLimit: @(ViewBag.ArticleLimit ?? 10),
+            totalArticles: @(ViewBag.TotalPublicArticles ?? 0)
+        };
+
+        @* console.log('Matrix Auth Data:', window.matrixAuthData); *@
+
+        // 為測試目的，可以手動觸發 Popup
+        window.testLoginPopup = function() {
+            if (window.guestAccessControl) {
+                window.guestAccessControl.forceShowPopup();
+            } else {
+                console.log('訪客控制尚未初始化');
+            }
+        };
     </script>
 }

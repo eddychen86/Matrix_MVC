@@ -1,15 +1,10 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authorization;
-using Matrix.Models;
-using Matrix.Data;
-using Matrix.ViewModels;
-using Microsoft.EntityFrameworkCore;
 
 namespace Matrix.Controllers;
 
-public class HomeController : Controller
+public class HomeController : WebControllerBase
 {
     private readonly ApplicationDbContext _context;
     private readonly ILogger<HomeController> _logger;
@@ -23,11 +18,23 @@ public class HomeController : Controller
     [AllowAnonymous]
     public async Task<IActionResult> Index()
     {
-        // 取得所有文章（lazy loading 會自動載入 Author）
-        var articles = await _context.Articles
+        // 檢查用戶認證狀態
+        var isAuthenticated = HttpContext.Items["IsAuthenticated"] as bool? ?? false;
+        var isGuest = HttpContext.Items["IsGuest"] as bool? ?? false;
+
+        // 根據認證狀態決定文章數量限制
+        int articleLimit = isAuthenticated ? int.MaxValue : 10; // 訪客只能看10篇
+
+        // 取得文章資料
+        var articlesQuery = _context.Articles
             .Include(a => a.Attachments)
             .Include(a => a.Author)
-            .OrderByDescending(a => a.CreateTime)
+            .Where(a => a.IsPublic == 0) // 只顯示公開文章
+            .OrderByDescending(a => a.CreateTime);
+
+        // 根據認證狀態限制文章數量
+        var articles = await articlesQuery
+            .Take(articleLimit)
             .Select(a => new
             {
                 Article = a,
@@ -37,11 +44,25 @@ public class HomeController : Controller
                     : null
             })
             .ToListAsync();
+
         var hot_list = articles.Take(5);
         var default_list = articles;
 
         ViewBag.HotList = hot_list;
         ViewBag.DefaultList = default_list;
+
+        // 傳遞認證狀態給前端
+        ViewBag.IsAuthenticated = isAuthenticated;
+        ViewBag.IsGuest = isGuest;
+        ViewBag.ArticleLimit = articleLimit;
+        ViewBag.TotalPublicArticles = await _context.Articles.CountAsync(a => a.IsPublic == 0);
+
+        _logger.LogInformation(
+            "Index loaded - Authenticated: {IsAuthenticated}, Articles shown: {ArticleCount}/{TotalCount}",
+            isAuthenticated,
+            articles.Count(),
+            (int)ViewBag.TotalPublicArticles
+        );
 
         return View();
     }

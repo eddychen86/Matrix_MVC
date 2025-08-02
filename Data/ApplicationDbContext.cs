@@ -1,8 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Matrix.Data.Configurations;
-using Matrix.Models;
-
-namespace Matrix.Data{
+﻿namespace Matrix.Data{
 
     /// <summary>
     /// 應用程式資料庫上下文類別，繼承自 Entity Framework Core 的 DbContext，

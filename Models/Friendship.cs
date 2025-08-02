@@ -25,7 +25,7 @@ namespace Matrix.Models
         /// 改用 UUID 以確保唯一性和安全性，並以 ArrayExtension.GenerateOrdered(1)[0] 方法生成一個劇時間排序的唯一的值
         /// </summary>
         [Key]
-        public Guid FriendshipId { get; set; } = ArrayExtension.GenerateOrdered(1)[0];
+        public Guid FriendshipId { get; set; } = Guid.NewGuid();
 
         /// <summary>
         /// 發出好友邀請的 UserId

@@ -279,6 +279,18 @@ namespace Matrix.Migrations
                     b.Property<string>("WalletAddress")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Website1")
+                        .HasMaxLength(2048)
+                        .HasColumnType("nvarchar(2048)");
+
+                    b.Property<string>("Website2")
+                        .HasMaxLength(2048)
+                        .HasColumnType("nvarchar(2048)");
+
+                    b.Property<string>("Website3")
+                        .HasMaxLength(2048)
+                        .HasColumnType("nvarchar(2048)");
+
                     b.HasKey("PersonId");
 
                     b.HasIndex("UserId")
