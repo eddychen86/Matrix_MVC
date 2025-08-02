@@ -6,6 +6,8 @@ using System.Security.Claims;
 using System.Text;
 using Microsoft.Extensions.Configuration;
 using Matrix.Services.Interfaces;
+using Matrix.Repository.Interfaces;
+using Matrix.Models;
 
 namespace Matrix.Controllers
 {
@@ -14,6 +16,7 @@ namespace Matrix.Controllers
         ILogger<AuthController> _logger,
         IConfiguration _configuration,
         IUserService _userService,
+        IPersonRepository _personRepository,
         ICustomLocalizer _localizer
     ) : WebControllerBase
     {
@@ -47,6 +50,29 @@ namespace Matrix.Controllers
                         // 更新用戶狀態為已確認
                         user.Status = 1;
                         await _userService.UpdateUserEntityAsync(user);
+                        
+                        // 檢查是否已有 Person 記錄，沒有則創建
+                        var existingPerson = await _personRepository.GetByUserIdAsync(user.UserId);
+                        if (existingPerson == null)
+                        {
+                            var newPerson = new Person
+                            {
+                                UserId = user.UserId,
+                                DisplayName = user.UserName,
+                                Bio = null,
+                                AvatarPath = null,
+                                BannerPath = null,
+                                ExternalUrl = null,
+                                IsPrivate = 0, // 預設為公開
+                                WalletAddress = null,
+                                ModifyTime = null
+                            };
+                            
+                            await _personRepository.AddAsync(newPerson);
+                            await _personRepository.SaveChangesAsync();
+                            _logger.LogInformation("為用戶 {Email} 創建了 Person 記錄", user.Email);
+                        }
+                        
                         _logger.LogInformation("用戶 {Email} 郵件確認成功", user.Email);
                         result = new { success = true, message = _localizer["EmailConfirmSuccess"] };
                     }

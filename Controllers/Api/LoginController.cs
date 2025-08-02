@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Matrix.Repository.Interfaces;
 
 namespace Matrix.Controllers.Api
 {
@@ -7,18 +8,21 @@ namespace Matrix.Controllers.Api
     public class LoginController : ApiControllerBase
     {
         private readonly IUserService _userService;
+        private readonly IUserRepository _userRepository;
         private readonly ICustomLocalizer _localizer;
         private readonly ILogger<LoginController> _logger;
         private readonly Matrix.Controllers.AuthController _authController;
 
         public LoginController(
             IUserService userService,
+            IUserRepository userRepository,
             ICustomLocalizer localizer,
             ILogger<LoginController> logger,
             Matrix.Controllers.AuthController authController
         )
         {
             _userService = userService;
+            _userRepository = userRepository;
             _localizer = localizer;
             _logger = logger;
             _authController = authController;
@@ -48,7 +52,7 @@ namespace Matrix.Controllers.Api
             var userDto = await GetUserByIdentifierAsync(model.UserName);
             if (userDto == null)
             {
-                _logger.LogWarning("找不到用戶: {UserName}", userDto);
+                _logger.LogWarning("找不到用戶: {UserName}", model.UserName);
                 return ApiError("找不到用戶");
             }
 
@@ -59,11 +63,13 @@ namespace Matrix.Controllers.Api
             if (statusError != null)
                 return statusError;
 
+            _logger.LogInformation("帳號狀態：{0}", statusError);
+
             // 產生 JWT 並設定 Cookie
             var token = _authController.GenerateJwtToken(userDto.UserId, userDto.UserName, userDto.Role.ToString());
             _authController.SetAuthCookie(Response, token, model.RememberMe);
 
-            return ApiSuccess(new { redirectUrl = "/home" }, "登入成功");
+            return ApiSuccess(new { redirectUrl = "/home/index" }, "登入成功");
         }
 
         /// <summary>忘記密碼功能</summary>
@@ -78,9 +84,20 @@ namespace Matrix.Controllers.Api
         }
 
         /// <summary>用帳號或信箱找用戶</summary>
-        private async Task<UserDto?> GetUserByIdentifierAsync(string identifier)
+        private async Task<UserDto?> GetUserByIdentifierAsync(string Name_Or_Email)
         {
-            return await _userService.GetUserByIdentifierAsync(identifier);
+            _logger.LogInformation("Calling UserService.GetUserByIdentifierAsync with: {Identifier}", Name_Or_Email);
+
+            // 先直接測試 Repository 層
+            var userFromRepo = await _userRepository.GetByIdentifierAsync(Name_Or_Email);
+            _logger.LogInformation("Repository result: User found={UserFound}, Person found={PersonFound}",
+                userFromRepo != null, userFromRepo?.Person != null);
+
+            // 再調用 Service 層
+            var result = await _userService.GetUserByIdentifierAsync(Name_Or_Email);
+            _logger.LogInformation("Service result: {ServiceResult}", result != null ? "Found" : "Null");
+
+            return result;
         }
 
         /// <summary>檢查用戶狀態是否正常</summary>
@@ -101,5 +118,33 @@ namespace Matrix.Controllers.Api
 
             return null;
         }
+
+        /// <summary>測試 Repository 查詢使用者</summary>
+        // [HttpGet("test-repository/{identifier}")]
+        // public async Task<IActionResult> TestRepository(string identifier)
+        // {
+        //     _logger.LogInformation("Testing UserRepository.GetByIdentifierAsync with identifier: {Identifier}", identifier);
+
+        //     var user = await _userRepository.GetByIdentifierAsync(identifier);
+
+        //     if (user == null)
+        //     {
+        //         _logger.LogWarning("UserRepository.GetByIdentifierAsync returned null for identifier: {Identifier}", identifier);
+        //         return ApiError($"找不到使用者: {identifier}");
+        //     }
+
+        //     _logger.LogInformation("UserRepository.GetByIdentifierAsync found user - UserId: {UserId}, UserName: {UserName}, Email: {Email}, Person is null: {PersonIsNull}", 
+        //         user.UserId, user.UserName, user.Email, user.Person == null);
+
+        //     return ApiSuccess(new 
+        //     { 
+        //         UserId = user.UserId,
+        //         UserName = user.UserName,
+        //         Email = user.Email,
+        //         PersonIsNull = user.Person == null,
+        //         CreateTime = user.CreateTime,
+        //         Status = user.Status
+        //     }, "找到使用者");
+        // }
     }
 }
