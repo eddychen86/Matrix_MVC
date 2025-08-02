@@ -95,8 +95,6 @@ public class Program
 
         // builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
         //     .AddEntityFrameworkStores<ApplicationDbContext>();
-<<<<<<< HEAD
-=======
 
         #endregion
 
@@ -143,7 +141,6 @@ public class Program
 
         builder.Services.AddControllersWithViews();
         builder.Services.AddRazorPages();
->>>>>>> origin/dev-collects
 
         #region 配置 Anti-forgery 以支援 Ajax 請求
 
@@ -152,36 +149,7 @@ public class Program
             options.HeaderName = "RequestVerificationToken";
         });
 
-<<<<<<< HEAD
-        // -------------------- 本地化設定 --------------------
-        builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
-
-        builder.Services.Configure<RequestLocalizationOptions>(options =>
-        {
-            var supportedCultures = new[]
-            {
-                new CultureInfo("en-US"),
-                new CultureInfo("zh-TW")
-            };
-
-            options.DefaultRequestCulture = new RequestCulture("zh-TW");
-            options.SupportedCultures = supportedCultures;
-            options.SupportedUICultures = supportedCultures;
-            
-            // 配置本地化提供者順序：Query String > Cookie > Accept-Language > 預設
-            options.RequestCultureProviders = new List<IRequestCultureProvider>
-            {
-                new QueryStringRequestCultureProvider(),
-                new CookieRequestCultureProvider(),
-                new AcceptLanguageHeaderRequestCultureProvider()
-            };
-            // 當所有提供者都沒有結果時，使用預設文化 zh-TW
-        });
-
-        // -------------------------------------------------
-=======
         #endregion
->>>>>>> origin/dev-collects
 
         var app = builder.Build();
 

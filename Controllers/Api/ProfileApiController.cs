@@ -33,7 +33,7 @@ namespace Matrix.Controllers.Api
                     Message = "3更新失敗!"
                 };
             }
-            Person pe = await _context.Persons.FirstOrDefaultAsync(p=>p.UserId==id);
+            Person? pe = await _context.Persons.FirstOrDefaultAsync(p=>p.UserId==id);
             if (pe == null)
             {
                 return new ReturnType
@@ -43,7 +43,7 @@ namespace Matrix.Controllers.Api
                 };
             }
 
-            User pas = await _context.Users.FirstOrDefaultAsync(p => p.UserId == id);
+            User? pas = await _context.Users.FirstOrDefaultAsync(p => p.UserId == id);
             if (pas == null)
             {
                 return new ReturnType
@@ -59,7 +59,7 @@ namespace Matrix.Controllers.Api
             pe.DisplayName = dto.DisplayName;
             pe.Bio = dto.Bio;
             pas.Password = dto.Password;
-            pas.Email = dto.Email;
+            if (dto.Email != null) pas.Email = dto.Email;
             pe.Website1 = dto.Website1;
             pe.Website2 = dto.Website2;
             pe.Website3 = dto.Website3;
@@ -126,8 +126,8 @@ namespace Matrix.Controllers.Api
                     Articles = person.Articles?.Select(a => new ArticleDto {
                         Content = a.Content,
                         CreateTime = a.CreateTime
-                    }).ToList(),
-                    Password = person.User?.Password,
+                    }).ToList() ?? new List<ArticleDto>(),
+                    Password = person.User?.Password ?? string.Empty,
                     Email = person.User?.Email,
                     PersonId = person.PersonId,
                     UserId = person.UserId,
@@ -158,7 +158,7 @@ namespace Matrix.Controllers.Api
         public async Task<FileResult> GetPicture(Guid id) 
         {
             string Filename = Path.Combine("wwwroot", "static", "img", "noimages.jpg");
-            Article e = await _context.Articles.FindAsync(id);
+            Article? e = await _context.Articles.FindAsync(id);
             byte[] ImageContent = e?.ArticleCover != null?
                 e.ArticleCover:
                 System.IO.File.ReadAllBytes(Filename);
