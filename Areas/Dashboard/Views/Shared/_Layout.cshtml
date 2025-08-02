@@ -23,8 +23,10 @@
             <header class="relative">
                 <img src="~/static/img/image-top.png" alt="" class="w-full h-56 object-cover object-center rounded-[30px]" >
             </header>
-            <main>
-                @RenderBody()
+            <main class="min-h-[calc(100%-56px))]">
+                <div id="dashboard-content">
+                    @RenderBody()
+                </div>
             </main>
             <partial name="_Footer" />
         </div>

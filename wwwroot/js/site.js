@@ -218,6 +218,76 @@ app({
 
         //#endregion
 
+        //#region Dashboard Navigation
+
+        // 載入 Dashboard 頁面內容
+        const loadDashboardPage = async (page) => {
+            try {
+                // console.log(`Loading dashboard page: ${page}`)
+
+                // 設定載入狀態
+                const contentArea = document.querySelector('#dashboard-content')
+                if (contentArea) {
+                    contentArea.innerHTML = '<div class="flex justify-center items-center h-64"><div class="loading loading-spinner loading-lg"></div></div>'
+                }
+
+                // 將第一個字母大寫以匹配路由
+                const capitalizedPage = page.charAt(0).toUpperCase() + page.slice(1)
+                const fetchUrl = `/Dashboard/${capitalizedPage}/Partial`
+                // console.log(`Fetching URL: ${fetchUrl}`)
+
+                // AJAX 請求載入 Partial View
+                const response = await fetch(fetchUrl, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+
+                // console.log(`Response status: ${response.status}`)
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`)
+                }
+
+                const html = await response.text()
+                // console.log(`Response received, content length: ${html.length}`)
+                
+                // 更新內容區域
+                if (contentArea) {
+                    contentArea.innerHTML = html
+                    
+                    // 重新初始化 Lucide 圖示
+                    lucide.createIcons()
+                    
+                    // 更新瀏覽器 URL（不刷新頁面）
+                    window.history.pushState(null, '', `/Dashboard/${capitalizedPage}`)
+                    
+                    // console.log(`Dashboard page loaded: ${capitalizedPage}`)
+                }
+
+            } catch (error) {
+                console.error('Error loading dashboard page:', error)
+                console.error('Error details:', {
+                    message: error.message,
+                    stack: error.stack
+                })
+                
+                // 錯誤處理
+                const contentArea = document.querySelector('#dashboard-content')
+                if (contentArea) {
+                    contentArea.innerHTML = `
+                        <div class="alert alert-error">
+                            <span>載入頁面時發生錯誤：${error.message}</span>
+                        </div>
+                    `
+                }
+            }
+        }
+
+        //#endregion
+
         return {
             // language
             isCollapsed,
@@ -230,6 +300,9 @@ app({
             // auth
             logout,
             login,
+
+            // dashboard navigation
+            loadDashboardPage,
 
             // pop-up
             popupState,

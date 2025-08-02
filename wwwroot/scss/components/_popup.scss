@@ -65,5 +65,48 @@
                 }
             }
         }
+    }
+
+    .email {
+        &-options-popup,
+        &-error-popup {
+            @apply max-w-[450px] min-w-[350px];
         }
     }
+
+    .popup {
+        &-actions {
+            @apply p-4 pt-0 flex gap-3 justify-end;
+        }
+    
+        &-btn {
+            @apply px-2 py-4 rounded-md border-none cursor-pointer para items-center gap-2 transition-all;
+            &primary {
+                @apply bg-[#FF4C29] text-white;
+            }
+        
+            &primary:hover {
+                @apply bg-[#FF4C29];
+            }
+        
+            &secondary {
+                @apply bg-[#F3F4F6] text-[#F3F4F6] border border-[#D1D5DB];
+            }
+        
+            &secondary:hover {
+                @apply bg-[#D1D5DB];
+            }
+        }
+
+        &-message {
+            h4 {
+                @apply m-0 mb-2 font-semibold text-[#111827];
+            }
+        
+            p {
+                @apply m-0 font-[14px] leading-6 text-[#6B7280];
+            }
+        }
+
+    }
+}

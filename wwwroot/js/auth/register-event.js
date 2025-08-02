@@ -5,6 +5,7 @@ createApp({
         // 響應式數據
         const showPassword = ref(false)
         const showConfirmPassword = ref(false)
+        const isSubmitting = ref(false)
         const passwordIcon = ref(null)
         const confirmPasswordIcon = ref(null)
         const registerForm = ref({
@@ -73,6 +74,9 @@ createApp({
         const submitForm = async (event) => {
             event.preventDefault()
 
+            // 設定提交狀態
+            isSubmitting.value = true
+
             try {
                 // 獲取表單數據
                 const formData = new FormData(event.target)
@@ -113,7 +117,7 @@ createApp({
                         await handleEmailConfirmation(result, token)
 
                     } else if (result.redirectUrl) {
-                        // 一般成功情況
+                        // 一般成功情況，成功時保持 loading 狀態直到頁面跳轉
                         if (result.message) {
                             showCustomPopup(result.message, 'success')
                             setTimeout(() => {
@@ -123,13 +127,19 @@ createApp({
                             window.location.href = result.redirectUrl
                         }
                     }
-                } else if (result.errors) {
-                    updateErrorMsg(result.errors)
                 } else {
-                    throw new Error(result.message || '註冊失敗')
+                    // 失敗時重置提交狀態
+                    isSubmitting.value = false
+                    if (result.errors) {
+                        updateErrorMsg(result.errors)
+                    } else {
+                        throw new Error(result.message || '註冊失敗')
+                    }
                 }
             } catch (error) {
                 console.error('Register error:', error)
+                // 發生錯誤時重置提交狀態
+                isSubmitting.value = false
             }
         }
 
@@ -339,6 +349,7 @@ createApp({
         return {
             showPassword,
             showConfirmPassword,
+            isSubmitting,
             passwordIcon,
             confirmPasswordIcon,
             registerForm,

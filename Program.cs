@@ -179,13 +179,19 @@ public class Program
 
         #endregion
 
+        #region Dashboard 權限檢查
+
+        app.UseDashboardAccess();
+
+        #endregion
+
         app.UseAuthentication();
         app.UseAuthorization();
 
         // Areas 路由 (優先處理)
         app.MapControllerRoute(
             name: "areas",
-            pattern: "{area:exists}/{controller=Dashboard}/{action=Index}/{id?}");
+            pattern: "{area:exists}/{controller=Overview}/{action=Index}/{id?}");
 
         // 預設路由
         app.MapControllerRoute(

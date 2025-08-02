@@ -2,9 +2,11 @@
 using Matrix.Data;
 using Matrix.ViewModels;
 using Microsoft.EntityFrameworkCore;
+using Matrix.Attributes;
 
 namespace Matrix.Controllers
 {
+    [MemberAuthorization] // 需要一般會員權限 (Role >= 0)
     public class CollectController : Controller
     {
         private readonly ApplicationDbContext _context;

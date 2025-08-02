@@ -6,6 +6,7 @@
     var isLogin = authInfo.IsAuthenticated;
     var username = authInfo.UserName;
     var userImg = authInfo.AvaterPath;
+    var isAdmin = authInfo.Role >= 1;
 
     var menus = new[]
     {
@@ -31,13 +32,13 @@
     <ul :class="isCollapsed ? 'sidebar-close' : 'sidebar-open'" class="sidebar">
         <!-- Sidebar content here -->
         <li>
-            <a asp-area="" asp-controller="Home" asp-action="Index" aria-current="page" class="cts-btn hover:bg-gray-900 title">
+            <a asp-area="" asp-controller="Home" asp-action="Index" aria-current="page" class="cts-btn title">
                 <img src="~/static/img/Matrix_logo_white.png" alt="Matrix Logo" class="icon-lg">
                 <span data-i18n="Matrix">@Localizer["Matrix"]</span>
             </a>
             @if (isLogin) {
-                <a asp-area="" asp-controller="Progile" asp-action="Index" aria-current="page" class="cts-btn hover:bg-gray-900">
-                    <img src="" alt="" class="icon-base" />
+                <a asp-area="" asp-controller="Profile" asp-action="Index" aria-current="page" class="cts-btn">
+                    <img src="@userImg" alt="" class="icon-lg" />
                     <span class="title">@username</span>
                 </a>
             }
@@ -52,6 +53,14 @@
             }
         </li>
         <li>
+            @if (isAdmin) {
+                <a asp-area="Dashboard" asp-controller="Overview" asp-action="Index" aria-current="page">
+                    <button :class="isCollapsed ? 'sidebar-btn-none-text' : ''" class="cts-btn">
+                        <i data-lucide="layout-dashboard" class="icon-base"></i>
+                        <span data-i18n="Dashboard" class="title">@Localizer["Dashboard"]</span>
+                    </button>
+                </a>
+            }
             @foreach (var i in bottoms) {
                 <button v-on:click="handleMenuClick('@i.click')" :class="isCollapsed ? 'sidebar-btn-none-text' : ''" class="cts-btn">
                     <i data-lucide="@i.icon" class="icon-base"></i>

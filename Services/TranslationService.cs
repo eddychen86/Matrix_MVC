@@ -100,6 +100,7 @@ namespace Matrix.Services
                 ["HideBar"] = "隱藏側欄",
                 ["LogOut"] = "登出",
 
+                ["Dashboard"] = "後台",
                 ["Overview"] = "總覽",
                 ["Users"] = "用戶管理",
                 ["Posts"] = "貼文管理",
@@ -293,6 +294,7 @@ namespace Matrix.Services
                 ["HideBar"] = "Hide bar",
                 ["LogOut"] = "Log out",
 
+                ["Dashboard"] = "Dashboard",
                 ["Overview"] = "Overview",
                 ["Users"] = "Users",
                 ["Posts"] = "Posts",

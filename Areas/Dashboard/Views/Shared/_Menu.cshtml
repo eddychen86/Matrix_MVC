@@ -5,7 +5,7 @@
     var authInfo = Context.GetAuthInfo();
     var isLogin = authInfo.IsAuthenticated;
     var username = authInfo.UserName;
-    @* var userImg = authInfo.UserImg; *@
+    var userImg = authInfo.AvaterPath;
 
     var menus = new[]
     {
@@ -37,8 +37,8 @@
                 <span data-i18n="Matrix">@Localizer["Matrix"]</span>
             </a>
             @if (isLogin) {
-                <a asp-area="" asp-controller="Progile" asp-action="Index" aria-current="page" class="cts-btn hover:bg-gray-900">
-                    <img src="" alt="" class="icon-base" />
+                <a asp-area="" asp-controller="Profile" asp-action="Index" aria-current="page" class="cts-btn">
+                    <img src="@userImg" alt="" class="icon-lg" />
                     <span class="title">@username</span>
                 </a>
             }
@@ -46,7 +46,7 @@
         <li>
             @foreach (var i in menus)
             {
-                <button class="cts-btn hover:bg-gray-900" v-on:click="openPopup('@i.type')">
+                <button class="cts-btn hover:bg-gray-900" v-on:click="loadDashboardPage('@i.type.ToLower()')">
                     <i data-lucide="@i.icon" class="icon-base text-white"></i>
                     <span class="title" data-i18n="@i.type">@Localizer[i.type]</span>
                 </button>
