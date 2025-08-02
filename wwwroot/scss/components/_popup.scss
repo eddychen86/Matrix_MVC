@@ -1,6 +1,8 @@
 ﻿@layer components {
     #popup-overlay {
         @apply fixed inset-0 z-50 flex items-center justify-center bg-white/30 overflow-hidden;
+        /* 預設隱藏，避免 Vue 初始化前顯示 */
+        display: none;
 
         #popup-container {
             @apply bg-[#161616] rounded-[30px] shadow-xl text-white

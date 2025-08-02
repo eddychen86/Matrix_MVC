@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 
-namespace Matrix.Areas.Admin.Controllers
+namespace Matrix.Areas.Dashboard.Controllers
 {
-    [Area("Admin")]
+    [Area("Dashboard")]
     public class PostsController : Controller
     {
         // GET: PostsController

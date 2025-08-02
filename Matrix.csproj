@@ -37,8 +37,8 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Folder Include="Areas/Admin/Controllers/Api/" />
-        <Folder Include="Areas/Admin/Views/" />
+        <Folder Include="Areas/BE/Controllers/Api/" />
+        <Folder Include="Areas/BE/Views/" />
     </ItemGroup>
 
     <Target Name="PrepublishScript" BeforeTargets="PrepareForPublish">

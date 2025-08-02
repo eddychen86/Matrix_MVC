@@ -14,6 +14,12 @@ public class Program
     public static void Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
+        
+        // 開發環境提示
+        if (builder.Environment.IsDevelopment())
+        {
+            Console.WriteLine("💡 如遇 403 錯誤，通常是 port 衝突 - 使用 port 5002 避免 AirTunes");
+        }
 
         // 配置 Console Logging Provider
         builder.Logging.ClearProviders();
@@ -137,7 +143,6 @@ public class Program
         builder.Services.AddTransient<IEmailService, GmailService>();
 
         #endregion
-
 
         builder.Services.AddControllersWithViews();
         builder.Services.AddRazorPages();

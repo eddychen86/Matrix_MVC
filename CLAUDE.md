@@ -113,12 +113,39 @@ dotnet add package Microsoft.EntityFrameworkCore.Proxies --version 8.0.11
 
 #### Running the Application
 ```bash
-# Run with hot reload
-dotnet watch run
+# 使用 launch profiles（推薦）
+dotnet run --launch-profile http    # HTTP only (port 5000)
+dotnet run --launch-profile https   # HTTPS + HTTP (ports 5001/5000)
 
-# Standard run
+# 標準方式
 dotnet run
+
+# 熱重載模式
+dotnet watch run
 ```
+
+#### Launch Profiles 配置
+專案使用 `Properties/launchSettings.json` 定義啟動配置：
+- **http**: `http://localhost:5002` (預設，避免與 AirTunes 衝突)
+- **https**: `https://localhost:5001` + `http://localhost:5000`
+- **IIS Express**: 使用 IIS Express (port 6447)
+
+#### 內建診斷功能
+**開發環境自動診斷：**
+- 應用程式啟動時會自動檢查 port 衝突
+- 顯示環境配置和資料庫連線狀態
+- 記錄詳細的啟動資訊和訪問 URL
+- 提供 403 問題的診斷提示
+
+#### 常見問題排除
+**403 錯誤或 port 衝突問題：**
+- 通常是多個 dotnet 進程同時運行造成
+- 開發環境下會自動顯示 port 衝突警告
+- 手動清理：`pkill -f dotnet` 或使用工作管理員  
+- 應用程式預設運行在 `http://localhost:5002`
+- BE 管理後台：`http://localhost:5002/BE`
+- 檢查 `Properties/launchSettings.json` 中的 port 配置
+- **注意**: Port 5000 通常被 Apple AirTunes 佔用，建議使用其他 port
 
 #### Database Operations
 ```bash

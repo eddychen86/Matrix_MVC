@@ -1,18 +1,23 @@
 const app = content => {
     if (typeof Vue === 'undefined') {
-        console.log('Vue is not loaded.')
+        console.log('Vue not ready, retrying...')
+        setTimeout(initializeApp, 50)
         return
+    } else {
+        lucide.createIcons()
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => window.popupApp = Vue.createApp(content).mount('#app'))
+        } else {
+            // DOM 已經載入完成
+            window.popupApp = Vue.createApp(content).mount('#app')
+        }
     }
-    window.popupApp = Vue.createApp(content).mount('#app')
 }
-
-lucide.createIcons()
 
 app({
     setup() {
         const { ref, reactive, computed, } = Vue
         const { formatDate, timeAgo } = useFormatting()
-
 
         //#region Sidebar State
 
@@ -29,10 +34,11 @@ app({
 
         const toggleLang = async () => {
             // current language
-            const curLang = document.documentElement.lang || 'zh-TW'
+            const curLang = document.documentElement.lang
 
             // switch language
-            const changeLang = curLang === 'zh-TW' ? 'en-US' : 'zh-TW'
+            const changeLang = curLang.match(/-TW/) ? 'en-US' : 'zh-TW'
+            // console.log(changeLang)
 
             try {
                 // 1. 取得新語言的翻譯
@@ -50,7 +56,7 @@ app({
                 // 4. 更新 html lang 屬性
                 document.documentElement.lang = changeLang
 
-                console.log(`Language switched to: ${changeLang}`)
+                // console.log(`Language switched to: ${changeLang}`)
 
             } catch (error) {
                 console.error('Error switching language:', error)
@@ -89,6 +95,7 @@ app({
 
             // 更新頁面標題（如果有 title 翻譯）
             if (translations['Title']) document.title = translations['Title']
+            
             console.log('Page text updated with new translations')
         }
 
@@ -187,11 +194,38 @@ app({
 
         //#endregion
 
+        //#region Menu Click Handler
+        
+        // 統一處理選單點擊事件
+        const handleMenuClick = (action) => {
+            switch (action) {
+                case 'toggleLang':
+                    toggleLang()
+                    break
+                case 'toggleSidebar':
+                    toggleSidebar()
+                    break
+                case 'logout':
+                    logout()
+                    break
+                case 'login':
+                    login()
+                    break
+                default:
+                    console.warn(`Unknown action: ${action}`)
+            }
+        }
+
+        //#endregion
+
         return {
             // language
             isCollapsed,
             toggleSidebar,
             toggleLang,
+
+            // menu handler
+            handleMenuClick,
 
             // auth
             logout,

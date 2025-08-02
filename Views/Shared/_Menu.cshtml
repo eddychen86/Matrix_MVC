@@ -5,7 +5,7 @@
     var authInfo = Context.GetAuthInfo();
     var isLogin = authInfo.IsAuthenticated;
     var username = authInfo.UserName;
-    @* var userImg = authInfo.UserImg; *@
+    var userImg = authInfo.AvaterPath;
 
     var menus = new[]
     {
@@ -53,7 +53,7 @@
         </li>
         <li>
             @foreach (var i in bottoms) {
-                <button v-on:click="@i.click" :class="isCollapsed ? 'sidebar-btn-none-text' : ''" class="cts-btn">
+                <button v-on:click="handleMenuClick('@i.click')" :class="isCollapsed ? 'sidebar-btn-none-text' : ''" class="cts-btn">
                     <i data-lucide="@i.icon" class="icon-base"></i>
                     <span class="title" data-i18n="@i.title">@Localizer[i.title]</span>
                 </button>
