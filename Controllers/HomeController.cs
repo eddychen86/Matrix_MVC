@@ -61,7 +61,9 @@ public class HomeController : WebControllerBase
         ViewBag.HotList = hot_list;
         ViewBag.DefaultList = default_list;
 
+
         //取得好友欄位資料
+
         var currentUserId = Guid.Parse("870c0b75-97a3-4e4f-8215-204d5747d28c");
 
         var friends = await _context.Friendships
