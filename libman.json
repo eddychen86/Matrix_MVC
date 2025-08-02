@@ -6,7 +6,8 @@
       "library": "vue@3.5.17",
       "destination": "wwwroot/lib/vue/",
       "files": [
-        "dist/vue.global.js"
+        "dist/vue.global.js",
+        "dist/vue.global.prod.js"
       ]
     },
     {
@@ -17,26 +18,17 @@
       ]
     },
     {
-      "library": "sass@latest",
-      "destination": "wwwroot/lib/sass/",
-      "files": [
-        "sass.dart.js",
-        "package.json"
-      ]
-    },
-    {
-      "library": "chokidar@latest",
-      "destination": "wwwroot/lib/chokidar/",
-      "files": [
-        "index.js",
-        "lib/**"
-      ]
-    },
-    {
       "library": "@ckeditor/ckeditor5-vue@latest",
       "destination": "wwwroot/lib/ckEditor5/",
       "files": [
         "dist/**"
+      ]
+    },
+    {
+      "library": "date-fns@latest",
+      "destination": "wwwroot/lib/date-fns/",
+      "files": [
+        "cdn.min.js"
       ]
     }
   ]

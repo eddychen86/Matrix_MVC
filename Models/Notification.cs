@@ -14,7 +14,7 @@ namespace Matrix.Models
         /// 改用 UUID 以確保唯一性和安全性，並以 ArrayExtension.GenerateOrdered(1)[0] 方法生成一個劇時間排序的唯一的值
         /// </summary>
         [Key]
-        public Guid NotifyId { get; set; } = ArrayExtension.GenerateOrdered(1)[0];
+        public Guid NotifyId { get; set; } = Guid.NewGuid();
 
         /// <summary>
         /// 接收通知的 UserId
@@ -27,7 +27,8 @@ namespace Matrix.Models
         public Guid SendId { get; set; }
 
         /// <summary>
-        /// 通知的類型，用於區分不同種類的通知
+        /// 通知的類型，用於區分不同種類的通知，0表示文章留言，1表示使用者私信
+        /// (1 為未來展望)
         /// </summary>
         public int Type { get; set; }
 

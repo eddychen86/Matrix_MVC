@@ -68,9 +68,10 @@ namespace Matrix.DTOs
         /// </summary>
         public string StatusText => Status switch
         {
-            0 => "正常",
-            1 => "停用",
-            2 => "封禁",
+            0 => "未信箱驗證",
+            1 => "啟用",
+            2 => "停用",
+            3 => "封禁",
             _ => "未知"
         };
 
@@ -82,7 +83,7 @@ namespace Matrix.DTOs
             0 => "一般使用者",
             1 => "管理員",
             2 => "超級管理員",
-            _ => "未知角色"
+            _ => "未知"
         };
 
         /// <summary>
@@ -118,8 +119,8 @@ namespace Matrix.DTOs
         /// 使用者的顯示名稱
         /// </summary>
         [Required(ErrorMessage = "使用者名稱為必填欄位")]
-        [StringLength(50, MinimumLength = 1, ErrorMessage = "使用者名稱長度必須介於 1 到 50 個字元之間")]
-        [RegularExpression(@"^[a-zA-Z0-9_\u4e00-\u9fa5]+$", ErrorMessage = "使用者名稱只能包含字母、數字、底線和中文字元")]
+        [StringLength(20, MinimumLength = 3, ErrorMessage = "使用者名稱長度必須介於 3 到 20 個字元之間")]
+        [RegularExpression(@"^[a-zA-Z0-9_]{3,20}$", ErrorMessage = "使用者名稱只能包含英文字母、數字和底線")]
         public string UserName { get; set; } = string.Empty;
 
         /// <summary>
@@ -127,16 +128,16 @@ namespace Matrix.DTOs
         /// </summary>
         [Required(ErrorMessage = "電子郵件為必填欄位")]
         [EmailAddress(ErrorMessage = "請輸入有效的電子郵件地址")]
-        [StringLength(100, ErrorMessage = "電子郵件長度不能超過 100 個字元")]
+        [StringLength(30, ErrorMessage = "電子郵件長度不能超過 30 個字元")]
         public string Email { get; set; } = string.Empty;
 
         /// <summary>
         /// 使用者的密碼
         /// </summary>
         [Required(ErrorMessage = "密碼為必填欄位")]
-        [StringLength(100, MinimumLength = 6, ErrorMessage = "密碼長度必須介於 6 到 100 個字元之間")]
-        [RegularExpression(@"^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*?&]{6,}$",
-            ErrorMessage = "密碼必須包含至少一個字母和一個數字")]
+        [StringLength(20, MinimumLength = 8, ErrorMessage = "密碼長度必須介於 8 到 20 個字元之間")]
+        [RegularExpression(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[#@$!%*?&])[A-Za-z\d#@$!%*?&]{8,20}$",
+            ErrorMessage = "密碼必須包含至少一個大寫字母、一個小寫字母、一個數字、一個特殊符號")]
         public string Password { get; set; } = string.Empty;
 
         /// <summary>
