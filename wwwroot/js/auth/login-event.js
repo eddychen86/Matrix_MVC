@@ -5,6 +5,7 @@ createApp({
         // 響應式數據
         const isForgot = ref(false)
         const showPassword = ref(false)
+        const isSubmitting = ref(false)
         const loginForm = ref({
             UserName: '',
             Password: '',
@@ -51,6 +52,9 @@ createApp({
         const submitForm = async (event) => {
             event.preventDefault()
 
+            // 設定提交狀態
+            isSubmitting.value = true
+
             try {
                 // 獲取表單數據
                 const formData = new FormData(event.target)
@@ -72,10 +76,17 @@ createApp({
                 const result = await response.json()
 
                 if (result.success && result.data?.redirectUrl) {
+                    // 成功時保持 loading 狀態直到頁面跳轉
                     window.location.href = result.data.redirectUrl
-                } else if (result.errors) updateErrorMsg(result.errors)
+                } else {
+                    // 失敗時重置提交狀態
+                    isSubmitting.value = false
+                    if (result.errors) updateErrorMsg(result.errors)
+                }
             } catch (error) {
                 console.error('Login error:', error)
+                // 發生錯誤時重置提交狀態
+                isSubmitting.value = false
             }
         }
 

@@ -1,5 +1,5 @@
 ﻿<!-- Universal Popup Modal -->
-<div id="popup-overlay" v-show="popupState.isVisible" @@click="closePopup">
+<div id="popup-overlay" @@click="closePopup" class="!hidden" :class="popupState.isVisible ? '!flex' : '!hidden'">
     <div id="popup-container" @@click.stop="">
         <!-- Header -->
         <div id="popup-header" class="flex w-full items-center justify-between">
