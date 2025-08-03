@@ -55,28 +55,51 @@
                     </div>
                 </div>
             </div>
-            <div v-if="popupState.type == 'Follow'">
-                <div class="popup-data-follow space-y-4">
-                    <div v-for="(item, index) in popupData[popupState.type]"
-                         :key="index"
-                         class="item-center flex justify-between rounded-lg bg-neutral-800 px-4 py-3 transition hover:bg-neutral-700">
-                        <!-- 左側：頭像與名稱 -->
-                        <div class="flex items-center space-x-4">
-                            <img :src="item.senderAvatarUrl" class="h-10 w-10 rounded-full border border-gray-600" />
-                            <div>
-                                <p class="title">{{ item.senderName }}</p>
-                                <p class="subTitle text-sm text-gray-400">
-                                    你於 {{ timeAgo(item.followTime) }} 開始追蹤他
-                                </p>
+            <div v-if="popupState.type == 'Follows'">
+                <div class="flex gap-6">
+                    <!-- 左側：追蹤清單（popup-data-follow） -->
+                    <div class="popup-data-follow w-2/3 space-y-4">
+                        <div v-for="(item, index) in popupData[popupState.type]"
+                             :key="index"
+                             class="item-center flex justify-between rounded-lg bg-neutral-800 px-4 py-3 transition hover:bg-neutral-700">
+                            <!-- 頭像與名稱 -->
+                            <div class="flex items-center space-x-4">
+                                <img :src="item.senderAvatarUrl" class="h-10 w-10 rounded-full border border-gray-600" />
+                                <div>
+                                    <p class="title">{{ item.senderName }}</p>
+                                    <p class="subTitle text-sm text-gray-400">
+                                        你於 {{ timeAgo(item.followTime) }} 開始追蹤他
+                                    </p>
+                                </div>
+                            </div>
+
+                            <!-- 按鈕 -->
+                            <div class="flex flex-col items-end justify-between space-y-1">
+                                <button class="cts-btn !text-red-400 hover:underline">取消追蹤</button>
                             </div>
                         </div>
+                    </div>
 
-                        <!-- 右側：可擴充按鈕（例如取消追蹤） -->
-                        <div class="flex flex-col items-end justify-between space-y-1">
-                            <button class="cts-btn !text-red-400 hover:underline">取消追蹤</button>
+                    <!-- 右側：好友清單（假資料，先靜態） -->
+                    <div class="w-1/3 space-y-4">
+                        <div class="flex items-center space-x-4 rounded-md p-2 hover:bg-neutral-700">
+                            <img src="https://randomuser.me/api/portraits/women/1.jpg"
+                                 class="h-10 w-10 rounded-full border border-gray-600" />
+                            <p class="title">Samantha Green</p>
+                        </div>
+                        <div class="flex items-center space-x-4 rounded-md p-2 hover:bg-neutral-700">
+                            <img src="https://randomuser.me/api/portraits/men/1.jpg"
+                                 class="h-10 w-10 rounded-full border border-gray-600" />
+                            <p class="title">Ryan Murphy</p>
+                        </div>
+                        <div class="flex items-center space-x-4 rounded-md p-2 hover:bg-neutral-700">
+                            <img src="https://randomuser.me/api/portraits/women/2.jpg"
+                                 class="h-10 w-10 rounded-full border border-gray-600" />
+                            <p class="title">Chloe Smith</p>
                         </div>
                     </div>
                 </div>
+            
             </div>
 
             <div v-if="popupState.type == 'Search'">
