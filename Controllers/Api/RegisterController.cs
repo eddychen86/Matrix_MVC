@@ -35,25 +35,106 @@ namespace Matrix.Controllers.Api
         {
             _logger.LogInformation("\n\n註冊嘗試: {UserName}\n", model?.UserName);
 
-            if (model == null || string.IsNullOrWhiteSpace(model.UserName) || string.IsNullOrWhiteSpace(model.Email) || string.IsNullOrWhiteSpace(model.Password))
+            // 手動驗證前端基本規則
+            var validationErrors = new Dictionary<string, string[]>();
+            
+            if (model == null)
             {
-                return ApiError("\n請填寫所有必填欄位\n\n");
+                return ApiError(_localizer["Error"], new Dictionary<string, string[]> { { "", [_localizer["Error"]] } });
+            }
+            
+            // 用戶名驗證
+            if (string.IsNullOrWhiteSpace(model.UserName))
+                validationErrors["UserName"] = [_localizer["UserNameInvalid"]];
+            else if (model.UserName.Length < 3 || model.UserName.Length > 20)
+                validationErrors["UserName"] = [_localizer["UserNameFormatError"]];
+                
+            // 郵件驗證
+            if (string.IsNullOrWhiteSpace(model.Email))
+                validationErrors["Email"] = [_localizer["EmailRequired"]];
+            else if (!model.Email.Contains('@') || !model.Email.Contains('.'))
+                validationErrors["Email"] = [_localizer["EmailInvalid"]];
+            else if (model.Email.Length > 30)
+                validationErrors["Email"] = [_localizer["EmailFormatError"]];
+                
+            // 密碼驗證
+            if (string.IsNullOrWhiteSpace(model.Password))
+                validationErrors["Password"] = [_localizer["PasswordInvalid"]];
+            else if (model.Password.Length < 8 || model.Password.Length > 20)
+                validationErrors["Password"] = [_localizer["PasswordFormatError"]];
+                
+            // 確認密碼驗證
+            if (string.IsNullOrWhiteSpace(model.PasswordConfirm))
+                validationErrors["PasswordConfirm"] = [_localizer["PasswordConfirmRequired"]];
+            else if (model.Password != model.PasswordConfirm)
+                validationErrors["PasswordConfirm"] = [_localizer["PasswordCompareError"]];
+                
+            // 如果有前端驗證錯誤，直接返回
+            if (validationErrors.Count > 0)
+            {
+                return ApiError(_localizer["Error"], validationErrors);
             }
 
             var createUserDto = new CreateUserDto
             {
                 UserName = model.UserName,
-                Email = model.Email,
+                Email = model.Email ?? string.Empty,
                 Password = model.Password,
                 PasswordConfirm = model.PasswordConfirm
             };
 
             var (userId, errors) = await _userService.CreateUserAsync(createUserDto);
 
+            _logger.LogInformation(
+                "\n\nError:\n{errors}\n\n", errors
+            );
+
             if (userId == null)
             {
                 _logger.LogWarning("\n註冊失敗: {Errors}\n", string.Join(", ", errors));
-                return ApiError("註冊失敗", new Dictionary<string, string[]> { { "General", errors.ToArray() } });
+
+                // 將 UserService 的驗證錯誤映射到對應的 ViewModel 欄位
+                var fieldErrors = new Dictionary<string, string[]>();
+                foreach (var error in errors)
+                {
+                    // 根據錯誤內容映射到正確的欄位，使用多語系訊息
+                    if (error.Contains("用戶名") || error.Contains("UserName") || error.Contains("username"))
+                    {
+                        if (error.Contains("長度") || error.Contains("字"))
+                            fieldErrors["UserName"] = [_localizer["UserNameFormatError"]];
+                        else if (error.Contains("已被使用") || error.Contains("exists"))
+                            fieldErrors["UserName"] = [_localizer["UsernameExists"]];
+                        else
+                            fieldErrors["UserName"] = [_localizer["UserNameInvalid"]];
+                    }
+                    else if (error.Contains("郵件") || error.Contains("Email") || error.Contains("email"))
+                    {
+                        if (error.Contains("格式") || error.Contains("invalid"))
+                            fieldErrors["Email"] = [_localizer["EmailInvalid"]];
+                        else if (error.Contains("已被使用") || error.Contains("exists"))
+                            fieldErrors["Email"] = [_localizer["EmailExists"]];
+                        else if (error.Contains("必填") || error.Contains("required"))
+                            fieldErrors["Email"] = [_localizer["EmailRequired"]];
+                        else
+                            fieldErrors["Email"] = [_localizer["EmailFormatError"]];
+                    }
+                    else if (error.Contains("密碼") || error.Contains("Password") || error.Contains("password"))
+                    {
+                        if (error.Contains("確認") || error.Contains("confirm") || error.Contains("不相符") || error.Contains("match"))
+                            fieldErrors["PasswordConfirm"] = [_localizer["PasswordCompareError"]];
+                        else if (error.Contains("格式") || error.Contains("大寫") || error.Contains("小寫") || error.Contains("數字") || error.Contains("特殊"))
+                            fieldErrors["Password"] = [_localizer["PasswordFormatError"]];
+                        else
+                            fieldErrors["Password"] = [_localizer["PasswordInvalid"]];
+                    }
+                    else
+                    {
+                        // 一般錯誤
+                        fieldErrors[""] = [error];
+                    }
+                }
+
+                return ApiError(_localizer["Error"], fieldErrors);
             }
 
             try
@@ -63,7 +144,7 @@ namespace Matrix.Controllers.Api
                 {
                     redirectUrl = "/login",
                     emailSent = true
-                }, "註冊成功！確認信已發送到您的郵箱，請查收並點擊確認連結。");
+                }, _localizer["ConfirmEmailSent"]);
             }
             catch (Exception ex)
             {
@@ -72,7 +153,7 @@ namespace Matrix.Controllers.Api
                 {
                     redirectUrl = "/login",
                     emailSent = false
-                }, "註冊成功！但確認信發送失敗，請稍後手動重新發送。");
+                }, _localizer["SendConfirmEmailError"]);
             }
         }
 
@@ -133,26 +214,26 @@ namespace Matrix.Controllers.Api
                 </div>";
         }
 
-        [HttpGet("test-email")]
-        public async Task<IActionResult> TestEmail()
-        {
-            var model = new RegisterViewModel
-            {
-                UserName = "eddychen",
-                Email = "eddychen101020@gmail.com",
-            };
-            var userId = Guid.NewGuid().ToString();
+        // [HttpGet("test-email")]
+        // public async Task<IActionResult> TestEmail()
+        // {
+        //     var model = new RegisterViewModel
+        //     {
+        //         UserName = "eddychen",
+        //         Email = "eddychen101020@gmail.com",
+        //     };
+        //     var userId = Guid.NewGuid().ToString();
 
-            try
-            {
-                await SendConfirmationEmail(model, userId);
-                return ApiSuccess(new { emailSent = true }, "測試郵件已成功發送。");
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "發送測試郵件失敗");
-                return ApiError("發送測試郵件失敗", new Dictionary<string, string[]> { { "General", new[] { ex.Message } } });
-            }
-        }
+        //     try
+        //     {
+        //         await SendConfirmationEmail(model, userId);
+        //         return ApiSuccess(new { emailSent = true }, "測試郵件已成功發送。");
+        //     }
+        //     catch (Exception ex)
+        //     {
+        //         _logger.LogError(ex, "發送測試郵件失敗");
+        //         return ApiError("發送測試郵件失敗", new Dictionary<string, string[]> { { "General", new[] { ex.Message } } });
+        //     }
+        // }
     }
 }

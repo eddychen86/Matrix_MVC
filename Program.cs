@@ -144,7 +144,11 @@ public class Program
 
         #endregion
 
-        builder.Services.AddControllersWithViews();
+        builder.Services.AddControllersWithViews(options =>
+        {
+            // 自訂 ModelBinding 錯誤訊息提供者
+            options.ModelBindingMessageProvider.SetValueMustNotBeNullAccessor(_ => "此欄位為必填");
+        });
         builder.Services.AddRazorPages();
 
         #region 配置 Anti-forgery 以支援 Ajax 請求

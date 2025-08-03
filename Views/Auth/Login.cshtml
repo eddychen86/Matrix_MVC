@@ -17,7 +17,7 @@
             <div class="input-item">
                 <label for="UserName" class="subTitle" data-i18n="UserNameLabel">@Localizer["UserNameLabel"]</label>
                 <input type="text" asp-for="UserName" placeholder="@Localizer["UserNamePlaceholder"]" data-i18n-placeholder="UserNamePlaceholder">
-                <p asp-validation-for="UserName" class="text-red-400 para"></p>
+                <p data-valmsg-for="UserName" class="text-red-400 para"></p>
             </div>
             
             @* 密碼 *@
@@ -32,7 +32,11 @@
                         <i data-lucide="eye" class="text-secondary subTitle"></i>
                     </button>
                 </div>
-                <p asp-validation-for="Password" class="text-red-400 para"></p>
+                <p data-valmsg-for="Password" class="text-red-400 para"></p>
+            </div>
+
+            <div>
+                <p data-valmsg-for="AccountLoginError" class="text-red-400 para"></p>
             </div>
             
             @* 記住密碼／忘記密碼 *@
@@ -74,6 +78,5 @@
 </div>
 
 @section Scripts {
-    <partial name="_ValidationScriptsPartial" />
     <script src="~/js/auth/login-event.js" asp-append-version="true"></script>
 }
