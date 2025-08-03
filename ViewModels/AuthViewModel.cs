@@ -1,8 +1,7 @@
 namespace Matrix.ViewModels
 {
     /// <summary>
-    /// 註冊 ViewModel - 純數據傳輸對象
-    /// 驗證規則完全依賴 Program.cs 中的 UserValidationOptions 配置
+    /// 註冊 ViewModel - 純數據對象，驗證邏輯完全在 Controller 中處理
     /// </summary>
     public class RegisterViewModel
     {
@@ -13,7 +12,7 @@ namespace Matrix.ViewModels
     }
 
     /// <summary>
-    /// 登入 ViewModel - 純數據傳輸對象
+    /// 登入 ViewModel - 純數據對象，驗證邏輯完全在 Controller 中處理
     /// </summary>
     public class LoginViewModel
     {

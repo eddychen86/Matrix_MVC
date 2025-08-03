@@ -161,8 +161,8 @@ namespace Matrix.Controllers
             return View("~/Views/Auth/Confirm.cshtml");
         }
 
-        /// <summary>產生 JWT Token (接受個別參數)</summary>
-        public string GenerateJwtToken(Guid userId, string userName, string role)
+        /// <summary>產生 JWT Token (僅儲存 UserId)</summary>
+        public string GenerateJwtToken(Guid userId)
         {
             var jwtKey = _configuration["JWT:Key"] ??
                         throw new InvalidOperationException("JWT Key 沒有設定");
@@ -171,14 +171,14 @@ namespace Matrix.Controllers
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.UTF8.GetBytes(jwtKey);
 
+            var claims = new List<Claim>
+            {
+                new Claim("UserId", userId.ToString())
+            };
+
             var tokenDescriptor = new SecurityTokenDescriptor
             {
-                Subject = new ClaimsIdentity(new[]
-                {
-                    new Claim("UserId", userId.ToString()),
-                    new Claim(ClaimTypes.Name, userName),
-                    new Claim(ClaimTypes.Role, role)
-                }),
+                Subject = new ClaimsIdentity(claims),
                 Expires = DateTime.UtcNow.AddDays(30),
                 Issuer = jwtIssuer,
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
@@ -194,7 +194,7 @@ namespace Matrix.Controllers
         {
             var cookieOptions = new CookieOptions
             {
-                HttpOnly = true,
+                HttpOnly = true, // 恢復安全設定
                 Secure = true,
                 SameSite = SameSiteMode.Strict
             };

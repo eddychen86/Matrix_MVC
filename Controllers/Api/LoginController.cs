@@ -35,15 +35,33 @@ namespace Matrix.Controllers.Api
         {
             _logger.LogInformation("\n\n登入嘗試: {UserName}", model?.UserName);
 
-            // 檢查模型和資料格式
-            if (model == null || !ModelState.IsValid)
-                return ValidationErrorResponse();
+            // 第一層：基本格式驗證（顯示在各自輸入框下方）
+            var validationErrors = new Dictionary<string, string[]>();
+            
+            if (model == null)
+            {
+                return ApiError(_localizer["Error"], new Dictionary<string, string[]> { { "", [_localizer["Error"]] } });
+            }
+            
+            // 用戶名驗證
+            if (string.IsNullOrWhiteSpace(model.UserName))
+                validationErrors["UserName"] = [_localizer["UserNameInvalid"]];
+                
+            // 密碼驗證
+            if (string.IsNullOrWhiteSpace(model.Password))
+                validationErrors["Password"] = [_localizer["PasswordInvalid"]];
+                
+            // 如果有基本格式錯誤，直接返回
+            if (validationErrors.Count > 0)
+            {
+                return ApiError(_localizer["Error"], validationErrors);
+            }
 
             // 驗證帳號密碼
             if (!await _userService.ValidateUserAsync(model.UserName, model.Password ?? string.Empty))
             {
                 _logger.LogWarning("帳號密碼錯誤: {UserName}", model.UserName);
-                return ApiError("帳號或密碼錯誤", new Dictionary<string, string[]> { { "", InvalidCredentialsError } });
+                return ApiError(_localizer["AccountLoginError"], new Dictionary<string, string[]> { { "AccountLoginError", [_localizer["AccountLoginError"]] } });
             }
 
             _logger.LogInformation("\n\naccount: {0}\npassword: {1}\n\n", model.UserName, model.Password);
@@ -53,7 +71,7 @@ namespace Matrix.Controllers.Api
             if (userDto == null)
             {
                 _logger.LogWarning("找不到用戶: {UserName}", model.UserName);
-                return ApiError("找不到用戶");
+                return ApiError(_localizer["AccountLoginError"], new Dictionary<string, string[]> { { "AccountLoginError", [_localizer["AccountLoginError"]] } });
             }
 
             _logger.LogInformation("尋獲用戶: {0}", userDto);
@@ -65,22 +83,36 @@ namespace Matrix.Controllers.Api
 
             _logger.LogInformation("帳號狀態：{0}", statusError);
 
-            // 產生 JWT 並設定 Cookie
-            var token = _authController.GenerateJwtToken(userDto.UserId, userDto.UserName, userDto.Role.ToString());
+            // 產生 JWT 並設定 Cookie (只包含 UserId)
+            var token = _authController.GenerateJwtToken(userDto.UserId);
             _authController.SetAuthCookie(Response, token, model.RememberMe);
 
-            return ApiSuccess(new { redirectUrl = "/home/index" }, "登入成功");
+            // 根據用戶角色決定跳轉目標
+            var redirectUrl = userDto.Role >= 1 ? "/dashboard/overview/index" : "/home/index";
+            
+            _logger.LogInformation("Login successful for user {UserName} (Role: {Role}), redirecting to: {RedirectUrl}", 
+                userDto.UserName, userDto.Role, redirectUrl);
+
+            return ApiSuccess(new { redirectUrl = redirectUrl }, _localizer["Success"]);
         }
 
         /// <summary>忘記密碼功能</summary>
         [HttpPost("api/login/forgot")]
         public IActionResult ForgotPassword([FromBody] LoginViewModel model)
         {
-            if (!ModelState.IsValid)
-                return ValidationErrorResponse();
+            // 基本格式驗證
+            var validationErrors = new Dictionary<string, string[]>();
+            
+            if (model == null || string.IsNullOrWhiteSpace(model.UserName))
+                validationErrors["UserName"] = [_localizer["UserNameInvalid"]];
+                
+            if (validationErrors.Count > 0)
+            {
+                return ApiError(_localizer["Error"], validationErrors);
+            }
 
             // TODO: 實作忘記密碼功能
-            return ApiError("忘記密碼功能尚未實作");
+            return ApiError(_localizer["ForgotPasswordMsg"]);
         }
 
         /// <summary>用帳號或信箱找用戶</summary>
@@ -103,17 +135,10 @@ namespace Matrix.Controllers.Api
         /// <summary>檢查用戶狀態是否正常</summary>
         private IActionResult? CheckUserStatus(UserDto userDto)
         {
-            var errorMessage = userDto.Status switch
-            {
-                0 => _localizer["AccountNotVerified"].ToString(),
-                2 => _localizer["AccountDisabled"].ToString(),
-                _ => null
-            };
-
-            if (errorMessage != null)
+            if (userDto.Status != 1) // 狀態不是正常時，統一使用 AccountLoginError
             {
                 _logger.LogWarning("帳號狀態異常: {UserName}, Status: {Status}", userDto.UserName, userDto.Status);
-                return ApiError(errorMessage);
+                return ApiError(_localizer["AccountLoginError"], new Dictionary<string, string[]> { { "AccountLoginError", [_localizer["AccountLoginError"]] } });
             }
 
             return null;

@@ -5,6 +5,7 @@ createApp({
         // 響應式數據
         const showPassword = ref(false)
         const showConfirmPassword = ref(false)
+        const isSubmitting = ref(false)
         const passwordIcon = ref(null)
         const confirmPasswordIcon = ref(null)
         const registerForm = ref({
@@ -54,16 +55,32 @@ createApp({
             // 清除之前的錯誤訊息
             document.querySelectorAll('.input-item p').forEach(p => p.textContent = '')
 
+            console.log('Received errors:', errors) // Debug log
+
             Object.keys(errors).forEach(field => {
                 const errMsg = errors[field]
                 if (errMsg && errMsg.length > 0) {
-                    const el = document.querySelector(`p[asp-validation-for="${field}"]`)
+                    // 直接使用 data-valmsg-for 選擇器
+                    let el = document.querySelector(`p[data-valmsg-for="${field}"]`)
+                    
+                    if (!el) {
+                        // 如果找不到，嘗試透過表單欄位關聯
+                        const input = document.querySelector(`input[name="${field}"]`)
+                        if (input) {
+                            el = input.parentElement.querySelector('p.text-red-400')
+                        }
+                    }
+                    
                     if (el && field) {
                         el.textContent = errMsg[0]
+                        console.log(`Set error for ${field}:`, errMsg[0]) // Debug log
                     } else if (!field) {
                         console.log('General error:', errMsg[0])
+                        // 顯示一般錯誤在頁面頂部或用 popup
+                        showCustomPopup(errMsg[0], 'error')
                     } else {
                         console.log(`Could not find validation element for ${field}`)
+                        console.log('Available validation elements:', document.querySelectorAll('p[data-valmsg-for]'))
                     }
                 }
             })
@@ -72,6 +89,9 @@ createApp({
         // 表單提交
         const submitForm = async (event) => {
             event.preventDefault()
+
+            // 設定提交狀態
+            isSubmitting.value = true
 
             try {
                 // 獲取表單數據
@@ -93,6 +113,7 @@ createApp({
                 })
 
                 const result = await response.json()
+                console.log('API Response:', result) // Debug log
 
                 if (result.success && result.redirectUrl) {
                     // 檢查是否有郵件發送標記
@@ -113,7 +134,7 @@ createApp({
                         await handleEmailConfirmation(result, token)
 
                     } else if (result.redirectUrl) {
-                        // 一般成功情況
+                        // 一般成功情況，成功時保持 loading 狀態直到頁面跳轉
                         if (result.message) {
                             showCustomPopup(result.message, 'success')
                             setTimeout(() => {
@@ -123,13 +144,19 @@ createApp({
                             window.location.href = result.redirectUrl
                         }
                     }
-                } else if (result.errors) {
-                    updateErrorMsg(result.errors)
                 } else {
-                    throw new Error(result.message || '註冊失敗')
+                    // 失敗時重置提交狀態
+                    isSubmitting.value = false
+                    if (result.errors) {
+                        updateErrorMsg(result.errors)
+                    } else {
+                        throw new Error(result.message || '註冊失敗')
+                    }
                 }
             } catch (error) {
                 console.error('Register error:', error)
+                // 發生錯誤時重置提交狀態
+                isSubmitting.value = false
             }
         }
 
@@ -339,6 +366,7 @@ createApp({
         return {
             showPassword,
             showConfirmPassword,
+            isSubmitting,
             passwordIcon,
             confirmPasswordIcon,
             registerForm,

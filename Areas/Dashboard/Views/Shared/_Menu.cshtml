@@ -1,0 +1,64 @@
+@using Matrix.Extensions
+@using Matrix.Services
+@inject ICustomLocalizer Localizer
+@{
+    var authInfo = Context.GetAuthInfo();
+    var isLogin = authInfo.IsAuthenticated;
+    var username = authInfo.UserName;
+    var userImg = authInfo.AvaterPath;
+
+    var menus = new[]
+    {
+        new { type = "Overview", icon = "layout-dashboard" },
+        new { type = "Users", icon = "user" },
+        new { type = "Posts", icon = "file-text" },
+        new { type = "Reports", icon = "flag" },
+        new { type = "Logs", icon = "bug" },
+    };
+
+    var bottoms = new[]
+    {
+        new { title = "Language", icon = "languages", click = "toggleLang" },
+        new { title = "HideBar", icon = "panel-left", click = "toggleSidebar" },
+        new { 
+            title = isLogin ? "LogOut" : "Login", 
+            icon = isLogin ? "log-out" : "log-in", 
+            click = isLogin ? "logout" : "login" 
+        },
+    };
+}
+
+<aside id="sidebar-app" class="top-0 left-0 p-4 h-screen">
+    <ul :class="isCollapsed ? 'sidebar-close' : 'sidebar-open'" class="sidebar">
+        <!-- Sidebar content here -->
+        <li>
+            <a asp-area="" asp-controller="Home" asp-action="Index" aria-current="page" class="cts-btn hover:bg-gray-900 title">
+                <img src="~/static/img/Matrix_logo_white.png" alt="Matrix Logo" class="icon-lg">
+                <span data-i18n="Matrix">@Localizer["Matrix"]</span>
+            </a>
+            @if (isLogin) {
+                <a asp-area="" asp-controller="Profile" asp-action="Index" aria-current="page" class="cts-btn">
+                    <img src="@userImg" alt="" class="icon-lg" />
+                    <span class="title">@username</span>
+                </a>
+            }
+        </li>
+        <li>
+            @foreach (var i in menus)
+            {
+                <button class="cts-btn hover:bg-gray-900" v-on:click="loadDashboardPage('@i.type.ToLower()')">
+                    <i data-lucide="@i.icon" class="icon-base text-white"></i>
+                    <span class="title" data-i18n="@i.type">@Localizer[i.type]</span>
+                </button>
+            }
+        </li>
+        <li>
+            @foreach (var i in bottoms) {
+                <button v-on:click="handleMenuClick('@i.click')" :class="isCollapsed ? 'sidebar-btn-none-text' : ''" class="cts-btn">
+                    <i data-lucide="@i.icon" class="icon-base"></i>
+                    <span class="title" data-i18n="@i.title">@Localizer[i.title]</span>
+                </button>
+            }
+        </li>
+    </ul>
+</aside>

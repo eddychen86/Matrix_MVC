@@ -70,6 +70,7 @@ TestResults/
 *.log
 *.sqlite
 _appsettings.json
+tailwind*.json
 # OS generated files #
 ######################
 .DS_Store?

@@ -10,69 +10,6 @@
     var confirmPasswordPlaceholder = Localizer["ConfirmPasswordPlaceholder"];
 }
 
-@section Styles {
-    <style>
-        .email-options-popup,
-        .email-error-popup {
-            max-width: 450px;
-            min-width: 350px;
-        }
-
-        .popup-actions {
-            padding: 0 16px 16px 16px;
-            display: flex;
-            gap: 12px;
-            justify-content: flex-end;
-        }
-
-        .popup-btn {
-            padding: 8px 16px;
-            border-radius: 6px;
-            border: none;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            transition: all 0.2s;
-        }
-
-        .popup-btn.primary {
-            background-color: #FF4C29;
-            color: white;
-        }
-
-        .popup-btn.primary:hover {
-            background-color: #E03E1F;
-        }
-
-        .popup-btn.secondary {
-            background-color: #F3F4F6;
-            color: #374151;
-            border: 1px solid #D1D5DB;
-        }
-
-        .popup-btn.secondary:hover {
-            background-color: #E5E7EB;
-        }
-
-        .popup-message h4 {
-            margin: 0 0 8px 0;
-            font-size: 16px;
-            font-weight: 600;
-            color: #111827;
-        }
-
-        .popup-message p {
-            margin: 0;
-            font-size: 14px;
-            line-height: 1.4;
-            color: #6B7280;
-        }
-    </style>
-}
-
 <div id="auth-body">
     <div id="auth-form">
         <div id="mock"></div>
@@ -85,14 +22,14 @@
             <div class="input-item">
                 <label for="UserName" class="subTitle">@Localizer["UserNameLabel"]</label>
                 <input type="text" asp-for="UserName" placeholder="@userNamePlaceholder">
-                <p asp-validation-for="UserName" class="text-red-400 para"></p>
+                <p data-valmsg-for="UserName" class="text-red-400 para"></p>
             </div>
 
             @* 信箱 *@
             <div class="input-item">
                 <label for="Email" class="subTitle">@Localizer["EmailLabel"]</label>
                 <input type="text" asp-for="Email" placeholder="@emailPlaceholder">
-                <p asp-validation-for="Email" class="text-red-400 para"></p>
+                <p data-valmsg-for="Email" class="text-red-400 para"></p>
             </div>
             
             @* 密碼 *@
@@ -107,7 +44,7 @@
                         <i data-lucide="eye" class="text-secondary subTitle"></i>
                     </button>
                 </div>
-                <p asp-validation-for="Password" class="text-red-400 para"></p>
+                <p data-valmsg-for="Password" class="text-red-400 para"></p>
             </div>
 
             @* 確認密碼 *@
@@ -122,11 +59,14 @@
                         <i data-lucide="eye" class="text-secondary subTitle"></i>
                     </button>
                 </div>
-                <p asp-validation-for="ConfirmPassword" class="text-red-400 para"></p>
+                <p data-valmsg-for="PasswordConfirm" class="text-red-400 para"></p>
             </div>
 
             @* 註冊按鈕 *@
-            <button type="submit" class="auth-btn subTitle py-2">@Localizer["SubmitBtn"]</button>
+            <button type="submit" class="auth-btn subTitle py-2">
+                @* <span class="loading loading-dots loading-lg"></span> *@
+                @Localizer["SubmitBtn"]
+            </button>
             
             @* 已有帳號 *@
             <p class="para text-center">@Localizer["hasAccountMsg"] <a href="/login" class="font-semibold">@Localizer["LoginTitle"]</a></p>
@@ -136,6 +76,5 @@
 
 
 @section Scripts {
-    <partial name="_ValidationScriptsPartial" />
     <script src="~/js/auth/register-event.js" asp-append-version="true"></script>
 }
