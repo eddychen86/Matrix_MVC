@@ -1,50 +1,57 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Matrix.Data;
-using Matrix.ViewModels;
-using Microsoft.EntityFrameworkCore;
 using Matrix.Attributes;
+using Matrix.Services.Interfaces;
+using Matrix.ViewModels;
 
 namespace Matrix.Controllers
 {
     [MemberAuthorization] // 需要一般會員權限 (Role >= 0)
     public class CollectController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private readonly ICollectService _collectService;
+        private readonly ILogger<CollectController> _logger;
 
-        public CollectController(ApplicationDbContext context)
+        public CollectController(
+            ICollectService collectService,
+            ILogger<CollectController> logger)
         {
-            _context = context;
+            _collectService = collectService;
+            _logger = logger;
         }
+
+        //GET:Collect
+        [HttpGet]
         public IActionResult Index()
         {
             return View();
         }
 
-        // API endpoint for popup data
         [HttpGet]
-        [Route("/api/Collects")]
-        public IActionResult GetCollectsData()
+        [Route("api/collects")]
+        public async Task<IActionResult> GetCollectsData()
         {
-            // TODO: 未來改為從登入者取得 PersonId，例如 User.Identity.Name → User → Person.Id
-            var currentUserId = Guid.Parse("36a9c596-b298-49b5-8300-7c3479aed145");
+            try
+            {
+                // TODO: 未來改為從登入者取得 PersonId，例如 User.Identity.Name → User → Person.Id
+                var currentUserId = Guid.Parse("36a9c596-b298-49b5-8300-7c3479aed145");
 
-            var collects = _context.PraiseCollects
-                .Include(i => i.Article)
-                .Include(i => i.User)
-                .Where(p => p.Type == 1 && p.UserId == currentUserId)
-                .OrderByDescending(p => p.CreateTime)
-                .Take(30)
-                .ToList()
-                .Select(p => new CollectItemViewModel
+                var collectDtos = await _collectService.GetUserCollectsAsync(currentUserId, 30);
+                
+                var collectViewModels = collectDtos.Select(dto => new CollectItemViewModel
                 {
-                    Title = p.Article?.Content?.Substring(0, Math.Min(10, p.Article.Content?.Length ?? 0)) ?? "",
-                    ImageUrl = "https://i.imgur.com/YVy64ke.jpg",
-                    AuthorName = p.User?.DisplayName ?? "匿名",
-                    CollectedAt = p.CreateTime
-                })
-                .ToList();
+                    Title = dto.Title,
+                    ImageUrl = dto.ImageUrl,
+                    AuthorName = dto.AuthorName,
+                    CollectedAt = dto.CollectedAt
+                }).ToList();
 
-            return Json(collects);
+                return Json(collectViewModels);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting collects data");
+                return Json(new { error = "取得收藏資料時發生錯誤" });
+            }
         }
     }
 }
