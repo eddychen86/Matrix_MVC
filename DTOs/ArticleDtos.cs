@@ -192,7 +192,7 @@ namespace Matrix.DTOs
         /// 獲取文章的作者頭像
         /// 用途：顯示文章作者的頭像
         /// </summary>
-        public string AuthorAvatar => (Author?.AvatarPath != null && Author.AvatarPath.Length > 0) ? $"data:image/jpeg;base64,{Convert.ToBase64String(Author.AvatarPath)}" : "";
+        public string AuthorAvatar => !string.IsNullOrEmpty(Author?.AvatarPath) ? Author.AvatarPath : "/static/images/default_avatar.png";
     }
 
     /// <summary>

@@ -174,7 +174,7 @@ namespace Matrix.DTOs
         /// <summary>
         /// 獲取回覆的作者頭像
         /// </summary>
-        public string AuthorAvatar => (Author?.AvatarPath != null && Author.AvatarPath.Length > 0) ? $"data:image/jpeg;base64,{Convert.ToBase64String(Author.AvatarPath)}" : "";
+        public string AuthorAvatar => !string.IsNullOrEmpty(Author?.AvatarPath) ? Author.AvatarPath : "/static/images/default_avatar.png";
 
         /// <summary>
         /// 獲取被回覆者的顯示名稱
