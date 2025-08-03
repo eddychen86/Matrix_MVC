@@ -66,21 +66,19 @@ namespace Matrix.Data.Configurations
 
             /// <summary>
             /// 配置 AvatarPath 欄位屬性
-            /// 用途：設定頭像檔案路徑的資料庫約束
-            /// 長度限制：最大 2048 個字元
+            /// 用途：設定頭像二進制資料的資料庫約束
+            /// 類型：byte[]
             /// 必填：否
             /// </summary>
-            builder.Property(p => p.AvatarPath)
-                .HasMaxLength(2048);
+            builder.Property(p => p.AvatarPath);
 
             /// <summary>
             /// 配置 BannerPath 欄位屬性
-            /// 用途：設定橫幅檔案路徑的資料庫約束
-            /// 長度限制：最大 2048 個字元
+            /// 用途：設定橫幅二進制資料的資料庫約束
+            /// 類型：byte[]
             /// 必填：否
             /// </summary>
-            builder.Property(p => p.BannerPath)
-                .HasMaxLength(2048);
+            builder.Property(p => p.BannerPath);
 
             /// <summary>
             /// 配置 Website 欄位屬性
@@ -95,9 +93,6 @@ namespace Matrix.Data.Configurations
                 .HasMaxLength(2048);
                 
             builder.Property(p => p.Website3)
-                .HasMaxLength(2048);
-                
-            builder.Property(p => p.ExternalUrl)
                 .HasMaxLength(2048);
 
             /// <summary>
