@@ -15,6 +15,10 @@
         }
       }
 
+      img {
+        @apply rounded-full;
+      }
+
       span {
         @apply
           absolute truncate
@@ -23,7 +27,7 @@
       }
 
       .cts-btn {
-        @apply px-0;
+        @apply px-0 bg-none;
       }
 
       button, a {

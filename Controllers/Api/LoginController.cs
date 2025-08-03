@@ -65,11 +65,17 @@ namespace Matrix.Controllers.Api
 
             _logger.LogInformation("帳號狀態：{0}", statusError);
 
-            // 產生 JWT 並設定 Cookie
-            var token = _authController.GenerateJwtToken(userDto.UserId, userDto.UserName, userDto.Role.ToString());
+            // 產生 JWT 並設定 Cookie (只包含 UserId)
+            var token = _authController.GenerateJwtToken(userDto.UserId);
             _authController.SetAuthCookie(Response, token, model.RememberMe);
 
-            return ApiSuccess(new { redirectUrl = "/home/index" }, "登入成功");
+            // 根據用戶角色決定跳轉目標
+            var redirectUrl = userDto.Role >= 1 ? "/dashboard/overview/index" : "/home/index";
+            
+            _logger.LogInformation("Login successful for user {UserName} (Role: {Role}), redirecting to: {RedirectUrl}", 
+                userDto.UserName, userDto.Role, redirectUrl);
+
+            return ApiSuccess(new { redirectUrl = redirectUrl }, "登入成功");
         }
 
         /// <summary>忘記密碼功能</summary>

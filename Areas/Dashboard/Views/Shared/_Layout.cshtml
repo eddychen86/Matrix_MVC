@@ -1,5 +1,7 @@
 @{
-    ViewData["Title"] = "Matrix";
+    ViewData["Title"] = "Matrix - Control";
+    var authInfo = Context.GetAuthInfo();
+
 }
 
 <!DOCTYPE html>
@@ -13,19 +15,21 @@
     <link rel="stylesheet" href="~/css/components.css" asp-append-version="true" />
 </head>
 
-<body class="bg-primary">
+<body class="bg-white">
     <div id="app" class="flex">
-        <partial name="_Menu" />
+        @await Html.PartialAsync("_Menu")
 
         <div class="relative flex w-full flex-col gap-4 p-4 pl-0 h-screen overflow-y-auto">
-            <main class="text-white">
-                @RenderBody()
+            <header class="relative">
+                <img src="~/static/img/image-top.png" alt="" class="w-full h-56 object-cover object-center rounded-[30px]" >
+            </header>
+            <main class="min-h-[calc(100%-56px))]">
+                <div id="dashboard-content">
+                    @RenderBody()
+                </div>
             </main>
             <partial name="_Footer" />
         </div>
-
-        <!-- Universal Popup Component -->
-        @await Component.InvokeAsync("Popup")
     </div>
 
     <script src="~/lib/jquery/jquery.min.js"></script>
@@ -40,10 +44,7 @@
     </environment>
 
     <script src="~/lib/lucide/dist/umd/lucide.min.js"></script>
-
     <script src="~/js/hooks/useFormatting.js" asp-append-version="true"></script>
-    <script src="~/js/auth/auth-manager.js" asp-append-version="true"></script>
-    <script src="~/js/auth/login-popup.js" asp-append-version="true"></script>
     <script src="~/js/components/menu.js" asp-append-version="true"></script>
 
     @await RenderSectionAsync("Scripts", required: false)

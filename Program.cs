@@ -14,6 +14,12 @@ public class Program
     public static void Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
+        
+        // 開發環境提示
+        if (builder.Environment.IsDevelopment())
+        {
+            Console.WriteLine("💡 如遇 403 錯誤，通常是 port 衝突 - 使用 port 5002 避免 AirTunes");
+        }
 
         // 配置 Console Logging Provider
         builder.Logging.ClearProviders();
@@ -138,7 +144,6 @@ public class Program
 
         #endregion
 
-
         builder.Services.AddControllersWithViews();
         builder.Services.AddRazorPages();
 
@@ -174,9 +179,21 @@ public class Program
 
         #endregion
 
+        #region Dashboard 權限檢查
+
+        app.UseDashboardAccess();
+
+        #endregion
+
         app.UseAuthentication();
         app.UseAuthorization();
 
+        // Areas 路由 (優先處理)
+        app.MapControllerRoute(
+            name: "areas",
+            pattern: "{area:exists}/{controller=Overview}/{action=Index}/{id?}");
+
+        // 預設路由
         app.MapControllerRoute(
             name: "default",
             pattern: "{controller=Home}/{action=Index}/{id?}");
