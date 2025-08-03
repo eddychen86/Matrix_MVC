@@ -1,5 +1,6 @@
 ﻿@import "tailwindcss" source(none);
 @source "../../Views/**/*.{cshtml,html,php,erb}";
+@source "../../Areas/**/*.{cshtml,html,php,erb}";
 @plugin "../lib/daisyui/daisyui.js";
 
 @plugin "../lib/daisyui/daisyui-theme.js" {

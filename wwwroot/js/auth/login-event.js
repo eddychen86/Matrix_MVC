@@ -5,6 +5,7 @@ createApp({
         // 響應式數據
         const isForgot = ref(false)
         const showPassword = ref(false)
+        const isSubmitting = ref(false)
         const loginForm = ref({
             UserName: '',
             Password: '',
@@ -32,17 +33,23 @@ createApp({
         // 更新錯誤訊息
         const updateErrorMsg = (errors) => {
             // 清除之前的錯誤訊息
-            document.querySelectorAll('.input-item p').forEach(p => p.textContent = '')
+            document.querySelectorAll('p[data-valmsg-for]').forEach(p => p.textContent = '')
+
+            console.log('Received errors:', errors) // Debug log
 
             Object.keys(errors).forEach(field => {
                 const errMsg = errors[field]
                 if (errMsg && errMsg.length > 0) {
-                    const el = document.querySelector(`p[asp-validation-for="${field}"]`)
-                    if (el && field) {
+                    // 直接使用 data-valmsg-for 選擇器
+                    const el = document.querySelector(`p[data-valmsg-for="${field}"]`)
+                    
+                    if (el) {
                         el.textContent = errMsg[0]
-                    } else if (!field) {
-                        console.log('General error:', errMsg[0])
-                    } else console.log(`Could not find validation element for ${field}`)
+                        console.log(`Set error for ${field}:`, errMsg[0]) // Debug log
+                    } else {
+                        console.log(`Could not find validation element for ${field}`)
+                        console.log('Available validation elements:', document.querySelectorAll('p[data-valmsg-for]'))
+                    }
                 }
             })
         }
@@ -50,6 +57,9 @@ createApp({
         // 表單提交
         const submitForm = async (event) => {
             event.preventDefault()
+
+            // 設定提交狀態
+            isSubmitting.value = true
 
             try {
                 // 獲取表單數據
@@ -70,12 +80,20 @@ createApp({
                 })
 
                 const result = await response.json()
+                console.log('API Response:', result) // Debug log
 
                 if (result.success && result.data?.redirectUrl) {
+                    // 成功時保持 loading 狀態直到頁面跳轉
                     window.location.href = result.data.redirectUrl
-                } else if (result.errors) updateErrorMsg(result.errors)
+                } else {
+                    // 失敗時重置提交狀態
+                    isSubmitting.value = false
+                    if (result.errors) updateErrorMsg(result.errors)
+                }
             } catch (error) {
                 console.error('Login error:', error)
+                // 發生錯誤時重置提交狀態
+                isSubmitting.value = false
             }
         }
 
