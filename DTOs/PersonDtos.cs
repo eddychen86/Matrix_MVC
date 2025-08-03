@@ -1,7 +1,36 @@
+using Microsoft.AspNetCore.Http;
 using System.ComponentModel.DataAnnotations;
 
 namespace Matrix.DTOs
 {
+    /// <summary>
+    /// 用於透過 API 更新個人資料（包含檔案上傳）的資料傳輸物件
+    /// </summary>
+    public class ApiUpdateProfileDto
+    {
+        /// <summary>
+        /// 使用者的顯示名稱
+        /// </summary>
+        [StringLength(50)]
+        public string? DisplayName { get; set; }
+
+        /// <summary>
+        /// 使用者的個人簡介
+        /// </summary>
+        [StringLength(300)]
+        public string? Bio { get; set; }
+
+        /// <summary>
+        /// 上傳的頭像檔案
+        /// </summary>
+        public IFormFile? AvatarFile { get; set; }
+
+        /// <summary>
+        /// 上傳的橫幅檔案
+        /// </summary>
+        public IFormFile? BannerFile { get; set; }
+    }
+
     /// <summary>
     /// Person 實體的資料傳輸物件
     /// </summary>

@@ -1,3 +1,5 @@
+using Matrix.DTOs;
+
 namespace Matrix.Services.Interfaces
 {
     /// <summary>
@@ -111,5 +113,10 @@ namespace Matrix.Services.Interfaces
         /// <param name="id">用戶 ID</param>
         /// <returns>用戶實體，如果不存在則返回 null</returns>
         Task<User?> GetUserEntityAsync(Guid id);
+
+        /// <summary>
+        /// 更新使用者的個人資料，包含處理頭像和橫幅的檔案上傳
+        /// </summary>
+        Task<PersonDto?> UpdateProfileAsync(Guid userId, ApiUpdateProfileDto dto);
     }
 }
