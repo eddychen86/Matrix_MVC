@@ -192,7 +192,7 @@ namespace Matrix.DTOs
         /// 獲取文章的作者頭像
         /// 用途：顯示文章作者的頭像
         /// </summary>
-        public string AuthorAvatar => Author?.EffectiveAvatarUrl ?? "/static/img/default-avatar.png";
+        public string AuthorAvatar => (Author?.AvatarPath != null && Author.AvatarPath.Length > 0) ? $"data:image/jpeg;base64,{Convert.ToBase64String(Author.AvatarPath)}" : "";
     }
 
     /// <summary>
@@ -385,15 +385,5 @@ namespace Matrix.DTOs
                 ["CollectCount"] = 0
             };
         }
-
-        /// <summary>
-        /// 支援多檔案上傳
-        /// </summary>
-        public List<IFormFile>? Attachments { get; set; }
-
-        /// <summary>
-        /// 被選擇的 Hashtag Id 清單（用於多對多）
-        /// </summary>
-        public List<Guid>? SelectedHashtags { get; set; }
     }
 }

@@ -62,6 +62,7 @@ public class Program
         #region 註冊 Service
 
         builder.Services.AddScoped<IUserService, UserService>();
+        builder.Services.AddScoped<ICollectService, CollectService>();
         builder.Services.AddScoped<ArticleService>();
         builder.Services.AddScoped<NotificationService>();
         builder.Services.AddScoped<Matrix.Controllers.AuthController>();

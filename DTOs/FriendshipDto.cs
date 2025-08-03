@@ -90,7 +90,7 @@ namespace Matrix.DTOs
             get
             {
                 var timeSpan = DateTime.Now - CreateTime;
-                
+
                 return timeSpan.TotalDays switch
                 {
                     > 365 => $"{(int)(timeSpan.TotalDays / 365)} 年前發送",
@@ -110,9 +110,9 @@ namespace Matrix.DTOs
             get
             {
                 if (ResponseTime == null) return "尚未回應";
-                
+
                 var timeSpan = DateTime.Now - ResponseTime.Value;
-                
+
                 return timeSpan.TotalDays switch
                 {
                     > 365 => $"{(int)(timeSpan.TotalDays / 365)} 年前回應",
@@ -137,12 +137,12 @@ namespace Matrix.DTOs
         /// <summary>
         /// 獲取好友請求發送者的頭像
         /// </summary>
-        public string RequesterAvatar => Requester?.EffectiveAvatarUrl ?? "/static/img/default-avatar.png";
+        public string RequesterAvatar => (Requester?.AvatarPath != null && Requester.AvatarPath.Length > 0) ? $"data:image/jpeg;base64,{Convert.ToBase64String(Requester.AvatarPath)}" : "";
 
         /// <summary>
         /// 獲取好友請求接收者的頭像
         /// </summary>
-        public string AddresseeAvatar => Addressee?.EffectiveAvatarUrl ?? "/static/img/default-avatar.png";
+        public string AddresseeAvatar => (Addressee?.AvatarPath != null && Addressee.AvatarPath.Length > 0) ? $"data:image/jpeg;base64,{Convert.ToBase64String(Addressee.AvatarPath)}" : "";
 
         /// <summary>
         /// 獲取好友關係的描述文字
@@ -213,7 +213,7 @@ namespace Matrix.DTOs
             get
             {
                 var actions = new List<string>();
-                
+
                 switch (Status)
                 {
                     case 0:
@@ -233,7 +233,7 @@ namespace Matrix.DTOs
                         actions.Add("解除封鎖");
                         break;
                 }
-                
+
                 return actions;
             }
         }
@@ -256,9 +256,9 @@ namespace Matrix.DTOs
             get
             {
                 if (!IsAccepted || ResponseTime == null) return "尚未建立好友關係";
-                
+
                 var timeSpan = DateTime.Now - ResponseTime.Value;
-                
+
                 return timeSpan.TotalDays switch
                 {
                     > 365 => $"已是好友 {(int)(timeSpan.TotalDays / 365)} 年",
@@ -303,7 +303,7 @@ namespace Matrix.DTOs
             get
             {
                 if (!IsAccepted) return false;
-                
+
                 return InteractionStats.Values.Sum() > 0;
             }
         }
@@ -324,18 +324,18 @@ namespace Matrix.DTOs
                 ["IsActiveFriendship"] = IsActiveFriendship,
                 ["RequiresImmediateAttention"] = RequiresImmediateAttention
             };
-            
+
             if (ResponseTime.HasValue)
             {
                 info["ResponseTime"] = ResponseTime.Value.ToString("yyyy-MM-dd HH:mm:ss");
                 info["ResponseTimeAgo"] = ResponseTimeAgoText;
             }
-            
+
             if (IsAccepted)
             {
                 info["FriendshipDuration"] = FriendshipDurationText;
             }
-            
+
             return info;
         }
 
@@ -364,7 +364,7 @@ namespace Matrix.DTOs
         public string GetOtherPersonAvatar(Guid currentUserId)
         {
             var otherPerson = GetOtherPerson(currentUserId);
-            return otherPerson?.EffectiveAvatarUrl ?? "/static/img/default-avatar.png";
+            return (otherPerson?.AvatarPath != null && otherPerson.AvatarPath.Length > 0) ? $"data:image/jpeg;base64,{Convert.ToBase64String(otherPerson.AvatarPath)}" : "";
         }
 
         /// <summary>

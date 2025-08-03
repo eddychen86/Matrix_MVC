@@ -302,7 +302,6 @@ namespace Matrix.Services
             {
                 dto.Bio = person.Bio;
                 dto.BannerPath = person.BannerPath;
-                dto.ExternalUrl = person.ExternalUrl;
                 dto.WalletAddress = person.WalletAddress;
                 dto.ModifyTime = person.ModifyTime;
             }

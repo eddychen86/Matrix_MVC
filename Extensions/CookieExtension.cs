@@ -20,7 +20,7 @@ namespace Matrix.Extensions
         {
             var displayName = context.Items["DisplayName"] as string ?? string.Empty;
             var actualUserName = context.Items["UserName"] as string ?? string.Empty;
-            
+
             return new AuthInfo
             {
                 IsAuthenticated = context.Items["IsAuthenticated"] as bool? ?? false,
@@ -28,7 +28,7 @@ namespace Matrix.Extensions
                 UserName = displayName,  // 前端顯示用的名稱
                 DisplayName = displayName,
                 Role = context.Items["UserRole"] as int? ?? 0,
-                AvaterPath = context.Items["AvaterPath"] as string ?? "/static/img/default-avatar.png"
+                AvaterPath = context.Items["AvaterPath"] as string ?? ""
             };
         }
     }

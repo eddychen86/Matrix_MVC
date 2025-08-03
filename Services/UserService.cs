@@ -284,7 +284,6 @@ namespace Matrix.Services
                     Bio = user.Person.Bio,
                     AvatarPath = user.Person.AvatarPath,
                     BannerPath = user.Person.BannerPath,
-                    ExternalUrl = user.Person.ExternalUrl,
                     IsPrivate = user.Person.IsPrivate,
                     WalletAddress = user.Person.WalletAddress,
                     ModifyTime = user.Person.ModifyTime
