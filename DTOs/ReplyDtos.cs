@@ -103,7 +103,7 @@ namespace Matrix.DTOs
             get
             {
                 if (string.IsNullOrEmpty(Content)) return "此回覆沒有內容。";
-                
+
                 return Content.Length > 50 ? Content.Substring(0, 50) + "..." : Content;
             }
         }
@@ -116,7 +116,7 @@ namespace Matrix.DTOs
             get
             {
                 var timeSpan = DateTime.Now - CreateTime;
-                
+
                 return timeSpan.TotalDays switch
                 {
                     > 365 => $"{(int)(timeSpan.TotalDays / 365)} 年前",
@@ -174,7 +174,7 @@ namespace Matrix.DTOs
         /// <summary>
         /// 獲取回覆的作者頭像
         /// </summary>
-        public string AuthorAvatar => (Author?.AvatarPath != null && Author.AvatarPath.Length > 0) ? $"data:image/jpeg;base64,{Convert.ToBase64String(Author.AvatarPath)}" : "/static/img/default-avatar.png";
+        public string AuthorAvatar => (Author?.AvatarPath != null && Author.AvatarPath.Length > 0) ? $"data:image/jpeg;base64,{Convert.ToBase64String(Author.AvatarPath)}" : "";
 
         /// <summary>
         /// 獲取被回覆者的顯示名稱
@@ -212,17 +212,17 @@ namespace Matrix.DTOs
             get
             {
                 var parts = new List<string>();
-                
+
                 if (PraiseCount > 0)
                 {
                     parts.Add($"{PraiseCount} 個讚");
                 }
-                
+
                 if (ChildReplyCount > 0)
                 {
                     parts.Add($"{ChildReplyCount} 個回覆");
                 }
-                
+
                 return parts.Count > 0 ? string.Join("，", parts) : "無互動";
             }
         }
@@ -293,7 +293,7 @@ namespace Matrix.DTOs
             get
             {
                 if (string.IsNullOrEmpty(Content)) return "無內容";
-                
+
                 return Content.Length > 50 ? Content.Substring(0, 50) + "..." : Content;
             }
         }
@@ -316,17 +316,17 @@ namespace Matrix.DTOs
             get
             {
                 var errors = new List<string>();
-                
+
                 if (ArticleId == Guid.Empty)
                 {
                     errors.Add("必須指定回覆的文章");
                 }
-                
+
                 if (string.IsNullOrWhiteSpace(Content))
                 {
                     errors.Add("回覆內容不能為空");
                 }
-                
+
                 if (!IsValidLength)
                 {
                     if (ContentLength > 1000)
@@ -338,7 +338,7 @@ namespace Matrix.DTOs
                         errors.Add("回覆內容不能為空");
                     }
                 }
-                
+
                 return errors;
             }
         }
@@ -351,9 +351,9 @@ namespace Matrix.DTOs
             if (!string.IsNullOrEmpty(Content))
             {
                 Content = Content.Trim();
-                
+
                 Content = Content.Replace("\n", "\r\n");
-                
+
                 while (Content.Contains("\n\n\n"))
                 {
                     Content = Content.Replace("\n\n\n", "\n\n");
@@ -367,7 +367,7 @@ namespace Matrix.DTOs
         public bool IsValidParentReplyId()
         {
             if (IsTopLevel) return true;
-            
+
             return ParentReplyId.HasValue && ParentReplyId.Value != Guid.Empty;
         }
 
@@ -400,11 +400,11 @@ namespace Matrix.DTOs
         public List<string> GetMentions()
         {
             var mentions = new List<string>();
-            
+
             if (string.IsNullOrEmpty(Content)) return mentions;
-            
-            var words = Content.Split(new[] { " ", "\n", "\r\n"}, StringSplitOptions.RemoveEmptyEntries);
-            
+
+            var words = Content.Split(new[] { " ", "\n", "\r\n" }, StringSplitOptions.RemoveEmptyEntries);
+
             foreach (var word in words)
             {
                 if (word.StartsWith("@") && word.Length > 1)
@@ -416,7 +416,7 @@ namespace Matrix.DTOs
                     }
                 }
             }
-            
+
             return mentions;
         }
 
@@ -426,7 +426,7 @@ namespace Matrix.DTOs
         public Dictionary<string, object> ToCreateData()
         {
             NormalizeContent();
-            
+
             var data = new Dictionary<string, object>
             {
                 ["ArticleId"] = ArticleId,
@@ -435,12 +435,12 @@ namespace Matrix.DTOs
                 ["CreateTime"] = DateTime.Now,
                 ["PraiseCount"] = 0
             };
-            
+
             if (ParentReplyId.HasValue && ParentReplyId.Value != Guid.Empty)
             {
                 data["ParentReplyId"] = ParentReplyId.Value;
             }
-            
+
             return data;
         }
 
@@ -450,12 +450,12 @@ namespace Matrix.DTOs
         public (bool IsValid, List<string> Errors) ValidateForCreation()
         {
             var errors = ValidationErrors;
-            
+
             if (!IsValidParentReplyId())
             {
                 errors.Add("嵌套回覆必須指定有效的父回覆");
             }
-            
+
             return (errors.Count == 0, errors);
         }
     }
