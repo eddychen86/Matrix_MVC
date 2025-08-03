@@ -6,10 +6,10 @@ const app = content => {
     } else {
         lucide.createIcons()
         if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', () => window.popupApp = Vue.createApp(content).mount('#app'))
+            document.addEventListener('DOMContentLoaded', () => window.popupApp = Vue.createApp(content).mount('#sidebar-app'))
         } else {
             // DOM 已經載入完成
-            window.popupApp = Vue.createApp(content).mount('#app')
+            window.popupApp = Vue.createApp(content).mount('#sidebar-app')
         }
     }
 }
