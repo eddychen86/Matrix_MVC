@@ -62,9 +62,7 @@ public class HomeController : WebControllerBase
         ViewBag.DefaultList = default_list;
 
         //取得好友欄位資料
-
         var currentUserId = Guid.Parse("870c0b75-97a3-4e4f-8215-204d5747d28c");
-
         var friends = await _context.Friendships
             .Where(a =>
                 (a.UserId == currentUserId || a.FriendId == currentUserId)
@@ -78,7 +76,9 @@ public class HomeController : WebControllerBase
             {
                 UserId = a.UserId.ToString(),
                 UserName = a.UserName,
-                AvatarPath = a.Person != null ? a.Person.AvatarPath : null
+                AvatarPath = (a.Person != null && a.Person.AvatarPath != null && a.Person.AvatarPath.Length > 0)
+                    ? $"data:image/png;base64,{Convert.ToBase64String(a.Person.AvatarPath)}"
+                    : "/static/img/default-avatar.png"
             })
             .ToListAsync();
 
@@ -93,7 +93,9 @@ public class HomeController : WebControllerBase
         {
             UserId = currentUser.UserId.ToString(),
             DisplayName = currentUser.UserName,
-            Avatar = currentUser.Person.AvatarPath
+            Avatar = (currentUser.Person.AvatarPath != null && currentUser.Person.AvatarPath.Length > 0)
+                ? $"data:image/png;base64,{Convert.ToBase64String(currentUser.Person.AvatarPath)}"
+                : "/static/img/default-avatar.png"
         };
         ViewBag.CurrentUser = currentUserVm;
 

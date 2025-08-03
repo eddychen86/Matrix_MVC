@@ -95,16 +95,19 @@
                         @* 文章標題區 *@
                         <div class="mb-4 flex items-center justify-between">
                             <div class="flex items-center gap-3">
-                                <div class="w-10 h-10 bg-orange rounded-full flex items-center justify-center overflow-hidden">
-                                    @if (item.Author.AvatarPath != null && item.Author.AvatarPath.Length > 0){
-                                        <img src="data:image/jpeg;base64,@Convert.ToBase64String(item.Author.AvatarPath)" alt="@item.Author.DisplayName" class="w-full h-full object-cover object-center" />
-                                    } else {
-                                        <span class="text-white font-bold">@item.Author.DisplayName?.Substring(0, 1).ToUpper()</span>
+                                <div class="bg-orange flex h-10 w-10 items-center justify-center overflow-hidden rounded-full">
+                                    @if (item.Author.AvatarPath != null && item.Author.AvatarPath.Length > 0)
+                                    {
+                                        <img src="data:image/jpeg;base64,@Convert.ToBase64String(item.Author.AvatarPath)" alt="@item.Author.DisplayName" class="h-full w-full object-cover object-center" />
                                     }
                                     else
                                     {
                                         <span class="font-bold text-white">@item.Author.DisplayName?.Substring(0, 1).ToUpper()</span>
                                     }
+                            else
+                            {
+                            <span class="font-bold text-white">@item.Author.DisplayName?.Substring(0, 1).ToUpper()</span>
+                            }
                         </div>
                         <div>
                             <h3 class="font-medium text-white">@(item.Author?.DisplayName ?? Localizer["GuestAccount"])</h3>
@@ -214,20 +217,11 @@
         </button>
         <!-- 主要內容 -->
         <div class="flex flex-1 flex-col gap-4 pt-[10px] pb-[90px]">
-            <textarea class="w-full max-h-[467px] min-h-[150px] resize-none rounded-[10px] bg-white p-4 text-black text-[16px] font-['Source_Sans_Pro'] font-normal leading-[19px] text-justify"
+            <textarea id="postContent" class="w-full max-h-[467px] min-h-[150px] resize-none rounded-[10px] bg-white p-4 text-black text-[16px] font-['Source_Sans_Pro'] font-normal leading-[19px] text-justify"
                       placeholder="Write your post here..."></textarea>
             <!-- 檔案預覽區 -->
-            <div class="flex flex-wrap items-end gap-2">
-                <div class="flex h-[100px] w-[100px] items-center justify-center overflow-hidden rounded-[30px] bg-cover bg-center bg-no-repeat">
-                    <img src="https://cataas.com/cat" alt="" class="h-full w-full object-cover" />
-                </div>
-                <div class="flex h-[40px] w-[60px] items-center justify-center rounded-[20px] bg-[#ffffff]">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" style="fill: rgb(51, 51, 51);" viewBox="0 0 24 24">
-                        <path fill="none" d="M0 0h24v24H0z"></path>
-                        <path d="m20.41 8.41-4.83-4.83c-.37-.37-.88-.58-1.41-.58H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V9.83c0-.53-.21-1.04-.59-1.42zM7 7h7v2H7V7zm10 10H7v-2h10v2zm0-4H7v-2h10v2z"></path>
-                    </svg>
-                </div>
-            </div>
+            <div id="imagePreviewArea" class="flex flex-wrap items-end gap-2"></div>
+            <div id="filePreviewArea" class="flex flex-wrap items-end gap-2"></div>
         </div>
 
         <!--以選擇的文章hashtag顯示區-->
@@ -262,7 +256,8 @@
                         </svg>
                     </button>
                 </div>
-                <button class="flex h-[50px] w-[50px] items-center justify-center rounded-[32px] border-0 bg-[#2a629a] text-white transition duration-200 outline-none hover:bg-[#3476bd]">
+                <!--文章送出-->
+                <button id="submitPostBtn" class="flex h-[50px] w-[50px] items-center justify-center rounded-[32px] border-0 bg-[#2a629a] text-white transition duration-200 outline-none hover:bg-[#3476bd]">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
                          class="h-[24px] w-[24px] fill-current text-white">
                         <path d="M0 0h24v24H0z" fill="none" />
@@ -274,7 +269,7 @@
 
         <!--hashtag選擇視窗-->
         <div id="hashtagModal" class="fixed inset-0 z-[1020] flex hidden items-center justify-center bg-black/40">
-            <div class="flex h-[500px] w-[500px] flex-col rounded-xl bg-[#161616] p-4 text-white shadow-lg">
+            <div style="height: 500px; width: 350px;" class="flex flex-shrink-0 flex-col rounded-xl bg-[#161616] p-4 text-white shadow-lg">
                 <h3 class="mb-4 text-xl font-semibold">選擇 Hashtag</h3>
                 <div id="hashtagList" class="mb-4 flex-1 overflow-y-auto"></div>
                 <div class="flex justify-end gap-2">
@@ -292,7 +287,6 @@
 
 @section Scripts {
     <script>
-        // 將 ViewBag 資料傳遞給前端 JavaScript
         window.matrixAuthData = {
             isAuthenticated: @Html.Raw(ViewBag.IsAuthenticated?.ToString().ToLower() ?? "false"),
             isGuest: @Html.Raw(ViewBag.IsGuest?.ToString().ToLower() ?? "false"),
@@ -305,70 +299,182 @@
             }
         };
 
-        @* console.log('Matrix Auth Data:', window.matrixAuthData); *@
-
-        // 為測試目的，可以手動觸發 Popup
-        window.testLoginPopup = function() {
+        window.testLoginPopup = function () {
             if (window.guestAccessControl) {
                 window.guestAccessControl.forceShowPopup();
-            }
-            else {
+            } else {
                 console.log('訪客控制尚未初始化');
             }
         };
 
-
         document.addEventListener('DOMContentLoaded', function () {
+            // 儲存所有標籤、已選標籤、已選圖片與檔案
             let allHashtags = [];
             let selectedHashtags = [];
+            let selectedImages = [];
+            let selectedFiles = [];
 
+            // 取得頁面元素
             const openBtn = document.getElementById('openPostBtn');
             const closeBtn = document.getElementById('closePostBtn');
             const overlay = document.getElementById('overlay');
             const postModel = document.getElementById('postModel');
-
             const hashtagModal = document.getElementById('hashtagModal');
             const hashtagList = document.getElementById('hashtagList');
             const openHashtagBtn = document.getElementById('openHashtagBtn');
             const closeHashtagModalBtn = document.getElementById('closeHashtagModalBtn');
             const confirmHashtagBtn = document.getElementById('confirmHashtagBtn');
+            const imagePreview = document.getElementById('imagePreviewArea');
+            const filePreview = document.getElementById('filePreviewArea');
+            const fileInput = document.getElementById('fileInput');
+            const uploadFileBtn = document.getElementById('uploadFileBtn');
+            const uploadImgBtn = document.getElementById('uploadImgBtn');
 
-            // 開啟發文視窗
-            openBtn.addEventListener('click', function () {
-                overlay.classList.remove('hidden');
-                postModel.classList.remove('hidden');
-            });
-            // 關閉發文視窗＋清空已選 Hashtag
-            function closePostAndClearTags() {
-                overlay.classList.add('hidden');
-                postModel.classList.add('hidden');
+            // 重置發文視窗狀態，清空內容及預覽
+            function resetPostModal() {
+                document.querySelector('#postModel textarea').value = '';
+                imagePreview.innerHTML = '';
+                filePreview.innerHTML = '';
+                fileInput.value = '';
+                selectedImages = [];
+                selectedFiles = [];
                 selectedHashtags = [];
                 renderSelectedHashtags();
             }
-            closeBtn.addEventListener('click', closePostAndClearTags);
-            overlay.addEventListener('click', closePostAndClearTags);
 
-            // 取得所有 Hashtag
+            // 打開發文視窗
+            openBtn.addEventListener('click', () => {
+                overlay.classList.remove('hidden');
+                postModel.classList.remove('hidden');
+                resetPostModal();
+            });
+
+            // 關閉發文視窗
+            closeBtn.addEventListener('click', () => {
+                overlay.classList.add('hidden');
+                postModel.classList.add('hidden');
+                resetPostModal();
+            });
+
+            // 點擊遮罩也關閉視窗
+            overlay.addEventListener('click', () => {
+                overlay.classList.add('hidden');
+                postModel.classList.add('hidden');
+                resetPostModal();
+            });
+
+            // 圖片可上傳格式
+            uploadImgBtn.addEventListener('click', () => {
+                fileInput.value = '';
+                fileInput.accept = 'image/*';
+                fileInput.click();
+            });
+
+            // 檔案可上傳格式
+            uploadFileBtn.addEventListener('click', () => {
+                fileInput.value = '';
+                fileInput.accept = '.pdf,.docx,.doc,.ppt,.pptx,.xls,.xlsx,.txt,.zip,.rar';
+                fileInput.click();
+            });
+
+            // 根據檔案類型加入對應陣列並過濾重複檔案
+            fileInput.addEventListener('change', () => {
+                if (fileInput.accept === 'image/*') {
+                    const newImages = Array.from(fileInput.files).filter(f => f.type.startsWith('image/'));
+                    // 合併新選圖片，並排除重複檔案
+                    selectedImages = selectedImages.concat(newImages)
+                        .filter((file, idx, arr) => arr.findIndex(f => f.name === file.name && f.size === file.size) === idx);
+                } else {
+                    const newFiles = Array.from(fileInput.files).filter(f => !f.type.startsWith('image/'));
+                    // 合併新選檔案，並排除重複
+                    selectedFiles = selectedFiles.concat(newFiles)
+                        .filter((file, idx, arr) => arr.findIndex(f => f.name === file.name && f.size === file.size) === idx);
+                }
+                renderPreviews(); // 更新檔案與圖片預覽區
+            });
+
+            // 縮短檔名顯示（中文字5字以上省略，英文超過10字省略）
+            function truncateFilename(name) {
+                const hasChinese = /[^\x00-\x7F]/.test(name);
+                if (hasChinese) {
+                    return name.length > 5 ? name.slice(0, 5) + '…' : name;
+                } else {
+                    return name.length > 10 ? name.slice(0, 10) + '…' : name;
+                }
+            }
+
+            // 渲染圖片與檔案的預覽區
+            function renderPreviews() {
+
+                imagePreview.innerHTML = '';
+                selectedImages.forEach(file => {
+                    // 建立圖片預覽容器與 img 標籤
+                    const div = document.createElement('div');
+                    div.className = 'flex h-[100px] w-[100px] items-center justify-center overflow-hidden rounded-[30px] bg-cover bg-center bg-no-repeat';
+                    const img = document.createElement('img');
+                    img.src = URL.createObjectURL(file);
+                    img.className = 'h-full w-full object-cover';
+                    div.appendChild(img);
+                    imagePreview.appendChild(div);
+                });
+
+
+                filePreview.innerHTML = '';
+                selectedFiles.forEach(file => {
+                    // 建立檔案容器
+                    const container = document.createElement('div');
+                    container.className = "flex flex-col items-center gap-1 rounded-[20px] p-1";
+                    container.style.width = '60px';
+
+                    // 檔案圖示區
+                    const iconDiv = document.createElement('div');
+                    iconDiv.className = "flex h-[40px] w-[60px] items-center justify-center rounded-[20px] bg-[#ffffff]";
+                    iconDiv.innerHTML = `
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" style="fill: rgb(51, 51, 51);" viewBox="0 0 24 24">
+                            <path fill="none" d="M0 0h24v24H0z"></path>
+                            <path d="m20.41 8.41-4.83-4.83c-.37-.37-.88-.58-1.41-.58H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V9.83c0-.53-.21-1.04-.59-1.42zM7 7h7v2H7V7zm10 10H7v-2h10v2zm0-4H7v-2h10v2z"></path>
+                        </svg>
+                    `;
+
+                    // 檔案名稱文字
+                    const filenameSpan = document.createElement('span');
+                    filenameSpan.textContent = truncateFilename(file.name);
+                    filenameSpan.style.fontSize = '11px';
+                    filenameSpan.style.textAlign = 'center';
+                    filenameSpan.style.wordBreak = 'break-word';
+                    filenameSpan.style.maxWidth = '60px';
+
+                    // 把圖示跟文字加入容器
+                    container.appendChild(iconDiv);
+                    container.appendChild(filenameSpan);
+                    filePreview.appendChild(container);
+                });
+            }
+
+            // 非同步取得所有 Hashtag（第一次才呼叫 API）
             async function fetchHashtags() {
                 if (allHashtags.length > 0) return;
                 const res = await fetch('/Post/GetHashtags');
                 allHashtags = await res.json();
             }
 
-            // 顯示 hashtag 選擇 modal，並畫出所有 tag
+            // 渲染 hashtag 選擇視窗內的標籤清單
             function renderHashtagModal() {
                 hashtagList.innerHTML = '';
                 allHashtags.forEach(tag => {
+                    // 檢查該 tag 是否已被選擇
                     const isChecked = selectedHashtags.some(t => t && t.tagId === tag.tagId);
                     const label = document.createElement('label');
-                label.className = 'flex items-center gap-2 px-2 py-2 rounded-xl bg-[#232323] hover:bg-gray-800 cursor-pointer min-h-[36px]';
-                label.innerHTML = `<input type="checkbox" value="${tag.tagId}" ${isChecked ? 'checked' : ''} class="flex-shrink-0 accent-[#ffda78]">
-                    <span class="block max-w-[100px] truncate text-sm">${tag.content}</span>`;
-                hashtagList.appendChild(label);
+                    label.className = 'flex items-center gap-2 px-2 py-2 rounded-xl bg-[#232323] hover:bg-gray-800 cursor-pointer min-h-[36px]';
+                    label.innerHTML = `
+                        <input type="checkbox" value="${tag.tagId}" ${isChecked ? 'checked' : ''} class="flex-shrink-0 accent-[#ffda78]">
+                        <span class="block max-w-[100px] truncate text-sm">${tag.content}</span>
+                    `;
+                    hashtagList.appendChild(label);
                 });
             }
 
-            // 畫出已選 hashtags
+            // 渲染已選的 hashtag 顯示區
             function renderSelectedHashtags() {
                 const container = document.getElementById('selected-hashtags');
                 container.innerHTML = '';
@@ -377,23 +483,24 @@
                     const tagSpan = document.createElement('span');
                     tagSpan.className = 'min-h-[32px] min-w-[40px] text-center rounded-full bg-[#ffda78] text-[#333333] text-[14px] leading-[16px] font-medium font-["Roboto"] p-2';
                     tagSpan.textContent = tag.content;
+                    tagSpan.setAttribute('data-tag-id', tag.tagId);
                     container.appendChild(tagSpan);
                 });
             }
 
-            // 開啟 hashtag 選擇視窗
+            // 點擊打開 hashtag 選擇視窗，先取得 hashtag 並渲染
             openHashtagBtn.addEventListener('click', async function () {
                 await fetchHashtags();
                 renderHashtagModal();
                 hashtagModal.classList.remove('hidden');
             });
 
-            // 關閉 hashtag 選擇視窗
+            // 點擊關閉 hashtag modal
             closeHashtagModalBtn.addEventListener('click', () => {
                 hashtagModal.classList.add('hidden');
             });
 
-            // 按下確定，儲存選取的 tag
+            // 點擊確定選擇 hashtag，更新已選陣列並重新渲染
             confirmHashtagBtn.addEventListener('click', () => {
                 const checks = hashtagList.querySelectorAll('input[type=checkbox]:checked');
                 selectedHashtags = Array.from(checks).map(chk => {
@@ -403,6 +510,60 @@
                 renderSelectedHashtags();
                 hashtagModal.classList.add('hidden');
             });
+
+
+
+
+            document.getElementById('submitPostBtn').addEventListener('click', async () => {
+            const content = document.getElementById('postContent').value.trim();
+            const attachments = document.getElementById('fileInput').files;
+            const selectedHashtags = Array.from(document.querySelectorAll('#selected-hashtags span')).map(el => el.dataset.tagId);
+
+            if (!content) {
+                alert('文章內容不能為空');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('Content', content);
+            formData.append('IsPublic', '0'); // 0=公開，1=私人，字串形式
+
+            for (const file of attachments) {
+                formData.append('Attachments', file);
+            }
+            selectedHashtags.forEach(tagId => {
+                if (tagId) formData.append('SelectedHashtags', tagId);
+            });
+
+            try {
+                const response = await fetch('/Post/Create', {
+                 method: 'POST',
+                  body: formData
+                });
+
+            if (response.ok) {
+              alert('文章送出成功！');
+              // 送出後重置表單、關閉 Modal
+              document.getElementById('postContent').value = '';
+              document.getElementById('fileInput').value = '';
+              document.getElementById('selected-hashtags').innerHTML = '';
+              document.getElementById('postModel').classList.add('hidden');
+              document.getElementById('overlay').classList.add('hidden');
+            } else {
+              const errorText = await response.text();
+              alert('送出失敗: ' + errorText);
+            }
+            } catch (err) {
+                alert('發生錯誤: ' + err.message);
+            }
+            });
+
         });
+
+
+
+
+
+
     </script>
 }

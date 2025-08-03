@@ -24,63 +24,76 @@ namespace Matrix.Controllers
                 return BadRequest(ModelState);
             }
 
-            // 建立文章
-            var article = new Article
-            {
-                AuthorId = Guid.Parse("870c0b75-97a3-4e4f-8215-204d5747d28c"), // 假資料
-                Content = dto.Content,
-                IsPublic = dto.IsPublic,
-                Status = 0,
-                CreateTime = DateTime.Now,
-                PraiseCount = 0,
-                CollectCount = 0
-            };
+            using var transaction = await _context.Database.BeginTransactionAsync();
 
-            _context.Articles.Add(article);
-            await _context.SaveChangesAsync(); // 先存文章，確保 ArticleId 已產生
+            try
+            {
+                var article = new Article
+                {
+                    AuthorId = Guid.Parse("7ffbe594-de54-452a-92b0-311631587369"), // 假資料
+                    Content = dto.Content,
+                    IsPublic = dto.IsPublic,
+                    Status = 0,
+                    CreateTime = DateTime.Now,
+                    PraiseCount = 0,
+                    CollectCount = 0
+                };
 
-            // 附加檔案處理
-            if (dto.Attachments != null)
-            {
-                foreach (var file in dto.Attachments)
-                {
-                    var fileName = Guid.NewGuid() + System.IO.Path.GetExtension(file.FileName);
-                    var filePath = Path.Combine("wwwroot/uploads", fileName);
-                    Directory.CreateDirectory(Path.GetDirectoryName(filePath)!); // 確保目錄存在
-                    using (var stream = new FileStream(filePath, FileMode.Create))
-                    {
-                        await file.CopyToAsync(stream);
-                    }
-                    var attachment = new ArticleAttachment
-                    {
-                        FileId = Guid.NewGuid(),
-                        ArticleId = article.ArticleId,
-                        FilePath = "/uploads/" + fileName,
-                        Type = file.ContentType?.StartsWith("image/") == true ? "image" : "file",
-                        FileName = file.FileName,
-                        MimeType = file.ContentType
-                    };
-                    _context.ArticleAttachments.Add(attachment);
-                }
-                await _context.SaveChangesAsync(); // 建議附件也立即存
-            }
-            // Hashtag 關聯
-            if (dto.SelectedHashtags != null && dto.SelectedHashtags.Any())
-            {
-                foreach (var tagId in dto.SelectedHashtags)
-                {
-                    var articleHashtag = new ArticleHashtag
-                    {
-                        ArticleId = article.ArticleId,
-                        TagId = tagId
-                    };
-                    _context.ArticleHashtags.Add(articleHashtag);
-                }
+                _context.Articles.Add(article);
                 await _context.SaveChangesAsync();
-            }
 
-            return Ok();
+                if (dto.Attachments != null)
+                {
+                    foreach (var file in dto.Attachments)
+                    {
+                        var fileName = Guid.NewGuid() + Path.GetExtension(file.FileName);
+                        var filePath = Path.Combine("wwwroot/uploads", fileName);
+                        Directory.CreateDirectory(Path.GetDirectoryName(filePath)!);
+                        using (var stream = new FileStream(filePath, FileMode.Create))
+                        {
+                            await file.CopyToAsync(stream);
+                        }
+
+                        var attachment = new ArticleAttachment
+                        {
+                            FileId = Guid.NewGuid(),
+                            ArticleId = article.ArticleId,
+                            FilePath = "/uploads/" + fileName,
+                            Type = file.ContentType?.StartsWith("image/") == true ? "image" : "file",
+                            FileName = file.FileName,
+                            MimeType = file.ContentType
+                        };
+                        _context.ArticleAttachments.Add(attachment);
+                    }
+                    await _context.SaveChangesAsync();
+                }
+
+                if (dto.SelectedHashtags != null && dto.SelectedHashtags.Any())
+                {
+                    foreach (var tagId in dto.SelectedHashtags)
+                    {
+                        var articleHashtag = new ArticleHashtag
+                        {
+                            ArticleId = article.ArticleId,
+                            TagId = tagId
+                        };
+                        _context.ArticleHashtags.Add(articleHashtag);
+                    }
+                    await _context.SaveChangesAsync();
+                }
+
+                await transaction.CommitAsync();
+
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                _logger.LogError(ex, "Create article failed");
+                return StatusCode(500, "An error occurred while creating the article.");
+            }
         }
+
 
         [HttpGet]
         public async Task<IActionResult> GetHashtags()
