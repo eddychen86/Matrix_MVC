@@ -15,42 +15,181 @@ const useMenu = () => {
 
     //#region Language
 
+    // 翻譯快取系統
+    const translationCache = new Map()
+    const requestCache = new Map() // 防止重複請求
+    const preconnectedDomains = new Set()
+    
+    // DNS 預解析和連接預熱
+    const preconnectToAPI = () => {
+        if (!preconnectedDomains.has(location.origin)) {
+            // 創建預連接
+            const link = document.createElement('link')
+            link.rel = 'preconnect'
+            link.href = location.origin
+            document.head.appendChild(link)
+            preconnectedDomains.add(location.origin)
+        }
+    }
+    
+    // 高速 fetch 函數 - 集成多種優化技術
+    const fastFetch = async (url, options = {}) => {
+        // 1. 檢查是否有相同的請求正在進行（防止重複請求）
+        const requestKey = `${url}:${JSON.stringify(options)}`
+        if (requestCache.has(requestKey)) {
+            return requestCache.get(requestKey)
+        }
+        
+        // 2. 創建優化的請求 Promise
+        const requestPromise = (async () => {
+            try {
+                // 3. 優化的 fetch 選項
+                const optimizedOptions = {
+                    method: 'GET',
+                    credentials: 'same-origin',
+                    cache: 'force-cache', // 使用瀏覽器快取
+                    priority: 'high', // Chrome 支援的優先級
+                    ...options,
+                    headers: {
+                        'Accept': 'application/json',
+                        'Accept-Encoding': 'gzip, deflate, br',
+                        'Cache-Control': 'max-age=3600',
+                        ...options.headers
+                    }
+                }
+                
+                // 4. 使用 AbortController 設置合理超時
+                const controller = new AbortController()
+                const timeoutId = setTimeout(() => controller.abort(), 5000) // 5秒超時
+                
+                const response = await fetch(url, {
+                    ...optimizedOptions,
+                    signal: controller.signal
+                })
+                
+                clearTimeout(timeoutId)
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`)
+                }
+                
+                return response
+            } catch (error) {
+                throw error
+            } finally {
+                // 5. 清理請求快取
+                setTimeout(() => requestCache.delete(requestKey), 100)
+            }
+        })()
+        
+        // 6. 快取請求 Promise 以防止重複
+        requestCache.set(requestKey, requestPromise)
+        
+        return requestPromise
+    }
+
+    // 預載翻譯
+    const preloadTranslations = async () => {
+        const languages = ['zh-TW', 'en-US']
+        const currentLang = document.documentElement.lang
+        
+        // 標準化當前語言，確定要預載的目標語言
+        let normalizedCurrentLang = currentLang
+        if (currentLang === 'en-TW' || currentLang === 'zh-tw' || currentLang === 'zh') {
+            normalizedCurrentLang = 'zh-TW'
+        } else if (currentLang === 'en' || currentLang === 'en-tw') {
+            normalizedCurrentLang = 'en-US'
+        }
+        
+        // 預載另一種語言
+        const targetLang = (normalizedCurrentLang === 'zh-TW' || normalizedCurrentLang.includes('zh')) ? 'en-US' : 'zh-TW'
+        
+        if (!translationCache.has(targetLang)) {
+            try {
+                // console.log(`Preloading translations for ${targetLang}`)
+                const response = await fastFetch(`/api/translation/${targetLang}`)
+                const translations = await response.json()
+                translationCache.set(targetLang, translations)
+                // console.log(`Successfully preloaded ${Object.keys(translations).length} translations for ${targetLang}`)
+            } catch (error) {
+                console.warn('Failed to preload translations:', error)
+            }
+        }
+    }
+
     const toggleLang = async () => {
         // current language
         const curLang = document.documentElement.lang
+        
+        // 標準化當前語言代碼，處理可能的錯誤格式
+        let normalizedCurLang = curLang
+        if (curLang === 'en-TW' || curLang === 'zh-tw' || curLang === 'zh') {
+            normalizedCurLang = 'zh-TW'
+        } else if (curLang === 'en' || curLang === 'en-tw') {
+            normalizedCurLang = 'en-US'
+        }
 
-        // switch language
-        const changeLang = curLang.match(/-TW/) ? 'en-US' : 'zh-TW'
-        // console.log(changeLang)
+        // switch language - 確保切換到正確的目標語言
+        const changeLang = (normalizedCurLang === 'zh-TW' || normalizedCurLang.includes('zh')) ? 'en-US' : 'zh-TW'
+        // console.log(`Switching from ${curLang} (normalized: ${normalizedCurLang}) to ${changeLang}`)
 
         try {
-            // 1. 取得新語言的翻譯
-            const response = await fetch(`/api/translation/${changeLang}`)
-            if (!response.ok) throw new Error('Failed to load translations')
-            const translations = await response.json()
+            let translations
 
-            // 2. 更新頁面文字
+            // 1. 檢查快取
+            if (translationCache.has(changeLang)) {
+                // console.log('Using cached translations')
+                translations = translationCache.get(changeLang)
+            } else {
+                // 2. 從 API 取得新語言的翻譯（使用優化的 fastFetch）
+                const response = await fastFetch(`/api/translation/${changeLang}`)
+                translations = await response.json()
+                translationCache.set(changeLang, translations)
+            }
+
+            // 3. 更新頁面文字
             updatePageText(translations)
 
-            // 3. 設定 cookie 記住用戶偏好
+            // 4. 設定 cookie 記住用戶偏好（符合 ASP.NET Core 的格式）
             const cultureCookie = `c=${changeLang}|uic=${changeLang}`
-            document.cookie = `.AspNetCore.Culture=${cultureCookie} path=/ max-age=31536000 SameSite=Lax`
+            document.cookie = `.AspNetCore.Culture=${encodeURIComponent(cultureCookie)}; path=/; max-age=31536000; SameSite=Lax`
+            // console.log('Cookie set:', cultureCookie)
 
-            // 4. 更新 html lang 屬性
+            // 5. 更新 html lang 屬性
             document.documentElement.lang = changeLang
+
+            // 6. 預載下一次可能切換的語言
+            setTimeout(() => preloadTranslations(), 100)
 
             // console.log(`Language switched to: ${changeLang}`)
 
         } catch (error) {
             console.error('Error switching language:', error)
-            // 如果 API 失敗，回退到重新載入頁面
-            // window.location.reload()
-            console.log(error)
+            
+            // 如果 API 失敗，嘗試從快取獲取
+            const cachedTranslations = translationCache.get(changeLang)
+            if (cachedTranslations) {
+                console.log('Using fallback cached translations')
+                updatePageText(cachedTranslations)
+                const cultureCookie = `c=${changeLang}|uic=${changeLang}`
+                document.cookie = `.AspNetCore.Culture=${encodeURIComponent(cultureCookie)}; path=/; max-age=31536000; SameSite=Lax`
+                document.documentElement.lang = changeLang
+            } else {
+                console.error('No cached translations available for fallback')
+                alert('Language switching failed. Please try again.')
+            }
         }
     }
 
     // 更新頁面文字的函數
     const updatePageText = (translations) => {
+        if (!translations || typeof translations !== 'object') {
+            console.error('Invalid translations object:', translations)
+            return
+        }
+
+        // console.log('Updating page text with', Object.keys(translations).length, 'translations')
+
         // 找到所有帶有 data-i18n 屬性的元素
         document.querySelectorAll('[data-i18n]').forEach(element => {
             const key = element.getAttribute('data-i18n')
@@ -79,7 +218,7 @@ const useMenu = () => {
         // 更新頁面標題（如果有 title 翻譯）
         if (translations['Title']) document.title = translations['Title']
 
-        console.log('Page text updated with new translations')
+        // console.log('Page text updated with new translations')
     }
 
     //#endregion
@@ -211,6 +350,10 @@ const useMenu = () => {
 
     //#endregion
 
+    // 初始化優化
+    preconnectToAPI()
+    preloadTranslations()
+
     return {
         isCollapsed,
         toggleSidebar,
@@ -220,5 +363,6 @@ const useMenu = () => {
         login,
         loadDashboardPage,
         searchQuery,
+        preloadTranslations,
     }
 }

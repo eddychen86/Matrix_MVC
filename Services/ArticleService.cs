@@ -11,6 +11,7 @@ namespace Matrix.Services
         public async Task<ArticleDto?> GetArticleAsync(Guid id)
         {
             var article = await _context.Articles
+                .AsNoTracking() // 只讀查詢
                 .Include(a => a.Author)
                 .Include(a => a.Replies!)
                     .ThenInclude(r => r.User)
@@ -154,6 +155,7 @@ namespace Matrix.Services
             var sinceDate = DateTime.Now.AddDays(-days);
 
             return await _context.Articles
+                .AsNoTracking() // 只讀查詢
                 .Include(a => a.Author)
                 .Where(a => a.Status == 0 && a.IsPublic == 0 && a.CreateTime >= sinceDate)
                 .OrderByDescending(a => a.PraiseCount + a.CollectCount)
@@ -184,6 +186,7 @@ namespace Matrix.Services
         private IQueryable<Article> BuildArticleQuery(string? searchKeyword, Guid? authorId)
         {
             var query = _context.Articles
+                .AsNoTracking() // 只讀查詢
                 .Include(a => a.Author)
                 .Where(a => a.Status == 0 && a.IsPublic == 0);
 
