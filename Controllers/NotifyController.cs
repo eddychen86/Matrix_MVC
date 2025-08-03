@@ -36,7 +36,7 @@ namespace Matrix.Controllers
             var notifyList = notifications.Select(n => new NotifyItemViewModel
             {
                 SenderName = n.Sender.DisplayName ?? "匿名",
-                SenderAvatarUrl = (n.Sender.AvatarPath != null && n.Sender.AvatarPath.Length > 0) ? $"data:image/jpeg;base64,{Convert.ToBase64String(n.Sender.AvatarPath)}" : "",
+                SenderAvatarUrl = !string.IsNullOrEmpty(n.Sender.AvatarPath) ? n.Sender.AvatarPath : "/static/images/default_avatar.png",
                 Message = n.Type == 0 ? "有人留言了你的貼文" : n.Type == 1 ? "有人私訊你" : "有新通知",
                 SentTime = n.SentTime
             }).ToList();

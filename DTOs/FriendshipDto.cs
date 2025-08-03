@@ -137,12 +137,12 @@ namespace Matrix.DTOs
         /// <summary>
         /// 獲取好友請求發送者的頭像
         /// </summary>
-        public string RequesterAvatar => (Requester?.AvatarPath != null && Requester.AvatarPath.Length > 0) ? $"data:image/jpeg;base64,{Convert.ToBase64String(Requester.AvatarPath)}" : "";
+        public string RequesterAvatar => !string.IsNullOrEmpty(Requester?.AvatarPath) ? Requester.AvatarPath : "/static/images/default_avatar.png";
 
         /// <summary>
         /// 獲取好友請求接收者的頭像
         /// </summary>
-        public string AddresseeAvatar => (Addressee?.AvatarPath != null && Addressee.AvatarPath.Length > 0) ? $"data:image/jpeg;base64,{Convert.ToBase64String(Addressee.AvatarPath)}" : "";
+        public string AddresseeAvatar => !string.IsNullOrEmpty(Addressee?.AvatarPath) ? Addressee.AvatarPath : "/static/images/default_avatar.png";
 
         /// <summary>
         /// 獲取好友關係的描述文字
@@ -364,7 +364,7 @@ namespace Matrix.DTOs
         public string GetOtherPersonAvatar(Guid currentUserId)
         {
             var otherPerson = GetOtherPerson(currentUserId);
-            return (otherPerson?.AvatarPath != null && otherPerson.AvatarPath.Length > 0) ? $"data:image/jpeg;base64,{Convert.ToBase64String(otherPerson.AvatarPath)}" : "";
+            return !string.IsNullOrEmpty(otherPerson?.AvatarPath) ? otherPerson.AvatarPath : "/static/images/default_avatar.png";
         }
 
         /// <summary>

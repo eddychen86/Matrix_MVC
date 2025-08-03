@@ -30,14 +30,16 @@ namespace Matrix.DTOs
         public string? Bio { get; set; }
 
         /// <summary>
-        /// 使用者頭像的二進制資料
+        /// 使用者頭像的檔案路徑
         /// </summary>
-        public byte[]? AvatarPath { get; set; }
+        [StringLength(2048)]
+        public string? AvatarPath { get; set; }
 
         /// <summary>
-        /// 使用者個人頁面橫幅的二進制資料
+        /// 使用者個人頁面橫幅的檔案路徑
         /// </summary>
-        public byte[]? BannerPath { get; set; }
+        [StringLength(2048)]
+        public string? BannerPath { get; set; }
 
         /// <summary>
         /// 使用者的隱私設定
@@ -83,12 +85,12 @@ namespace Matrix.DTOs
         /// <summary>
         /// 判斷是否有自訂頭像
         /// </summary>
-        public bool HasCustomAvatar => AvatarPath != null && AvatarPath.Length > 0;
+        public bool HasCustomAvatar => !string.IsNullOrEmpty(AvatarPath);
 
         /// <summary>
         /// 判斷是否有自訂橫幅
         /// </summary>
-        public bool HasCustomBanner => BannerPath != null && BannerPath.Length > 0;
+        public bool HasCustomBanner => !string.IsNullOrEmpty(BannerPath);
 
         /// <summary>
         /// 判斷是否有完整的個人資料
@@ -107,8 +109,8 @@ namespace Matrix.DTOs
 
                 if (!string.IsNullOrEmpty(DisplayName)) completedFields++;
                 if (!string.IsNullOrEmpty(Bio)) completedFields++;
-                if (AvatarPath != null && AvatarPath.Length > 0) completedFields++;
-                if (BannerPath != null && BannerPath.Length > 0) completedFields++;
+                if (!string.IsNullOrEmpty(AvatarPath)) completedFields++;
+                if (!string.IsNullOrEmpty(BannerPath)) completedFields++;
 
                 return (completedFields * 100) / totalFields;
             }
@@ -173,14 +175,16 @@ namespace Matrix.DTOs
         public string? Bio { get; set; }
 
         /// <summary>
-        /// 使用者頭像的二進制資料
+        /// 使用者頭像的檔案路徑
         /// </summary>
-        public byte[]? AvatarPath { get; set; }
+        [StringLength(2048)]
+        public string? AvatarPath { get; set; }
 
         /// <summary>
-        /// 使用者個人頁面橫幅的二進制資料
+        /// 使用者個人頁面橫幅的檔案路徑
         /// </summary>
-        public byte[]? BannerPath { get; set; }
+        [StringLength(2048)]
+        public string? BannerPath { get; set; }
 
         /// <summary>
         /// 使用者的隱私設定
@@ -212,28 +216,13 @@ namespace Matrix.DTOs
         {
             return !string.IsNullOrEmpty(DisplayName) ||
                    !string.IsNullOrEmpty(Bio) ||
-                   (AvatarPath != null && AvatarPath.Length > 0) ||
-                   (BannerPath != null && BannerPath.Length > 0) ||
+                   (!string.IsNullOrEmpty(AvatarPath)) ||
+                   (!string.IsNullOrEmpty(BannerPath)) ||
                    IsPrivate.HasValue ||
                    !string.IsNullOrEmpty(WalletAddress);
         }
 
-        /// <summary>
-        /// 驗證二進制資料的有效性
-        /// </summary>
-        public List<string> ValidateBinaryData()
-        {
-            var invalidData = new List<string>();
-
-            // 可以在這裡添加對二進制資料的驗證邏輯，例如檢查檔案大小、格式等
-            if (AvatarPath != null && AvatarPath.Length > 5 * 1024 * 1024) // 5MB 限制
-                invalidData.Add("AvatarPath: 檔案大小超過限制");
-
-            if (BannerPath != null && BannerPath.Length > 10 * 1024 * 1024) // 10MB 限制
-                invalidData.Add("BannerPath: 檔案大小超過限制");
-
-            return invalidData;
-        }
+        
 
 
         /// <summary>
@@ -259,8 +248,8 @@ namespace Matrix.DTOs
 
             if (!string.IsNullOrEmpty(DisplayName)) updates.Add("顯示名稱");
             if (!string.IsNullOrEmpty(Bio)) updates.Add("個人簡介");
-            if (AvatarPath != null && AvatarPath.Length > 0) updates.Add("頭像");
-            if (BannerPath != null && BannerPath.Length > 0) updates.Add("橫幅");
+            if (!string.IsNullOrEmpty(AvatarPath)) updates.Add("頭像");
+            if (!string.IsNullOrEmpty(BannerPath)) updates.Add("橫幅");
             if (IsPrivate.HasValue) updates.Add("隱私設定");
             if (!string.IsNullOrEmpty(WalletAddress)) updates.Add("錢包地址");
 
