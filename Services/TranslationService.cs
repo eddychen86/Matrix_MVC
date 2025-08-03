@@ -54,7 +54,9 @@ namespace Matrix.Services
                 ["UserNameLengthError"] = "用戶名不得超過 20 個字。",
                 ["PasswordConfirmRequired"] = "確認密碼未填寫。",
                 ["PasswordCompareError"] = "密碼不相符。",
-                ["UsernameOrEmailExists"] = "用戶名或電子郵件已存在。",
+                ["UsernameExists"] = "用戶名已被使用。",
+                ["EmailExists"] = "電子郵件已被使用。",
+                ["AccountLoginError"] = "用戶名或密碼不正確。",
                 ["AccountNotVerified"] = "您的帳號尚未驗證，請先檢查您的電子郵件並完成帳號驗證。",
                 ["AccountDisabled"] = "您的帳號已被停用，請聯繫管理員尋求協助。",
 
@@ -250,7 +252,11 @@ namespace Matrix.Services
                 ["UserNameLengthError"] = "User name must not exceed 20 characters.",
                 ["PasswordConfirmRequired"] = "Password confirmation is required.",
                 ["PasswordCompareError"] = "Passwords do not match.",
-                ["UsernameOrEmailExists"] = "Username or email already exists.",
+                ["UsernameExists"] = "Username already exists.",
+                ["EmailExists"] = "Email already exists.",
+                ["AccountLoginError"] = "User Name or Password is incorrect.",
+                ["AccountNotVerified"] = "Your account is not verified, please check your email and verify your account.",
+                ["AccountDisabled"] = "Your account has been disabled, please contact the administrator for assistance.",
 
                 #endregion
 

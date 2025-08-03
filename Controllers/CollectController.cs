@@ -1,74 +1,57 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Matrix.Data;
-using Matrix.ViewModels;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Matrix.Attributes;
+using Matrix.Services.Interfaces;
+using Matrix.ViewModels;
 
 namespace Matrix.Controllers
 {
     [MemberAuthorization] // 需要一般會員權限 (Role >= 0)
     public class CollectController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private readonly ICollectService _collectService;
+        private readonly ILogger<CollectController> _logger;
 
-        public CollectController(ApplicationDbContext context)
+        public CollectController(
+            ICollectService collectService,
+            ILogger<CollectController> logger)
         {
-            _context = context;
+            _collectService = collectService;
+            _logger = logger;
         }
+
+        //GET:Collect
+        [HttpGet]
         public IActionResult Index()
         {
             return View();
         }
 
-        //GET:Collect
         [HttpGet]
-        public IActionResult Collect()
+        [Route("api/collects")]
+        public async Task<IActionResult> GetCollectsData()
         {
-            
+            try
+            {
+                // TODO: 未來改為從登入者取得 PersonId，例如 User.Identity.Name → User → Person.Id
+                var currentUserId = Guid.Parse("36a9c596-b298-49b5-8300-7c3479aed145");
 
-            var collects = _context.PraiseCollects
-               .Where(p => p.Type == 1) // 只撈收藏的
-               .OrderByDescending(p => p.CreateTime) // 收藏時間排序
-               .Take(30) // 最多取 30 筆
-               .Select(p => new CollectItemViewModel
-               {
-                   Title = p.Article.Content.Substring(0, 10), // 取文章前10字為標題
-                   ImageUrl = "https://i.imgur.com/GD4d09R.png", // 暫時共用圖片
-                   AuthorName = p.User.DisplayName ?? "匿名", // 顯示作者名稱
-                   CollectedAt = p.CreateTime // 收藏時間
-               })
-               .ToList();
-               
-             // 傳遞到 View
-             return View(collects);
-        }
-
-        // API endpoint for popup data
-        [HttpGet]
-        [Route("/api/Collects")]
-        public IActionResult GetCollectsData()
-        {
-            // TODO: 未來改為從登入者取得 PersonId，例如 User.Identity.Name → User → Person.Id
-            var currentUserId = Guid.Parse("36a9c596-b298-49b5-8300-7c3479aed145");
-
-            var collects = _context.PraiseCollects
-                .Include(p => p.Article) // 載入文章資料
-                 .ThenInclude(a => a.Attachments) // 載入文章作者
-                .Where(p => p.Type == 1)
-                .OrderByDescending(p => p.CreateTime)
-                .Take(30)
-                .ToList()
-                .Select(p => new CollectItemViewModel
+                var collectDtos = await _collectService.GetUserCollectsAsync(currentUserId, 30);
+                
+                var collectViewModels = collectDtos.Select(dto => new CollectItemViewModel
                 {
-                    Title = p.Article.Content.Substring(0, 10),
-                    ImageUrl = p.Article.Attachments.Where(a=>a.Type=="image").Select(a => a.FilePath).FirstOrDefault() ?? Url.Content("~/static/img/Cute.png"), // 使用文章的第一張圖片或預設圖片
-                    AuthorName = p.User.DisplayName ?? "匿名",
-                    CollectedAt = p.CreateTime
-                })
-                .ToList();
+                    Title = dto.Title,
+                    ImageUrl = dto.ImageUrl,
+                    AuthorName = dto.AuthorName,
+                    CollectedAt = dto.CollectedAt
+                }).ToList();
 
-            return Json(collects);
+                return Json(collectViewModels);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting collects data");
+                return Json(new { error = "取得收藏資料時發生錯誤" });
+            }
         }
     }
 }

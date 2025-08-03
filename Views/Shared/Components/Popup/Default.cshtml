@@ -1,6 +1,6 @@
 ﻿<!-- Universal Popup Modal -->
-<div id="popup-overlay" @@click="closePopup" class="!hidden" :class="popupState.isVisible ? '!flex' : '!hidden'">
-    <div id="popup-container" @@click.stop="">
+<div id="popup-overlay" v-show="popupState.isVisible" @@click="closePopup" class="fixed inset-0 w-screen h-screen bg-black/50 flex items-center justify-center" style="z-index: 99999;">
+    <div id="popup-container" @@click.stop="" class="bg-[#161616] rounded-[30px] text-white w-4/5 md:w-2/3 lg:w-3/5 max-h-[80vh] overflow-hidden">
         <!-- Header -->
         <div id="popup-header" class="flex w-full items-center justify-between">
             <h3 class="title w-1/3">{{ popupState.title }}</h3>

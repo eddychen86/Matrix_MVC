@@ -35,14 +35,12 @@ namespace Matrix.Models
         /// <summary>
         /// 用戶頭像的檔案路徑
         /// </summary>
-        [MaxLength(2048)]
-        public string? AvatarPath { get; set; }
+        public byte[]? AvatarPath { get; set; }
 
         /// <summary>
         /// 用戶個人頁面橫幅的檔案路徑
         /// </summary>
-        [MaxLength(2048)]
-        public string? BannerPath { get; set; }
+        public byte[]? BannerPath { get; set; }
 
         /// <summary>
         /// 用戶的外部網站連結 1
@@ -61,12 +59,6 @@ namespace Matrix.Models
         /// </summary>
         [MaxLength(2048)]
         public string? Website3 { get; set; }
-
-        /// <summary>
-        /// 用戶的外部網站連結 (主要連結)
-        /// </summary>
-        [MaxLength(2048)]
-        public string? ExternalUrl { get; set; }
 
         /// <summary>
         /// 用戶的隱私設定，0表示公開，1表示私人

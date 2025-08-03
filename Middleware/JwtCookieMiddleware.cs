@@ -46,7 +46,7 @@ namespace Matrix.Middleware
             _logger.LogInformation("=== Cookie Debug Info ===");
             _logger.LogInformation("Request Path: {Path}", context.Request.Path);
             _logger.LogInformation("AuthToken Cookie: {Token}", string.IsNullOrEmpty(token) ? "NOT FOUND" : "EXISTS");
-            
+
             if (!string.IsNullOrEmpty(token))
             {
                 // 解析並顯示 JWT payload 內容
@@ -97,15 +97,15 @@ namespace Matrix.Middleware
                             if (personDto != null)
                             {
                                 context.Items["DisplayName"] = personDto.DisplayName ?? userDto.UserName;
-                                context.Items["AvaterPath"] = personDto.AvatarPath ?? "/static/img/default-avatar.png";
+                                context.Items["AvaterPath"] = (personDto.AvatarPath != null && personDto.AvatarPath.Length > 0) ? $"data:image/jpeg;base64,{Convert.ToBase64String(personDto.AvatarPath)}" : "";
                             }
                             else
                             {
                                 context.Items["DisplayName"] = userDto.UserName;
-                                context.Items["AvaterPath"] = "/static/img/default-avatar.png";
+                                context.Items["AvaterPath"] = "";
                             }
 
-                            _logger.LogInformation("User authenticated successfully: {UserName}, DisplayName: {DisplayName}", 
+                            _logger.LogInformation("User authenticated successfully: {UserName}, DisplayName: {DisplayName}",
                                 userDto.UserName, context.Items["DisplayName"]);
                         }
                         else
@@ -264,7 +264,7 @@ namespace Matrix.Middleware
                 // 解碼並解析 JSON
                 var decoded = Convert.FromBase64String(paddedBase64);
                 var json = Encoding.UTF8.GetString(decoded);
-                
+
                 return JsonSerializer.Deserialize<Dictionary<string, object>>(json);
             }
             catch (Exception ex)
