@@ -77,12 +77,12 @@ namespace Matrix.Repository
 
         public async Task<bool> UsernameExistsAsync(string username)
         {
-            return await _dbSet.AnyAsync(u => u.UserName == username);
+            return await _dbSet.AsNoTracking().AnyAsync(u => u.UserName == username);
         }
 
         public async Task<bool> EmailExistsAsync(string email)
         {
-            return await _dbSet.AnyAsync(u => u.Email == email);
+            return await _dbSet.AsNoTracking().AnyAsync(u => u.Email == email);
         }
 
         public async Task<User?> GetByIdentifierAsync(string identifier)

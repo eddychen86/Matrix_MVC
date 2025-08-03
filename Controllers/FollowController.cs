@@ -29,6 +29,7 @@ namespace Matrix.Controllers
             var currentUserId = Guid.Parse("7ffbe594-de54-452a-92b0-311631587369"); 
 
             var follows = _context.Follows
+                .AsNoTracking() // 只讀查詢，優化效能
                 .Where(f => f.UserId == currentUserId)
                 .Include(f => f.User) // 載入 User 的 Person 對象
                 .OrderByDescending(f => f.FollowTime)
@@ -38,6 +39,7 @@ namespace Matrix.Controllers
             var followedIds = follows.Select(f=>f.FollowedId).ToList();
 
             var followedPeople = _context.Persons
+                .AsNoTracking() // 只讀查詢
                 .Where(p => followedIds.Contains(p.PersonId))
                 .ToDictionary(p => p.PersonId, p => p);
 

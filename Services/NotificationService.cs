@@ -11,6 +11,7 @@ namespace Matrix.Services
         public async Task<NotificationDto?> GetNotificationAsync(Guid id)
         {
             var notification = await _context.Notifications
+                .AsNoTracking() // 只讀查詢
                 .Include(n => n.Receiver)
                 .Include(n => n.Sender)
                 .FirstOrDefaultAsync(n => n.NotifyId == id);
@@ -193,6 +194,7 @@ namespace Matrix.Services
         {
             var userPerson = await GetPersonByUserId(userId);
             return userPerson == null ? 0 : await _context.Notifications
+                .AsNoTracking() // 只讀統計
                 .Where(n => n.GetId == userPerson.PersonId && n.IsRead == 0)
                 .CountAsync();
         }
@@ -206,6 +208,7 @@ namespace Matrix.Services
             if (userPerson == null) return [];
 
             var notifications = await _context.Notifications
+                .AsNoTracking() // 只讀統計
                 .Where(n => n.GetId == userPerson.PersonId)
                 .ToListAsync();
 
@@ -244,6 +247,7 @@ namespace Matrix.Services
         private IQueryable<Notification> BuildNotificationQuery(Guid userId, int? type, int? isRead)
         {
             var query = _context.Notifications
+                .AsNoTracking() // 只讀查詢
                 .Include(n => n.Receiver)
                 .Include(n => n.Sender)
                 .Where(n => n.GetId == userId);

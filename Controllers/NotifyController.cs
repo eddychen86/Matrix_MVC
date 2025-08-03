@@ -26,6 +26,7 @@ namespace Matrix.Controllers
             var currentUserId = Guid.Parse("36a9c596-b298-49b5-8300-7c3479aed145");
 
             var notifications = _context.Notifications
+                .AsNoTracking() // 只讀查詢，優化效能
                 .Where(n => n.GetId == currentUserId)
                 .Include(n => n.Sender) // 載入 Sender 的 Person 對象
                 .OrderByDescending(n => n.SentTime)
