@@ -14,15 +14,21 @@ namespace Matrix.Services
     public class UserService : IUserService
     {
         private readonly IUserRepository _userRepository;
+        private readonly IPersonRepository _personRepository;
+        private readonly IFileService _fileService;
         private readonly IOptions<UserValidationOptions> _validationOptions;
         private readonly IPasswordHasher<User> _passwordHasher;
 
         public UserService(
             IUserRepository userRepository,
+            IPersonRepository personRepository,
+            IFileService fileService,
             IOptions<UserValidationOptions> validationOptions,
             IPasswordHasher<User> passwordHasher)
         {
             _userRepository = userRepository;
+            _personRepository = personRepository;
+            _fileService = fileService;
             _validationOptions = validationOptions;
             _passwordHasher = passwordHasher;
         }
@@ -350,6 +356,56 @@ namespace Matrix.Services
             {
                 return false;
             }
+        }
+
+        public async Task<PersonDto?> UpdateProfileAsync(Guid userId, ApiUpdateProfileDto dto)
+        {
+            var person = await _personRepository.GetByUserIdAsync(userId);
+            if (person == null) return null;
+
+            if (dto.AvatarFile != null)
+            {
+                var newAvatarPath = await _fileService.UpdateFileAsync(dto.AvatarFile, person.AvatarPath, "profile/imgs");
+                if (newAvatarPath != null)
+                {
+                    person.AvatarPath = newAvatarPath;
+                }
+            }
+
+            if (dto.BannerFile != null)
+            {
+                var newBannerPath = await _fileService.UpdateFileAsync(dto.BannerFile, person.BannerPath, "profile/imgs");
+                if (newBannerPath != null)
+                {
+                    person.BannerPath = newBannerPath;
+                }
+            }
+
+            if (!string.IsNullOrEmpty(dto.DisplayName))
+            {
+                person.DisplayName = dto.DisplayName;
+            }
+
+            if (!string.IsNullOrEmpty(dto.Bio))
+            {
+                person.Bio = dto.Bio;
+            }
+
+            person.ModifyTime = DateTime.UtcNow;
+            await _personRepository.UpdateAsync(person);
+
+            return new PersonDto
+            {
+                PersonId = person.PersonId,
+                UserId = person.UserId,
+                DisplayName = person.DisplayName,
+                Bio = person.Bio,
+                AvatarPath = person.AvatarPath,
+                BannerPath = person.BannerPath,
+                IsPrivate = person.IsPrivate,
+                WalletAddress = person.WalletAddress,
+                ModifyTime = person.ModifyTime
+            };
         }
 
         #endregion
