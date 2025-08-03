@@ -61,7 +61,6 @@ public class HomeController : WebControllerBase
         ViewBag.HotList = hot_list;
         ViewBag.DefaultList = default_list;
 
-
         //取得好友欄位資料
 
         var currentUserId = Guid.Parse("870c0b75-97a3-4e4f-8215-204d5747d28c");
@@ -86,6 +85,17 @@ public class HomeController : WebControllerBase
         ViewBag.FriendList = friendList;
 
         //取得發文者資料
+        var currentUser = await _context.Users
+            .Include(u => u.Person)
+            .FirstOrDefaultAsync(u => u.UserId == currentUserId);
+
+        var currentUserVm = new CurrentUserViewModel
+        {
+            UserId = currentUser.UserId.ToString(),
+            DisplayName = currentUser.UserName,
+            Avatar = currentUser.Person.AvatarPath
+        };
+        ViewBag.CurrentUser = currentUserVm;
 
 
         // 傳遞認證狀態給前端
