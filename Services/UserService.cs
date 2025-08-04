@@ -408,6 +408,94 @@ namespace Matrix.Services
             };
         }
 
+        /// <summary>
+        /// 根據使用者 ID 獲取個人資料和相關文章
+        /// </summary>
+        public async Task<PersonDto?> GetProfileByIdAsync(Guid userId)
+        {
+            try
+            {
+                var person = await _personRepository.GetByUserIdWithIncludesAsync(userId);
+                if (person?.User == null) return null;
+
+                return new PersonDto
+                {
+                    PersonId = person.PersonId,
+                    UserId = person.UserId,
+                    DisplayName = person.DisplayName,
+                    Bio = person.Bio,
+                    AvatarPath = person.AvatarPath,
+                    BannerPath = person.BannerPath,
+                    IsPrivate = person.IsPrivate,
+                    WalletAddress = person.WalletAddress,
+                    ModifyTime = person.ModifyTime,
+                    Email = person.User.Email,
+                    Website1 = person.Website1,
+                    Website2 = person.Website2,
+                    Website3 = person.Website3,
+                    Articles = new List<ArticleDto>(), // Return an empty list
+                    Content = new List<string>() // Return an empty list
+                };
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// 更新個人資料（包括密碼和網站連結）
+        /// </summary>
+        public async Task<ReturnType<object>> UpdatePersonProfileAsync(Guid userId, PersonDto dto)
+        {
+            try
+            {
+                if (userId != dto.UserId)
+                {
+                    return new ReturnType<object> { Success = false, Message = "使用者 ID 不符" };
+                }
+
+                var person = await _personRepository.GetByUserIdAsync(userId);
+                if (person == null)
+                {                    return new ReturnType<object> { Success = false, Message = "找不到個人資料" };
+                }
+
+                var user = await _userRepository.GetByIdAsync(userId);
+                if (user == null)
+                {
+                    return new ReturnType<object> { Success = false, Message = "找不到使用者" };
+                }
+
+                // 更新個人資料
+                person.DisplayName = dto.DisplayName;
+                person.Bio = dto.Bio;
+                person.Website1 = dto.Website1;
+                person.Website2 = dto.Website2;
+                person.Website3 = dto.Website3;
+                person.ModifyTime = DateTime.UtcNow;
+
+                // 更新使用者資料
+                if (!string.IsNullOrEmpty(dto.Password))
+                {
+                    user.Password = _passwordHasher.HashPassword(user, dto.Password);
+                }
+                if (!string.IsNullOrEmpty(dto.Email))
+                {
+                    user.Email = dto.Email;
+                }
+
+                await _personRepository.UpdateAsync(person);
+                await _userRepository.UpdateAsync(user);
+                await _personRepository.SaveChangesAsync();
+
+                return new ReturnType<object> { Success = true, Message = "更新成功!" };
+            }
+            catch (Exception)
+            {
+                return new ReturnType<object> { Success = false, Message = "更新失敗!" };
+            }
+        }
+
         #endregion
     }
 }

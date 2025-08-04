@@ -65,6 +65,8 @@ public class Program
         builder.Services.AddScoped<IUserService, UserService>();
         builder.Services.AddScoped<IAuthorizationService, AuthorizationService>();
         builder.Services.AddScoped<ICollectService, CollectService>();
+        builder.Services.AddScoped<IPraiseService, PraiseService>();
+        builder.Services.AddScoped<IReplyService, ReplyService>();
         builder.Services.AddScoped<ArticleService>();
         builder.Services.AddScoped<NotificationService>();
         builder.Services.AddScoped<Matrix.Controllers.AuthController>();
@@ -223,6 +225,8 @@ public class Program
 
         app.UseAuthentication();
         app.UseAuthorization();
+
+        app.MapControllers(); // 啟用 API 控制器的屬性路由
 
         // Areas 路由 (優先處理)
         app.MapControllerRoute(

@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Http;
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace Matrix.DTOs
 {
@@ -58,26 +59,15 @@ namespace Matrix.DTOs
 
         public List<ArticleDto> Articles { get; set; } = new List<ArticleDto>();
 
-        public string Password { get; set; } = null!;
+        /// <summary>
+        /// 使用者密碼 - 在公開 API 中會被忽略
+        /// </summary>
+        [JsonIgnore]
+        public string? Password { get; set; }
 
         public DateTime CreateTime { get; set; }
 
-        public string TimeAgoText
-        {
-            get
-            {
-                var timeSpan = DateTime.Now - CreateTime;
-
-                return timeSpan.TotalDays switch
-                {
-                    > 365 => $"{(int)(timeSpan.TotalDays / 365)} 年前",
-                    > 30 => $"{(int)(timeSpan.TotalDays / 30)} 個月前",
-                    > 7 => $"{(int)(timeSpan.TotalDays / 7)} 週前",
-                    > 1 => $"{(int)timeSpan.TotalDays} 天前",
-                    _ => timeSpan.TotalHours > 1 ? $"{(int)timeSpan.TotalHours} 小時前" : "剛剛"
-                };
-            }
-        }
+        
 
         /// <summary>
         /// 使用者的顯示名稱
@@ -159,64 +149,13 @@ namespace Matrix.DTOs
         /// </summary>
         public bool IsProfileComplete => !string.IsNullOrEmpty(DisplayName) && !string.IsNullOrEmpty(Bio);
 
-        /// <summary>
-        /// 獲取個人資料完整度百分比
-        /// </summary>
-        public int ProfileCompletionPercentage
-        {
-            get
-            {
-                int totalFields = 4; // DisplayName, Bio, AvatarPath, BannerPath
-                int completedFields = 0;
-
-                if (!string.IsNullOrEmpty(DisplayName)) completedFields++;
-                if (!string.IsNullOrEmpty(Bio)) completedFields++;
-                if (!string.IsNullOrEmpty(AvatarPath)) completedFields++;
-                if (!string.IsNullOrEmpty(BannerPath)) completedFields++;
-
-                return (completedFields * 100) / totalFields;
-            }
-        }
 
         /// <summary>
         /// 判斷是否有錢包地址
         /// </summary>
         public bool HasWallet => !string.IsNullOrEmpty(WalletAddress);
 
-        /// <summary>
-        /// 獲取簡短的個人簡介
-        /// </summary>
-        public string ShortBio
-        {
-            get
-            {
-                if (string.IsNullOrEmpty(Bio)) return "這個使用者還沒有個人簡介。";
-                
-                return Bio.Length > 100 ? Bio.Substring(0, 100) + "..." : Bio;
-            }
-        }
 
-        /// <summary>
-        /// 獲取最後修改時間的友善顯示格式
-        /// </summary>
-        public string LastModifiedText
-        {
-            get
-            {
-                if (ModifyTime == null) return "從未修改";
-                
-                var timeSpan = DateTime.Now - ModifyTime.Value;
-                
-                return timeSpan.TotalDays switch
-                {
-                    > 365 => $"{(int)(timeSpan.TotalDays / 365)} 年前",
-                    > 30 => $"{(int)(timeSpan.TotalDays / 30)} 個月前",
-                    > 7 => $"{(int)(timeSpan.TotalDays / 7)} 週前",
-                    > 1 => $"{(int)timeSpan.TotalDays} 天前",
-                    _ => timeSpan.TotalHours > 1 ? $"{(int)timeSpan.TotalHours} 小時前" : "剛剛"
-                };
-            }
-        }
     }
 
     /// <summary>

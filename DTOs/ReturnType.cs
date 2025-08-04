@@ -1,8 +1,9 @@
 ﻿namespace Matrix.DTOs
 {
-    public class ReturnType
+    public class ReturnType<T>
     {
-        public bool Ok { get; set; }
+        public bool Success { get; set; }
         public string Message { get; set; } = string.Empty;
+        public T? Data { get; set; }
     }
 }

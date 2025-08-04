@@ -31,7 +31,15 @@
     }
 
     &-info {
-      @apply flex flex-col gap-8 p-8 rounded-[30px] col-span-2;
+      @apply flex flex-col gap-8 p-8 rounded-[30px] relative col-span-2;
+
+      .editPen {
+        @apply absolute top-6 right-6 z-10 rounded-full size-10 p-2 cursor-pointer transition-colors duration-300 flex justify-center items-center;
+
+        &:hover {
+          @apply bg-stone-800;
+        }
+      }
 
       li {
         @apply flex flex-col gap-4;
@@ -50,25 +58,62 @@
       @apply flex flex-col gap-4 col-span-3;
 
       article {
-        @apply rounded-xl p-6 mb-6 border border-accent/20 hover:border-accent/40 transition-colors;
+        @apply rounded-[30px] p-6 border border-accent/20 hover:border-accent/40 transition-colors;
+        .profile-content {
+          @apply flex flex-col gap-4;
 
-        &_header {
-          @apply flex items-center justify-between mb-4;
-
-          .author {
-            &-info {
-              @apply flex items-center gap-4;
-            }
-
-            &-avatar {
-              @apply w-10 h-10 bg-orange rounded-full flex items-center justify-center overflow-hidden;
-
-              img {
-                @apply w-full h-full object-cover object-center;
+          &_header {
+            @apply flex items-center justify-between;
+  
+            .author {
+              &-info {
+                @apply flex items-center gap-4;
+              }
+  
+              &-avatar {
+                @apply w-10 h-10 rounded-full flex items-center justify-center overflow-hidden;
+  
+                & img {
+                  @apply w-full h-full object-cover object-center;
+                }
+  
+                & span {
+                  @apply text-white font-bold flex items-center justify-center size-10 rounded-full;
+                }
               }
             }
           }
-          
+
+          &_state {
+            @apply flex items-center gap-6;
+
+            button {
+              @apply flex items-center gap-1 text-gray-400 cursor-pointer transition-colors duration-300 hover:bg-stone-700 rounded-full px-3 py-1;
+            }
+          }
+        }
+      }
+    }
+
+    &-edit {
+      @apply fixed top-0 left-0 h-full w-full z-30;
+
+      .mock {
+        @apply bg-white/20 h-full w-full absolute top-0 left-0;
+      }
+
+      &_layout {
+        @apply rounded-[30px] p-8 z-40 top-1/2 left-1/2 transform -translate-1/2 flex flex-col gap-8 w-[700px];
+
+        li {
+          @apply flex flex-col gap-2
+        }
+
+        .avatar {
+          @apply flex-row gap-4;
+          img {
+            @apply size-36 rounded-full object-cover;
+          }
         }
       }
     }

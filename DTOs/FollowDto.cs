@@ -66,25 +66,6 @@ namespace Matrix.DTOs
         /// </summary>
         public bool IsBlocked => Status == 2;
 
-        /// <summary>
-        /// 獲取追蹤開始時間的友善顯示格式
-        /// </summary>
-        public string TimeAgoText
-        {
-            get
-            {
-                var timeSpan = DateTime.Now - CreateTime;
-
-                return timeSpan.TotalDays switch
-                {
-                    > 365 => $"{(int)(timeSpan.TotalDays / 365)} 年前開始追蹤",
-                    > 30 => $"{(int)(timeSpan.TotalDays / 30)} 個月前開始追蹤",
-                    > 7 => $"{(int)(timeSpan.TotalDays / 7)} 週前開始追蹤",
-                    > 1 => $"{(int)timeSpan.TotalDays} 天前開始追蹤",
-                    _ => timeSpan.TotalHours > 1 ? $"{(int)timeSpan.TotalHours} 小時前開始追蹤" : "剛剛開始追蹤"
-                };
-            }
-        }
 
         /// <summary>
         /// 獲取追蹤者的顯示名稱
@@ -211,7 +192,6 @@ namespace Matrix.DTOs
                 ["FollowedName"] = FollowedName,
                 ["Status"] = StatusText,
                 ["CreateTime"] = CreateTime.ToString("yyyy-MM-dd HH:mm:ss"),
-                ["TimeAgo"] = TimeAgoText,
                 ["IsMutualFollow"] = IsMutualFollow,
                 ["IsActiveFollow"] = IsActiveFollow
             };
