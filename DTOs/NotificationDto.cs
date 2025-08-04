@@ -161,7 +161,7 @@ namespace Matrix.DTOs
         /// <summary>
         /// 獲取通知的發送者頭像
         /// </summary>
-        public string SenderAvatar => Sender?.EffectiveAvatarUrl ?? "/static/img/system-avatar.png";
+        public string SenderAvatar => !string.IsNullOrEmpty(Sender?.AvatarPath) ? Sender.AvatarPath : "/static/img/system-avatar.png";
 
         /// <summary>
         /// 獲取通知的接收者名稱

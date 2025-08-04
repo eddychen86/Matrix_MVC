@@ -22,14 +22,14 @@
             <div class="input-item">
                 <label for="UserName" class="subTitle">@Localizer["UserNameLabel"]</label>
                 <input type="text" asp-for="UserName" placeholder="@userNamePlaceholder">
-                <p asp-validation-for="UserName" class="text-red-400 para"></p>
+                <p data-valmsg-for="UserName" class="text-red-400 para"></p>
             </div>
 
             @* 信箱 *@
             <div class="input-item">
                 <label for="Email" class="subTitle">@Localizer["EmailLabel"]</label>
                 <input type="text" asp-for="Email" placeholder="@emailPlaceholder">
-                <p asp-validation-for="Email" class="text-red-400 para"></p>
+                <p data-valmsg-for="Email" class="text-red-400 para"></p>
             </div>
             
             @* 密碼 *@
@@ -44,7 +44,7 @@
                         <i data-lucide="eye" class="text-secondary subTitle"></i>
                     </button>
                 </div>
-                <p asp-validation-for="Password" class="text-red-400 para"></p>
+                <p data-valmsg-for="Password" class="text-red-400 para"></p>
             </div>
 
             @* 確認密碼 *@
@@ -59,7 +59,7 @@
                         <i data-lucide="eye" class="text-secondary subTitle"></i>
                     </button>
                 </div>
-                <p asp-validation-for="ConfirmPassword" class="text-red-400 para"></p>
+                <p data-valmsg-for="PasswordConfirm" class="text-red-400 para"></p>
             </div>
 
             @* 註冊按鈕 *@
@@ -76,6 +76,5 @@
 
 
 @section Scripts {
-    <partial name="_ValidationScriptsPartial" />
     <script src="~/js/auth/register-event.js" asp-append-version="true"></script>
 }

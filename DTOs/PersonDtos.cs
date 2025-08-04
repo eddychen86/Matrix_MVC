@@ -1,7 +1,36 @@
+using Microsoft.AspNetCore.Http;
 using System.ComponentModel.DataAnnotations;
 
 namespace Matrix.DTOs
 {
+    /// <summary>
+    /// 用於透過 API 更新個人資料（包含檔案上傳）的資料傳輸物件
+    /// </summary>
+    public class ApiUpdateProfileDto
+    {
+        /// <summary>
+        /// 使用者的顯示名稱
+        /// </summary>
+        [StringLength(50)]
+        public string? DisplayName { get; set; }
+
+        /// <summary>
+        /// 使用者的個人簡介
+        /// </summary>
+        [StringLength(300)]
+        public string? Bio { get; set; }
+
+        /// <summary>
+        /// 上傳的頭像檔案
+        /// </summary>
+        public IFormFile? AvatarFile { get; set; }
+
+        /// <summary>
+        /// 上傳的橫幅檔案
+        /// </summary>
+        public IFormFile? BannerFile { get; set; }
+    }
+
     /// <summary>
     /// Person 實體的資料傳輸物件
     /// </summary>
@@ -65,15 +94,13 @@ namespace Matrix.DTOs
         /// <summary>
         /// 使用者頭像的檔案路徑
         /// </summary>
-        [StringLength(2048, ErrorMessage = "頭像路徑長度不能超過 2048 個字元")]
-        [Url(ErrorMessage = "頭像路徑必須是有效的 URL")]
+        [StringLength(2048)]
         public string? AvatarPath { get; set; }
 
         /// <summary>
         /// 使用者個人頁面橫幅的檔案路徑
         /// </summary>
-        [StringLength(2048, ErrorMessage = "橫幅路徑長度不能超過 2048 個字元")]
-        [Url(ErrorMessage = "橫幅路徑必須是有效的 URL")]
+        [StringLength(2048)]
         public string? BannerPath { get; set; }
 
         /// <summary>
@@ -118,14 +145,14 @@ namespace Matrix.DTOs
         public string EffectiveDisplayName => !string.IsNullOrEmpty(DisplayName) ? DisplayName : User?.UserName ?? "未知使用者";
 
         /// <summary>
-        /// 獲取頭像 URL 或預設頭像
+        /// 判斷是否有自訂頭像
         /// </summary>
-        public string EffectiveAvatarUrl => !string.IsNullOrEmpty(AvatarPath) ? AvatarPath : "/static/img/default-avatar.png";
+        public bool HasCustomAvatar => !string.IsNullOrEmpty(AvatarPath);
 
         /// <summary>
-        /// 獲取橫幅 URL 或預設橫幅
+        /// 判斷是否有自訂橫幅
         /// </summary>
-        public string EffectiveBannerUrl => !string.IsNullOrEmpty(BannerPath) ? BannerPath : "/static/img/default-banner.jpg";
+        public bool HasCustomBanner => !string.IsNullOrEmpty(BannerPath);
 
         /// <summary>
         /// 判斷是否有完整的個人資料
@@ -139,7 +166,7 @@ namespace Matrix.DTOs
         {
             get
             {
-                int totalFields = 5; // DisplayName, Bio, AvatarPath, BannerPath
+                int totalFields = 4; // DisplayName, Bio, AvatarPath, BannerPath
                 int completedFields = 0;
 
                 if (!string.IsNullOrEmpty(DisplayName)) completedFields++;
@@ -212,15 +239,13 @@ namespace Matrix.DTOs
         /// <summary>
         /// 使用者頭像的檔案路徑
         /// </summary>
-        [StringLength(2048, ErrorMessage = "頭像路徑長度不能超過 2048 個字元")]
-        [Url(ErrorMessage = "頭像路徑必須是有效的 URL")]
+        [StringLength(2048)]
         public string? AvatarPath { get; set; }
 
         /// <summary>
         /// 使用者個人頁面橫幅的檔案路徑
         /// </summary>
-        [StringLength(2048, ErrorMessage = "橫幅路徑長度不能超過 2048 個字元")]
-        [Url(ErrorMessage = "橫幅路徑必須是有效的 URL")]
+        [StringLength(2048)]
         public string? BannerPath { get; set; }
 
         /// <summary>
@@ -255,36 +280,14 @@ namespace Matrix.DTOs
         {
             return !string.IsNullOrEmpty(DisplayName) ||
                    !string.IsNullOrEmpty(Bio) ||
-                   !string.IsNullOrEmpty(AvatarPath) ||
-                   !string.IsNullOrEmpty(BannerPath) ||
+                   (!string.IsNullOrEmpty(AvatarPath)) ||
+                   (!string.IsNullOrEmpty(BannerPath)) ||
                    IsPrivate.HasValue ||
                    !string.IsNullOrEmpty(WalletAddress);
         }
 
-        /// <summary>
-        /// 驗證所有 URL 欄位的有效性
-        /// </summary>
-        public List<string> ValidateUrls()
-        {
-            var invalidUrls = new List<string>();
+        
 
-            if (!string.IsNullOrEmpty(AvatarPath) && !IsValidUrl(AvatarPath))
-                invalidUrls.Add("AvatarPath");
-
-            if (!string.IsNullOrEmpty(BannerPath) && !IsValidUrl(BannerPath))
-                invalidUrls.Add("BannerPath");
-
-            return invalidUrls;
-        }
-
-        /// <summary>
-        /// 檢查 URL 是否有效
-        /// </summary>
-        private bool IsValidUrl(string url)
-        {
-            return Uri.TryCreate(url, UriKind.Absolute, out var result) &&
-                   (result.Scheme == Uri.UriSchemeHttp || result.Scheme == Uri.UriSchemeHttps);
-        }
 
         /// <summary>
         /// 清理和格式化輸入資料
@@ -293,14 +296,10 @@ namespace Matrix.DTOs
         {
             DisplayName = DisplayName?.Trim();
             Bio = Bio?.Trim();
-            AvatarPath = AvatarPath?.Trim();
-            BannerPath = BannerPath?.Trim();
             WalletAddress = WalletAddress?.Trim();
 
             if (string.IsNullOrEmpty(DisplayName)) DisplayName = null;
             if (string.IsNullOrEmpty(Bio)) Bio = null;
-            if (string.IsNullOrEmpty(AvatarPath)) AvatarPath = null;
-            if (string.IsNullOrEmpty(BannerPath)) BannerPath = null;
             if (string.IsNullOrEmpty(WalletAddress)) WalletAddress = null;
         }
 

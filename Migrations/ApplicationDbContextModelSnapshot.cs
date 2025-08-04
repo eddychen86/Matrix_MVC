@@ -263,10 +263,6 @@ namespace Matrix.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
-                    b.Property<string>("ExternalUrl")
-                        .HasMaxLength(2048)
-                        .HasColumnType("nvarchar(2048)");
-
                     b.Property<int>("IsPrivate")
                         .HasColumnType("int");
 

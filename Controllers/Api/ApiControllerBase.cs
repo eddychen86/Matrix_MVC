@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Matrix.Services;
 
 namespace Matrix.Controllers.Api
 {

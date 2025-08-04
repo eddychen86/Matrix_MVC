@@ -1,29 +1,4 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
-@{
-    // Layout = null;
-}
-@* <script src="https://cdn.tailwindcss.com"></script> *@
-
-@* <!DOCTYPE html>
-<html lang="zh-Hant">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Profile Layout Example</title>
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true">
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-
-</head> *@
-<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-@* <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/fontawesome.min.css"></script> *@
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha512-..." crossorigin="anonymous" referrerpolicy="no-referrer" />
-<link href="https://unpkg.com/lucide-static/font/lucide.css" rel="stylesheet" />
-<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-
-<div id="app" class="relative mx-auto flex w-full max-w-[1920px] flex-col bg-[#161616] text-white">
+﻿<div class="profile-container relative mx-auto flex w-full max-w-[1920px] flex-col bg-[#161616] text-white">
     <!-- Profile View -->
     <!-- 頂部橫幅與頭像 -->
     <div class="relative flex h-40 w-full items-center justify-center rounded-lg bg-[#161616]">
@@ -48,7 +23,6 @@
             Create
         </button>
     </div>
-</header>
 
     <!-- 主要內容區塊 -->
     <div class="mt-8 flex flex-col gap-6 px-8 lg:flex-row lg:pr-[300px]">
@@ -113,7 +87,6 @@
             </div>
         </div>
     </div>
-
 
     <!-- Edit Profile View -->
     <div v-if="editMode" class="fixed top-0 left-0 z-30 h-full w-full">
@@ -244,134 +217,3 @@
         </div>
     </div>
 </div>
-
-
-<script>
-    const app = Vue.createApp({
-      data() {
-        return {
-          rand:1,
-          createTime:[],
-          content:[],
-          editMode: false,
-          isPublic: false,
-          profile: {
-          isPrivate: false,
-          articles:[],
-          bio:[]
-          }
-        };
-      },
-      methods: {
-        toggleIcon() {
-          this.isPublic = !this.isPublic;
-        },
-        cancel(){
-         // alert("cancel");
-         this.editMode = false;
-         // let _this=this;
-         // for(var i=0;i<_this.profile.length ; i++){
-         //    var prifole=_this.profile[i];
-            if(this.profile.backup){
-                this.profile.bio = this.profile.backup.bio;
-                this.profile.displayName = this.profile.backup.displayName;
-                this.profile.email = this.profile.backup.email;
-                this.profile.password = this.profile.backup.password;
-                this.profile.website1 = this.profile.backup.website1;
-                this.profile.website2 = this.profile.backup.website2;
-                this.profile.website3 = this.profile.backup.website3;
-
-                    delete this.profile.backup;
-            }
-         },
-         startEdit(){
-            this.editMode = true;
-            this.profile.backup = JSON.parse(JSON.stringify(this.profile));
-         },
-         update(){
-            // alert(`update:${this.profile.profileId}`);
-            let _this=this;
-                // var form = new FormData();
-                bio:this.profile.bio;
-                displayName:this.profile.displayName;
-                email:this.profile.email;
-                password:this.profile.password;
-                website1:this.profile.website1;
-                website2:this.profile.website2;
-                website3:this.profile.website3;
-                let fileInput = document.querySelector(`#editFile${this.profile.profileId}`);
-                if (fileInput && fileInput.files.length > 0){
-                    form.append("picture",fileInput.files[0]);
-                }
-                    axios.put(`/api/ProfileApi/${this.profile.userId}`,{
-                    headers:{
-                        // "content-type":"multipart/form-data"
-                    }
-                    }).then(Response=>{
-                        alert(Response.data);
-                        _this.filterProfile();
-                        _this.rand = new Data().getTime();
-                        profile.preview = null;
-                    }).catch(err=>{
-                        alert("error");
-                    });
-
-         },
-         editFileChange(inputTypeFile){
-                 //alert(`Change:${inputTypeFile.files[0].name}`);
-                 let _this=this;
-                 _this.readURL(inputTypeFile,inputTypeFile.parentElement.previousSibling,$("#update"));
-         },
-         readURL:function(inputTypeFile,img,btn){
-                        if(inputTypeFile.files[0]!=null){
-                            var file=inputTypeFile.files[0];
-                            var allowTypes="image.*";
-                            if (file.type.match(allowTypes)){
-                                btn.disabled = false;
-                                var reader=new FileReader();
-                                reader.onload=function(e){
-                                    img.src=e.target.result;
-                                    img.title=file.name;
-                                };
-                                reader.readAsDataURL(file);
-
-                            }
-                            else{
-                                alert("不允許的檔案上傳類型！");
-                                btn.disabled = true;
-                                inputTypeFile.value="";
-                            }
-                        }
-         },
-        
-      },
-      
-      mounted()
-      {
-        const profileId = '8615C454-4C27-4C41-9256-E609DC8465C5';
-        fetch('/api/ProfileApi',{
-            method: 'POST',
-            headers: {'Content-Type':'application/json'},
-            body: JSON.stringify({ id: profileId })
-
-        })
-            .then(res => res.json())
-            .then(data => {
-                this.profile = data;
-                this.isPublic = !data.isPrivate;  //icon狀態同步
-            })
-            .catch(err => console.error(err));
-
-      }
-
-    });
-    
-
-    app.mount('#app');
-</script>
-
-
-
-
-
-@* </html> *@

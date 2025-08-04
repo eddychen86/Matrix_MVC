@@ -74,7 +74,7 @@ namespace Matrix.DTOs
             get
             {
                 var timeSpan = DateTime.Now - CreateTime;
-                
+
                 return timeSpan.TotalDays switch
                 {
                     > 365 => $"{(int)(timeSpan.TotalDays / 365)} 年前開始追蹤",
@@ -99,12 +99,12 @@ namespace Matrix.DTOs
         /// <summary>
         /// 獲取追蹤者的頭像
         /// </summary>
-        public string FollowerAvatar => Follower?.EffectiveAvatarUrl ?? "/static/img/default-avatar.png";
+        public string FollowerAvatar => !string.IsNullOrEmpty(Follower?.AvatarPath) ? Follower.AvatarPath : "/static/images/default_avatar.png";
 
         /// <summary>
         /// 獲取被追蹤者的頭像
         /// </summary>
-        public string FollowedAvatar => Followed?.EffectiveAvatarUrl ?? "/static/img/default-avatar.png";
+        public string FollowedAvatar => !string.IsNullOrEmpty(Followed?.AvatarPath) ? Followed.AvatarPath : "/static/images/default_avatar.png";
 
         /// <summary>
         /// 獲取追蹤關係的描述文字

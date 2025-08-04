@@ -61,13 +61,24 @@ public class Program
 
         #region 註冊 Service
 
+        builder.Services.AddScoped<IFileService, FileService>();
         builder.Services.AddScoped<IUserService, UserService>();
+        builder.Services.AddScoped<ICollectService, CollectService>();
         builder.Services.AddScoped<ArticleService>();
         builder.Services.AddScoped<NotificationService>();
         builder.Services.AddScoped<Matrix.Controllers.AuthController>();
         builder.Services.AddHttpContextAccessor(); // 為 CustomLocalizer 提供 HttpContext 訪問
         builder.Services.AddScoped<ICustomLocalizer, CustomLocalizer>();
         builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
+        
+        // 配置本地化選項
+        builder.Services.Configure<RequestLocalizationOptions>(options =>
+        {
+            var supportedCultures = new[] { "zh-TW", "en-US" };
+            options.SetDefaultCulture("zh-TW")
+                   .AddSupportedCultures(supportedCultures)
+                   .AddSupportedUICultures(supportedCultures);
+        });
         // builder.Services.AddEmailSender(builder.Configuration);
 
         #endregion
@@ -144,7 +155,30 @@ public class Program
 
         #endregion
 
-        builder.Services.AddControllersWithViews();
+        // 添加響應壓縮以加速數據傳輸
+        builder.Services.AddResponseCompression(options =>
+        {
+            options.EnableForHttps = true;
+            options.Providers.Add<Microsoft.AspNetCore.ResponseCompression.BrotliCompressionProvider>();
+            options.Providers.Add<Microsoft.AspNetCore.ResponseCompression.GzipCompressionProvider>();
+            options.MimeTypes = Microsoft.AspNetCore.ResponseCompression.ResponseCompressionDefaults.MimeTypes.Concat(new[]
+            {
+                "application/json",
+                "text/plain",
+                "text/css",
+                "application/javascript",
+                "text/html",
+                "application/xml",
+                "text/xml",
+                "application/json; charset=utf-8"
+            });
+        });
+        
+        builder.Services.AddControllersWithViews(options =>
+        {
+            // 自訂 ModelBinding 錯誤訊息提供者
+            options.ModelBindingMessageProvider.SetValueMustNotBeNullAccessor(_ => "此欄位為必填");
+        });
         builder.Services.AddRazorPages();
 
         #region 配置 Anti-forgery 以支援 Ajax 請求
@@ -169,6 +203,7 @@ public class Program
         }
 
         app.UseHttpsRedirection();
+        app.UseResponseCompression(); // 啟用響應壓縮
         app.UseStaticFiles();
         app.UseRouting();
         app.UseRequestLocalization();
