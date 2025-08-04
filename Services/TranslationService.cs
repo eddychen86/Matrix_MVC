@@ -130,6 +130,11 @@ namespace Matrix.Services
                 #endregion
 
                 #region Profile 模組
+                
+                ["ProfileBio"] = "自我介紹",
+                ["ProfileContact"] = "聯絡方式",
+                ["ProfileLinks"] = "其他連結",
+                ["ProfileImgs"] = "圖片",
                 ["ProfileName"] = "個人資料名稱",
                 ["ProfileDescription"] = "個人資料描述",
                 ["EditProfile"] = "編輯個人資料",
@@ -329,6 +334,10 @@ namespace Matrix.Services
 
                 #region Profile 模組
 
+                ["ProfileBio"] = "Bio",
+                ["ProfileContact"] = "Contact",
+                ["ProfileLinks"] = "Links",
+                ["ProfileImgs"] = "Pictures",
                 ["ProfileName"] = "Profile Name",
                 ["ProfileDescription"] = "Profile Description",
                 ["EditProfile"] = "Edit Profile",

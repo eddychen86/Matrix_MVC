@@ -18,5 +18,8 @@ namespace Matrix.Repository.Interfaces
 
         /// <summary>根據錢包地址取得個人資料</summary>
         Task<Person?> GetByWalletAddressAsync(string walletAddress);
+
+        /// <summary>根據用戶ID取得個人資料，包含使用者和文章資訊</summary>
+        Task<Person?> GetByUserIdWithIncludesAsync(Guid userId);
     }
 }

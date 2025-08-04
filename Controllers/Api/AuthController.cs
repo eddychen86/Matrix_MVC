@@ -10,17 +10,43 @@ namespace Matrix.Controllers.Api
         ILogger<AuthController> _logger,
         IEmailService _emailService,
         IUserService _userService,
+        IAuthorizationService _authorizationService,
         ICustomLocalizer _localizer
     ) : ApiControllerBase
     {
         /// <summary>檢查用戶當前的認證狀態</summary>
         [HttpGet("status")]
-        public IActionResult GetAuthStatus()
+        public async Task<IActionResult> GetAuthStatus()
         {
             var isAuthenticated = HttpContext.Items["IsAuthenticated"] as bool? ?? false;
 
             if (isAuthenticated)
             {
+                var userId = HttpContext.Items["UserId"] as Guid?;
+                if (userId.HasValue)
+                {
+                    var authInfo = await _authorizationService.GetUserAuthInfoAsync(userId.Value);
+                    if (authInfo != null)
+                    {
+                        return ApiSuccess(new
+                        {
+                            authenticated = true,
+                            user = new
+                            {
+                                id = authInfo.UserId,
+                                username = authInfo.UserName,
+                                email = authInfo.Email,
+                                role = authInfo.Role,
+                                status = authInfo.Status,
+                                isAdmin = authInfo.IsAdmin,
+                                isMember = authInfo.IsMember,
+                                lastLoginTime = authInfo.LastLoginTime
+                            }
+                        });
+                    }
+                }
+                
+                // 回退到原來的方式
                 return ApiSuccess(new
                 {
                     authenticated = true,

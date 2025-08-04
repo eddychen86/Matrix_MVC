@@ -1,0 +1,153 @@
+<div v-if="editMode" class="profile-edit">
+  <div class="mock"></div>
+
+  <form method="post" class="profile-edit_layout">
+    <ul>
+      @* Avatar *@
+      <li class="avatar">
+        <img :src="profile.avatarPath" alt="avatar" />
+        <div></div>
+      </li>
+
+      @* Bio *@
+      <li>
+        <h4 data-i18n=""></h4>
+      </li>
+
+      @* DisplayName *@
+      <li>
+        <h4 data-i18n=""></h4>
+      </li>
+
+      @* Email *@
+      <li>
+        <h4 data-i18n=""></h4>
+      </li>
+
+      @* Password *@
+      <li>
+        <h4 data-i18n="">@Localizer[""]</h4>
+      </li>
+
+      @* Websites *@
+      <li>
+        <h4 data-i18n="">@Localizer[""]</h4>
+      </li>
+
+      @* Wallet *@
+      <li>
+        <h4 data-i18n="">@Localizer[""]</h4>
+      </li>
+
+      @* IsPrivate *@
+      <li>
+        <h4 data-i18n="">@Localizer[""]</h4>
+      </li>
+    </ul>
+
+    <div class="flex gap-8 items-center">
+      <button>
+        <i data-lucide=""></i>
+        <span data-i18n="Cancel">@Localizer["Cancel"]</span>
+      </button>
+      <button>
+        <i data-lucide=""></i>
+        <span data-i18n="Save">@Localizer["Save"]</span>
+      </button>
+    </div>
+  </form>
+
+  <div class="relative h-full w-full">
+    <div class="absolute top-1/2 left-1/2 mx-auto flex w-full max-w-lg -translate-x-1/2 -translate-y-1/2 flex-col items-center rounded-xl bg-[#161616] p-6 shadow-2xl sm:p-8 md:max-w-xl">
+      <img :src="profile.avatarPath" class="mb-4 h-[142px] w-[142px] rounded-full border-4 border-black object-cover" alt="avatar" />
+      <h2 class="mb-4 w-full text-center leading-[33px] font-normal text-[33px] text-white">{{ profile.displayName }}</h2>
+      <div class="mb-4 w-full">
+        <textarea class="bg-opacity-70 h-[100px] w-full resize-none rounded border border-gray-400 bg-black px-4 py-2 leading-snug text-[18px] text-white focus:border-blue-500 focus:outline-none" placeholder="Introduction..." v-model="profile.bio" type="text" maxlength="125"></textarea>
+      </div>
+
+      <div class="w-full space-y-4">
+        <div class="flex w-full flex-col items-start text-[18px] text-white sm:flex-row sm:items-center">
+          <label class="w-full font-normal sm:w-1/3">DisplayName</label>
+          <input type="text" placeholder="DisplayName..." class="mt-2 h-[54px] w-full rounded border border-gray-400 bg-black px-4 text-[16px] text-white focus:border-blue-500 focus:outline-none sm:mt-0 sm:w-2/3" v-model="profile.displayName" maxlength="15" />
+        </div>
+        <div class="flex w-full flex-col items-start text-[18px] text-white sm:flex-row sm:items-center">
+          <label class="w-full font-normal sm:w-1/3">Email</label>
+          <input type="text" placeholder="Email..." class="mt-2 h-[54px] w-full rounded border border-gray-400 bg-black px-4 text-[16px] text-white focus:border-blue-500 focus:outline-none sm:mt-0 sm:w-2/3" v-model="profile.email" maxlength="27" />
+        </div>
+        <div class="flex w-full flex-col items-start text-[18px] text-white sm:flex-row sm:items-center">
+          <label class="w-full font-normal sm:w-1/3">Password</label>
+          <input type="text" placeholder="Password..." class="mt-2 h-[54px] w-full rounded border border-gray-400 bg-black px-4 text-[16px] text-white focus:border-blue-500 focus:outline-none sm:mt-0 sm:w-2/3" v-model="profile.password" />
+        </div>
+        <div class="flex w-full flex-col text-[18px] text-white sm:flex-row">
+          <label class="mt-[5px] w-full font-normal sm:w-1/3">Website</label>
+          <div class="mt-2 w-full space-y-2 sm:mt-0 sm:w-2/3">
+            <input type="text" placeholder="Website..." class="h-[40px] w-full rounded border border-gray-400 bg-black px-4 text-[15px] text-white focus:border-blue-500 focus:outline-none" v-model="profile.website1" maxlength="33" />
+            <input type="text" placeholder="Website..." class="h-[40px] w-full rounded border border-gray-400 bg-black px-4 text-[15px] text-white focus:border-blue-500 focus:outline-none" v-model="profile.website2" maxlength="33" />
+            <input type="text" placeholder="Website..." class="h-[40px] w-full rounded border border-gray-400 bg-black px-4 text-[15px] text-white focus:border-blue-500 focus:outline-none" v-model="profile.website3" maxlength="33" />
+          </div>
+        </div>
+        <div class="flex w-full flex-col items-start text-[18px] text-white sm:flex-row sm:items-center">
+          <label class="w-full font-normal sm:w-1/3">Wallet Address</label>
+          <div class="flex h-[54px] w-full items-center bg-[#161616] px-4 text-white sm:w-2/3">
+            <span class="fa-solid fa-crown text-[25px]"></span>
+          </div>
+        </div>
+
+        <!-- Toggle Switch: Private ↔ Public -->
+        <div class="flex w-full flex-col items-start text-[18px] text-white sm:flex-row sm:items-center">
+          <!-- 左側標籤 -->
+          <label class="w-full font-normal sm:w-1/3">Private</label>
+
+          <!-- 右側切換區塊 -->
+          <div class="mt-2 w-full sm:mt-0 sm:w-2/3">
+            <div class="flex items-center justify-center gap-4 sm:justify-start">
+              <!-- Private -->
+              <span class="text-[17px] text-gray-300">Private</span>
+
+              <!-- 切換按鈕 -->
+              <button
+                class="relative inline-flex h-[36px] w-[64px] items-center rounded-full border border-gray-400 bg-black transition duration-300 focus:outline-none"
+                :class="{ 'bg-green-500': isPublic }" @@click="toggleIcon">
+                <span
+                  class="absolute left-1 h-[28px] w-[28px] transform rounded-full bg-white shadow transition duration-300"
+                  :class="{ 'translate-x-[28px]': isPublic }"></span>
+              </button>
+
+              <!-- Public -->
+              <span class="text-[17px] text-gray-300">Public</span>
+            </div>
+          </div>
+        </div>
+
+
+
+
+      </div>
+
+      <!--     上傳圖片       -->
+
+      <div class="mt-4 flex w-full flex-col items-start text-[18px] text-white sm:flex-row sm:items-center">
+        <label class="w-full font-normal sm:w-1/3">Picture</label>
+        <div class="mt-2 flex h-[30px] w-full items-center sm:mt-0 sm:w-2/3">
+          <input type="file"
+            class="form-control h-full w-full rounded border border-gray-400 bg-[#161616] px-4 text-[15px] text-white"
+            v-bind:id="'editFile' + profile.avatarPath" accept="image/*" v-on:change="editFileChange($event.target)" />
+        </div>
+      </div>
+
+
+      <!--     cancel and update       -->
+      <div class="mt-6 flex justify-center space-x-8">
+        <button class="flex items-center rounded-xl bg-red-400 px-6 py-3 text-[16px] text-white hover:bg-red-700"
+          @@click="cancel">
+          <i class="fa-solid fa-trash-can mr-2"></i>Cancel
+        </button>
+        <button class="flex items-center rounded-xl bg-blue-400 px-6 py-3 text-[16px] text-white hover:bg-blue-700"
+          @@click="update">
+          <i class="fa-solid fa-floppy-disk mr-2"></i>Update
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>

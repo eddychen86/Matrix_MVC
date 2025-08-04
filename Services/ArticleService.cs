@@ -85,7 +85,8 @@ namespace Matrix.Services
         /// 獲取文章列表
         /// </summary>
         public async Task<(List<ArticleDto> Articles, int TotalCount)> GetArticlesAsync(
-            int page = 1, int pageSize = 20, string? searchKeyword = null, Guid? authorId = null)
+            int page = 1, int pageSize = 20, string? searchKeyword = null, Guid? authorId = null
+        )
         {
             var query = BuildArticleQuery(searchKeyword, authorId);
             var totalCount = await query.CountAsync();

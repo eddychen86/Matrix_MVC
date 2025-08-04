@@ -1,113 +1,133 @@
-﻿@{
-    // Layout = null;
-    ViewData["Title"] = "Profile";
+﻿@inject ICustomLocalizer Localizer
+<div class="text-white grid grid-cols-7 gap-x-4">
 
-    var fake = ViewBag.FakeProfile;
-}
-@* <script src="https://cdn.tailwindcss.com"></script> *@
-
-<!-- 頂部橫幅與頭像 -->
-<header id="profile-header">
-    <img id="profile-banner" src="@fake.banner" alt="Profile Banner">
-
-    <div id="profile-avatar">
-        <div class="flex items-center justify-between">
-            <div id="profile-avatar_img">
-                <img src="@fake.avatarImg" alt="Avatar Img">
+    <!-- 頂部橫幅與頭像 -->
+    <header class="profile-header">
+        <img :src="profile.bannerPath" alt="Profile Banner" class="profile-banner" />
+        <div class="profile-avatar">
+            <div class="profile-avatar_body">
+                <img :src="profile.avatarPath" alt="Profile Avatar" />
+                <h3>{{ profile.displayName }}</h3>
+                <i data-lucide="crown" class="size-12 mb-4 text-yellow-500"></i>
             </div>
-            <div id="profile-name">
-                <h1 class="title-lg">@fake.name</h1>
-                @if (!fake.isPrivate)
-                {
-                    <i data-lucide="globe" class="icon-base"></i>
-                }
-                else
-                {
-                    <i data-lucide="globe-lock" class="icon-base"></i>
-                }
-            </div>
+            <button class="subTitle font-semibold" data-i18n="Create">@Localizer["Create"]</button>
         </div>
-    </div>
-</header>
+    </header>
 
-
-<section id="profile-body">
     <!-- 左側：個人資訊 -->
-    <div id="profile-user_info">
-        <div class="flex w-full items-center justify-between">
-            <h2 class="title font-bold">Profile Overview</h2>
-            <a asp-controller="EditProfile" asp-action="Index"
-               class="inline-flex items-center rounded p-2 text-white">
-                <i data-lucide="pen" class="icon-base"></i>
-            </a>
-        </div>
-
-        <div>
-            <h2 class="subTitle font-bold">自我介紹</h2>
-            <p class="para">@fake.overview.intro</p>
-        </div>
-
-        <div class="para flex flex-col gap-4 text-gray-400">
-            @foreach (var i in fake.overview.extends)
-            {
-                <p class="para">@i</p>
-            }
-        </div>
-
-        <!-- 圖片區塊 (RWD: 下方顯示) -->
-        <div class="flex flex-col gap-4">
-            @foreach (var i in fake.overview.images)
-            {
-                <img src="@i" class="h-[108px] w-full rounded-lg object-cover" alt="" />
-            }
-        </div>
-    </div>
-
-    <!-- 中間：動態貼文 -->
-    <div class="flex flex-col gap-4">
-        @foreach (var i in fake.articles)
-        {
-            <div class="bg-accent flex flex-col gap-4 rounded-[30px] p-6">
-                <div class="flex items-center gap-4">
-                    <img src="@i.userImg" alt="@i.user" class="h-12 w-12 rounded-full object-cover object-center">
-                    <div class="flex flex-col gap-4">
-                        <h3 class="subTitle font-semibold">@i.user</h3>
-                        <p class="para text-stone-500">@i.createTime</p>
-                    </div>
-                </div>
-                <p class="para">@i.content</p>
-                <div class="grid grid-cols-5 gap-4">
-                    @foreach (var img in i.images)
-                    {
-                        <img src="@img" class="h-28 rounded-[30px] object-cover object-center" alt="">
-                    }
-                </div>
-                <div class="flex items-center justify-end gap-4">
-                    <div class="flex items-center gap-2 text-orange-400">
-                        <i data-lucide="thumbs-up"></i>
-                        <span>@i.praises</span>
-                    </div>
-                    <div class="flex items-center gap-2 text-blue-400">
-                        <i data-lucide="bookmark"></i>
-                        <span>@i.collects</span>
-                    </div>
-                </div>
+    <ul class="profile-info bg-accent">
+        <button @@click="startEdit" class="editPen">
+            <i data-lucide="pen" class="size-6"></i>
+        </button>
+        <li>
+            <h4 class="subTitle" data-i18n="ProfileBio">@Localizer["ProfileBio"]</h4>
+            <p class="para">{{ profile.bio }}</p>
+        </li>
+        <li>
+            <h4 class="subTitle" data-i18n="ProfileContact">@Localizer["ProfileContact"]</h4>
+            <p>{{ profile.email }}</p>
+        </li>
+        <li>
+            <h4 class="subTitle" data-i18n="ProfileLinks">@Localizer["ProfileLinks"]</h4>
+            <ul v-for="url in [profile.website1, profile.website2, profile.website3]" class="flex flex-col gap-2">
+                <li><a class="para" :href="url" target="_blank" rel="noopener noreferrer">{{ url }}</a></li>
+            </ul>
+        </li>
+        <li>
+            <h4 class="subTitle" data-i18n="ProfileImgs">@Localizer["ProfileImgs"]</h4>
+            <div class="flex gap-4 items-center">
+                @* <img v-for="(article, idx) in profile.articles.slice(0, 2)" :key="article.articleId"
+                    :src="'/api/Profile/GetPicture/' + article.articleId + '?v=' + rand"
+                    class="mt-4 h-[108px] w-full rounded-lg object-cover" alt="" /> *@
             </div>
-        }
-    </div>
-</section>
+        </li>
+    </ul>
+    
+    <!-- 中間：動態貼文 -->
+    <ul class="profile-content">
+        <li v-for="(item, index) in posts" :key="item.articleId">
+            <article class="bg-accent">
+                @* 文章標題區 *@
+                <div class="profile-content_header">
+                    <div class="author-info flex gap-4 items-center">
+                        <div class="author-avatar">
+                            <img v-if="item?.authorAvator != null" :src="item?.authorAvator" alt="item?.authorName">
+                            <span v-else class="bg-secondary">{{ item?.authorName?.slice(0,1).toUpperCase() }}</span>
+                        </div>
+                        <div class="author-info">
+                            <h3 class="text-white font-medium" data-i18n="GuestAccount">{{ item.authorName || @Localizer["GuestAccount"] }}</h3>
+                            <p class="text-gray-400 text-sm">{{ item.createTime }}</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2 text-gray-400 text-sm">
+                        <i data-lucide="heart" class="w-4 h-4"></i>
+                        <span>{{ item.praiseCount }}</span>
+                        <i data-lucide="bookmark" class="w-4 h-4 ml-2"></i>
+                        <span>{{ item.collectCount }}</span>
+                    </div>
+                </div>
 
-<!-- 右側預留好友列表空間（未來可放內容） -->
-<div class="fixed top-0 right-0 z-10 hidden h-full w-[300px] bg-transparent lg:block">
-    <!-- 好友列表未來放這裡 -->
+                @* 文章內容 *@
+                <div class="text-gray-300 mb-4 leading-relaxed">
+                    {{ item.content }}
+                </div>
+
+                <div class="flex gap-4 items-center" v-for="(img, imgIndex) in item.images" :key="imgIndex">
+                    <img :src="img" class="mt-4 h-auto w-3/4 rounded-lg" alt="" />
+                </div>
+
+                @* 文章操作列 *@
+                <div class="profile-content_state">
+                    <button v-on:click="stateFunc(praize, item.articleId)">
+                        <i data-lucide="heart" class="size-4"></i>
+                        <span data-i18n="Praise">@Localizer["Praise"]</span>
+                    </button>
+                    <button v-on:click="stateFunc(comment, item.articleId)">
+                        <i data-lucide="message-circle" class="size-4"></i>
+                        <span data-i18n="Comment">@Localizer["Comment"]</span>
+                    </button>
+                    @* <button v-on:click="stateFunc(share, item.articleId)">
+                        <i data-lucide="share" class="size-4"></i>
+                        <span data-i18n="Share">@Localizer["Share"]</span>
+                    </button> *@
+                    <button v-on:click="stateFunc(collect, item.articleId)">
+                        <i data-lucide="bookmark" class="size-4"></i>
+                        <span data-i18n="Collect">@Localizer["Collect"]</span>
+                    </button>
+                </div>
+            </article>
+        </li>
+        
+        <!-- 載入狀態指示器 -->
+        <li v-if="isLoading" class="text-center py-8">
+            <div class="flex items-center justify-center gap-2 text-gray-400">
+                <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
+                <span>載入中...</span>
+            </div>
+        </li>
+        
+        <!-- 沒有更多文章的提示 -->
+        <li v-if="!hasMorePosts && posts.length > 0" class="text-center py-8">
+            <span class="text-gray-400">已顯示所有文章</span>
+        </li>
+        
+        <!-- 空狀態 -->
+        <li v-if="!isLoading && posts.length === 0" class="text-center py-8">
+            <span class="text-gray-400">還沒有發布任何文章</span>
+        </li>
+    </ul>
+
+    <ul class="col-span-3"></ul>
+ 
+    <!-- Edit Profile View -->
+    @await Component.InvokeAsync("EditProfilePopup")
 </div>
 
-
-
-
-
-
-
-
-
-
+@section Scripts {
+    <script>
+        // 將用戶資訊內嵌給前端 JavaScript（零延遲）
+        window.matrixProfileData = {
+            userInfo: @Html.Raw(Json.Serialize(ViewBag.UserInfo))
+        };
+    </script>
+}

@@ -17,7 +17,6 @@ Person 表存儲用戶的詳細個人資料，與 User 表形成 1:1 關聯。
 | Bio | string(300) | 個人簡介 | 否 | NULL |
 | AvatarPath | string(2048) | 頭像檔案路徑 | 否 | NULL |
 | BannerPath | string(2048) | 橫幅檔案路徑 | 否 | NULL |
-| ExternalUrl | string(2048) | 外部網站連結 | 否 | NULL |
 | IsPrivate | int | 隱私設定 (0=公開) | 是 | 0 |
 | WalletAddress | string | 區塊鏈錢包地址 | 否 | NULL |
 | ModifyTime | datetime | 最後修改時間 | 否 | NULL |
@@ -76,7 +75,7 @@ SELECT UserId FROM Users WHERE UserId IN ('要匯入的UserId列表');
 ### 資料完整性規則
 - `DisplayName`: 最大長度 50 字元
 - `Bio`: 最大長度 300 字元
-- `AvatarPath`, `BannerPath`, `ExternalUrl`: 最大長度 2048 字元
+- `AvatarPath`, `BannerPath`: 最大長度 2048 字元
 - `WalletAddress`: Web3 錢包地址格式
 
 ### 關聯影響

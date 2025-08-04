@@ -20,6 +20,8 @@ namespace Matrix.Models
         /// </summary>
         public Guid UserId { get; set; }
 
+        public virtual User? User { get; set; }
+
         /// <summary>
         /// 用戶的顯示名稱，最大長度為50個字元
         /// </summary>
@@ -81,7 +83,6 @@ namespace Matrix.Models
         /// <summary>
         /// 關聯的用戶帳號，一對一關聯
         /// </summary>
-        public virtual User? User { get; set; }
 
         /// <summary>
         /// 用戶發布的文章集合
@@ -137,5 +138,7 @@ namespace Matrix.Models
         /// 用戶接收的好友關係集合（別人加我）
         /// </summary>
         public virtual ICollection<Friendship> FriendOf { get; set; } = [];
+
     }
+
 }
