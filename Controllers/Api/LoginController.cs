@@ -12,13 +12,15 @@ namespace Matrix.Controllers.Api
         private readonly ICustomLocalizer _localizer;
         private readonly ILogger<LoginController> _logger;
         private readonly Matrix.Controllers.AuthController _authController;
+        private readonly IAuthorizationService _authorizationService;
 
         public LoginController(
             IUserService userService,
             IUserRepository userRepository,
             ICustomLocalizer localizer,
             ILogger<LoginController> logger,
-            Matrix.Controllers.AuthController authController
+            Matrix.Controllers.AuthController authController,
+            IAuthorizationService authorizationService
         )
         {
             _userService = userService;
@@ -26,6 +28,7 @@ namespace Matrix.Controllers.Api
             _localizer = localizer;
             _logger = logger;
             _authController = authController;
+            _authorizationService = authorizationService;
         }
         private static readonly string[] InvalidCredentialsError = ["Invalid user name or password."];
 
@@ -77,7 +80,7 @@ namespace Matrix.Controllers.Api
             _logger.LogInformation("尋獲用戶: {0}", userDto);
 
             // 檢查帳號狀態
-            var statusError = CheckUserStatus(userDto);
+            var statusError = await CheckUserStatusAsync(userDto.UserId);
             if (statusError != null)
                 return statusError;
 
@@ -133,12 +136,14 @@ namespace Matrix.Controllers.Api
         }
 
         /// <summary>檢查用戶狀態是否正常</summary>
-        private IActionResult? CheckUserStatus(UserDto userDto)
+        private async Task<IActionResult?> CheckUserStatusAsync(Guid userId)
         {
-            if (userDto.Status != 1) // 狀態不是正常時，統一使用 AccountLoginError
+            var statusResult = await _authorizationService.CheckUserStatusAsync(userId);
+            if (!statusResult.IsValid)
             {
-                _logger.LogWarning("帳號狀態異常: {UserName}, Status: {Status}", userDto.UserName, userDto.Status);
-                return ApiError(_localizer["AccountLoginError"], new Dictionary<string, string[]> { { "AccountLoginError", [_localizer["AccountLoginError"]] } });
+                _logger.LogWarning("帳號狀態異常: {UserId}, StatusCode: {StatusCode}", userId, statusResult.StatusCode);
+                return ApiError(statusResult.ErrorMessage ?? _localizer["AccountLoginError"], 
+                    new Dictionary<string, string[]> { { "AccountLoginError", [statusResult.ErrorMessage ?? _localizer["AccountLoginError"]] } });
             }
 
             return null;

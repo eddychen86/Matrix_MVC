@@ -1,5 +1,6 @@
 const useProfile = () => {
     const { ref, reactive, onMounted } = Vue
+    const { timeAgo } = useFormatting()
 
     // 響應式數據
     const rand = ref(1)
@@ -49,6 +50,9 @@ const useProfile = () => {
 
     const update = async () => {
         try {
+            const userId = await getCurrentUserId()
+            if (!userId) return
+            
             const data = {
                 bio: profile.bio,
                 displayName: profile.displayName,
@@ -57,10 +61,10 @@ const useProfile = () => {
                 website1: profile.website1,
                 website2: profile.website2,
                 website3: profile.website3,
-                userId: profile.userId
+                userId: userId
             }
 
-            const response = await axios.put(`/api/ProfileApi/${profile.userId}`, data, {
+            const response = await axios.put(`/api/ProfileApi/${userId}`, data, {
                 headers: {
                     "Content-Type": "application/json"
                 }
@@ -102,18 +106,66 @@ const useProfile = () => {
         }
     }
 
+    // 獲取當前用戶 ID 的工具函數
+    const getCurrentUserId = async () => {
+        // 首先嘗試從全局狀態獲取
+        if (window.currentUser?.userId) {
+            return window.currentUser.userId
+        }
+        
+        // 等待全局狀態初始化
+        for (let i = 0; i < 20; i++) {
+            if (window.currentUser?.userId) {
+                return window.currentUser.userId
+            }
+            await new Promise(resolve => setTimeout(resolve, 50))
+        }
+        
+        // 備用方案：直接調用 API
+        try {
+            const response = await fetch('/api/auth/status')
+            const data = await response.json()
+            if (data.success && data.data.authenticated && data.data.user.id) {
+                return data.data.user.id
+            }
+        } catch (error) {
+            console.error('無法從 API 獲取用戶 ID:', error)
+        }
+        
+        // 最後的備用方案
+        console.warn('無法獲取當前用戶 ID，使用預設 ID')
+        return null // '8615C454-4C27-4C41-9256-E609DC8465C5'
+    }
+
     // 載入 Profile 資料
     const loadProfile = async () => {
         try {
-            const profileId = '8615C454-4C27-4C41-9256-E609DC8465C5'
+            const userId = await getCurrentUserId()
+            if (!userId) return
+
+            console.log('使用的 userId:', userId)
+
             const response = await fetch('/api/ProfileApi', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ id: profileId })
+                body: JSON.stringify({ id: userId })
             })
 
             const data = await response.json()
-            Object.assign(profile, data)
+
+            Object.assign(profile, {
+                ...data,
+                articles: data.articles
+                    // .filter(f => f.articleId === userId)
+                    .map(m => ({
+                        ...m,
+                        authorAvatar: m.authorAvatar || m.authorName.slice(0, 1).toUpperCase(),
+                        createTime: timeAgo(m.createTime, 'en-US'),
+                    }))
+            })
+
+            // console.log(profile)
+
             isPublic.value = !data.isPrivate
         } catch (err) {
             console.error('載入 Profile 失敗:', err)

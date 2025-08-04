@@ -100,8 +100,7 @@ namespace Matrix.Controllers.Api
         private bool PersonExists(Guid id) { 
             return _context.Persons.Any(p=>p.PersonId == id);
         }
-
-        
+   
         [HttpPost()]
         public async Task<ActionResult<PersonDto>> GetProfileById([FromBody] ProfileGetUserDto model) 
         {
@@ -116,9 +115,7 @@ namespace Matrix.Controllers.Api
                 {
                     return NotFound();
                 }
-
-
-
+                
                 var dto = new PersonDto
                 {
                     Content = person.Articles?.Select(a => a.Content).ToList(),
@@ -149,10 +146,10 @@ namespace Matrix.Controllers.Api
                 return Ok(ex);
             }
         }
+
         //GET:api/ArticleApi/Getpicture/1
         //上傳圖片
         [HttpGet("GetPicture/{id}")]
-
         public async Task<FileResult> GetPicture(Guid id) 
         {
             string Filename = Path.Combine("wwwroot", "static", "img", "noimages.jpg");
@@ -168,8 +165,5 @@ namespace Matrix.Controllers.Api
         {
             return _context.Articles.Any(e => e.ArticleId == id);
         }
-        
-
-
     }
 }

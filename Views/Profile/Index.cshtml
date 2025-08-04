@@ -1,219 +1,101 @@
-﻿<div class="profile-container relative mx-auto flex w-full max-w-[1920px] flex-col bg-[#161616] text-white">
-    <!-- Profile View -->
+﻿@inject ICustomLocalizer Localizer
+<div class="text-white grid grid-cols-7 gap-4">
+
     <!-- 頂部橫幅與頭像 -->
-    <div class="relative flex h-40 w-full items-center justify-center rounded-lg bg-[#161616]">
-        <img :src="profile.bannerPath" alt="Profile Banner" class="h-full w-full object-cover object-right" />
-        <div class="absolute top-1/2 left-1/3 flex -translate-x-1/2 translate-y-10 items-center justify-between gap-4">
-            <img :src="profile.avatarPath" class="h-36 w-36 rounded-full bg-[#161616] object-cover object-center p-4" />
+    <header class="profile-header">
+        <img :src="profile.bannerPath" alt="Profile Banner" class="profile-banner" />
+        <div class="profile-avatar">
+            <div class="profile-avatar_body">
+                <img :src="profile.avatarPath" alt="Profile Avatar" />
+                <h3>{{ profile.displayName }}</h3>
+                <i data-lucide="crown" class="size-12 mb-4 text-yellow-500"></i>
+            </div>
+            <button class="subTitle font-semibold" data-i18n="Create">@Localizer["Create"]</button>
         </div>
-        @* <div class="absolute right-0 bottom-0 h-full w-[300px] bg-[#161616]"></div> *@
-    </div>
+    </header>
 
-    <!-- 姓名與按鈕 -->
-    <div class="relative mt-8 flex flex-col items-center justify-between px-8 md:flex-row md:pr-[300px]">
-        <div class="flex items-center gap-3 md:ml-[550px]">
-            <span class="font-sans text-2xl leading-[40px] font-semibold text-white md:text-[40px]">{{profile.displayName}}</span>
+    <!-- 左側：個人資訊 -->
+    <ul class="profile-info bg-accent">
+        <li>
+            <h4 class="subTitle" data-i18n="ProfileBio">@Localizer["ProfileBio"]</h4>
+            <p class="para">{{ profile.bio }}</p>
+        </li>
+        <li>
+            <h4 class="subTitle" data-i18n="ProfileContact">@Localizer["ProfileContact"]</h4>
+            <p>{{ profile.email }}</p>
+        </li>
+        <li>
+            <h4 class="subTitle" data-i18n="ProfileLinks">@Localizer["ProfileLinks"]</h4>
+            <ul v-for="url in [profile.website1, profile.website2, profile.website3]" class="flex flex-col gap-2">
+                <li><a class="para" :href="url" target="_blank" rel="noopener noreferrer">{{ url }}</a></li>
+            </ul>
+        </li>
+        <li>
+            <h4 class="subTitle" data-i18n="ProfileImgs">@Localizer["ProfileImgs"]</h4>
+            <div class="flex gap-4 items-center">
+                <img v-for="(article, idx) in profile.articles.slice(0, 2)" :key="article.articleId"
+                    :src="'/api/ProfileApi/GetPicture/' + article.articleId + '?v=' + rand"
+                    class="mt-4 h-[108px] w-full rounded-lg object-cover" alt="" />
+            </div>
+        </li>
+    </ul>
+    
+    <!-- 中間：動態貼文 -->
+    <ul class="profile-content" v-for="(item, index) in profile.articles" :key="item.articleId">
+        <article class="bg-accent">
+            @* 文章標題區 *@
+            <div class="profile-content_header">
+                <div class="author-info">
+                    <div class="author-avatar">
+                        <img v-if="item?.authorAvator != null" :src="item?.authorAvator" alt="item?.authorName">
+                        <span v-else class="text-white font-bold">{{ item?.authorName?.slice(0,1).toUpperCase() }}</span>
+                    </div>
+                    <div class="author-info">
+                        <h3 class="text-white font-medium" data-i18n="GuestAccount">{{ item.authorName || @Localizer["GuestAccount"] }}</h3>
+                        <p class="text-gray-400 text-sm">{{ item.createTime }}</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2 text-gray-400 text-sm">
+                    <i data-lucide="heart" class="w-4 h-4"></i>
+                    <span>{{ item.praiseCount }}</span>
+                    <i data-lucide="bookmark" class="w-4 h-4 ml-2"></i>
+                    <span>{{ item.collectCount }}</span>
+                </div>
+            </div>
 
-            <span :class="['text-xl text-white', isPublic ? 'fa-solid fa-globe' : 'fa-solid fa-user-lock']"></span>
+            @* 文章內容 *@
+            <div class="text-gray-300 mb-4 leading-relaxed">
+                {{ item.content }}
+            </div>
 
-        </div>
+            <div class="flex gap-4 items-center" v-for="(img, imgIndex) in item.images" :key="imgIndex">
+                <img :src="img" class="mt-4 h-auto w-3/4 rounded-lg" alt="" />
+            </div>
 
-
-        <button class="mt-4 h-10 w-22 rounded-[24px] bg-white text-base font-bold text-black shadow transition hover:bg-gray-200 md:mt-0">
-            Create
-        </button>
-    </div>
-
-    <!-- 主要內容區塊 -->
-    <div class="mt-8 flex flex-col gap-6 px-8 lg:flex-row lg:pr-[300px]">
-        <!-- 左側：個人資訊 -->
-
-        <div class="mx-auto w-full max-w-[350px] lg:mx-0">
-            <div class="mb-4 rounded-xl bg-gray-800 p-10 shadow">
+            @* 文章操作列 *@
+            <div class="flex items-center justify-between pt-4 border-t border-accent/20">
                 <div class="flex items-center gap-4">
-                    <div class="flex w-full items-center justify-between">
-                        <h2 class="font-bold text-[23px] text-white">Profile Overview</h2>
-                        <button @@click="startEdit">
-                            <i data-lucide="pen" class="icon-base h-5 w-5 cursor-pointer sm:h-6 sm:w-6"></i>
-                        </button>
-                    </div>
-                </div>
-                <div class="mt-3">
-                    <p class="mb-4 h-[100px] text-[16px] text-gray-300">{{profile.bio}}</p>
-                    <div class="space-y-1 text-[17px] text-gray-400">
-                        <div class="mt-8">{{profile.email}}</div>
-                        <div class="mt-3">{{profile.website1}}</div>
-                        <div>{{profile.website2}}</div>
-                        <div>{{profile.website3}}</div>
-                    </div>
-                </div>
-                <div class="mt-4 flex flex-col gap-2">
-                    <img
-                        v-for="(article, idx) in profile.articles.slice(0, 2)"
-                        :key="article.articleId"
-                        :src="'/api/ProfileApi/GetPicture/' + article.articleId + '?v=' + rand"
-                        class="mt-4 h-[108px] w-full rounded-lg object-cover"
-                        alt=""
-                     />
+                    <button class="flex items-center gap-2 text-gray-400 hover:text-orange transition-colors">
+                        <i data-lucide="heart" class="w-4 h-4">@Localizer["Praise"]</i>
+                    </button>
+                    <button class="flex items-center gap-2 text-gray-400 hover:text-orange transition-colors">
+                        <i data-lucide="message-circle" class="w-4 h-4"></i>
+                        <span data-i18n="Comment">@Localizer["Comment"]</span>
+                    </button>
+                    <button class="flex items-center gap-2 text-gray-400 hover:text-orange transition-colors">
+                        <i data-lucide="share" class="w-4 h-4"></i>
+                        <span data-i18n="Share">@Localizer["Share"]</span>
+                    </button>
+                    <button class="flex items-center gap-2 text-gray-400 hover:text-orange transition-colors">
+                        <i data-lucide="bookmark" class="w-4 h-4"></i>
+                        <span data-i18n="Collect">@Localizer["Collect"]</span>
+                    </button>
                 </div>
             </div>
-        </div>
+        </article>
+    </ul>
 
-
-        <!-- 中間：動態貼文 -->
-        <div class="flex flex-1 flex-col gap-4">
-            @* <div class="rounded-xl bg-gray-800 p-6">
-                <h3 class="mb-2 font-semibold text-[23px] text-white">{{profile.displayName}}</h3>
-                <p class="mb-2 text-gray-300">{{profile.content}}</p>
-                <span class="text-xs text-gray-500">{{profile.lastModifiedText}}</span>
-            </div> *@
-
-            <div class="mb-[12px] rounded-xl bg-gray-800 p-6" v-for="(article, index) in profile.articles" :key="index">
-                <div class="mb-2 flex flex-col sm:flex-row sm:items-center sm:gap-4">
-                    <img :src="profile.avatarPath"
-                         class="mb-2 h-16 w-16 rounded-full object-cover sm:mb-0" />
-                    <h3 class="font-semibold text-[22px] text-white sm:text-[25px]">
-                        {{ profile.displayName }}
-                    </h3>
-                </div>
-                <p class="mb-2 text-gray-300">{{ article.content }}</p>
-                <span class="text-xs text-gray-500">
-                    {{article.timeAgoText}}
-                </span>
-
-                <img v-bind:src="'/api/ProfileApi/GetPicture/'+article.articleId+'?v='+rand"
-                     class="mt-4 h-auto w-3/4 rounded-lg"
-                     alt="" />
-            </div>
-        </div>
-    </div>
-
+    <ul class="col-span-3"></ul>
+ 
     <!-- Edit Profile View -->
-    <div v-if="editMode" class="fixed top-0 left-0 z-30 h-full w-full">
-        <div class="relative h-full w-full">
-            <div class="h-full w-full bg-white opacity-20"></div>
-            <div class="absolute top-1/2 left-1/2 mx-auto flex w-full max-w-lg -translate-x-1/2 -translate-y-1/2 flex-col items-center rounded-xl bg-[#161616] p-6 shadow-2xl sm:p-8 md:max-w-xl">
-                <img :src="profile.avatarPath" class="mb-4 h-[142px] w-[142px] rounded-full border-4 border-black object-cover" alt="avatar" />
-                <h2 class="mb-4 w-full text-center leading-[33px] font-normal text-[33px] text-white">{{profile.displayName}}</h2>
-                <div class="mb-4 w-full">
-                    <textarea class="bg-opacity-70 h-[100px] w-full resize-none rounded border border-gray-400 bg-black px-4 py-2 leading-snug text-[18px] text-white focus:border-blue-500 focus:outline-none"
-                           placeholder="Introduction..."
-                           v-model="profile.bio"
-                           type="text"
-                           maxlength="125"
-                    ></textarea>
-                </div>
-
-                <div class="w-full space-y-4">
-                    <div class="flex w-full flex-col items-start text-[18px] text-white sm:flex-row sm:items-center">
-                        <label class="w-full font-normal sm:w-1/3">DisplayName</label>
-                        <input type="text" placeholder="DisplayName..." 
-                               class="mt-2 h-[54px] w-full rounded border border-gray-400 bg-black px-4 text-[16px] text-white focus:border-blue-500 focus:outline-none sm:mt-0 sm:w-2/3"
-                               v-model="profile.displayName"
-                               maxlength="15"
-                               />
-                    </div>
-                    <div class="flex w-full flex-col items-start text-[18px] text-white sm:flex-row sm:items-center">
-                        <label class="w-full font-normal sm:w-1/3">Email</label>
-                        <input 
-                            type="text" 
-                            placeholder="Email..." 
-                            class="mt-2 h-[54px] w-full rounded border border-gray-400 bg-black px-4 text-[16px] text-white focus:border-blue-500 focus:outline-none sm:mt-0 sm:w-2/3"
-                            v-model="profile.email"
-                            maxlength="27"
-                            
-                        />
-                    </div>
-                    <div class="flex w-full flex-col items-start text-[18px] text-white sm:flex-row sm:items-center">
-                        <label class="w-full font-normal sm:w-1/3">Password</label>
-                        <input type="text" placeholder="Password..." 
-                               class="mt-2 h-[54px] w-full rounded border border-gray-400 bg-black px-4 text-[16px] text-white focus:border-blue-500 focus:outline-none sm:mt-0 sm:w-2/3"
-                               v-model="profile.password"
-                               />
-                    </div>
-                    <div class="flex w-full flex-col text-[18px] text-white sm:flex-row">
-                        <label class="mt-[5px] w-full font-normal sm:w-1/3">Website</label>
-                        <div class="mt-2 w-full space-y-2 sm:mt-0 sm:w-2/3">
-                            <input type="text" placeholder="Website..." 
-                                   class="h-[40px] w-full rounded border border-gray-400 bg-black px-4 text-[15px] text-white focus:border-blue-500 focus:outline-none"
-                                   v-model="profile.website1"
-                                   maxlength="33"
-                                   />
-                            <input type="text" placeholder="Website..." 
-                                   class="h-[40px] w-full rounded border border-gray-400 bg-black px-4 text-[15px] text-white focus:border-blue-500 focus:outline-none"
-                                   v-model="profile.website2"
-                                   maxlength="33"
-                                   />
-                            <input type="text" placeholder="Website..." 
-                                   class="h-[40px] w-full rounded border border-gray-400 bg-black px-4 text-[15px] text-white focus:border-blue-500 focus:outline-none"
-                                   v-model="profile.website3"
-                                   maxlength="33"
-                                   />
-                        </div>
-                    </div>
-                    <div class="flex w-full flex-col items-start text-[18px] text-white sm:flex-row sm:items-center">
-                        <label class="w-full font-normal sm:w-1/3">Wallet Address</label>
-                        <div class="flex h-[54px] w-full items-center bg-[#161616] px-4 text-white sm:w-2/3">
-                            <span class="fa-solid fa-crown text-[25px]"></span>
-                        </div>
-
-
-                    </div>
-                    <!-- Toggle Switch: Private ↔ Public -->
-                    <div class="flex w-full flex-col items-start text-[18px] text-white sm:flex-row sm:items-center">
-                        <!-- 左側標籤 -->
-                        <label class="w-full font-normal sm:w-1/3">Private</label>
-
-                        <!-- 右側切換區塊 -->
-                        <div class="mt-2 w-full sm:mt-0 sm:w-2/3">
-                            <div class="flex items-center justify-center gap-4 sm:justify-start">
-                                <!-- Private -->
-                                <span class="text-[17px] text-gray-300">Private</span>
-
-                                <!-- 切換按鈕 -->
-                                <button class="relative inline-flex h-[36px] w-[64px] items-center rounded-full border border-gray-400 bg-black transition duration-300 focus:outline-none"
-                                        :class="{ 'bg-green-500': isPublic }"
-                                        @@click="toggleIcon">
-                                    <span class="absolute left-1 h-[28px] w-[28px] transform rounded-full bg-white shadow transition duration-300"
-                                          :class="{ 'translate-x-[28px]': isPublic }"></span>
-                                </button>
-
-                                <!-- Public -->
-                                <span class="text-[17px] text-gray-300">Public</span>
-                            </div>
-                        </div>
-                    </div>
-
-
-
-
-                </div>
-
-                <!--     上傳圖片       -->
-
-                <div class="mt-4 flex w-full flex-col items-start text-[18px] text-white sm:flex-row sm:items-center">
-                    <label class="w-full font-normal sm:w-1/3">Picture</label>
-                    <div class="mt-2 flex h-[30px] w-full items-center sm:mt-0 sm:w-2/3">
-                        <input type="file"
-                               class="form-control h-full w-full rounded border border-gray-400 bg-[#161616] px-4 text-[15px] text-white"
-                               v-bind:id="'editFile' + profile.avatarPath"
-                               accept="image/*"
-                               v-on:change="editFileChange($event.target)" />
-                    </div>
-                </div>
-
-                    
-                <!--     cancel and update       -->
-                <div class="mt-6 flex justify-center space-x-8">
-                    <button class="flex items-center rounded-xl bg-red-400 px-6 py-3 text-[16px] text-white hover:bg-red-700" @@click="cancel">
-                        <i class="fa-solid fa-trash-can mr-2"></i>Cancel
-                    </button>
-                    <button class="flex items-center rounded-xl bg-blue-400 px-6 py-3 text-[16px] text-white hover:bg-blue-700" @@click="update">
-                        <i class="fa-solid fa-floppy-disk mr-2"></i>Update
-                    </button>
-                </div>
-                
-            </div>
-        </div>
-    </div>
 </div>
