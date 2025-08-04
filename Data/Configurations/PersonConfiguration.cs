@@ -96,9 +96,6 @@ namespace Matrix.Data.Configurations
                 
             builder.Property(p => p.Website3)
                 .HasMaxLength(2048);
-                
-            builder.Property(p => p.ExternalUrl)
-                .HasMaxLength(2048);
 
             /// <summary>
             /// 配置 IsPrivate 欄位屬性

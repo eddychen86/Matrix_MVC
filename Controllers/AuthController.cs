@@ -62,7 +62,6 @@ namespace Matrix.Controllers
                                 Bio = null,
                                 AvatarPath = null,
                                 BannerPath = null,
-                                ExternalUrl = null,
                                 IsPrivate = 0, // 預設為公開
                                 WalletAddress = null,
                                 ModifyTime = null

@@ -338,13 +338,6 @@ namespace Matrix.DTOs
         public string? BannerPath { get; set; }
 
         /// <summary>
-        /// 使用者的外部網站連結
-        /// </summary>
-        [StringLength(2048, ErrorMessage = "外部連結長度不能超過 2048 個字元")]
-        [Url(ErrorMessage = "請輸入有效的 URL")]
-        public string? ExternalUrl { get; set; }
-
-        /// <summary>
         /// 使用者的隱私設定
         /// </summary>
         [Range(0, 1, ErrorMessage = "隱私設定必須是 0（公開）或 1（私人）")]
@@ -418,9 +411,6 @@ namespace Matrix.DTOs
                 if (IsPrivate.HasValue && (IsPrivate < 0 || IsPrivate > 1))
                     return false;
 
-                if (!string.IsNullOrEmpty(ExternalUrl) && !IsValidUrl(ExternalUrl))
-                    return false;
-
                 if (!string.IsNullOrEmpty(DisplayName) && DisplayName.Length > 50)
                     return false;
 
@@ -431,9 +421,6 @@ namespace Matrix.DTOs
                     return false;
 
                 if (!string.IsNullOrEmpty(BannerPath) && BannerPath.Length > 2048)
-                    return false;
-
-                if (!string.IsNullOrEmpty(ExternalUrl) && ExternalUrl.Length > 2048)
                     return false;
 
                 return true;
@@ -452,7 +439,6 @@ namespace Matrix.DTOs
             Bio = Bio?.Trim();
             AvatarPath = AvatarPath?.Trim();
             BannerPath = BannerPath?.Trim();
-            ExternalUrl = ExternalUrl?.Trim();
             WalletAddress = WalletAddress?.Trim();
             
             if (string.IsNullOrEmpty(UserName)) UserName = null;
@@ -462,7 +448,6 @@ namespace Matrix.DTOs
             if (string.IsNullOrEmpty(Bio)) Bio = null;
             if (string.IsNullOrEmpty(AvatarPath)) AvatarPath = null;
             if (string.IsNullOrEmpty(BannerPath)) BannerPath = null;
-            if (string.IsNullOrEmpty(ExternalUrl)) ExternalUrl = null;
             if (string.IsNullOrEmpty(WalletAddress)) WalletAddress = null;
         }
 
@@ -477,7 +462,6 @@ namespace Matrix.DTOs
                                    !string.IsNullOrEmpty(Bio) ||
                                    !string.IsNullOrEmpty(AvatarPath) ||
                                    !string.IsNullOrEmpty(BannerPath) ||
-                                   !string.IsNullOrEmpty(ExternalUrl) ||
                                    IsPrivate.HasValue ||
                                    !string.IsNullOrEmpty(WalletAddress);
 
@@ -528,11 +512,6 @@ namespace Matrix.DTOs
                 errors.Add("橫幅路徑長度不能超過 2048 個字元");
             }
             
-            if (!string.IsNullOrEmpty(ExternalUrl) && (ExternalUrl.Length > 2048 || !IsValidUrl(ExternalUrl)))
-            {
-                errors.Add("外部連結必須是有效的 URL 且長度不能超過 2048 個字元");
-            }
-            
             if (IsPrivate.HasValue && (IsPrivate < 0 || IsPrivate > 1))
             {
                 errors.Add("隱私設定必須是 0（公開）或 1（私人）");
@@ -571,9 +550,6 @@ namespace Matrix.DTOs
             
             if (!string.IsNullOrEmpty(BannerPath))
                 updates.Add($"橫幅路徑: {BannerPath}");
-            
-            if (!string.IsNullOrEmpty(ExternalUrl))
-                updates.Add($"外部連結: {ExternalUrl}");
             
             if (IsPrivate.HasValue)
                 updates.Add($"隱私設定: {(IsPrivate == 0 ? "公開" : "私人")}");

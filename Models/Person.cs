@@ -65,12 +65,6 @@ namespace Matrix.Models
         public string? Website3 { get; set; }
 
         /// <summary>
-        /// 用戶的外部網站連結 (主要連結)
-        /// </summary>
-        [MaxLength(2048)]
-        public string? ExternalUrl { get; set; }
-
-        /// <summary>
         /// 用戶的隱私設定，0表示公開，1表示私人
         /// </summary>
         public int IsPrivate { get; set; } = 0;

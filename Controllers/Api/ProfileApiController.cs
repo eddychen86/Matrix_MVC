@@ -66,7 +66,6 @@ namespace Matrix.Controllers.Api
             //pe.ModifyTime = dto.ModifyTime;
             //pe.AvatarPath = dto.AvatarPath;
             //pe.BannerPath = dto.BannerPath;
-            //pe.ExternalUrl = dto.ExternalUrl;
             //pe.IsPrivate = dto.IsPrivate;
             //pe.WalletAddress = dto.WalletAddress;
 
@@ -135,7 +134,6 @@ namespace Matrix.Controllers.Api
                     Bio = person.Bio,
                     AvatarPath = person.AvatarPath,
                     BannerPath = person.BannerPath,
-                    ExternalUrl = person.ExternalUrl,
                     WalletAddress = person.WalletAddress,
                     IsPrivate = person.IsPrivate,
                     ModifyTime = person.ModifyTime,

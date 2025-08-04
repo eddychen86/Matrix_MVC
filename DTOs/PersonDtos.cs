@@ -77,13 +77,6 @@ namespace Matrix.DTOs
         public string? BannerPath { get; set; }
 
         /// <summary>
-        /// 使用者的外部網站連結
-        /// </summary>
-        [StringLength(2048, ErrorMessage = "外部連結長度不能超過 2048 個字元")]
-        [Url(ErrorMessage = "外部連結必須是有效的 URL")]
-        public string? ExternalUrl { get; set; }
-
-        /// <summary>
         /// 使用者的隱私設定
         /// </summary>
         public int IsPrivate { get; set; }
@@ -146,14 +139,13 @@ namespace Matrix.DTOs
         {
             get
             {
-                int totalFields = 5; // DisplayName, Bio, AvatarPath, BannerPath, ExternalUrl
+                int totalFields = 5; // DisplayName, Bio, AvatarPath, BannerPath
                 int completedFields = 0;
 
                 if (!string.IsNullOrEmpty(DisplayName)) completedFields++;
                 if (!string.IsNullOrEmpty(Bio)) completedFields++;
                 if (!string.IsNullOrEmpty(AvatarPath)) completedFields++;
                 if (!string.IsNullOrEmpty(BannerPath)) completedFields++;
-                if (!string.IsNullOrEmpty(ExternalUrl)) completedFields++;
 
                 return (completedFields * 100) / totalFields;
             }
@@ -232,13 +224,6 @@ namespace Matrix.DTOs
         public string? BannerPath { get; set; }
 
         /// <summary>
-        /// 使用者的外部網站連結
-        /// </summary>
-        [StringLength(2048, ErrorMessage = "外部連結長度不能超過 2048 個字元")]
-        [Url(ErrorMessage = "外部連結必須是有效的 URL")]
-        public string? ExternalUrl { get; set; }
-
-        /// <summary>
         /// 使用者的隱私設定
         /// </summary>
         [Range(0, 1, ErrorMessage = "隱私設定值必須在 0 到 1 之間")]
@@ -272,7 +257,6 @@ namespace Matrix.DTOs
                    !string.IsNullOrEmpty(Bio) ||
                    !string.IsNullOrEmpty(AvatarPath) ||
                    !string.IsNullOrEmpty(BannerPath) ||
-                   !string.IsNullOrEmpty(ExternalUrl) ||
                    IsPrivate.HasValue ||
                    !string.IsNullOrEmpty(WalletAddress);
         }
@@ -289,9 +273,6 @@ namespace Matrix.DTOs
 
             if (!string.IsNullOrEmpty(BannerPath) && !IsValidUrl(BannerPath))
                 invalidUrls.Add("BannerPath");
-
-            if (!string.IsNullOrEmpty(ExternalUrl) && !IsValidUrl(ExternalUrl))
-                invalidUrls.Add("ExternalUrl");
 
             return invalidUrls;
         }
@@ -314,14 +295,12 @@ namespace Matrix.DTOs
             Bio = Bio?.Trim();
             AvatarPath = AvatarPath?.Trim();
             BannerPath = BannerPath?.Trim();
-            ExternalUrl = ExternalUrl?.Trim();
             WalletAddress = WalletAddress?.Trim();
 
             if (string.IsNullOrEmpty(DisplayName)) DisplayName = null;
             if (string.IsNullOrEmpty(Bio)) Bio = null;
             if (string.IsNullOrEmpty(AvatarPath)) AvatarPath = null;
             if (string.IsNullOrEmpty(BannerPath)) BannerPath = null;
-            if (string.IsNullOrEmpty(ExternalUrl)) ExternalUrl = null;
             if (string.IsNullOrEmpty(WalletAddress)) WalletAddress = null;
         }
 
@@ -336,7 +315,6 @@ namespace Matrix.DTOs
             if (!string.IsNullOrEmpty(Bio)) updates.Add("個人簡介");
             if (!string.IsNullOrEmpty(AvatarPath)) updates.Add("頭像");
             if (!string.IsNullOrEmpty(BannerPath)) updates.Add("橫幅");
-            if (!string.IsNullOrEmpty(ExternalUrl)) updates.Add("外部連結");
             if (IsPrivate.HasValue) updates.Add("隱私設定");
             if (!string.IsNullOrEmpty(WalletAddress)) updates.Add("錢包地址");
 
