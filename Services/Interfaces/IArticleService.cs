@@ -1,3 +1,5 @@
+using Matrix.DTOs;
+
 namespace Matrix.Services.Interfaces
 {
     /// <summary>
@@ -63,5 +65,10 @@ namespace Matrix.Services.Interfaces
         /// 獲取熱門文章
         /// </summary>
         Task<List<ArticleDto>> GetPopularArticlesAsync(int limit = 10, int days = 7);
+
+        /// <summary>
+        /// 建立一篇新文章，並處理其檔案附件
+        /// </summary>
+        Task<ArticleDto?> CreateArticleWithAttachmentsAsync(Guid authorId, CreateArticleDto dto);
     }
 }

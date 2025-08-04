@@ -29,6 +29,7 @@ namespace Matrix.Controllers
             var currentUserId = Guid.Parse("ba19a9e2-53ab-4764-9cd4-04a9d6595515"); 
 
             var follows = _context.Follows
+                .AsNoTracking() // 只讀查詢，優化效能
                 .Where(f => f.UserId == currentUserId)
                 .Include(f => f.User) // 載入 User 的 Person 對象
                 .OrderByDescending(f => f.FollowTime)
@@ -38,6 +39,7 @@ namespace Matrix.Controllers
             var followedIds = follows.Select(f=>f.FollowedId).ToList();
 
             var followedPeople = _context.Persons
+                .AsNoTracking() // 只讀查詢
                 .Where(p => followedIds.Contains(p.PersonId))
                 .ToDictionary(p => p.PersonId, p => p);
 
@@ -48,7 +50,7 @@ namespace Matrix.Controllers
                 return new FollowItemViewModel
                 {
                     SenderName = person?.DisplayName ?? "未知用戶",
-                    SenderAvatarUrl = (person?.AvatarPath != null && person.AvatarPath.Length > 0) ? $"data:image/jpeg;base64,{Convert.ToBase64String(person.AvatarPath)}" : "",
+                    SenderAvatarUrl = !string.IsNullOrEmpty(person?.AvatarPath) ? person.AvatarPath : "/static/images/default_avatar.png",
                     FollowTime = f.FollowTime
                 };
             }).ToList();

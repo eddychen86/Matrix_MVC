@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Http;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace Matrix.DTOs
@@ -192,7 +194,7 @@ namespace Matrix.DTOs
         /// 獲取文章的作者頭像
         /// 用途：顯示文章作者的頭像
         /// </summary>
-        public string AuthorAvatar => (Author?.AvatarPath != null && Author.AvatarPath.Length > 0) ? $"data:image/jpeg;base64,{Convert.ToBase64String(Author.AvatarPath)}" : "";
+        public string AuthorAvatar => !string.IsNullOrEmpty(Author?.AvatarPath) ? Author.AvatarPath : "/static/images/default_avatar.png";
     }
 
     /// <summary>
@@ -228,6 +230,11 @@ namespace Matrix.DTOs
         /// </summary>
         [Range(0, 1, ErrorMessage = "文章狀態必須是 0（公開）或 1（私人）")]
         public int IsPublic { get; set; } = 0;
+
+        /// <summary>
+        /// 要附加到文章的檔案列表
+        /// </summary>
+        public List<IFormFile>? Attachments { get; set; }
 
         /// <summary>
         /// 獲取文章可見性的描述文字

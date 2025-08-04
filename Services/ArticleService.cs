@@ -1,16 +1,30 @@
+using Matrix.Services.Interfaces;
+using Matrix.Repository.Interfaces;
+
 namespace Matrix.Services
 {
     /// <summary>
     /// 文章服務
     /// </summary>
-    public class ArticleService(ApplicationDbContext _context) : IArticleService
+    public class ArticleService : IArticleService
     {
+        private readonly ApplicationDbContext _context;
+        private readonly IFileService _fileService;
+        private readonly IArticleAttachmentRepository _attachmentRepository;
+
+        public ArticleService(ApplicationDbContext context, IFileService fileService, IArticleAttachmentRepository attachmentRepository)
+        {
+            _context = context;
+            _fileService = fileService;
+            _attachmentRepository = attachmentRepository;
+        }
         /// <summary>
         /// 根據ID獲取文章
         /// </summary>
         public async Task<ArticleDto?> GetArticleAsync(Guid id)
         {
             var article = await _context.Articles
+                .AsNoTracking() // 只讀查詢
                 .Include(a => a.Author)
                 .Include(a => a.Replies!)
                     .ThenInclude(r => r.User)
@@ -154,6 +168,7 @@ namespace Matrix.Services
             var sinceDate = DateTime.Now.AddDays(-days);
 
             return await _context.Articles
+                .AsNoTracking() // 只讀查詢
                 .Include(a => a.Author)
                 .Where(a => a.Status == 0 && a.IsPublic == 0 && a.CreateTime >= sinceDate)
                 .OrderByDescending(a => a.PraiseCount + a.CollectCount)
@@ -184,6 +199,7 @@ namespace Matrix.Services
         private IQueryable<Article> BuildArticleQuery(string? searchKeyword, Guid? authorId)
         {
             var query = _context.Articles
+                .AsNoTracking() // 只讀查詢
                 .Include(a => a.Author)
                 .Where(a => a.Status == 0 && a.IsPublic == 0);
 
@@ -267,6 +283,48 @@ namespace Matrix.Services
             }
 
             return dto;
+        }
+
+        public async Task<ArticleDto?> CreateArticleWithAttachmentsAsync(Guid authorId, CreateArticleDto dto)
+        {
+            var author = await _context.Persons.FirstOrDefaultAsync(p => p.UserId == authorId);
+            if (author == null) return null;
+
+            var article = new Article
+            {
+                ArticleId = Guid.NewGuid(),
+                AuthorId = author.PersonId,
+                Content = dto.Content,
+                IsPublic = dto.IsPublic,
+                CreateTime = DateTime.UtcNow,
+                Status = 0
+            };
+
+            _context.Articles.Add(article);
+            await _context.SaveChangesAsync();
+
+            if (dto.Attachments != null && dto.Attachments.Any())
+            {
+                foreach (var file in dto.Attachments)
+                {
+                    var filePath = await _fileService.CreateFileAsync(file, "posts/files");
+                    if (filePath != null)
+                    {
+                        var attachment = new ArticleAttachment
+                        {
+                            FileId = Guid.NewGuid(),
+                            ArticleId = article.ArticleId,
+                            FilePath = filePath,
+                            FileName = file.FileName,
+                            Type = file.ContentType.StartsWith("image") ? "image" : "file",
+                            MimeType = file.ContentType
+                        };
+                        await _attachmentRepository.AddAsync(attachment);
+                    }
+                }
+            }
+
+            return await GetArticleAsync(article.ArticleId);
         }
     }
 }

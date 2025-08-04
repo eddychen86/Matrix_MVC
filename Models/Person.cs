@@ -35,12 +35,14 @@ namespace Matrix.Models
         /// <summary>
         /// 用戶頭像的檔案路徑
         /// </summary>
-        public byte[]? AvatarPath { get; set; }
+        [MaxLength(2048)]
+        public string? AvatarPath { get; set; }
 
         /// <summary>
         /// 用戶個人頁面橫幅的檔案路徑
         /// </summary>
-        public byte[]? BannerPath { get; set; }
+        [MaxLength(2048)]
+        public string? BannerPath { get; set; }
 
         /// <summary>
         /// 用戶的外部網站連結 1

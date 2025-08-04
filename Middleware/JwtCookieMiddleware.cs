@@ -97,7 +97,7 @@ namespace Matrix.Middleware
                             if (personDto != null)
                             {
                                 context.Items["DisplayName"] = personDto.DisplayName ?? userDto.UserName;
-                                context.Items["AvaterPath"] = (personDto.AvatarPath != null && personDto.AvatarPath.Length > 0) ? $"data:image/jpeg;base64,{Convert.ToBase64String(personDto.AvatarPath)}" : "";
+                                context.Items["AvatarPath"] = !string.IsNullOrEmpty(personDto.AvatarPath) ? personDto.AvatarPath : "";
                             }
                             else
                             {

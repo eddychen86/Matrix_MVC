@@ -99,12 +99,12 @@ namespace Matrix.DTOs
         /// <summary>
         /// 獲取追蹤者的頭像
         /// </summary>
-        public string FollowerAvatar => (Follower?.AvatarPath != null && Follower.AvatarPath.Length > 0) ? $"data:image/jpeg;base64,{Convert.ToBase64String(Follower.AvatarPath)}" : "";
+        public string FollowerAvatar => !string.IsNullOrEmpty(Follower?.AvatarPath) ? Follower.AvatarPath : "/static/images/default_avatar.png";
 
         /// <summary>
         /// 獲取被追蹤者的頭像
         /// </summary>
-        public string FollowedAvatar => (Followed?.AvatarPath != null && Followed.AvatarPath.Length > 0) ? $"data:image/jpeg;base64,{Convert.ToBase64String(Followed.AvatarPath)}" : "";
+        public string FollowedAvatar => !string.IsNullOrEmpty(Followed?.AvatarPath) ? Followed.AvatarPath : "/static/images/default_avatar.png";
 
         /// <summary>
         /// 獲取追蹤關係的描述文字

@@ -25,8 +25,9 @@ public class HomeController : WebControllerBase
         // 根據認證狀態決定文章數量限制
         int articleLimit = isAuthenticated ? int.MaxValue : 10; // 訪客只能看10篇
 
-        // 取得文章資料
+        // 取得文章資料（只讀，使用 AsNoTracking 優化）
         var articlesQuery = _context.Articles
+            .AsNoTracking()
             .Include(a => a.Attachments)
             .Include(a => a.Author)
             .Where(a => a.IsPublic == 0) // 只顯示公開文章
