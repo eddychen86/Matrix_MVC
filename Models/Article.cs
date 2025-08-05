@@ -21,8 +21,6 @@ namespace Matrix.Models
         [Required]
         public Guid AuthorId { get; set; }
 
-        public byte[]? ArticleCover { get; set; }
-
         /// <summary>
         /// 文章的內容文字
         /// </summary>
