@@ -70,7 +70,8 @@ public class Program
         builder.Services.AddHttpContextAccessor(); // 為 CustomLocalizer 提供 HttpContext 訪問
         builder.Services.AddScoped<ICustomLocalizer, CustomLocalizer>();
         builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
-        
+        builder.Services.AddScoped<ISearchUserService, SearchUserService>();
+
         // 配置本地化選項
         builder.Services.Configure<RequestLocalizationOptions>(options =>
         {
@@ -222,7 +223,7 @@ public class Program
 
         app.UseAuthentication();
         app.UseAuthorization();
-
+        app.MapControllers();
         // Areas 路由 (優先處理)
         app.MapControllerRoute(
             name: "areas",
