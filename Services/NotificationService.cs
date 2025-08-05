@@ -1,9 +1,11 @@
+using AutoMapper;
+
 namespace Matrix.Services
 {
     /// <summary>
     /// 通知服務類別 - 處理通知相關業務邏輯
     /// </summary>
-    public class NotificationService(ApplicationDbContext _context) : INotificationService
+    public class NotificationService(ApplicationDbContext _context, IMapper _mapper) : INotificationService
     {
         /// <summary>
         /// 根據 ID 獲取通知資料
@@ -16,7 +18,12 @@ namespace Matrix.Services
                 .Include(n => n.Sender)
                 .FirstOrDefaultAsync(n => n.NotifyId == id);
 
-            return notification == null ? null : MapToNotificationDto(notification, true);
+            if (notification == null) return null;
+            
+            var dto = _mapper.Map<NotificationDto>(notification);
+            dto.Title = GetNotificationTitle(notification);
+            dto.Content = GetNotificationContent(notification);
+            return dto;
         }
 
         /// <summary>
@@ -32,10 +39,18 @@ namespace Matrix.Services
                 .OrderByDescending(n => n.SentTime)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
-                .Select(n => MapToNotificationDto(n, false))
                 .ToListAsync();
 
-            return (notifications, totalCount);
+            var dtos = _mapper.Map<List<NotificationDto>>(notifications);
+            
+            // 設置標題和內容
+            for (int i = 0; i < notifications.Count; i++)
+            {
+                dtos[i].Title = GetNotificationTitle(notifications[i]);
+                dtos[i].Content = GetNotificationContent(notifications[i]);
+            }
+
+            return (dtos, totalCount);
         }
 
         /// <summary>
@@ -289,47 +304,7 @@ namespace Matrix.Services
             return true;
         }
 
-        private static PersonDto? MapToPersonDto(Person? person, bool includeDetails = false)
-        {
-            if (person == null) return null;
-
-            var dto = new PersonDto
-            {
-                PersonId = person.PersonId,
-                UserId = person.UserId,
-                DisplayName = person.DisplayName,
-                AvatarPath = person.AvatarPath,
-                IsPrivate = person.IsPrivate
-            };
-
-            if (includeDetails)
-            {
-                dto.Bio = person.Bio;
-                dto.BannerPath = person.BannerPath;
-                dto.WalletAddress = person.WalletAddress;
-                dto.ModifyTime = person.ModifyTime;
-            }
-
-            return dto;
-        }
-
-        private static NotificationDto MapToNotificationDto(Notification n, bool includeDetails = false)
-        {
-            return new NotificationDto
-            {
-                NotificationId = n.NotifyId,
-                UserId = n.GetId,
-                SenderId = n.SendId,
-                Type = n.Type,
-                Title = GetNotificationTitle(n),
-                Content = GetNotificationContent(n),
-                Status = n.IsRead,
-                CreateTime = n.SentTime,
-                ReadTime = n.IsReadTime,
-                User = MapToPersonDto(n.Receiver, includeDetails),
-                Sender = MapToPersonDto(n.Sender, includeDetails)
-            };
-        }
+        // 映射方法已由 AutoMapper 取代
 
         /// <summary>
         /// 獲取通知標題

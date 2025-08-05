@@ -103,16 +103,21 @@
       }
 
       &_layout {
-        @apply rounded-[30px] p-8 z-40 top-1/2 left-1/2 transform -translate-1/2 flex flex-col gap-8 w-[700px];
+        @apply absolute rounded-[30px] p-8 z-40 top-1/2 left-1/2 transform -translate-1/2 flex flex-col gap-8 w-[700px];
 
         li {
-          @apply flex flex-col gap-2
+          @apply flex flex-col gap-2;
         }
 
         .avatar {
-          @apply flex-row gap-4;
+          @apply flex-row justify-between items-center;
+
           img {
-            @apply size-36 rounded-full object-cover;
+            @apply min-w-36 min-h-36 max-w-36 max-h-36 rounded-full object-cover object-center;
+          }
+
+          button {
+            @apply flex gap-4 px-4 py-2 bg-blue-700 rounded-full;
           }
         }
       }

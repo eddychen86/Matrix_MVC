@@ -4,6 +4,7 @@ using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
 using Matrix.Repository.Interfaces;
+using Matrix.Services.Interfaces;
 
 namespace Matrix.Middleware
 {
@@ -70,15 +71,21 @@ namespace Matrix.Middleware
             {
                 // 2. 驗證 token
                 var principal = ValidateJwtToken(token);
+                _logger.LogInformation("\n\nJWT Token validation result: {IsValid}\n\n", principal != null);
 
                 if (principal != null)
                 {
                     // 3. 從 token 中解析 user id
-                    var userIdClaim = principal.FindFirst("UserId");
+                    var userIdClaim = principal.FindFirst(ClaimTypes.NameIdentifier);
+                    _logger.LogInformation("\n\nUserID claim found: {Found}, Value: {Value}\n\n", 
+                        userIdClaim != null, userIdClaim?.Value ?? "NULL");
+                    
                     if (userIdClaim != null && Guid.TryParse(userIdClaim.Value, out var userId))
                     {
                         // 4. 查詢完整用戶資訊（從資料庫）
                         var userDto = await userService.GetUserAsync(userId);
+                        _logger.LogInformation("\n\nUser lookup result - UserId: {UserId}, Found: {Found}, Status: {Status}\n\n", 
+                            userId, userDto != null, userDto?.Status);
 
                         // Status == 1 表示啟用
                         if (userDto != null && userDto.Status == 1)
@@ -102,7 +109,7 @@ namespace Matrix.Middleware
                             else
                             {
                                 context.Items["DisplayName"] = userDto.UserName;
-                                context.Items["AvaterPath"] = "";
+                                context.Items["AvatarPath"] = ""; // 修復拼寫錯誤
                             }
 
                             _logger.LogInformation("User authenticated successfully: {UserName}, DisplayName: {DisplayName}",
@@ -111,7 +118,7 @@ namespace Matrix.Middleware
                         else
                         {
                             // 用戶不存在或被停用：清除 cookie 並設定為訪客
-                            ClearAuthCookie(context);
+                            // ClearAuthCookie(context); // 暫時註解以測試
                             SetGuestStatus(context);
                             _logger.LogWarning("User authentication failed - user not found or disabled: {UserId}", userId);
                         }
@@ -119,7 +126,7 @@ namespace Matrix.Middleware
                     else
                     {
                         // Token 中沒有有效的用戶 ID
-                        ClearAuthCookie(context);
+                        // ClearAuthCookie(context); // 暫時註解以測試
                         SetGuestStatus(context);
                         _logger.LogWarning("Invalid UserId in JWT token");
                     }
@@ -127,7 +134,7 @@ namespace Matrix.Middleware
                 else
                 {
                     // Token 驗證失敗
-                    ClearAuthCookie(context);
+                    // ClearAuthCookie(context); // 暫時註解以測試
                     SetGuestStatus(context);
                     _logger.LogWarning("JWT token validation failed");
                 }
@@ -162,8 +169,8 @@ namespace Matrix.Middleware
             try
             {
                 // 取得 JWT 設定
-                var jwtKey = _conf["Jwt:Key"];
-                var jwtIssuer = _conf["Jwt:Issuer"];
+                var jwtKey = _conf["JWT:Key"];
+                var jwtIssuer = _conf["JWT:Issuer"];
 
                 if (string.IsNullOrEmpty(jwtKey) || string.IsNullOrEmpty(jwtIssuer))
                 {
@@ -231,11 +238,12 @@ namespace Matrix.Middleware
                     HttpOnly = true,    // 防止 JavaScript 存取
                     Secure = true,      // 只在 HTTPS 下傳輸
                     SameSite = SameSiteMode.Strict,  // 防止 CSRF 攻擊
+                    Path = "/", // 確保整個網站都能存取 Cookie
                     Expires = DateTime.UtcNow.AddDays(-1)  // 設定為過去時間立即過期
                 };
 
                 context.Response.Cookies.Append("AuthToken", "", cookieOptions);
-                _logger.LogInformation("Auth cookie cleared");
+                _logger.LogInformation("\n\nAuth cookie cleared for request\n\n");
             }
         }
 

@@ -13,26 +13,18 @@ class AuthManager {
      */
     async checkAuthOnLoad() {
         try {
-            const response = await fetch('/api/auth/status', {
-                method: 'GET',
-                credentials: 'include',
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            });
-
-            if (response.ok) {
-                const authData = await response.json();
+            if (window.authService) {
+                const authStatus = await window.authService.getAuthStatus();
                 
-                if (authData.isAuthenticated) {
-                    console.log('User is authenticated:', authData.user);
-                    this.handleAuthenticatedUser(authData.user);
+                if (authStatus.success && authStatus.data.authenticated) {
+                    console.log('User is authenticated:', authStatus.data.user);
+                    this.handleAuthenticatedUser(authStatus.data.user);
                 } else {
                     // console.log('User is not authenticated');
                     this.handleUnauthenticatedUser();
                 }
             } else {
-                console.log('Auth status check failed');
+                console.warn('AuthService not available, skipping auth check');
                 this.handleUnauthenticatedUser();
             }
         } catch (error) {
@@ -81,6 +73,12 @@ class AuthManager {
 
             if (response.ok) {
                 console.log('Logout successful');
+                
+                // 清除 AuthService 緩存
+                if (window.authService) {
+                    window.authService.clearAuthStatus();
+                }
+                
                 // 重新導向到首頁
                 window.location.href = '/';
             } else {

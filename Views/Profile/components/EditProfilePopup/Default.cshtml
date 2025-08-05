@@ -1,61 +1,70 @@
+@inject ICustomLocalizer Localizer
 <div v-if="editMode" class="profile-edit">
   <div class="mock"></div>
 
-  <form method="post" class="profile-edit_layout">
-    <ul>
-      @* Avatar *@
-      <li class="avatar">
-        <img :src="profile.avatarPath" alt="avatar" />
-        <div></div>
-      </li>
+  <!--
+    <form method="post" class="profile-edit_layout bg-accent">
+      <h3 class="title text-center" data-i18n="EditProfile">@Localizer["EditProfile"]</h3>
+      <ul>
+        @* Avatar *@
+        <li class="avatar">
+          <img :src="profile.avatarPath" alt="avatar"/>
+          <div class="flex gap-8 items-center">
+            <button>
+              <i data-lucide="upload" class="icon-base"></i>
+              <span class="subTitle" data-i18n="Upload">@Localizer["Upload"]</span>
+            </button>
+          </div>
+        </li>
 
-      @* Bio *@
-      <li>
-        <h4 data-i18n=""></h4>
-      </li>
+        @* Bio *@
+        <li>
+          <h4 data-i18n="ProfileBio">@Localizer["ProfileBio"]</h4>
+        </li>
 
-      @* DisplayName *@
-      <li>
-        <h4 data-i18n=""></h4>
-      </li>
+        @* DisplayName *@
+        <li>
+          <h4 data-i18n="UserNameLabel">@Localizer["UserNameLabel"]</h4>
+        </li>
 
-      @* Email *@
-      <li>
-        <h4 data-i18n=""></h4>
-      </li>
+        @* Email *@
+        <li>
+          <h4 data-i18n="EmailLabel">@Localizer["EmailLabel"]</h4>
+        </li>
 
-      @* Password *@
-      <li>
-        <h4 data-i18n="">@Localizer[""]</h4>
-      </li>
+        @* Password *@
+        <li>
+          <h4 data-i18n="PasswordLabel">@Localizer["PasswordLabel"]</h4>
+        </li>
 
-      @* Websites *@
-      <li>
-        <h4 data-i18n="">@Localizer[""]</h4>
-      </li>
+        @* Websites *@
+        <li>
+          <h4 data-i18n="ProfileLinks">@Localizer["ProfileLinks"]</h4>
+        </li>
 
-      @* Wallet *@
-      <li>
-        <h4 data-i18n="">@Localizer[""]</h4>
-      </li>
+        @* Wallet *@
+        <li>
+          <h4 data-i18n="ProfileWellat">@Localizer["ProfileWellat"]</h4>
+        </li>
 
-      @* IsPrivate *@
-      <li>
-        <h4 data-i18n="">@Localizer[""]</h4>
-      </li>
-    </ul>
+        @* IsPrivate *@
+        <li>
+          <h4 data-i18n="ProfileState">@Localizer["ProfileState"]</h4>
+        </li>
+      </ul>
 
-    <div class="flex gap-8 items-center">
-      <button>
-        <i data-lucide=""></i>
-        <span data-i18n="Cancel">@Localizer["Cancel"]</span>
-      </button>
-      <button>
-        <i data-lucide=""></i>
-        <span data-i18n="Save">@Localizer["Save"]</span>
-      </button>
-    </div>
-  </form>
+      <div class="flex gap-8 items-center">
+        <button>
+          <i data-lucide=""></i>
+          <span data-i18n="Cancel">@Localizer["Cancel"]</span>
+        </button>
+        <button>
+          <i data-lucide=""></i>
+          <span data-i18n="Save">@Localizer["Save"]</span>
+        </button>
+      </div>
+    </form>
+  -->
 
   <div class="relative h-full w-full">
     <div class="absolute top-1/2 left-1/2 mx-auto flex w-full max-w-lg -translate-x-1/2 -translate-y-1/2 flex-col items-center rounded-xl bg-[#161616] p-6 shadow-2xl sm:p-8 md:max-w-xl">

@@ -35,23 +35,45 @@ globalApp({
         // 獲取當前用戶信息
         const getCurrentUser = async () => {
             try {
-                const response = await fetch('/api/auth/status')
-                const data = await response.json()
-                
-                if (data.success && data.data.authenticated) {
-                    const user = data.data.user
-                    currentUser.isAuthenticated = true
-                    currentUser.userId = user.id
-                    currentUser.username = user.username
-                    currentUser.email = user.email
-                    currentUser.role = user.role || 0
-                    currentUser.status = user.status || 0
-                    currentUser.isAdmin = user.isAdmin || false
-                    currentUser.isMember = user.isMember || true
+                if (window.authService) {
+                    const authStatus = await window.authService.getAuthStatus()
+                    
+                    if (authStatus.success && authStatus.data.authenticated) {
+                        const user = authStatus.data.user
+                        currentUser.isAuthenticated = true
+                        currentUser.userId = user.id
+                        currentUser.username = user.username
+                        currentUser.email = user.email
+                        currentUser.role = user.role || 0
+                        currentUser.status = user.status || 0
+                        currentUser.isAdmin = user.isAdmin || false
+                        currentUser.isMember = user.isMember || true
+                    } else {
+                        // 未認證狀態
+                        currentUser.isAuthenticated = false
+                        currentUser.userId = null
+                    }
                 } else {
-                    // 未認證狀態
-                    currentUser.isAuthenticated = false
-                    currentUser.userId = null
+                    console.warn('AuthService not available, using direct API call')
+                    // Fallback to direct API call (should rarely happen)
+                    const response = await fetch('/api/auth/status')
+                    const data = await response.json()
+                    
+                    if (data.success && data.data.authenticated) {
+                        const user = data.data.user
+                        currentUser.isAuthenticated = true
+                        currentUser.userId = user.id
+                        currentUser.username = user.username
+                        currentUser.email = user.email
+                        currentUser.role = user.role || 0
+                        currentUser.status = user.status || 0
+                        currentUser.isAdmin = user.isAdmin || false
+                        currentUser.isMember = user.isMember || true
+                    } else {
+                        // 未認證狀態
+                        currentUser.isAuthenticated = false
+                        currentUser.userId = null
+                    }
                 }
             } catch (err) {
                 console.error('獲取用戶信息失敗:', err)

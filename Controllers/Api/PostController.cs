@@ -9,18 +9,21 @@ namespace Matrix.Controllers.Api
     [ApiController]
     public class PostController : ControllerBase
     {
+        private readonly ILogger<PostController> _logger;
         private readonly IPraiseService _praiseService;
         private readonly ICollectService _collectService;
         private readonly IReplyService _replyService;
-        private readonly ArticleService _articleService;
+        private readonly IArticleService _articleService;
 
         public PostController(
+            ILogger<PostController> logger,
             IPraiseService praiseService,
             ICollectService collectService,
             IReplyService replyService,
-            ArticleService articleService
+            IArticleService articleService
         )
         {
+            _logger = logger;
             _praiseService = praiseService;
             _collectService = collectService;
             _replyService = replyService;
@@ -31,9 +34,11 @@ namespace Matrix.Controllers.Api
         public async Task<IActionResult> GetAllPosts([FromBody] GetAllPostsRequestDto request)
         {
             var result = await _articleService.GetArticlesAsync(request.Page, 20, null, request.AuthorId);
-            return Ok(new { 
-                articles = result.Articles, 
-                totalCount = result.TotalCount 
+            _logger.LogInformation("\n\nResult:\n{0}\n\n", result);
+            return Ok(new
+            {
+                articles = result.Articles,
+                totalCount = result.TotalCount
             });
         }
 

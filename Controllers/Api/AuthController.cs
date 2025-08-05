@@ -10,51 +10,38 @@ namespace Matrix.Controllers.Api
         ILogger<AuthController> _logger,
         IEmailService _emailService,
         IUserService _userService,
-        IAuthorizationService _authorizationService,
         ICustomLocalizer _localizer
     ) : ApiControllerBase
     {
         /// <summary>檢查用戶當前的認證狀態</summary>
         [HttpGet("status")]
-        public async Task<IActionResult> GetAuthStatus()
+        public IActionResult GetAuthStatus()
         {
             var isAuthenticated = HttpContext.Items["IsAuthenticated"] as bool? ?? false;
 
             if (isAuthenticated)
             {
+                // 直接從 HttpContext.Items 中獲取已解析的用戶信息，避免資料庫查詢
                 var userId = HttpContext.Items["UserId"] as Guid?;
-                if (userId.HasValue)
-                {
-                    var authInfo = await _authorizationService.GetUserAuthInfoAsync(userId.Value);
-                    if (authInfo != null)
-                    {
-                        return ApiSuccess(new
-                        {
-                            authenticated = true,
-                            user = new
-                            {
-                                id = authInfo.UserId,
-                                username = authInfo.UserName,
-                                email = authInfo.Email,
-                                role = authInfo.Role,
-                                status = authInfo.Status,
-                                isAdmin = authInfo.IsAdmin,
-                                isMember = authInfo.IsMember,
-                                lastLoginTime = authInfo.LastLoginTime
-                            }
-                        });
-                    }
-                }
-                
-                // 回退到原來的方式
+                var userName = HttpContext.Items["UserName"] as string;
+                var userEmail = HttpContext.Items["UserEmail"] as string;
+                var userRole = HttpContext.Items["UserRole"] as int?;
+                var userStatus = HttpContext.Items["UserStatus"] as int?;
+                var lastLoginTime = HttpContext.Items["LastLoginTime"] as DateTime?;
+
                 return ApiSuccess(new
                 {
                     authenticated = true,
                     user = new
                     {
-                        id = HttpContext.Items["UserId"] as Guid?,
-                        username = HttpContext.Items["UserName"] as string,
-                        role = HttpContext.Items["UserRole"] as string
+                        id = userId,
+                        username = userName,
+                        email = userEmail,
+                        role = userRole ?? 0,
+                        status = userStatus ?? 0,
+                        isAdmin = (userRole ?? 0) >= 2,
+                        isMember = (userStatus ?? 0) == 1,
+                        lastLoginTime = lastLoginTime
                     }
                 });
             }

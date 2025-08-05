@@ -41,6 +41,7 @@ namespace Matrix.Repository
         public async Task<bool> ValidateUserAsync(string username, string password)
         {
             var user = await _dbSet
+                .AsNoTracking()
                 .FirstOrDefaultAsync(u => u.UserName == username || u.Email == username);
 
             if (user == null || string.IsNullOrEmpty(user.Password)) return false;
@@ -61,18 +62,35 @@ namespace Matrix.Repository
                 string oldHashedPassword = HashPasswordForMigration(password);
                 if (user.Password == oldHashedPassword)
                 {
-                    // 驗證成功，立即將密碼升級為新格式並儲存
-                    user.Password = _passwordHasher.HashPassword(user, password);
-                    await UpdateAsync(user);
-                    await SaveChangesAsync();
+                    // 驗證成功，但延後密碼升級到背景處理，避免阻塞認證
+                    // 使用 Task.Run 在背景線程升級密碼，不阻塞當前請求
+                    _ = Task.Run(async () => await UpgradePasswordAsync(user.UserId, password));
                     return true;
                 }
             }
 
             return false;
+        }
 
-            // // 舊的 BCrypt 驗證密碼 (已棄用)
-            // return BCrypt.Net.BCrypt.Verify(password, user.Password);
+        /// <summary>
+        /// 背景升級舊密碼格式，不阻塞主要認證流程
+        /// </summary>
+        private async Task UpgradePasswordAsync(Guid userId, string password)
+        {
+            try
+            {
+                var user = await _dbSet.FirstOrDefaultAsync(u => u.UserId == userId);
+                if (user != null && !user.Password.StartsWith("AQAAAA"))
+                {
+                    user.Password = _passwordHasher.HashPassword(user, password);
+                    await UpdateAsync(user);
+                    await SaveChangesAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Password upgrade failed for user {userId}: {ex.Message}");
+            }
         }
 
         public async Task<bool> UsernameExistsAsync(string username)

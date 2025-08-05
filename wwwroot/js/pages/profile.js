@@ -38,12 +38,6 @@ const useProfile = () => {
 
     const update = async () => {
         try {
-            const userId = await getCurrentUserId()
-            if (!userId) {
-                console.warn("User ID not found, cannot update profile.");
-                return;
-            }
-            
             const data = {
                 bio: profile.bio,
                 displayName: profile.displayName,
@@ -51,13 +45,13 @@ const useProfile = () => {
                 password: profile.password,
                 website1: profile.website1,
                 website2: profile.website2,
-                website3: profile.website3,
-                userId: userId
+                website3: profile.website3
             }
 
-            const response = await fetch(`/api/Profile/${userId}`, {
+            const response = await fetch('/api/Profile/me', {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
                 body: JSON.stringify(data)
             });
 
@@ -108,61 +102,17 @@ const useProfile = () => {
 
     //#region User & Profile Loading
     
-    // Memoized promise to prevent multiple calls
-    let userIdPromise = null;
-    const getCurrentUserId = () => {
-        if (userIdPromise) {
-            return userIdPromise;
-        }
-
-        userIdPromise = (async () => {
-            // 1. Check global state immediately
-            if (window.currentUser?.userId) {
-                return window.currentUser.userId;
-            }
-
-            // 2. Poll a few times for the global state to initialize (more efficient than long polling)
-            for (let i = 0; i < 10; i++) {
-                await new Promise(res => setTimeout(res, 50));
-                if (window.currentUser?.userId) {
-                    return window.currentUser.userId;
-                }
-            }
-
-            // 3. Fallback to API call
-            try {
-                const response = await fetch('/api/auth/status');
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                const data = await response.json();
-                if (data.success && data.data.authenticated && data.data.user.id) {
-                    window.currentUser = window.currentUser || {};
-                    window.currentUser.userId = data.data.user.id;
-                    return data.data.user.id;
-                }
-            } catch (error) {
-                console.error('無法從 API 獲取用戶 ID:', error);
-            }
-
-            // 4. Final fallback
-            console.warn('無法獲取當前用戶 ID。');
-            return null;
-        })();
-
-        return userIdPromise;
-    };
-
-    const GetPostsAsync = async (page = 1, authorId = null, append = false) => {
+    const GetPostsAsync = async (page = 1, append = false) => {
         if (isLoading.value || (!hasMorePosts.value && append)) return null
         
         try {
             isLoading.value = true
             
-            const res = await fetch('/api/post', {
+            const res = await fetch('/api/post/my', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ page, authorId })
+                credentials: 'include',
+                body: JSON.stringify({ page })
             })
 
             if (!res.ok) {
@@ -206,16 +156,10 @@ const useProfile = () => {
 
     const loadProfile = async () => {
         try {
-            const userId = await getCurrentUserId()
-            if (!userId) {
-                console.warn("User ID not found, cannot load profile.");
-                return;
-            }
-
-            const response = await fetch('/api/Profile/get', {
-                method: 'POST',
+            const response = await fetch('/api/Profile', {
+                method: 'GET',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ id: userId })
+                credentials: 'include'
             });
 
             if (!response.ok) {
@@ -228,7 +172,7 @@ const useProfile = () => {
             posts.value = []
             
             // 載入第一頁文章
-            await GetPostsAsync(1, userId, false)
+            await GetPostsAsync(1, false)
             
             // 載入個人資料
             const data = await response.json()
@@ -243,11 +187,8 @@ const useProfile = () => {
     const loadMorePosts = async () => {
         if (!hasMorePosts.value || isLoading.value) return
         
-        const userId = await getCurrentUserId()
-        if (!userId) return
-        
         const nextPage = currentPage.value + 1
-        await GetPostsAsync(nextPage, userId, true)
+        await GetPostsAsync(nextPage, true)
     }
 
     // 無限滾動邏輯

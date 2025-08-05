@@ -1,14 +1,10 @@
 namespace Matrix.Services
 {
     /// <summary>
-    /// 統一的翻譯服務 - 單一資料來源，避免重複維護
+    /// 多國語系
     /// </summary>
     public static class TranslationService
     {
-        /// <summary>
-        /// 靜態翻譯字典 - 唯一的翻譯資料來源
-        /// 所有翻譯相關功能都應該使用這個字典
-        /// </summary>
         public static readonly Dictionary<string, Dictionary<string, string>> AllTranslations = new()
         {
             ["zh-TW"] = new Dictionary<string, string>
@@ -88,6 +84,10 @@ namespace Matrix.Services
                 ["GuestBrowseMsg"] = "登入後可操作",
                 ["GuestAccount"] = "訪客",
 
+                // 狀態
+                ["public"] = "公開",
+                ["private"] = "不公開",
+
                 #endregion
 
                 #region Menu 模組
@@ -139,6 +139,8 @@ namespace Matrix.Services
                 ["ProfileDescription"] = "個人資料描述",
                 ["EditProfile"] = "編輯個人資料",
                 ["SaveProfile"] = "儲存個人資料",
+                ["ProfileWellat"] = "錢包地址",
+                ["ProfileState"] = "是否公開",
 
                 #endregion
 
@@ -291,6 +293,10 @@ namespace Matrix.Services
                 ["GuestBrowseMsg"] = "Need to login",
                 ["GuestAccount"] = "Guest",
 
+                // 狀態
+                ["public"] = "Public",
+                ["private"] = "Private",
+
                 #endregion
 
                 #region Menu 模組
@@ -342,6 +348,8 @@ namespace Matrix.Services
                 ["ProfileDescription"] = "Profile Description",
                 ["EditProfile"] = "Edit Profile",
                 ["SaveProfile"] = "Save Profile",
+                ["ProfileWellat"] = "Wallet Address",
+                ["ProfileState"] = "Profile State",
 
                 #endregion
 
