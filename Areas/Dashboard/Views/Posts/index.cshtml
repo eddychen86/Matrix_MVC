@@ -7,7 +7,18 @@
         </div>
         <div>
             <h3 class="mb-2 block font-semibold text-[20px] text-gray-700">Keyword</h3>
-            <input type="text" class="w-full rounded border bg-gray-50 px-3 py-2 focus:ring-2 focus:ring-blue-200 focus:outline-none" placeholder="Please enter User name">
+
+            <form method="get" action="@Url.Action("Index", "Posts", new { area = "Dashboard" })">
+                <div class="relative w-full">
+                    <input name="keyword" type="text"
+                           value="@ViewBag.Keyword"
+                           class="w-full rounded border bg-gray-50 px-3 py-2 focus:ring-2 focus:ring-blue-200 focus:outline-none"
+                           placeholder="Please enterkeyword">
+                    <button type="submit" class="absolute top-1/2 right-4 -translate-y-1/2 cursor-pointer">
+                        <i data-lucide="search" class="icon-base"></i>
+                    </button>
+                </div>
+            </form>
         </div>
         <div class="flex items-center justify-between gap-3">
             <span class="text-base font-semibold text-[20px] text-gray-700">Status</span>
@@ -58,14 +69,13 @@
                     </tr>
                 </thead>
                 <tbody class="text-[14px]">
-                    @foreach (var item in Model)
-                    {
-                        <tr>
-                            <td class="max-w-[200px] truncate">@item.Content</td>
-                            <td>@item.AuthorName</td>
-                            <td>@item.Status</td>
-                            <td>@item.CreateTime.ToString("g")</td>
-                            <td>@item.CreateTime.ToString("g")</td>
+                        var item = Model[i];
+                        <tr class="cursor-pointer hover:bg-blue-100">
+                            <td class="max-w-[200px] truncate">item.Content</td>
+                            <td>item.AuthorName</td>
+                            <td>item.Status</td>
+                            <td>item.CreateTime.ToString("g")</td>
+                            <td>item.CreateTime.ToString("g")</td>
                             <td class="w-12 text-center">
                                 <button class="flex items-center justify-center rounded bg-blue-500 p-1 text-white hover:bg-blue-700" title="Edit">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-pencil-icon lucide-pencil">
@@ -83,14 +93,15 @@
                                 </button>
                             </td>
                         </tr>
-                    }
+                        <tr class="detail-row hidden" id="detail-@i">
+                            <td colspan="7" class="border-t border-blue-100 bg-yellow-50">
+                                <div>
+                                    <b>全文：</b>
+                                    <div class="break-all whitespace-pre-wrap text-gray-900">@item.Content</div>
+                                </div>
+                            </td>
+                        </tr>
                 </tbody>
-                @{
-                    int page = ViewBag.Page ?? 1;
-                    int pageSize = ViewBag.PageSize ?? 20;
-                    int totalCount = ViewBag.TotalCount ?? 0;
-                    int totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
-                }
                 <tfoot>
                     <tr>
                         <td colspan="9">
@@ -99,7 +110,7 @@
                                     @* 上一頁 *@
                                     @if (page > 1)
                                     {
-                                        <a class="rounded px-2 py-1 text-gray-500 hover:bg-gray-200"
+                                        <a class="rounded px-2 py-1 text-gray-500 hover:bg-blue-100"
                                            href="@Url.Action("Index", new { page = page - 1, pagesize = pageSize, keyword = ViewBag.Keyword })">&laquo;</a>
                                     }
                                     @* 頁碼 *@
@@ -127,3 +138,7 @@
     </main>
 </div>
 
+
+@section Scripts{
+
+}

@@ -17,32 +17,9 @@ namespace Matrix.Areas.Dashboard.Controllers
         }
 
         [HttpGet]
-        //查詢文章清單
-        public async Task<IActionResult> Index(int page = 1, int pagesize = 10, string? keyword = null)
+        public async Task<IActionResult>Index()
         {
-            var (articles, totalCount) = await _articleService.GetArticlesAsync(page, pagesize, keyword);
-
-            ViewBag.TotalCount = totalCount;
-            ViewBag.Page = page;
-            ViewBag.PageSize = pagesize;
-            ViewBag.Keyword = keyword;
-
-            return View(articles);
+            return View();
         }
-
-        // GET : Dashboard/Posts/Partial - AJAX 載入
-        [HttpGet]
-        [Route("Dashboard/Posts/Partial")]
-        public async Task<IActionResult> Partial(int page = 1, int pagesize = 10, string? keyword = null)
-        {
-            var (articles, totalCount) = await _articleService.GetArticlesAsync(page, pagesize, keyword);
-            ViewBag.TotalCount = totalCount;
-            ViewBag.Page = page;
-            ViewBag.PageSize = pagesize;
-            ViewBag.Keywords = keyword;
-
-            return PartialView("Index",articles);
-        }
-
     }
 }
