@@ -1,7 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
 using Matrix.Attributes;
-using Matrix.Services.Interfaces;
-using Matrix.Services;
 
 namespace Matrix.Areas.Dashboard.Controllers
 {
@@ -9,17 +7,26 @@ namespace Matrix.Areas.Dashboard.Controllers
     [AdminAuthorization] // 需要管理員權限 (Role >= 1)
     public class PostsController : Controller
     {
-        private readonly IArticleService _articleService;
-
-        public PostsController(IArticleService articleService)
-        {
-            _articleService = articleService;
-        }
-
-        [HttpGet]
-        public async Task<IActionResult>Index()
+        // GET: ReportsController
+        public ActionResult Index()
         {
             return View();
         }
+
+        // GET: Dashboard/Reports/Partial - AJAX 載入
+        [HttpGet]
+        [Route("Dashboard/Posts/Partial")]
+        public ActionResult Partial()
+        {
+            // 如果是 AJAX 請求，返回 Partial View
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            {
+                return PartialView("Index");
+            }
+
+            // 否則重導向到完整頁面
+            return RedirectToAction("Index");
+        }
+
     }
 }

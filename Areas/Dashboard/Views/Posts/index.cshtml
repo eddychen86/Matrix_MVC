@@ -7,18 +7,15 @@
         </div>
         <div>
             <h3 class="mb-2 block font-semibold text-[20px] text-gray-700">Keyword</h3>
-
-            <form method="get" action="@Url.Action("Index", "Posts", new { area = "Dashboard" })">
                 <div class="relative w-full">
                     <input name="keyword" type="text"
-                           value="@ViewBag.Keyword"
+                           value=""
                            class="w-full rounded border bg-gray-50 px-3 py-2 focus:ring-2 focus:ring-blue-200 focus:outline-none"
                            placeholder="Please enterkeyword">
                     <button type="submit" class="absolute top-1/2 right-4 -translate-y-1/2 cursor-pointer">
                         <i data-lucide="search" class="icon-base"></i>
                     </button>
                 </div>
-            </form>
         </div>
         <div class="flex items-center justify-between gap-3">
             <span class="text-base font-semibold text-[20px] text-gray-700">Status</span>
@@ -93,11 +90,11 @@
                                 </button>
                             </td>
                         </tr>
-                        <tr class="detail-row hidden" id="detail-@i">
+                        <tr class="detail-row hidden">
                             <td colspan="7" class="border-t border-blue-100 bg-yellow-50">
                                 <div>
                                     <b>全文：</b>
-                                    <div class="break-all whitespace-pre-wrap text-gray-900">@item.Content</div>
+                                    <div class="break-all whitespace-pre-wrap text-gray-900"></div>
                                 </div>
                             </td>
                         </tr>
@@ -107,26 +104,16 @@
                         <td colspan="9">
                             <div class="bg-yellow-50 px-4 py-2">
                                 <div class="flex justify-center gap-1">
-                                    @* 上一頁 *@
-                                    @if (page > 1)
-                                    {
-                                        <a class="rounded px-2 py-1 text-gray-500 hover:bg-blue-100"
-                                           href="@Url.Action("Index", new { page = page - 1, pagesize = pageSize, keyword = ViewBag.Keyword })">&laquo;</a>
-                                    }
-                                    @* 頁碼 *@
-                                    @for (int i = 1; i <= totalPages; i++)
-                                    {
-                                        <a class="rounded px-2 py-1 @(i == page ? "bg-blue-100 text-blue-700" : "text-gray-700 hover:bg-gray-200")"
-                                           href="@Url.Action("Index", new { page = i, pagesize = pageSize, keyword = ViewBag.Keyword })">
-                                            @i
-                                        </a>
-                                    }
-                                    @* 下一頁 *@
-                                    @if (page < totalPages)
-                                    {
-                                        <a class="rounded px-2 py-1 text-gray-500 hover:bg-gray-200"
-                                           href="@Url.Action("Index", new { page = page + 1, pagesize = pageSize, keyword = ViewBag.Keyword })">&raquo;</a>
-                                    }
+                                    <!-- 上一頁 -->
+                                    <button class="rounded px-2 py-1 text-gray-500 hover:bg-blue-100">&laquo;</button>
+                                    <!-- 頁碼 -->
+                                    <button class="rounded bg-blue-100 px-2 py-1 text-blue-700">1</button>
+                                    <button class="rounded px-2 py-1 text-gray-700 hover:bg-gray-200">2</button>
+                                    <button class="rounded px-2 py-1 text-gray-700 hover:bg-gray-200">3</button>
+                                    <span class="px-2 py-1">...</span>
+                                    <button class="rounded px-2 py-1 text-gray-700 hover:bg-gray-200">10</button>
+                                    <!-- 下一頁 -->
+                                    <button class="rounded px-2 py-1 text-gray-500 hover:bg-gray-200">&raquo;</button>
                                 </div>
                             </div>
                         </td>
@@ -137,8 +124,3 @@
         </div>
     </main>
 </div>
-
-
-@section Scripts{
-
-}
