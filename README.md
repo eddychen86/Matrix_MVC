@@ -53,11 +53,13 @@ Because this project used DaisyUI UI Library, you need to install tailwindcss CL
       When you execute the following command, "tailwindcss" will be listened in the background.
       ###### MacOS
       ```
-      ./tw.sh
+      sass "wwwroot/scss/main.scss" "wwwroot/css/components.css" -w --no-source-map
+      ./tailwindcss -i "wwwroot/css/tailwind.css" -o "wwwroot/css/site.css" -w
       ```
       ###### windows
       ```
-      .\tw.bat
+      sass ".\wwwroot\scss\main.scss" ".\wwwroot\css\components.css" -w --no-source-map
+      .\tailwindcss.exe -i ".\wwwroot\css\tailwind.css" -o ".\wwwroot\css\site.css" -w
       ```
 
 ---

@@ -1,12 +1,6 @@
 @{
     ViewData["Title"] = "用戶管理";
 }
-
-<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-
-
-
-
 <div id="adminUser" class="flex border border-gray-300 bg-white shadow-lg">
     <!-- 左側欄 -->
     <aside class="flex w-1/4 min-w-[260px] flex-col gap-8 border-r border-gray-200 bg-white p-8">
@@ -108,39 +102,38 @@
     </main>
 </div>
 
-@* 
-<script type="module" src="https://unpkg.com/caLLy"></script> *@
-@* <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script> *@
+@section Scripts {
+    <script>
+        const { createApp } = Vue
 
-<script>
-    const { createApp } = Vue
-
-    createApp({
-      data() {
-        return {
-          users: []
-        }
-      },
-      methods: {
-        async fetchUsers() {
-          try {
-            const response = await fetch('/api/ApiUser')
-            if (!response.ok) throw new Error('API 錯誤')
-
-            const data = await response.json()
-            this.users = data
-          } catch (error) {
-            console.error('載入失敗：', error)
-          }
+        createApp({
+        data() {
+            return {
+            users: []
+            }
         },
-        formatDate(datetime) {
-          const date = new Date(datetime)
-          return date.toLocaleDateString() + ' ' + date.toLocaleTimeString()
-        }
-      },
-      mounted() {
-        this.fetchUsers()
-      }
+        methods: {
+            async fetchUsers() {
+            try {
+                const response = await fetch('/api/ApiUser')
+                if (!response.ok) throw new Error('API 錯誤')
 
-    }).mount('#adminUser')
-</script>
+                const data = await response.json()
+                this.users = data
+            } catch (error) {
+                console.error('載入失敗：', error)
+            }
+            },
+            formatDate(datetime) {
+            const date = new Date(datetime)
+            return date.toLocaleDateString() + ' ' + date.toLocaleTimeString()
+            }
+        },
+        mounted() {
+            this.fetchUsers()
+        }
+
+        }).mount('#adminUser')
+    </script>
+}
+

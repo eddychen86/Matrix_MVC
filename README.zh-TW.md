@@ -49,11 +49,13 @@ Matrix 是一個為 Web3 先驅和深度技術愛好者打造的庇護所，旨�
       當您執行以下命令時，"tailwindcss" 將在背景中被監聽。
       ###### MacOS
       ```
-      ./tw.sh
+      sass "wwwroot/scss/main.scss" "wwwroot/css/components.css" -w --no-source-map
+      ./tailwindcss -i "wwwroot/css/tailwind.css" -o "wwwroot/css/site.css" -w
       ```
       ###### windows
       ```
-      .\tw.bat
+      sass ".\wwwroot\scss\main.scss" ".\wwwroot\css\components.css" -w --no-source-map
+      .\tailwindcss.exe -i ".\wwwroot\css\tailwind.css" -o ".\wwwroot\css\site.css" -w
       ```
 
 ---
