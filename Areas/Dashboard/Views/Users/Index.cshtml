@@ -1,4 +1,4 @@
-@{
+﻿@{
     ViewData["Title"] = "用戶管理";
 }
 
@@ -36,6 +36,13 @@
             <label class="mb-2 block font-medium text-gray-700">Create time</label>
             <input id="calendar" class="w-full rounded border bg-gray-50 px-3 py-2" placeholder="請選擇日期">
         </div>
+        <div class="h-40 w-full">
+            <calendar-date class="cally bg-base-100 border-base-300 rounded-box w-full border shadow-lg">
+                <svg aria-label="Previous" class="size-4 fill-current" slot="previous" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="currentColor" d="M15.75 19.5 8.25 12l7.5-7.5"></path></svg>
+                <svg aria-label="Next" class="size-4 fill-current" slot="next" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="currentColor" d="m8.25 4.5 7.5 7.5-7.5 7.5"></path></svg>
+                <calendar-month></calendar-month>
+            </calendar-date>
+        </div>
 
     </aside>
     <!-- 右側主表格 -->
@@ -48,9 +55,9 @@
                         <th>Name</th>
                         <th>roleText</th>
                         <th>email</th>
+                        <th>status</th>
                         <th>createTime</th>
                         <th>lastLoginTime</th>
-                        <th>status</th>
                         <th>編輯</th>
                         <th>刪除</th>
                     </tr>
@@ -59,9 +66,12 @@
                     <tr v-for="(item,idx) in users" :key="idx">
                         <td>1</td>
                         <td>{{item.userName}}</td>
-                        
+                        <td>{{item.roleText}}</td>
+                        <td>{{item.	email}}</td>
+                        <td>{{item.status}}</td>
+                        <td>{{formatDate(item.createTime)}}</td>
+                        <td>{{formatDate(item.lastLoginTime)}}</td>
                     </tr>
-
                 </tbody>
                 <tfoot>
                     <tr>
