@@ -55,7 +55,8 @@ namespace Matrix.Middleware
                 if (payload != null)
                 {
                     _logger.LogInformation(
-                        "\n\nJWT Payload Content:\n- UserId: {UserId}\n- Expiry: {Expiry}\n\n",
+                        "\n\nJWT Payload Content:\n- UserId (sub): {UserId}\n- UserId (direct): {UserIdDirect}\n- Expiry: {Expiry}\n\n",
+                        payload.GetValueOrDefault("sub", "NOT FOUND"),
                         payload.GetValueOrDefault("UserId", "NOT FOUND"),
                         payload.GetValueOrDefault("exp", "NOT FOUND")
                     );

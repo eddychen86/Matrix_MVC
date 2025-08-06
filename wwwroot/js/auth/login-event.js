@@ -42,7 +42,7 @@ createApp({
                 if (errMsg && errMsg.length > 0) {
                     // 直接使用 data-valmsg-for 選擇器
                     const el = document.querySelector(`p[data-valmsg-for="${field}"]`)
-                    
+
                     if (el) {
                         el.textContent = errMsg[0]
                         console.log(`Set error for ${field}:`, errMsg[0]) // Debug log
@@ -81,7 +81,7 @@ createApp({
                         RememberMe: rememberMe
                     })
                 })
-                
+
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`)
                 }
@@ -96,8 +96,8 @@ createApp({
                             "window.location.href", window.location.origin
                         )
                         setTimeout(() => {
-                            history.pushState(null, '', '/dashboard/overview/index')
-                            // window.location.href = result.data.redirectUrl
+                            // history.pushState(null, '', '/dashboard/overview/index')
+                            window.location.href = result.data.redirectUrl
                         }, 5000)
                     } else {
                         console.error('No redirectUrl provided in response')

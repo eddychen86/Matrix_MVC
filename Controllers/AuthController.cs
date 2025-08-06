@@ -174,12 +174,12 @@ namespace Matrix.Controllers
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
+                new Claim("UserId", user.UserId.ToString()), // 添加自定義 UserId claim
                 new Claim(ClaimTypes.Name, user.UserName),
                 new Claim(ClaimTypes.Email, user.Email),
                 new Claim(ClaimTypes.Role, user.Role.ToString()),
                 new Claim("DisplayName", user.Person?.DisplayName ?? user.UserName),
-                new Claim("AvatarPath", user.Person?.AvatarPath ?? ""),
-                new Claim(JwtRegisteredClaimNames.Exp, new DateTimeOffset(DateTime.UtcNow.AddDays(30)).ToUnixTimeSeconds().ToString())
+                new Claim("AvatarPath", user.Person?.AvatarPath ?? "")
             };
 
             var tokenDescriptor = new SecurityTokenDescriptor
