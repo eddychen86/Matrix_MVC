@@ -36,7 +36,11 @@ public class Program
 
         // Add services to the container.
         builder.Services.AddDbContext<ApplicationDbContext>(options =>
-            options.UseSqlServer(connectionString));
+            options.UseSqlServer(connectionString, sqlOptions => 
+            {
+                sqlOptions.CommandTimeout(60); // 增加到 60 秒
+                sqlOptions.EnableRetryOnFailure(3, TimeSpan.FromSeconds(5), null); // 啟用重試機制
+            }));
         builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
         #region 註冊 Repository
@@ -61,11 +65,13 @@ public class Program
 
         #region 註冊 Service
 
+        // 註冊記憶體快取
+        builder.Services.AddMemoryCache();
+        
         // 註冊 AutoMapper
         builder.Services.AddAutoMapper(cfg => {
             cfg.AddProfile<Matrix.Mappings.AutoMapperProfile>();
         });
-
 
         builder.Services.AddScoped<IFileService, FileService>();
         builder.Services.AddScoped<IUserService, UserService>();

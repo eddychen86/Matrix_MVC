@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Caching.Memory;
 using System.Text.RegularExpressions;
 using Matrix.DTOs;
 using Matrix.Models;
@@ -20,6 +21,7 @@ namespace Matrix.Services
         private readonly IOptions<UserValidationOptions> _validationOptions;
         private readonly IPasswordHasher<User> _passwordHasher;
         private readonly IMapper _mapper;
+        private readonly IMemoryCache _cache;
 
         public UserService(
             IUserRepository userRepository,
@@ -27,7 +29,8 @@ namespace Matrix.Services
             IFileService fileService,
             IOptions<UserValidationOptions> validationOptions,
             IPasswordHasher<User> passwordHasher,
-            IMapper mapper)
+            IMapper mapper,
+            IMemoryCache cache)
         {
             _userRepository = userRepository;
             _personRepository = personRepository;
@@ -35,18 +38,41 @@ namespace Matrix.Services
             _validationOptions = validationOptions;
             _passwordHasher = passwordHasher;
             _mapper = mapper;
+            _cache = cache;
         }
 
         /// <summary>
-        /// 根據ID獲取使用者
+        /// 根據ID獲取使用者（含快取機制）
         /// </summary>
         public async Task<UserDto?> GetUserAsync(Guid id)
         {
+            // 快取鍵
+            var cacheKey = $"user_{id}";
+            
+            // 嘗試從快取讀取
+            if (_cache.TryGetValue(cacheKey, out UserDto? cachedUser))
+            {
+                return cachedUser;
+            }
+
+            // 快取未命中，從資料庫查詢
             var user = await _userRepository.GetUserWithPersonAsync(id);
 
             if (user?.Person == null) return null;
 
-            return _mapper.Map<UserDto>(user);
+            var userDto = _mapper.Map<UserDto>(user);
+            
+            // 存入快取，15分鐘過期
+            var cacheEntryOptions = new MemoryCacheEntryOptions
+            {
+                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(15),
+                SlidingExpiration = TimeSpan.FromMinutes(5), // 5分鐘內有存取就延長
+                Priority = CacheItemPriority.Normal
+            };
+            
+            _cache.Set(cacheKey, userDto, cacheEntryOptions);
+            
+            return userDto;
         }
 
         /// <summary>

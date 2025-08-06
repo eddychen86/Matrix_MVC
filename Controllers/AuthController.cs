@@ -174,12 +174,16 @@ namespace Matrix.Controllers
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
-                new Claim("UserId", user.UserId.ToString()), // 添加自定義 UserId claim
+                new Claim("UserId", user.UserId.ToString()),
                 new Claim(ClaimTypes.Name, user.UserName),
                 new Claim(ClaimTypes.Email, user.Email),
                 new Claim(ClaimTypes.Role, user.Role.ToString()),
+                new Claim("Status", user.Status.ToString()), // 添加用戶狀態
                 new Claim("DisplayName", user.Person?.DisplayName ?? user.UserName),
-                new Claim("AvatarPath", user.Person?.AvatarPath ?? "")
+                new Claim("AvatarPath", user.Person?.AvatarPath ?? ""),
+                new Claim("LastLoginTime", user.LastLoginTime?.ToString("yyyy-MM-dd HH:mm:ss") ?? ""),
+                new Claim("Country", user.Country ?? ""),
+                new Claim("Gender", user.Gender?.ToString() ?? "")
             };
 
             var tokenDescriptor = new SecurityTokenDescriptor

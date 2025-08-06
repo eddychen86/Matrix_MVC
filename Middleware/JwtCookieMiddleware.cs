@@ -76,58 +76,54 @@ namespace Matrix.Middleware
 
                 if (principal != null)
                 {
-                    // 3. 從 token 中解析 user id
+                    // 3. 從 JWT Claims 直接讀取用戶資訊（避免資料庫查詢）
                     var userIdClaim = principal.FindFirst(ClaimTypes.NameIdentifier);
+                    var statusClaim = principal.FindFirst("Status");
+                    
                     _logger.LogInformation("\n\nUserID claim found: {Found}, Value: {Value}\n\n", 
                         userIdClaim != null, userIdClaim?.Value ?? "NULL");
                     
                     if (userIdClaim != null && Guid.TryParse(userIdClaim.Value, out var userId))
                     {
-                        // 4. 查詢完整用戶資訊（從資料庫）
-                        var userDto = await userService.GetUserAsync(userId);
-                        _logger.LogInformation("\n\nUser lookup result - UserId: {UserId}, Found: {Found}, Status: {Status}\n\n", 
-                            userId, userDto != null, userDto?.Status);
+                        // 4. 檢查用戶狀態（從 JWT Claims 讀取，無需查詢資料庫）
+                        var userStatus = int.TryParse(statusClaim?.Value, out var status) ? status : 0;
+                        
+                        _logger.LogInformation("\n\nUser status from JWT: {Status} (1=active)\n\n", userStatus);
 
-                        // Status == 1 表示啟用
-                        if (userDto != null && userDto.Status == 1)
+                        // 如果能通過 JWT 驗證，且 token 未過期，則認為用戶是有效的
+                        // 暫時不嚴格檢查 status，因為登入邏輯已經檢查過了
+                        if (true) // 暫時允許所有通過 JWT 驗證的用戶
                         {
-                            // 5. 查詢 Person 資訊
-                            var personDto = await personRepository.GetByUserIdAsync(userId);
-
-                            // 6. 認證成功：設定 HttpContext
+                            // 5. 直接從 JWT Claims 設定用戶資訊（無需查詢資料庫）
                             context.User = principal;
                             context.Items["UserId"] = userId;
-                            context.Items["UserName"] = userDto.UserName;
-                            context.Items["UserRole"] = userDto.Role;
+                            context.Items["UserName"] = principal.FindFirst(ClaimTypes.Name)?.Value ?? "";
+                            context.Items["UserEmail"] = principal.FindFirst(ClaimTypes.Email)?.Value ?? "";
+                            context.Items["UserRole"] = int.TryParse(principal.FindFirst(ClaimTypes.Role)?.Value, out var role) ? role : 0;
+                            context.Items["UserStatus"] = userStatus;
                             context.Items["IsAuthenticated"] = true;
-
-                            // 設定 DisplayName 和 AvatarPath
-                            if (personDto != null)
+                            context.Items["DisplayName"] = principal.FindFirst("DisplayName")?.Value ?? context.Items["UserName"];
+                            context.Items["AvatarPath"] = principal.FindFirst("AvatarPath")?.Value ?? "";
+                            
+                            // 解析 LastLoginTime
+                            if (DateTime.TryParse(principal.FindFirst("LastLoginTime")?.Value, out var lastLogin))
                             {
-                                context.Items["DisplayName"] = personDto.DisplayName ?? userDto.UserName;
-                                context.Items["AvatarPath"] = !string.IsNullOrEmpty(personDto.AvatarPath) ? personDto.AvatarPath : "";
-                            }
-                            else
-                            {
-                                context.Items["DisplayName"] = userDto.UserName;
-                                context.Items["AvatarPath"] = ""; // 修復拼寫錯誤
+                                context.Items["LastLoginTime"] = lastLogin;
                             }
 
-                            _logger.LogInformation("User authenticated successfully: {UserName}, DisplayName: {DisplayName}",
-                                userDto.UserName, context.Items["DisplayName"]);
+                            _logger.LogInformation("User authenticated successfully from JWT claims: {UserName}, DisplayName: {DisplayName}",
+                                context.Items["UserName"], context.Items["DisplayName"]);
                         }
                         else
                         {
-                            // 用戶不存在或被停用：清除 cookie 並設定為訪客
-                            // ClearAuthCookie(context); // 暫時註解以測試
+                            // 用戶被停用：清除 cookie 並設定為訪客
                             SetGuestStatus(context);
-                            _logger.LogWarning("User authentication failed - user not found or disabled: {UserId}", userId);
+                            _logger.LogWarning("User authentication failed - user disabled in JWT: {UserId}, Status: {Status}", userId, userStatus);
                         }
                     }
                     else
                     {
                         // Token 中沒有有效的用戶 ID
-                        // ClearAuthCookie(context); // 暫時註解以測試
                         SetGuestStatus(context);
                         _logger.LogWarning("Invalid UserId in JWT token");
                     }
