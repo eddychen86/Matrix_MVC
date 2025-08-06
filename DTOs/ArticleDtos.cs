@@ -372,14 +372,5 @@ namespace Matrix.DTOs
                 ["CollectCount"] = 0
             };
         }
-        /// <summary>
-        /// 支援多檔案上傳
-        /// </summary>
-        public List<IFormFile>? Attachments { get; set; }
-
-        /// <summary>
-        /// 被選擇的 Hashtag Id 清單（用於多對多）
-        /// </summary>
-        public List<Guid>? SelectedHashtags { get; set; }
     }
 }

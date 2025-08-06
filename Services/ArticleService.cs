@@ -313,47 +313,5 @@ namespace Matrix.Services
 
             return await GetArticleAsync(article.ArticleId);
         }
-
-        public async Task<ArticleDto?> CreateArticleWithAttachmentsAsync(Guid authorId, CreateArticleDto dto)
-        {
-            var author = await _context.Persons.FirstOrDefaultAsync(p => p.UserId == authorId);
-            if (author == null) return null;
-
-            var article = new Article
-            {
-                ArticleId = Guid.NewGuid(),
-                AuthorId = author.PersonId,
-                Content = dto.Content,
-                IsPublic = dto.IsPublic,
-                CreateTime = DateTime.UtcNow,
-                Status = 0
-            };
-
-            _context.Articles.Add(article);
-            await _context.SaveChangesAsync();
-
-            if (dto.Attachments != null && dto.Attachments.Any())
-            {
-                foreach (var file in dto.Attachments)
-                {
-                    var filePath = await _fileService.CreateFileAsync(file, "posts/files");
-                    if (filePath != null)
-                    {
-                        var attachment = new ArticleAttachment
-                        {
-                            FileId = Guid.NewGuid(),
-                            ArticleId = article.ArticleId,
-                            FilePath = filePath,
-                            FileName = file.FileName,
-                            Type = file.ContentType.StartsWith("image") ? "image" : "file",
-                            MimeType = file.ContentType
-                        };
-                        await _attachmentRepository.AddAsync(attachment);
-                    }
-                }
-            }
-
-            return await GetArticleAsync(article.ArticleId);
-        }
     }
 }
