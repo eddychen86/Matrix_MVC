@@ -2,11 +2,6 @@
     ViewData["Title"] = "用戶管理";
 }
 
-<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-
-
-
-
 <div id="adminUser" class="flex border border-gray-300 bg-white shadow-lg">
     <!-- 左側欄 -->
     <aside class="flex w-1/4 min-w-[260px] flex-col gap-8 border-r border-gray-200 bg-white p-8">
@@ -60,29 +55,11 @@
                         <th>刪除</th>
                     </tr>
                 </thead>
-                <tbody class="text-[14px]">
-                    <tr v-for="item in users">
-                        <th>1</th>
-                        <td v-html="item.userName"></td>
-                        <td v-html="item.roleText"></td>
-                        <td v-html="item.email"></td>
-                        <td v-html="formatDate(item.createTime)"></td>
-                        <td v-html="formatDate(item.lastLoginTime)"></td>
-                        <td v-html="item.status"></td>
-                        <td class="text-center">
-                            <button class="rounded bg-blue-500 p-1 text-white hover:bg-blue-700" title="編輯">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="inline h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536M9 13h3l7-7a2 2 0 00-2.828-2.828l-7 7v3z" />
-                                </svg>
-                            </button>
-                        </td>
-                        <td class="text-center">
-                            <button class="rounded bg-red-500 p-1 text-white hover:bg-red-700" title="刪除">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="inline h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                                </svg>
-                            </button>
-                        </td>
+                <tbody class="text-[14px]"> 
+                    <tr v-for="(item,idx) in users" :key="idx">
+                        <td>1</td>
+                        <td>{{item.userName}}</td>
+                        
                     </tr>
 
                 </tbody>
@@ -108,39 +85,38 @@
     </main>
 </div>
 
-@* 
-<script type="module" src="https://unpkg.com/caLLy"></script> *@
-@* <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script> *@
 
-<script>
-    const { createApp } = Vue
+@section Scripts{
+    <script>
+        const { createApp } = Vue
 
-    createApp({
-      data() {
-        return {
-          users: []
-        }
-      },
-      methods: {
-        async fetchUsers() {
-          try {
-            const response = await fetch('/api/ApiUser')
-            if (!response.ok) throw new Error('API 錯誤')
-
-            const data = await response.json()
-            this.users = data
-          } catch (error) {
-            console.error('載入失敗：', error)
+        const app =  createApp({
+          data() {
+            return {
+              users: []
+            }
+          },
+          methods: {
+            async fetchUsers() {
+              try {
+                const response = await fetch('/api/ApiUser')
+                if (!response.ok) throw new Error('API 錯誤')
+                const data = await response.json();
+                this.users= data;
+              } catch (error) {
+                console.error('載入失敗：', error)
+              }
+            },
+            formatDate(datetime) {
+              const date = new Date(datetime)
+              return date.toLocaleDateString() + ' ' + date.toLocaleTimeString()
+            }
+          },
+          mounted() {
+            this.fetchUsers()
           }
-        },
-        formatDate(datetime) {
-          const date = new Date(datetime)
-          return date.toLocaleDateString() + ' ' + date.toLocaleTimeString()
-        }
-      },
-      mounted() {
-        this.fetchUsers()
-      }
 
-    }).mount('#adminUser')
-</script>
+        }).mount('#adminUser')
+    </script>
+}
+

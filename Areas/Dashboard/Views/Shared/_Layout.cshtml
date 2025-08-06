@@ -16,8 +16,11 @@
 </head>
 
 <body class="bg-white">
-    <div id="app" class="flex">
-        @await Html.PartialAsync("_Menu")
+    <div class="flex">
+        <div id="app">
+            @await Html.PartialAsync("_Menu")
+        </div>
+
 
         <div class="relative flex w-full flex-col gap-4 p-4 pl-0 h-screen overflow-y-auto">
             <header class="relative">
