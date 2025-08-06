@@ -28,6 +28,7 @@
         @await Component.InvokeAsync("Popup")
     </div>
 
+    <!-- Scripts moved outside of Vue app container -->
     <script src="~/lib/jquery/jquery.min.js"></script>
 
     @* 開發環境 (開發版 Vue) *@
@@ -50,6 +51,7 @@
     <script src="~/js/pages/profile.js" asp-append-version="true"></script>
     <script src="~/js/main.js" asp-append-version="true"></script>
 
+    <!-- Scripts section rendered outside of Vue app -->
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 

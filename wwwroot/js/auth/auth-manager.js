@@ -17,7 +17,7 @@ class AuthManager {
                 const authStatus = await window.authService.getAuthStatus();
                 
                 if (authStatus.success && authStatus.data.authenticated) {
-                    console.log('User is authenticated:', authStatus.data.user);
+                    // console.log('User is authenticated:', authStatus.data.user);
                     this.handleAuthenticatedUser(authStatus.data.user);
                 } else {
                     // console.log('User is not authenticated');

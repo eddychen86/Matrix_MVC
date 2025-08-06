@@ -123,11 +123,3 @@
     @await Component.InvokeAsync("EditProfilePopup")
 </div>
 
-@section Scripts {
-    <script>
-        // 將用戶資訊內嵌給前端 JavaScript（零延遲）
-        window.matrixProfileData = {
-            userInfo: @Html.Raw(Json.Serialize(ViewBag.UserInfo))
-        };
-    </script>
-}

@@ -5,10 +5,28 @@ const globalApp = content => {
     } else {
         lucide.createIcons()
         if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', () => window.globalApp = Vue.createApp(content).mount('#app'))
+            document.addEventListener('DOMContentLoaded', () => {
+                const app = Vue.createApp(content)
+                // 配置警告處理器來忽略 script/style 標籤警告
+                app.config.warnHandler = (msg, instance, trace) => {
+                    if (msg.includes('Tags with side effect') && msg.includes('are ignored in client component templates')) {
+                        return // 忽略這類警告
+                    }
+                    console.warn(msg)
+                }
+                window.globalApp = app.mount('#app')
+            })
         } else {
             // DOM 已經載入完成
-            window.globalApp = Vue.createApp(content).mount('#app')
+            const app = Vue.createApp(content)
+            // 配置警告處理器來忽略 script/style 標籤警告
+            app.config.warnHandler = (msg, instance, trace) => {
+                if (msg.includes('Tags with side effect') && msg.includes('are ignored in client component templates')) {
+                    return // 忽略這類警告
+                }
+                console.warn(msg)
+            }
+            window.globalApp = app.mount('#app')
         }
     }
 }
@@ -204,7 +222,6 @@ globalApp({
             popupState.type = type
             popupState.title = getPopupTitle(type)
             popupState.isVisible = true
-
             isLoading.value = true   // 👈 加上這行：開始 loading
 
             try {
