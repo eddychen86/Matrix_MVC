@@ -160,25 +160,32 @@ namespace Matrix.Controllers
             return View("~/Views/Auth/Confirm.cshtml");
         }
 
-        /// <summary>產生 JWT Token (僅儲存 UserId)</summary>
-        public string GenerateJwtToken(Guid userId)
+        /// <summary>產生包含豐富使用者資訊的 JWT Token</summary>
+        public string GenerateJwtToken(UserDto user)
         {
             var jwtKey = _configuration["JWT:Key"] ??
                         throw new InvalidOperationException("JWT Key 沒有設定");
-            var jwtIssuer = _configuration["JWT:Issuer"];
+            var jwtIssuer = _configuration["JWT:Issuer"] ??
+                        throw new InvalidOperationException("JWT Issuer 沒有設定");
 
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.UTF8.GetBytes(jwtKey);
 
             var claims = new List<Claim>
             {
-                new Claim("UserId", userId.ToString())
+                new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
+                new Claim(ClaimTypes.Name, user.UserName),
+                new Claim(ClaimTypes.Email, user.Email),
+                new Claim(ClaimTypes.Role, user.Role.ToString()),
+                new Claim("DisplayName", user.Person?.DisplayName ?? user.UserName),
+                new Claim("AvatarPath", user.Person?.AvatarPath ?? ""),
+                new Claim(JwtRegisteredClaimNames.Exp, new DateTimeOffset(DateTime.UtcNow.AddDays(30)).ToUnixTimeSeconds().ToString())
             };
 
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(claims),
-                Expires = DateTime.UtcNow.AddDays(30),
+                Expires = DateTime.UtcNow.AddDays(30), // 確保設定過期時間
                 Issuer = jwtIssuer,
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
@@ -191,18 +198,39 @@ namespace Matrix.Controllers
         // TODO:設定登入 Cookie
         public void SetAuthCookie(HttpResponse response, string token, bool rememberMe = false)
         {
+            DateTimeOffset? expires = null;
+            
+            if (rememberMe)
+            {
+                // 勾選記住我：設定為 Cookie 能儲存的最久時間（約400天）
+                expires = DateTime.UtcNow.AddDays(400);
+            }
+            else
+            {
+                // 不勾選記住我：設定為當天晚上 11:59 (本地時間)
+                var today = DateTime.Now.Date;
+                var endOfDay = today.AddDays(1).AddMinutes(-1); // 當天 23:59
+                expires = new DateTimeOffset(endOfDay, TimeZoneInfo.Local.GetUtcOffset(endOfDay));
+            }
+
             var cookieOptions = new CookieOptions
             {
-                HttpOnly = true, // 恢復安全設定
-                Secure = true,
-                SameSite = SameSiteMode.Strict
+                HttpOnly = true,
+                Secure = false, // 開發環境設為 false，生產環境應設為 true
+                SameSite = SameSiteMode.Lax, // 允許跨頁面導航時傳送 Cookie
+                Path = "/", // 確保整個網站都能存取 Cookie
+                Expires = expires
             };
 
-            // 記住我就設定 30 天過期
-            if (rememberMe)
-                cookieOptions.Expires = DateTime.UtcNow.AddDays(30);
-
             response.Cookies.Append("AuthToken", token, cookieOptions);
+            
+            // 添加調試日誌
+            Console.WriteLine($"\n\n=== Cookie Set ===");
+            Console.WriteLine($"Token Length: {token.Length}");
+            Console.WriteLine($"Remember Me: {rememberMe}");
+            Console.WriteLine($"Expires: {cookieOptions.Expires}");
+            Console.WriteLine($"Secure: {cookieOptions.Secure}");
+            Console.WriteLine($"SameSite: {cookieOptions.SameSite}\n\n");
         }
 
     }

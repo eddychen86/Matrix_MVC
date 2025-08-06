@@ -5,4 +5,9 @@ namespace Matrix.DTOs
         public int Page { get; set; } = 1;
         public Guid? AuthorId { get; set; }
     }
+
+    public class GetMyPostsRequestDto
+    {
+        public int Page { get; set; } = 1;
+    }
 }

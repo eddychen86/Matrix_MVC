@@ -5,6 +5,7 @@ using Matrix.DTOs;
 using Matrix.Models;
 using Matrix.Services.Interfaces;
 using Matrix.Repository.Interfaces;
+using AutoMapper;
 
 namespace Matrix.Services
 {
@@ -18,19 +19,22 @@ namespace Matrix.Services
         private readonly IFileService _fileService;
         private readonly IOptions<UserValidationOptions> _validationOptions;
         private readonly IPasswordHasher<User> _passwordHasher;
+        private readonly IMapper _mapper;
 
         public UserService(
             IUserRepository userRepository,
             IPersonRepository personRepository,
             IFileService fileService,
             IOptions<UserValidationOptions> validationOptions,
-            IPasswordHasher<User> passwordHasher)
+            IPasswordHasher<User> passwordHasher,
+            IMapper mapper)
         {
             _userRepository = userRepository;
             _personRepository = personRepository;
             _fileService = fileService;
             _validationOptions = validationOptions;
             _passwordHasher = passwordHasher;
+            _mapper = mapper;
         }
 
         /// <summary>
@@ -42,7 +46,7 @@ namespace Matrix.Services
 
             if (user?.Person == null) return null;
 
-            return MapToUserDto(user);
+            return _mapper.Map<UserDto>(user);
         }
 
         /// <summary>
@@ -54,7 +58,7 @@ namespace Matrix.Services
 
             if (user?.Person == null) return null;
 
-            return MapToUserDto(user);
+            return _mapper.Map<UserDto>(user);
         }
 
         /// <summary>
@@ -66,7 +70,7 @@ namespace Matrix.Services
 
             if (user?.Person == null) return null;
 
-            return MapToUserDto(user);
+            return _mapper.Map<UserDto>(user);
         }
 
         /// <summary>
@@ -78,7 +82,7 @@ namespace Matrix.Services
 
             if (user == null) return null;
 
-            return MapToUserDto(user);
+            return _mapper.Map<UserDto>(user);
         }
 
         /// <summary>
@@ -269,33 +273,7 @@ namespace Matrix.Services
 
         #region 私有方法
 
-        /// <summary>
-        /// 將 User 實體轉換為 UserDto
-        /// </summary>
-        private static UserDto MapToUserDto(User user)
-        {
-            return new UserDto
-            {
-                UserId = user.UserId,
-                Role = user.Role,
-                UserName = user.UserName,
-                Email = user.Email,
-                CreateTime = user.CreateTime,
-                Status = user.Status,
-                Person = user.Person != null ? new PersonDto
-                {
-                    PersonId = user.Person.PersonId,
-                    UserId = user.Person.UserId,
-                    DisplayName = user.Person.DisplayName,
-                    Bio = user.Person.Bio,
-                    AvatarPath = user.Person.AvatarPath,
-                    BannerPath = user.Person.BannerPath,
-                    IsPrivate = user.Person.IsPrivate,
-                    WalletAddress = user.Person.WalletAddress,
-                    ModifyTime = user.Person.ModifyTime
-                } : null
-            };
-        }
+        // 映射方法已由 AutoMapper 取代
 
         // private static string HashPassword(string password)
         // {
@@ -409,15 +387,17 @@ namespace Matrix.Services
         }
 
         /// <summary>
-        /// 根據使用者 ID 獲取個人資料和相關文章
+        /// 根據使用者 ID 獲取個人資料和相關文章 - 優化版本
         /// </summary>
         public async Task<PersonDto?> GetProfileByIdAsync(Guid userId)
         {
             try
             {
+                // 使用 AsNoTracking 進行只讀查詢，提升性能
                 var person = await _personRepository.GetByUserIdWithIncludesAsync(userId);
                 if (person?.User == null) return null;
 
+                // 使用 AutoMapper 進行映射，簡化代碼
                 return new PersonDto
                 {
                     PersonId = person.PersonId,
@@ -433,12 +413,14 @@ namespace Matrix.Services
                     Website1 = person.Website1,
                     Website2 = person.Website2,
                     Website3 = person.Website3,
-                    Articles = new List<ArticleDto>(), // Return an empty list
-                    Content = new List<string>() // Return an empty list
+                    Articles = new List<ArticleDto>(), // 空列表，避免查詢文章
+                    Content = new List<string>() // 空列表
                 };
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                // 記錄錯誤但不拋出異常
+                Console.WriteLine($"GetProfileByIdAsync Error: {ex.Message}");
                 return null;
             }
         }

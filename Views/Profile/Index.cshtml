@@ -55,7 +55,7 @@
                             <span v-else class="bg-secondary">{{ item?.authorName?.slice(0,1).toUpperCase() }}</span>
                         </div>
                         <div class="author-info">
-                            <h3 class="text-white font-medium" data-i18n="GuestAccount">{{ item.authorName || @Localizer["GuestAccount"] }}</h3>
+                            <h3 class="text-white font-medium">{{ item.authorName || @Localizer["GuestAccount"] }}</h3>
                             <p class="text-gray-400 text-sm">{{ item.createTime }}</p>
                         </div>
                     </div>

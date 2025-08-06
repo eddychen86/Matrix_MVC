@@ -33,17 +33,16 @@ class LoginPopupManager {
     }
 
     /**
-     * 檢查認證狀態
+     * 檢查認證狀態 (使用 AuthService)
      */
     async checkAuthStatus() {
         try {
-            const response = await fetch('/api/auth/status', {
-                credentials: 'include'
-            });
-            
-            if (response.ok) {
-                const authData = await response.json();
-                this.isGuest = !authData.isAuthenticated;
+            if (window.authService) {
+                const authStatus = await window.authService.getAuthStatus();
+                this.isGuest = !(authStatus.success && authStatus.data.authenticated);
+            } else {
+                console.warn('AuthService not available in login-popup');
+                this.isGuest = true;
             }
         } catch (error) {
             console.error('Error checking auth status:', error);

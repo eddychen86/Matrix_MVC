@@ -36,7 +36,7 @@ public class Program
 
         // Add services to the container.
         builder.Services.AddDbContext<ApplicationDbContext>(options =>
-            options.UseLazyLoadingProxies().UseSqlServer(connectionString));
+            options.UseSqlServer(connectionString));
         builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
         #region 註冊 Repository
@@ -61,13 +61,19 @@ public class Program
 
         #region 註冊 Service
 
+        // 註冊 AutoMapper
+        builder.Services.AddAutoMapper(cfg => {
+            cfg.AddProfile<Matrix.Mappings.AutoMapperProfile>();
+        });
+
+
         builder.Services.AddScoped<IFileService, FileService>();
         builder.Services.AddScoped<IUserService, UserService>();
         builder.Services.AddScoped<IAuthorizationService, AuthorizationService>();
         builder.Services.AddScoped<ICollectService, CollectService>();
         builder.Services.AddScoped<IPraiseService, PraiseService>();
         builder.Services.AddScoped<IReplyService, ReplyService>();
-        builder.Services.AddScoped<ArticleService>();
+        builder.Services.AddScoped<IArticleService, ArticleService>();
         builder.Services.AddScoped<NotificationService>();
         builder.Services.AddScoped<Matrix.Controllers.AuthController>();
         builder.Services.AddHttpContextAccessor(); // 為 CustomLocalizer 提供 HttpContext 訪問
