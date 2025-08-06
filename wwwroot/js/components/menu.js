@@ -285,7 +285,7 @@ const useMenu = () => {
     // 載入 Dashboard 頁面內容
     const loadDashboardPage = async (page) => {
         try {
-            // console.log(`Loading dashboard page: ${page}`)
+             console.log(`Loading dashboard page: ${page}`)
 
             // 設定載入狀態
             const contentArea = document.querySelector('#dashboard-content')

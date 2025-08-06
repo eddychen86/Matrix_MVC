@@ -15,7 +15,7 @@ namespace Matrix.Areas.Dashboard.Controllers.Api
             _context = context;
         }
 
-        
+
         //取得使用者清單
         [HttpGet]
         public IActionResult GetUsers([FromQuery] string? search, [FromQuery] int? status)
@@ -50,5 +50,23 @@ namespace Matrix.Areas.Dashboard.Controllers.Api
 
             return Ok(users);
         }
+
+        //Delete
+        [HttpDelete]
+
+        public async Task<IActionResult> DeleteUser([FromBody]Guid id) 
+        {
+            var deleteuser = await _context.Users.FindAsync(id);
+            if (deleteuser == null)
+            {
+                return NotFound();  
+            }
+
+            _context.Users.Remove(deleteuser);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
     }
 }

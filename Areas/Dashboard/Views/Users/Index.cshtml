@@ -63,14 +63,29 @@
                     </tr>
                 </thead>
                 <tbody class="text-[14px]"> 
-                    <tr v-for="(item,idx) in users" :key="idx">
-                        <td>1</td>
+                    <tr v-for="(item,idx) in pagedUsers" :key="item.userId">
+                        <td>{{ (pageIndex - 1) * pageSize + idx + 1 }}</td>
                         <td>{{item.userName}}</td>
                         <td>{{item.roleText}}</td>
                         <td>{{item.	email}}</td>
                         <td>{{item.status}}</td>
                         <td>{{formatDate(item.createTime)}}</td>
                         <td>{{formatDate(item.lastLoginTime)}}</td>
+                        <td class="w-12 text-center">
+                            <button class="flex items-center justify-center rounded bg-blue-500 p-1 text-white hover:bg-blue-700" title="Edit">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-pencil-icon lucide-pencil">
+                                    <path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z" />
+                                    <path d="m15 5 4 4" />
+                                </svg>
+                            </button>
+                        </td>
+                        <td class="w-12 text-center">
+                            <button class="flex items-center justify-center rounded bg-red-500 p-1 text-white hover:bg-red-700" title="Delete">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-ban-icon lucide-ban">
+                                    <path d="M4.929 4.929 19.07 19.071" />
+                                    <circle cx="12" cy="12" r="10" />
+                                </svg>
+                            </button>
                     </tr>
                 </tbody>
                 <tfoot>
@@ -78,18 +93,21 @@
                         <td colspan="9">
                             <div class="bg-yellow-50 px-4 py-2">
                                 <div class="flex justify-end gap-1">
-                                    <button class="rounded px-2 py-1 text-gray-500 hover:bg-gray-200" title="上一頁">&laquo;</button>
-                                    <button class="rounded bg-blue-100 px-2 py-1 text-blue-700">1</button>
-                                    <button class="rounded px-2 py-1 text-gray-700 hover:bg-gray-200">2</button>
-                                    <button class="rounded px-2 py-1 text-gray-700 hover:bg-gray-200">3</button>
-                                    <span class="px-2 py-1">...</span>
-                                    <button class="rounded px-2 py-1 text-gray-700 hover:bg-gray-200">10</button>
-                                    <button class="rounded px-2 py-1 text-gray-500 hover:bg-gray-200" title="下一頁">&raquo;</button>
+                                    <button @@click ="pageIndex--" :disabled="pageIndex === 1" class="rounded px-2 py-1 text-gray-500 hover:bg-gray-200">&laquo;</button>
+
+                                    <button v-for="i in totalPages" :key="i"
+                                            @@click ="pageIndex = i"
+                                            :class="['rounded px-2 py-1', pageIndex === i ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-gray-200']">
+                                        {{ i }}
+                                    </button>
+
+                                    <button @@click ="pageIndex++" :disabled="pageIndex === totalPages" class="rounded px-2 py-1 text-gray-500 hover:bg-gray-200">&raquo;</button>
                                 </div>
                             </div>
                         </td>
                     </tr>
                 </tfoot>
+
             </table>
         </div>
     </main>
@@ -103,7 +121,9 @@
         const app =  createApp({
           data() {
             return {
-              users: []
+              users: [],
+              pageIndex: 1,
+              pageSize: 12
             }
           },
           methods: {
@@ -120,6 +140,15 @@
             formatDate(datetime) {
               const date = new Date(datetime)
               return date.toLocaleDateString() + ' ' + date.toLocaleTimeString()
+            }
+          },
+          computed: {
+            totalPages() {
+                return Math.ceil(this.users.length / this.pageSize)
+            },
+            pagedUsers() {
+            const start = (this.pageIndex - 1) * this.pageSize
+                return this.users.slice(start, start + this.pageSize)
             }
           },
           mounted() {
