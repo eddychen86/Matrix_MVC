@@ -202,6 +202,11 @@ namespace Matrix.Services
             user.Status = status;
             await _userRepository.UpdateAsync(user);
             await _userRepository.SaveChangesAsync();
+            
+            // 清除快取，確保下次取得最新狀態
+            var cacheKey = $"user_{id}";
+            _cache.Remove(cacheKey);
+            
             return true;
         }
 
@@ -503,6 +508,7 @@ namespace Matrix.Services
                 return new ReturnType<object> { Success = false, Message = "更新失敗!" };
             }
         }
+
 
         #endregion
     }

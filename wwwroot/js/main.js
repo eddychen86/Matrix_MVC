@@ -93,58 +93,69 @@ globalApp({
         const isProfilePage = window.location.pathname.toLowerCase().includes('/profile')
         let profileFunctions = {}
         
-        // 如果是 Profile 頁面且 useProfileVue2 存在，則載入 Profile 功能
-        if (isProfilePage && typeof useProfileVue2 === 'function') {
+        // 如果是 Profile 頁面，載入 Profile 功能
+        if (isProfilePage) {
             try {
-                const profileModule = useProfileVue2()
-                
-                // 簡化的轉換：將 Vue2 data() 轉換為響應式數據
-                const profileData = profileModule.data()
-                const reactiveData = {}
-                
-                // 將所有數據轉換為響應式
-                Object.keys(profileData).forEach(key => {
-                    const value = profileData[key]
-                    if (value !== null && typeof value === 'object' && !Array.isArray(value)) {
-                        reactiveData[key] = reactive(value)
-                    } else {
-                        reactiveData[key] = ref(value)
+                // 優先使用新的 useProfile (Vue 3 風格)
+                if (typeof useProfile === 'function') {
+                    profileFunctions = useProfile()
+                    console.log('Profile 模組載入成功 (Vue 3 風格)')
+                }
+                // 回退到舊的 useProfileVue2 (Vue 2 風格)
+                else if (typeof useProfileVue2 === 'function') {
+                    const profileModule = useProfileVue2()
+                    
+                    // 簡化的轉換：將 Vue2 data() 轉換為響應式數據
+                    const profileData = profileModule.data()
+                    const reactiveData = {}
+                    
+                    // 將所有數據轉換為響應式
+                    Object.keys(profileData).forEach(key => {
+                        const value = profileData[key]
+                        if (value !== null && typeof value === 'object' && !Array.isArray(value)) {
+                            reactiveData[key] = reactive(value)
+                        } else {
+                            reactiveData[key] = ref(value)
+                        }
+                    })
+                    
+                    // 創建一個包含所有功能的對象
+                    profileFunctions = {
+                        // 響應式數據
+                        ...reactiveData
                     }
-                })
-                
-                // 創建一個包含所有功能的對象
-                profileFunctions = {
-                    // 響應式數據
-                    ...reactiveData
-                }
-                
-                // 添加 methods，確保 this 綁定正確
-                if (profileModule.methods) {
-                    Object.keys(profileModule.methods).forEach(key => {
-                        profileFunctions[key] = profileModule.methods[key].bind(profileFunctions)
-                    })
-                }
-                
-                // 添加 computed 屬性
-                if (profileModule.computed) {
-                    Object.keys(profileModule.computed).forEach(key => {
-                        profileFunctions[key] = computed(() => {
-                            return profileModule.computed[key].call(profileFunctions)
+                    
+                    // 添加 methods，確保 this 綁定正確
+                    if (profileModule.methods) {
+                        Object.keys(profileModule.methods).forEach(key => {
+                            profileFunctions[key] = profileModule.methods[key].bind(profileFunctions)
                         })
-                    })
-                }
-                
-                // 執行 Vue2 的 mounted 生命週期
-                if (profileModule.mounted) {
-                    onMounted(() => {
-                        // 使用 Vue.nextTick 確保 DOM 已更新
-                        Vue.nextTick(() => {
-                            profileModule.mounted.call(profileFunctions)
+                    }
+                    
+                    // 添加 computed 屬性
+                    if (profileModule.computed) {
+                        Object.keys(profileModule.computed).forEach(key => {
+                            profileFunctions[key] = computed(() => {
+                                return profileModule.computed[key].call(profileFunctions)
+                            })
                         })
-                    })
+                    }
+                    
+                    // 執行 Vue2 的 mounted 生命週期
+                    if (profileModule.mounted) {
+                        onMounted(() => {
+                            // 使用 Vue.nextTick 確保 DOM 已更新
+                            Vue.nextTick(() => {
+                                profileModule.mounted.call(profileFunctions)
+                            })
+                        })
+                    }
+                    
+                    console.log('Profile 模組載入成功 (Vue 2 風格)')
                 }
-                
-                console.log('Profile 模組載入成功')
+                else {
+                    console.warn('找不到 Profile 模組函數')
+                }
             } catch (error) {
                 console.error('Profile 模組載入失敗:', error)
                 profileFunctions = {}

@@ -30,16 +30,53 @@ namespace Matrix.Controllers.Api
             _articleService = articleService;
         }
 
+        [HttpGet("test")]
+        public IActionResult Test()
+        {
+            return Ok(new { message = "PostController is working", timestamp = DateTime.UtcNow });
+        }
+
         [HttpPost("")]
         public async Task<IActionResult> GetAllPosts([FromBody] GetAllPostsRequestDto request)
         {
-            var result = await _articleService.GetArticlesAsync(request.Page, 20, null, request.AuthorId);
-            _logger.LogInformation("\n\nResult:\n{0}\n\n", result);
-            return Ok(new
+            try
             {
-                articles = result.Articles,
-                totalCount = result.TotalCount
-            });
+                _logger.LogInformation("GetAllPosts called - Page: {Page}, AuthorId: {AuthorId}", 
+                    request?.Page ?? 0, request?.AuthorId);
+
+                if (request == null)
+                {
+                    _logger.LogWarning("Request is null");
+                    return BadRequest(new { error = "Request body is required" });
+                }
+
+                _logger.LogInformation("About to call GetArticlesAsync with PageSize: {PageSize}", request.PageSize);
+                var result = await _articleService.GetArticlesAsync(request.Page, request.PageSize, null, request.AuthorId);
+                _logger.LogInformation("GetArticlesAsync completed successfully");
+                
+                _logger.LogInformation("GetArticlesAsync returned - Articles count: {Count}, Total: {Total}", 
+                    result.Articles?.Count ?? 0, result.TotalCount);
+
+                var response = new
+                {
+                    articles = result.Articles,
+                    totalCount = result.TotalCount
+                };
+
+                _logger.LogInformation("About to return OK response");
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error in GetAllPosts: {Message}", ex.Message);
+                _logger.LogError("Stack trace: {StackTrace}", ex.StackTrace);
+                
+                return StatusCode(500, new { 
+                    error = ex.Message,
+                    type = ex.GetType().Name,
+                    stackTrace = ex.StackTrace?.Split('\n').Take(5).ToArray()
+                });
+            }
         }
 
         [HttpPost("{id}/toggle-praise")]

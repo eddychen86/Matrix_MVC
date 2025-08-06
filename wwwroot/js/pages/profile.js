@@ -8,7 +8,18 @@ const useProfile = () => {
     const content = ref([])
     const editMode = ref(false)
     const isPublic = ref(false)
-    const profile = reactive({})
+    const profile = reactive({
+        bannerPath: '',
+        avatarPath: '',
+        displayName: '',
+        bio: '',
+        email: '',
+        password: '',
+        website1: '',
+        website2: '',
+        website3: '',
+        isPrivate: false
+    })
     const posts = ref([])
     const counts = ref(0)
     const currentPage = ref(1)
@@ -48,7 +59,7 @@ const useProfile = () => {
                 website3: profile.website3
             }
 
-            const response = await fetch('/api/Profile/me', {
+            const response = await fetch('/api/Profile/personal', {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',
@@ -102,17 +113,19 @@ const useProfile = () => {
 
     //#region User & Profile Loading
     
-    const GetPostsAsync = async (page = 1, append = false) => {
+    const GetPostsAsync = async (page = 1, append = false, pageSize = 10) => {
+        console.log(`載入第 ${page} 頁文章，每頁 ${pageSize} 篇`)
+
         if (isLoading.value || (!hasMorePosts.value && append)) return null
         
         try {
             isLoading.value = true
             
-            const res = await fetch('/api/post/my', {
+            const res = await fetch('/api/post', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',
-                body: JSON.stringify({ page })
+                body: JSON.stringify({ page, pageSize })
             })
 
             if (!res.ok) {
@@ -171,8 +184,8 @@ const useProfile = () => {
             hasMorePosts.value = true
             posts.value = []
             
-            // 載入第一頁文章
-            await GetPostsAsync(1, false)
+            // 載入第一頁文章（限制 10 篇）
+            await GetPostsAsync(1, false, 10)
             
             // 載入個人資料
             const data = await response.json()
@@ -191,41 +204,16 @@ const useProfile = () => {
         await GetPostsAsync(nextPage, true)
     }
 
-    // 無限滾動邏輯
-    const setupInfiniteScroll = () => {
-        let observer = null
+    // 手動載入更多按鈕邏輯
+    const setupManualLoad = () => {
+        // 提供手動載入更多文章的按鈕功能
+        const showLoadMoreButton = Vue.computed(() => {
+            return hasMorePosts.value && !isLoading.value && posts.value.length > 0
+        })
         
-        const observeLastPost = () => {
-            if (observer) observer.disconnect()
-            
-            // 找到最後一個文章元素
-            const lastPost = document.querySelector('.profile-content li:last-child')
-            if (!lastPost) return
-            
-            observer = new IntersectionObserver((entries) => {
-                const lastEntry = entries[0]
-                if (lastEntry.isIntersecting && hasMorePosts.value && !isLoading.value) {
-                    console.log('偵測到滾動到底部，載入更多文章...')
-                    loadMorePosts()
-                }
-            }, {
-                root: null,
-                rootMargin: '100px', // 提前100px開始載入
-                threshold: 0.1
-            })
-            
-            observer.observe(lastPost)
-        }
-        
-        // 監聽 posts 變化，重新設置觀察者
-        Vue.watch(posts, () => {
-            Vue.nextTick(() => {
-                observeLastPost()
-            })
-        }, { flush: 'post' })
-        
-        return () => {
-            if (observer) observer.disconnect()
+        return {
+            showLoadMoreButton,
+            loadMore: loadMorePosts
         }
     }
     //#endregion
@@ -282,18 +270,16 @@ const useProfile = () => {
     //#endregion
 
     //#region Lifecycle
-    let cleanupInfiniteScroll = null
+    let manualLoadFunctions = null
     
     onMounted(() => {
         loadProfile()
-        cleanupInfiniteScroll = setupInfiniteScroll()
+        manualLoadFunctions = setupManualLoad()
     })
     
     // 清理函數（如果需要）
     const cleanup = () => {
-        if (cleanupInfiniteScroll) {
-            cleanupInfiniteScroll()
-        }
+        // 清理邏輯（如果需要）
     }
     //#endregion
 
@@ -321,7 +307,11 @@ const useProfile = () => {
         loadProfile,
         stateFunc,
         loadMorePosts,
-        cleanup
+        cleanup,
+        
+        // Manual load functions
+        showLoadMoreButton: manualLoadFunctions?.showLoadMoreButton || Vue.ref(false),
+        loadMore: manualLoadFunctions?.loadMore || (() => {})
     }
     //#endregion
 }

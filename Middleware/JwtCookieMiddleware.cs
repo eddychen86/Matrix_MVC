@@ -92,7 +92,7 @@ namespace Matrix.Middleware
 
                         // 如果能通過 JWT 驗證，且 token 未過期，則認為用戶是有效的
                         // 暫時不嚴格檢查 status，因為登入邏輯已經檢查過了
-                        if (true) // 暫時允許所有通過 JWT 驗證的用戶
+                        if (userStatus == 1 || userStatus == 0) // 暫時允許狀態 0 和 1 的用戶
                         {
                             // 5. 直接從 JWT Claims 設定用戶資訊（無需查詢資料庫）
                             context.User = principal;

@@ -193,6 +193,11 @@ public class Program
         {
             // 自訂 ModelBinding 錯誤訊息提供者
             options.ModelBindingMessageProvider.SetValueMustNotBeNullAccessor(_ => "此欄位為必填");
+        })
+        .AddJsonOptions(options =>
+        {
+            // 防止 JSON 序列化循環引用
+            options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
         });
         builder.Services.AddRazorPages();
 

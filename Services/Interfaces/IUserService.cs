@@ -133,5 +133,13 @@ namespace Matrix.Services.Interfaces
         /// <param name="dto">個人資料 DTO</param>
         /// <returns>更新結果</returns>
         Task<ReturnType<object>> UpdatePersonProfileAsync(Guid userId, PersonDto dto);
+
+        /// <summary>
+        /// 更新使用者狀態
+        /// </summary>
+        /// <param name="userId">使用者 ID</param>
+        /// <param name="status">新的狀態值</param>
+        /// <returns>更新是否成功</returns>
+        Task<bool> UpdateUserStatusAsync(Guid userId, int status);
     }
 }

@@ -144,7 +144,7 @@ namespace Matrix.Controllers.Api
         /// </summary>
         /// <param name="dto">個人資料 DTO</param>
         /// <returns>更新結果</returns>
-        [HttpPut("me")]
+        [HttpPut("personal")]
         public async Task<ReturnType<object>> UpdateMyProfile([FromBody] PersonDto dto)
         {
             try

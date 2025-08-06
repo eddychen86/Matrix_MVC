@@ -103,18 +103,34 @@ namespace Matrix.Services
             int page = 1, int pageSize = 20, string? searchKeyword = null, Guid? authorId = null
         )
         {
-            var query = BuildArticleQuery(searchKeyword, authorId);
-            var totalCount = await query.CountAsync();
+            try
+            {
+                Console.WriteLine($"GetArticlesAsync called - Page: {page}, PageSize: {pageSize}, AuthorId: {authorId}");
+                
+                var query = BuildArticleQuery(searchKeyword, authorId);
+                Console.WriteLine($"Query built successfully");
+                
+                var totalCount = await query.CountAsync();
+                Console.WriteLine($"Total count: {totalCount}");
+                
+                var articles = await query
+                    .OrderByDescending(a => a.CreateTime)
+                    .Skip((page - 1) * pageSize)
+                    .Take(pageSize)
+                    .ToListAsync();
+                
+                Console.WriteLine($"Articles fetched: {articles.Count}");
 
-            var articles = await query
-                .OrderByDescending(a => a.CreateTime)
-                .Skip((page - 1) * pageSize)
-                .Take(pageSize)
-                .ToListAsync();
-
-            var articleDtos = _mapper.Map<List<ArticleDto>>(articles);
-
-            return (articleDtos, totalCount);
+                var articleDtos = _mapper.Map<List<ArticleDto>>(articles);
+                Console.WriteLine($"Articles mapped successfully: {articleDtos.Count}");
+                
+                return (articleDtos, totalCount);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in GetArticlesAsync: {ex}");
+                throw;
+            }
         }
 
         /// <summary>
@@ -218,7 +234,7 @@ namespace Matrix.Services
         {
             var query = _context.Articles
                 .AsNoTracking() // 只讀查詢
-                // 使用 Select 投影只加載需要的欄位，提升性能
+                // Status == 0 表示正常，IsPublic == 0 表示公開
                 .Where(a => a.Status == 0 && a.IsPublic == 0);
 
             if (authorId.HasValue)
