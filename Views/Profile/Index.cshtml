@@ -44,17 +44,17 @@
     </ul>
     
     <!-- 中間：動態貼文 -->
-    <ul class="profile-content">
+    <ul class="post-content col-span-3">
         <li v-for="(item, index) in posts" :key="item.articleId">
             <article class="bg-accent">
                 @* 文章標題區 *@
-                <div class="profile-content_header">
+                <div class="post-content_header">
                     <div class="author-info flex gap-4 items-center">
                         <div class="author-avatar">
                             <img v-if="item?.authorAvator != null" :src="item?.authorAvator" alt="item?.authorName">
                             <span v-else class="bg-secondary">{{ item?.authorName?.slice(0,1).toUpperCase() }}</span>
                         </div>
-                        <div class="author-info">
+                        <div>
                             <h3 class="text-white font-medium">{{ item.authorName || @Localizer["GuestAccount"] }}</h3>
                             <p class="text-gray-400 text-sm">{{ item.createTime }}</p>
                         </div>
@@ -72,12 +72,18 @@
                     {{ item.content }}
                 </div>
 
-                <div class="flex gap-4 items-center" v-for="(img, imgIndex) in item.images" :key="imgIndex">
-                    <img :src="img" class="mt-4 h-auto w-3/4 rounded-lg" alt="" />
+                <div v-if="item.attachments && item.attachments.length > 0">
+                    <div class="flex gap-4 items-center" v-for="img in item.attachments.filter(f => f.type.toLowerCase() === 'image')" :key="img.fileId">
+                        <img :src="img.filePath" :alt="img.fileName" class="mt-4 h-auto w-1/4 rounded-lg" />
+                    </div>
+
+                    <div class="flex gap-4 items-center" v-for="file in item.attachments.filter(f => f.type.toLowerCase() === 'file')" :key="file.fileId">
+                        <a :href="file.filePath" :download="file.fileName" class="mt-4 h-auto w-1/4 rounded-lg">{{ file.fileName }}</a>
+                    </div>
                 </div>
 
                 @* 文章操作列 *@
-                <div class="profile-content_state">
+                <div class="post-content_state">
                     <button v-on:click="stateFunc(praize, item.articleId)">
                         <i data-lucide="heart" class="size-4"></i>
                         <span data-i18n="Praise">@Localizer["Praise"]</span>

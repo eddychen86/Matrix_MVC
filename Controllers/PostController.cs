@@ -70,14 +70,17 @@ namespace Matrix.Controllers
 
                 if (dto.SelectedHashtags != null && dto.SelectedHashtags.Any())
                 {
-                    foreach (var tagId in dto.SelectedHashtags)
+                    foreach (var tagIdString in dto.SelectedHashtags)
                     {
-                        var articleHashtag = new ArticleHashtag
+                        if (Guid.TryParse(tagIdString, out var tagId))
                         {
-                            ArticleId = article.ArticleId,
-                            TagId = tagId
-                        };
-                        _context.ArticleHashtags.Add(articleHashtag);
+                            var articleHashtag = new ArticleHashtag
+                            {
+                                ArticleId = article.ArticleId,
+                                TagId = tagId
+                            };
+                            _context.ArticleHashtags.Add(articleHashtag);
+                        }
                     }
                     await _context.SaveChangesAsync();
                 }

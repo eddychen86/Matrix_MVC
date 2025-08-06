@@ -114,7 +114,7 @@ const useProfile = () => {
     //#region User & Profile Loading
     
     const GetPostsAsync = async (page = 1, append = false, pageSize = 10) => {
-        console.log(`載入第 ${page} 頁文章，每頁 ${pageSize} 篇`)
+        // console.log(`載入第 ${page} 頁文章，每頁 ${pageSize} 篇`)
 
         if (isLoading.value || (!hasMorePosts.value && append)) return null
         
@@ -183,9 +183,6 @@ const useProfile = () => {
             currentPage.value = 1
             hasMorePosts.value = true
             posts.value = []
-            
-            // 載入第一頁文章（限制 10 篇）
-            await GetPostsAsync(1, false, 10)
             
             // 載入個人資料
             const data = await response.json()
@@ -272,8 +269,10 @@ const useProfile = () => {
     //#region Lifecycle
     let manualLoadFunctions = null
     
-    onMounted(() => {
+    onMounted(async () => {
         loadProfile()
+        // 載入第一頁文章（限制 10 篇）
+        await GetPostsAsync(1, false, 10)
         manualLoadFunctions = setupManualLoad()
     })
     

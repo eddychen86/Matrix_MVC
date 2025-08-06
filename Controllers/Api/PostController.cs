@@ -30,12 +30,6 @@ namespace Matrix.Controllers.Api
             _articleService = articleService;
         }
 
-        [HttpGet("test")]
-        public IActionResult Test()
-        {
-            return Ok(new { message = "PostController is working", timestamp = DateTime.UtcNow });
-        }
-
         [HttpPost("")]
         public async Task<IActionResult> GetAllPosts([FromBody] GetAllPostsRequestDto request)
         {

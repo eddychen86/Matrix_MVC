@@ -4,11 +4,8 @@ using Microsoft.AspNetCore.Authorization;
 using Matrix.Data;
 using Matrix.Models;
 using Matrix.ViewModels;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Diagnostics;
 using System.Runtime.ConstrainedExecution;
 
 namespace Matrix.Controllers;
@@ -45,61 +42,27 @@ public class HomeController : WebControllerBase
         // 根據認證狀態限制文章數量
         var articles = await articlesQuery
             .Take(articleLimit)
-            .Select(a => new
+            .Select(a => new ArticleViewModel
             {
                 Article = a,
                 Author = a.Author,
-                image = a.Attachments != null
-                    ? a.Attachments.FirstOrDefault(att => att.Type.ToLower() == "image")
-                    : null,
-                file = a.Attachments
+                Image = a.Attachments != null ? a.Attachments.FirstOrDefault(att => att.Type.ToLower() == "image") : null,
+                Attachments = a.Attachments ?? new List<ArticleAttachment>()
             })
             .ToListAsync();
 
-        var hot_list = articles.Take(5);
-        var default_list = articles;
-
-        ViewBag.HotList = hot_list;
-        ViewBag.DefaultList = default_list;
-
-        //取得好友欄位資料
         var currentUserId = Guid.Parse("870c0b75-97a3-4e4f-8215-204d5747d28c");
-        var friends = await _context.Friendships
-            .Where(a =>
-                (a.UserId == currentUserId || a.FriendId == currentUserId)
-                && a.Status == FriendshipStatus.Accepted)
-            .Select(a => a.UserId == currentUserId ? a.FriendId : a.UserId)
-            .ToListAsync();
-
-        var friendList = await _context.Users.Where(a => friends.Contains(a.UserId))
-            .Include(a => a.Person)
-            .Select(a => new Matrix.ViewModels.FriendListViewModel
-            {
-                UserId = a.UserId.ToString(),
-                UserName = a.UserName,
-                AvatarPath = (a.Person != null && a.Person.AvatarPath != null && a.Person.AvatarPath.Length > 0)
-                    ? $"data:image/png;base64,{Convert.ToBase64String(a.Person.AvatarPath)}"
-                    : "/static/img/default-avatar.png"
-            })
-            .ToListAsync();
-
-        ViewBag.FriendList = friendList;
-
-        //取得發文者資料
         var currentUser = await _context.Users
             .Include(u => u.Person)
             .FirstOrDefaultAsync(u => u.UserId == currentUserId);
 
         var currentUserVm = new CurrentUserViewModel
         {
-            UserId = currentUser.UserId.ToString(),
-            DisplayName = currentUser.UserName,
-            Avatar = (currentUser.Person.AvatarPath != null && currentUser.Person.AvatarPath.Length > 0)
-                ? $"data:image/png;base64,{Convert.ToBase64String(currentUser.Person.AvatarPath)}"
-                : "/static/img/default-avatar.png"
+            UserId = currentUser?.UserId.ToString() ?? string.Empty,
+            DisplayName = currentUser?.UserName ?? string.Empty,
+            Avatar = currentUser?.Person?.AvatarPath ?? ""
         };
         ViewBag.CurrentUser = currentUserVm;
-
 
         // 傳遞認證狀態給前端
         ViewBag.IsAuthenticated = isAuthenticated;
@@ -114,7 +77,7 @@ public class HomeController : WebControllerBase
             (int)ViewBag.TotalPublicArticles
         );
 
-        return View();
+        return View(articles);
     }
 
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

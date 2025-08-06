@@ -123,6 +123,12 @@ namespace Matrix.Services
 
                 var articleDtos = _mapper.Map<List<ArticleDto>>(articles);
                 Console.WriteLine($"Articles mapped successfully: {articleDtos.Count}");
+
+                foreach (var articleDto in articleDtos)
+                {
+                    var attachments = await _attachmentRepository.GetByArticleIdAsync(articleDto.ArticleId);
+                    articleDto.Attachments = _mapper.Map<List<ArticleAttachmentDto>>(attachments);
+                }
                 
                 return (articleDtos, totalCount);
             }

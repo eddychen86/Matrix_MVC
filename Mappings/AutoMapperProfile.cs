@@ -70,6 +70,9 @@ namespace Matrix.Mappings
             
             CreateMap<UserDto, User>()
                 .ForMember(dest => dest.Person, opt => opt.Ignore());
+
+            // ArticleAttachment ↔ ArticleAttachmentDto 映射
+            CreateMap<ArticleAttachment, ArticleAttachmentDto>();
         }
     }
 }
