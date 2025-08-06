@@ -17,6 +17,7 @@ globalApp({
     setup() {
         const { reactive, ref, computed, onMounted } = Vue
         const { formatDate, timeAgo } = useFormatting()
+        const isLoading = ref(false)
 
         //#region User Authentication State
         
@@ -204,6 +205,8 @@ globalApp({
             popupState.title = getPopupTitle(type)
             popupState.isVisible = true
 
+            isLoading.value = true   // 👈 加上這行：開始 loading
+
             try {
                 const res = await fetch('/api/' + type.toLowerCase())
                 const data = await res.json()
@@ -211,7 +214,9 @@ globalApp({
                 updatePopupData(type, data)
             } catch (err) {
                 console.log('Fetch Error:', err)
-            }
+            } finally {
+                isLoading.value = false
+            }  // 👈 加上這行：結束 loading
         }
 
         const closePopup = () => {
@@ -248,6 +253,7 @@ globalApp({
             // pop-up
             popupState,
             popupData,
+            isLoading, //加入 loading 狀態
             getPopupTitle,
             openPopup,
             closePopup,
