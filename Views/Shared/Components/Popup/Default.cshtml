@@ -1,4 +1,4 @@
-﻿<!-- Universal Popup Modal -->
+<!-- Universal Popup Modal -->
 <div id="popup-overlay" v-show="popupState.isVisible" @@click="closePopup" class="fixed inset-0 flex h-screen w-screen items-center justify-center bg-black/50" style="z-index: 99999;">
     <div id="popup-container" @@click.stop="" class="max-h-[80vh] w-4/5 overflow-hidden rounded-[30px] bg-[#161616] text-white md:w-2/3 lg:w-3/5">
         <!-- Header -->
@@ -7,7 +7,7 @@
             <div class="flex w-1/3 justify-end gap-4">
                 <div class="relative w-full">
                     <input type="text" v-model="searchQuery" class="para h-12 w-full rounded-full border bg-stone-700 px-4 outline-none">
-                    <button class="absolute top-1/2 right-4 -translate-y-1/2" @@click="manualSearch">
+                    <button class="absolute top-1/2 right-4 -translate-y-1/2" v-on:click="manualSearch">
                         <i data-lucide="search" class="icon-base"></i>
                     </button>
                 </div>

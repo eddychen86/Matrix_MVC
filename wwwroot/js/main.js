@@ -45,49 +45,22 @@ globalApp({
         watch(searchQuery, (newVal) => {
             console.log('👀 searchQuery 改變：', newVal)
         })
-        //Search Functionality
-        watch(searchQuery, async (newKeyword) => {
-            console.log('🔍 searchQuery 被修改為：', newKeyword)
-            console.log('🧪 觸發 watch：newKeyword =', newKeyword)
-            console.log('🧪 當前 popupState.type =', popupState.type)
-            if (popupState.type !== 'Search')
-            {
-                console.log('⛔ 中止搜尋：popup type 不是 Search')
-                return
-            }
-                        
-            if (!newKeyword || newKeyword.trim().length < 1) {
-                popupData.Search = []
-                return
-            }
 
-            isLoading.value = true
-
-            try {
-                console.log('🌐 準備打 API:', `/api/search/users?keyword=${encodeURIComponent(newKeyword)}`)
-                const res = await fetch(`/api/search/users?keyword=${encodeURIComponent(newKeyword)}`)
-                const result = await res.json()
-
-                popupData.Search = result.data.map(item => ({
-                    displayName: item.displayName,
-                    avatarUrl: item.avatarPath,
-                    bio: item.bio || '這位使用者尚未填寫個人簡介。'
-                }))
-                console.log('🎯 搜尋結果資料：', popupData.Search)
-            } catch (err) {
-                console.error('Search API Error:', err)
-                popupData.Search = []
-            } finally {
-                isLoading.value = false
-            }
-        })
+        // 當 openPopup 的類型是 Search 的時候，清空 searchQuery
+        //watch(() => popupState.type, (newType) => {
+        //    if (newType === 'Search') {
+        //        searchQuery.value = ''
+        //        popupData.Search = []
+        //    }
+        //})
 
         const manualSearch = async () => {
-            console.log('🔍 手動搜尋按鈕觸發！')
+            console.log('🔍 手動搜尋按鈕觸發！', searchQuery)
 
             const keyword = searchQuery.value
 
             if (!keyword || keyword.trim().length < 1) {
+                console.log('eteqwtrey')
                 popupData.Search = []
                 return
             }

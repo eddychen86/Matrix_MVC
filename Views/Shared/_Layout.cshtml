@@ -1,4 +1,4 @@
-@{
+﻿@{
     ViewData["Title"] = "Matrix";
 }
 
@@ -17,18 +17,18 @@
     <div id="app" class="flex">
         <partial name="_Menu" />
 
-        <div class="relative flex w-full flex-col gap-4 p-4 pl-0 h-screen overflow-y-auto">
+        <div class="relative flex h-screen w-full flex-col gap-4 overflow-y-auto p-4 pl-0">
             <main class="text-white">
                 @RenderBody()
             </main>
             <partial name="_Footer" />
-        </div>
 
-        <!-- Universal Popup Component -->
-        @await Component.InvokeAsync("Popup")
+            <!-- Universal Popup Component -->
+            @await Component.InvokeAsync("Popup")
+        </div>
     </div>
 
-    <script src="~/lib/jquery/jquery.min.js"></script>
+    @* <script src="~/lib/jquery/jquery.min.js"></script> *@
 
     @* 開發環境 (開發版 Vue) *@
     <environment include="Development">
