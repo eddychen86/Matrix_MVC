@@ -304,6 +304,59 @@ namespace Matrix.Controllers.Api
                 return StatusCode(500, new { isValid = false, message = "驗證過程中發生錯誤" });
             }
         }
+
+        /// <summary>
+        /// 獲取用戶文章中的圖片
+        /// 返回指定用戶文章中的前N張圖片，按文章建立時間排序
+        /// </summary>
+        /// <param name="userId">可選的用戶 ID，如果不提供則使用認證中的 ID</param>
+        /// <param name="count">圖片數量限制，預設為10</param>
+        /// <returns>用戶圖片列表</returns>
+        [HttpGet("images")]
+        public async Task<ActionResult<List<UserImageDto>>> GetUserImages([FromQuery] Guid? userId = null, [FromQuery] int count = 10)
+        {
+            try
+            {
+                Guid targetUserId;
+                
+                if (userId.HasValue)
+                {
+                    // 使用外部傳入的 userId
+                    targetUserId = userId.Value;
+                    _logger.LogInformation("獲取用戶圖片，使用外部傳入的用戶 ID: {UserId}", targetUserId);
+                }
+                else
+                {
+                    // 從 HttpContext.Items 中獲取已認證的用戶 ID
+                    var userIdFromContext = HttpContext.Items["UserId"] as Guid?;
+                    if (!userIdFromContext.HasValue)
+                    {
+                        _logger.LogWarning("無法從認證中獲取用戶 ID，且未提供外部 userId");
+                        return Unauthorized("用戶未認證且未提供用戶 ID");
+                    }
+                    targetUserId = userIdFromContext.Value;
+                    _logger.LogInformation("獲取用戶圖片，使用認證中的用戶 ID: {UserId}", targetUserId);
+                }
+
+                // 驗證 count 參數
+                if (count <= 0 || count > 50)
+                {
+                    count = 10; // 預設值
+                }
+
+                _logger.LogInformation("開始獲取用戶圖片，使用者 ID: {UserId}，數量限制: {Count}", targetUserId, count);
+                
+                var images = await _userService.GetUserImagesAsync(targetUserId, count);
+                
+                _logger.LogInformation("成功獲取用戶圖片，使用者 ID: {UserId}，返回 {ImageCount} 張圖片", targetUserId, images.Count);
+                return Ok(images);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "獲取用戶圖片時發生例外");
+                return StatusCode(500, "伺服器內部錯誤，請稍後再試");
+            }
+        }
     }
 
     /// <summary>

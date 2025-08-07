@@ -79,7 +79,7 @@
       @* IsPrivate *@
       <li>
         <h4 class="title" data-i18n="ProfileState">@Localizer["ProfileState"]</h4>
-        <input type="checkbox" class="toggle toggle-xl toggle-success my-1" v-model="updatProfile.isPrivate" />
+        <input type="checkbox" :checked="!updatProfile.isPrivate" class="toggle toggle-xl toggle-success my-1" v-model="updatProfile.isPrivate" />
       </li>
     </ul>
 

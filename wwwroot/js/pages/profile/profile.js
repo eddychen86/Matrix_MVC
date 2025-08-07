@@ -37,6 +37,7 @@ const useProfile = () => {
     const currentPage = ref(1)
     const isLoading = ref(false)
     const hasMorePosts = ref(true)
+    const userImages = ref([])
     
     // 密碼驗證相關狀態
     const passwordValidation = reactive({
@@ -67,6 +68,45 @@ const useProfile = () => {
         editMode.value = true
         // Create a deep copy for backup
         Object.assign(updatProfile, JSON.parse(JSON.stringify(profile)))
+        
+        // 在下一個tick更新翻譯，確保DOM已經渲染
+        Vue.nextTick(() => {
+            updateEditPopupTranslations()
+        })
+    }
+
+    // 更新編輯彈窗的翻譯
+    const updateEditPopupTranslations = (translations = null) => {
+        try {
+            // 如果沒有提供翻譯，嘗試從全域系統獲取
+            if (!translations) {
+                const currentLang = document.documentElement.lang || 'zh-TW'
+                translations = window.translationCache?.get(currentLang)
+            }
+            
+            if (translations) {
+                // 只更新EditProfilePopup區域內的翻譯
+                const popup = document.querySelector('.profile-edit')
+                if (popup) {
+                    // 找到彈窗內所有帶有 data-i18n 屬性的元素並更新
+                    popup.querySelectorAll('[data-i18n]').forEach(element => {
+                        const key = element.getAttribute('data-i18n')
+                        if (translations[key]) {
+                            // 檢查元素類型來決定更新方式
+                            if (element.tagName === 'INPUT' && (element.type === 'submit' || element.type === 'button')) {
+                                element.value = translations[key]
+                            } else if (element.placeholder !== undefined && element.hasAttribute('data-i18n-placeholder')) {
+                                element.placeholder = translations[key]
+                            } else {
+                                element.textContent = translations[key]
+                            }
+                        }
+                    })
+                }
+            }
+        } catch (error) {
+            console.error('Failed to update popup translations:', error)
+        }
     }
 
     const update = async () => {
@@ -354,6 +394,27 @@ const useProfile = () => {
         }
     }
 
+    const loadUserImages = async () => {
+        try {
+            const response = await fetch('/api/Profile/images?count=10', {
+                method: 'GET',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include'
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const images = await response.json()
+            userImages.value = images
+            console.log('載入用戶圖片成功:', images.length, '張圖片')
+        } catch (err) {
+            console.error('載入用戶圖片失敗:', err)
+            userImages.value = []
+        }
+    }
+
     // 載入更多文章
     const loadMorePosts = async () => {
         if (!hasMorePosts.value || isLoading.value) return
@@ -434,7 +495,15 @@ const useProfile = () => {
         loadProfile()
         // 載入第一頁文章（限制 10 篇）
         await GetPostsAsync(1, false, 10)
+        // 載入用戶圖片
+        await loadUserImages()
         manualLoadFunctions = setupManualLoad()
+        
+        // 註冊為全域語言切換的回調函數
+        if (!window.profileTranslationCallbacks) {
+            window.profileTranslationCallbacks = []
+        }
+        window.profileTranslationCallbacks.push(updateEditPopupTranslations)
     })
     
     // 清理函數（如果需要）
@@ -459,6 +528,7 @@ const useProfile = () => {
         hasMorePosts,
         passwordValidation,
         showPassword,
+        userImages,
         
         // Methods
         toggleIcon,
@@ -467,6 +537,7 @@ const useProfile = () => {
         update,
         updateFile,
         loadProfile,
+        loadUserImages,
         stateFunc,
         loadMorePosts,
         cleanup,

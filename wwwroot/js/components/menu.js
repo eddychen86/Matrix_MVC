@@ -241,9 +241,26 @@ const useMenu = () => {
 
         // 更新頁面標題（如果有 title 翻譯）
         if (translations['Title']) document.title = translations['Title']
+        
+        // 呼叫 Profile 頁面的翻譯回調函數（如果存在）
+        if (window.profileTranslationCallbacks) {
+            window.profileTranslationCallbacks.forEach(callback => {
+                if (typeof callback === 'function') {
+                    try {
+                        callback(translations)
+                    } catch (error) {
+                        console.error('Profile translation callback error:', error)
+                    }
+                }
+            })
+        }
 
         // console.log('Page text updated with new translations')
     }
+    
+    // 將翻譯相關函數暴露到全域
+    window.updatePageText = updatePageText
+    window.translationCache = translationCache
 
     //#endregion
 

@@ -49,10 +49,15 @@
         </li>
         <li>
             <h4 class="subTitle" data-i18n="ProfileImgs">@Localizer["ProfileImgs"]</h4>
-            <div class="flex gap-4 items-center">
-                @* <img v-for="(article, idx) in profile.articles.slice(0, 2)" :key="article.articleId"
-                    :src="'/api/Profile/GetPicture/' + article.articleId + '?v=' + rand"
-                    class="mt-4 h-[108px] w-full rounded-lg object-cover" alt="" /> *@
+            <div class="flex gap-2 flex-wrap items-center">
+                <img v-for="(image, idx) in userImages.slice(0, 10)" :key="image.fileId"
+                    :src="image.filePath"
+                    :alt="image.fileName"
+                    class="h-[100px] w-[100px] rounded-lg object-cover cursor-pointer hover:opacity-80 transition-opacity" 
+                />
+                <div v-if="userImages.length === 0" class="text-gray-400 text-sm">
+                    還沒有圖片
+                </div>
             </div>
         </li>
     </ul>

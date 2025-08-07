@@ -157,5 +157,13 @@ namespace Matrix.Services.Interfaces
         /// <param name="password">要驗證的密碼</param>
         /// <returns>驗證結果</returns>
         (bool IsValid, string ErrorMessage) ValidatePassword(string password);
+
+        /// <summary>
+        /// 獲取用戶文章中的前N張圖片
+        /// </summary>
+        /// <param name="userId">使用者 ID</param>
+        /// <param name="count">圖片數量限制，預設為10</param>
+        /// <returns>圖片資訊列表</returns>
+        Task<List<UserImageDto>> GetUserImagesAsync(Guid userId, int count = 10);
     }
 }

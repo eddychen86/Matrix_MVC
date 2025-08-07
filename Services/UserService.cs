@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.EntityFrameworkCore;
 using System.Text.RegularExpressions;
 using Matrix.DTOs;
 using Matrix.Models;
@@ -22,6 +23,8 @@ namespace Matrix.Services
         private readonly IPasswordHasher<User> _passwordHasher;
         private readonly IMapper _mapper;
         private readonly IMemoryCache _cache;
+        private readonly IArticleAttachmentRepository _articleAttachmentRepository;
+        private readonly ApplicationDbContext _context;
 
         public UserService(
             IUserRepository userRepository,
@@ -30,7 +33,9 @@ namespace Matrix.Services
             IOptions<UserValidationOptions> validationOptions,
             IPasswordHasher<User> passwordHasher,
             IMapper mapper,
-            IMemoryCache cache)
+            IMemoryCache cache,
+            IArticleAttachmentRepository articleAttachmentRepository,
+            ApplicationDbContext context)
         {
             _userRepository = userRepository;
             _personRepository = personRepository;
@@ -39,6 +44,8 @@ namespace Matrix.Services
             _passwordHasher = passwordHasher;
             _mapper = mapper;
             _cache = cache;
+            _articleAttachmentRepository = articleAttachmentRepository;
+            _context = context;
         }
 
         /// <summary>
@@ -580,6 +587,45 @@ namespace Matrix.Services
             catch (Exception)
             {
                 return new ReturnType<object> { Success = false, Message = "更新失敗!" };
+            }
+        }
+
+        /// <summary>
+        /// 獲取用戶文章中的前N張圖片
+        /// </summary>
+        /// <param name="userId">使用者 ID</param>
+        /// <param name="count">圖片數量限制，預設為10</param>
+        /// <returns>圖片資訊列表</returns>
+        public async Task<List<UserImageDto>> GetUserImagesAsync(Guid userId, int count = 10)
+        {
+            try
+            {
+                // 查詢用戶的文章
+                var user = await _userRepository.GetByIdAsync(userId);
+                if (user == null) return new List<UserImageDto>();
+
+                // 使用 DbContext 查詢獲取用戶文章的圖片附件
+                var imageAttachments = await _context.ArticleAttachments
+                    .Include(aa => aa.Article)
+                    .Where(aa => aa.Article!.AuthorId == userId && aa.Type.ToLower() == "image")
+                    .OrderByDescending(aa => aa.Article!.CreateTime)
+                    .Take(count)
+                    .ToListAsync();
+
+                return imageAttachments.Select(aa => new UserImageDto
+                {
+                    FileId = aa.FileId,
+                    ArticleId = aa.ArticleId,
+                    FilePath = aa.FilePath,
+                    FileName = aa.FileName,
+                    MimeType = aa.MimeType,
+                    ArticleCreateTime = aa.Article!.CreateTime
+                }).ToList();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"GetUserImagesAsync Error: {ex.Message}");
+                return new List<UserImageDto>();
             }
         }
 
