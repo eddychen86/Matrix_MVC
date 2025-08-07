@@ -218,6 +218,83 @@ namespace Matrix.Services
             return await UpdateUserStatusAsync(id, status);
         }
 
+        /// <summary>
+        /// 更新個人資料圖片（頭像或橫幅）
+        /// </summary>
+        public async Task<ReturnType<object>> UpdateProfileImageAsync(Guid userId, string type, string filePath)
+        {
+            try
+            {
+                var person = await _personRepository.GetByUserIdAsync(userId);
+                if (person == null)
+                {
+                    return new ReturnType<object> 
+                    { 
+                        Success = false, 
+                        Message = "找不到使用者的個人資料" 
+                    };
+                }
+
+                // 備份舊的檔案路徑，以便在更新失敗時回復
+                string? oldFilePath = null;
+
+                // 根據類型更新對應的欄位
+                switch (type.ToLower())
+                {
+                    case "avatar":
+                        oldFilePath = person.AvatarPath;
+                        person.AvatarPath = filePath;
+                        break;
+                    case "banner":
+                        oldFilePath = person.BannerPath;
+                        person.BannerPath = filePath;
+                        break;
+                    default:
+                        return new ReturnType<object> 
+                        { 
+                            Success = false, 
+                            Message = "無效的檔案類型" 
+                        };
+                }
+
+                // 更新修改時間
+                person.ModifyTime = DateTime.UtcNow;
+
+                // 儲存到資料庫
+                await _personRepository.UpdateAsync(person);
+                await _personRepository.SaveChangesAsync();
+
+                // 如果有舊檔案，刪除它
+                if (!string.IsNullOrEmpty(oldFilePath))
+                {
+                    await _fileService.DeleteFileAsync(oldFilePath);
+                }
+
+                // 清除相關快取
+                var userCacheKey = $"user_{userId}";
+                var profileCacheKey = $"profile_{userId}";
+                _cache.Remove(userCacheKey);
+                _cache.Remove(profileCacheKey);
+
+                return new ReturnType<object> 
+                { 
+                    Success = true, 
+                    Message = $"{(type == "avatar" ? "頭像" : "橫幅")}更新成功" 
+                };
+            }
+            catch (Exception ex)
+            {
+                // 記錄錯誤
+                Console.WriteLine($"更新個人資料圖片時發生錯誤: {ex.Message}");
+                
+                return new ReturnType<object> 
+                { 
+                    Success = false, 
+                    Message = "更新過程中發生錯誤，請稍後再試" 
+                };
+            }
+        }
+
         #region 驗證方法
 
         /// <summary>
@@ -463,10 +540,7 @@ namespace Matrix.Services
         {
             try
             {
-                if (userId != dto.UserId)
-                {
-                    return new ReturnType<object> { Success = false, Message = "使用者 ID 不符" };
-                }
+                // UserId 由 Controller 從認證中安全獲取，無需驗證 DTO 中的 UserId
 
                 var person = await _personRepository.GetByUserIdAsync(userId);
                 if (person == null)

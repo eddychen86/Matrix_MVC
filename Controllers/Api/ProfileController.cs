@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Matrix.Services.Interfaces;
 using Matrix.DTOs;
-using System.Security.Claims;
 
 namespace Matrix.Controllers.Api
 {
@@ -13,10 +12,12 @@ namespace Matrix.Controllers.Api
     [ApiController]
     public class ProfileController(
         IUserService userService,
+        IFileService fileService,
         ILogger<ProfileController> logger
     ) : ControllerBase
     {
         private readonly IUserService _userService = userService;
+        private readonly IFileService _fileService = fileService;
         private readonly ILogger<ProfileController> _logger = logger;
 
         /// <summary>
@@ -90,9 +91,9 @@ namespace Matrix.Controllers.Api
 
         /// <summary>
         /// 獲取用戶個人資料
-        /// 預設使用 JWT token 中的用戶 ID，但可以通過查詢參數覆蓋
+        /// 預設使用認證中的用戶 ID，但可以通過查詢參數覆蓋
         /// </summary>
-        /// <param name="userId">可選的用戶 ID，如果不提供則使用 JWT 中的 ID</param>
+        /// <param name="userId">可選的用戶 ID，如果不提供則使用認證中的 ID</param>
         /// <returns>指定用戶的個人資料</returns>
         [HttpGet("")]
         public async Task<ActionResult<PersonDto>> GetMyProfile([FromQuery] Guid? userId = null)
@@ -109,13 +110,15 @@ namespace Matrix.Controllers.Api
                 }
                 else
                 {
-                    // 使用 JWT token 中的 userId 作為預設值
-                    if (!Guid.TryParse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value, out targetUserId))
+                    // 從 HttpContext.Items 中獲取已認證的用戶 ID
+                    var userIdFromContext = HttpContext.Items["UserId"] as Guid?;
+                    if (!userIdFromContext.HasValue)
                     {
-                        _logger.LogWarning("無法從 JWT token 中獲取用戶 ID，且未提供外部 userId");
+                        _logger.LogWarning("無法從認證中獲取用戶 ID，且未提供外部 userId");
                         return Unauthorized("用戶未認證且未提供用戶 ID");
                     }
-                    _logger.LogInformation("使用 JWT token 中的用戶 ID: {UserId}", targetUserId);
+                    targetUserId = userIdFromContext.Value;
+                    _logger.LogInformation("使用認證中的用戶 ID: {UserId}", targetUserId);
                 }
 
                 _logger.LogInformation("開始查詢用戶個人資料，使用者 ID: {UserId}", targetUserId);
@@ -140,7 +143,7 @@ namespace Matrix.Controllers.Api
 
         /// <summary>
         /// 更新當前用戶的個人資料
-        /// 從 JWT token 中獲取用戶 ID，確保只能更新自己的資料
+        /// 從認證中獲取用戶 ID，確保只能更新自己的資料
         /// </summary>
         /// <param name="dto">個人資料 DTO</param>
         /// <returns>更新結果</returns>
@@ -149,15 +152,17 @@ namespace Matrix.Controllers.Api
         {
             try
             {
-                if (!Guid.TryParse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value, out var userId))
+                var userIdFromContext = HttpContext.Items["UserId"] as Guid?;
+                if (!userIdFromContext.HasValue)
                 {
-                    _logger.LogWarning("無法從 JWT token 中獲取用戶 ID");
+                    _logger.LogWarning("無法從認證中獲取用戶 ID");
                     return new ReturnType<object> 
                     { 
                         Success = false, 
                         Message = "用戶未認證" 
                     };
                 }
+                var userId = userIdFromContext.Value;
 
                 _logger.LogInformation("開始更新當前用戶個人資料，使用者 ID: {UserId}", userId);
                 
@@ -184,5 +189,128 @@ namespace Matrix.Controllers.Api
                 };
             }
         }
+
+        /// <summary>
+        /// 上傳頭像或橫幅圖片
+        /// 根據 type 參數決定更新 avatar 還是 banner
+        /// </summary>
+        /// <param name="file">上傳的圖片檔案</param>
+        /// <param name="type">檔案類型：avatar 或 banner</param>
+        /// <returns>上傳結果</returns>
+        [HttpPost("upload-image")]
+        public async Task<IActionResult> UploadImage([FromForm] IFormFile file, [FromForm] string type)
+        {
+            try
+            {
+                // 驗證輸入參數
+                if (file == null || file.Length == 0)
+                {
+                    return BadRequest(new { success = false, message = "請選擇要上傳的檔案" });
+                }
+
+                if (string.IsNullOrEmpty(type) || (type != "avatar" && type != "banner"))
+                {
+                    return BadRequest(new { success = false, message = "檔案類型必須是 avatar 或 banner" });
+                }
+
+                // 檢查檔案類型
+                if (!file.ContentType.StartsWith("image/"))
+                {
+                    return BadRequest(new { success = false, message = "只允許上傳圖片檔案" });
+                }
+
+                // 檢查檔案大小 (5MB)
+                const long maxFileSize = 5 * 1024 * 1024;
+                if (file.Length > maxFileSize)
+                {
+                    return BadRequest(new { success = false, message = "檔案大小不可超過 5MB" });
+                }
+
+                // 獲取當前用戶 ID
+                var userIdFromContext = HttpContext.Items["UserId"] as Guid?;
+                if (!userIdFromContext.HasValue)
+                {
+                    _logger.LogWarning("無法從認證中獲取用戶 ID");
+                    return Unauthorized(new { success = false, message = "用戶未認證" });
+                }
+                var userId = userIdFromContext.Value;
+
+                _logger.LogInformation("開始上傳 {Type} 圖片，使用者 ID: {UserId}", type, userId);
+
+                // 使用 FileService 上傳檔案到 profile/imgs 目錄
+                var relativePath = await _fileService.CreateFileAsync(file, "profile/imgs");
+                
+                if (string.IsNullOrEmpty(relativePath))
+                {
+                    _logger.LogError("檔案上傳失敗");
+                    return StatusCode(500, new { success = false, message = "檔案上傳失敗" });
+                }
+
+                // 更新資料庫中對應的欄位
+                var result = await _userService.UpdateProfileImageAsync(userId, type, relativePath);
+                
+                if (!result.Success)
+                {
+                    // 如果資料庫更新失敗，刪除已上傳的檔案
+                    await _fileService.DeleteFileAsync(relativePath);
+                    _logger.LogWarning("資料庫更新失敗，已刪除上傳的檔案: {Path}", relativePath);
+                    return BadRequest(new { success = false, message = result.Message });
+                }
+
+                _logger.LogInformation("{Type} 圖片上傳成功，路徑: {Path}", type, relativePath);
+
+                return Ok(new 
+                { 
+                    success = true, 
+                    message = $"{(type == "avatar" ? "頭像" : "橫幅")}更新成功",
+                    data = new { filePath = relativePath }
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "上傳圖片時發生例外，類型: {Type}", type);
+                return StatusCode(500, new { success = false, message = "上傳過程中發生錯誤，請稍後再試" });
+            }
+        }
+
+        /// <summary>
+        /// 驗證密碼規則
+        /// 提供前端即時驗證密碼是否符合server端規則
+        /// </summary>
+        /// <param name="password">要驗證的密碼</param>
+        /// <returns>驗證結果</returns>
+        [HttpPost("validate-password")]
+        public IActionResult ValidatePassword([FromBody] ValidatePasswordRequest request)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(request.Password))
+                {
+                    return Ok(new { isValid = true, message = "" }); // 空密碼視為有效（表示不更改）
+                }
+
+                // 使用 UserService 的密碼驗證邏輯
+                var validation = _userService.ValidatePassword(request.Password);
+                
+                return Ok(new 
+                { 
+                    isValid = validation.IsValid,
+                    message = validation.IsValid ? "" : validation.ErrorMessage
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "密碼驗證時發生例外");
+                return StatusCode(500, new { isValid = false, message = "驗證過程中發生錯誤" });
+            }
+        }
+    }
+
+    /// <summary>
+    /// 密碼驗證請求模型
+    /// </summary>
+    public class ValidatePasswordRequest
+    {
+        public string Password { get; set; } = string.Empty;
     }
 }

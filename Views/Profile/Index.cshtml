@@ -3,12 +3,26 @@
 
     <!-- 頂部橫幅與頭像 -->
     <header class="profile-header">
-        <img :src="profile.bannerPath" alt="Profile Banner" class="profile-banner" />
+        <div class="profile-banner_layout">
+            <button v-on:click="updateFile('banner')">
+                <i data-lucide="pen" class="icon-bg text-white"></i>
+            </button>
+            <input type="file" accept="image/*" class="hidden" id="banner-file-input">
+            <img :src="profile.bannerPath" alt="Profile Banner" class="profile-banner" />
+        </div>
         <div class="profile-avatar">
             <div class="profile-avatar_body">
-                <img :src="profile.avatarPath" alt="Profile Avatar" />
+                <div class="profile-avatar_img_layout">
+                    <button class="edit" v-on:click="updateFile('avatar')">
+                        <i data-lucide="pen" class="icon-bg text-white"></i>
+                    </button>
+                    <input type="file" accept="image/*" class="hidden" id="avatar-file-input">
+                    <img :src="profile.avatarPath" alt="Profile Avatar" />
+                </div>
                 <h3>{{ profile.displayName }}</h3>
-                <i data-lucide="crown" class="size-12 mb-4 text-yellow-500"></i>
+                <i data-lucide="globe" v-if="!profile.isPrivate" class="size-12 mb-4 text-blue-500"></i>
+                <i data-lucide="globe-lock" v-else class="size-12 mb-4 text-blue-500"></i>
+                <i data-lucide="crown" v-show="profile.walletAddress" class="size-12 mb-4 text-yellow-500"></i>
             </div>
             <button class="subTitle font-semibold" data-i18n="Create">@Localizer["Create"]</button>
         </div>
@@ -128,4 +142,3 @@
     <!-- Edit Profile View -->
     @await Component.InvokeAsync("EditProfilePopup")
 </div>
-

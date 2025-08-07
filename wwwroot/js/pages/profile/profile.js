@@ -20,11 +20,33 @@ const useProfile = () => {
         website3: '',
         isPrivate: false
     })
+    const updatProfile = reactive({
+        bannerPath: '',
+        avatarPath: '',
+        displayName: '',
+        bio: '',
+        email: '',
+        password: '',
+        website1: '',
+        website2: '',
+        website3: '',
+        isPrivate: false
+    })
     const posts = ref([])
     const counts = ref(0)
     const currentPage = ref(1)
     const isLoading = ref(false)
     const hasMorePosts = ref(true)
+    
+    // 密碼驗證相關狀態
+    const passwordValidation = reactive({
+        isValid: true,
+        message: '',
+        isValidating: false
+    })
+    
+    // 密碼顯示狀態
+    const showPassword = ref(false)
     //#endregion
 
     //#region Profile Management
@@ -44,19 +66,31 @@ const useProfile = () => {
     const startEdit = () => {
         editMode.value = true
         // Create a deep copy for backup
-        profile.backup = JSON.parse(JSON.stringify(profile))
+        Object.assign(updatProfile, JSON.parse(JSON.stringify(profile)))
     }
 
     const update = async () => {
         try {
+            // 檢查密碼是否有效（如果有輸入密碼的話）
+            if (updatProfile.password && updatProfile.password.trim() !== '') {
+                const isPasswordValid = await validatePassword(updatProfile.password)
+                if (!isPasswordValid) {
+                    alert('密碼不符合規則，請檢查後重新提交')
+                    return
+                }
+            }
+
+            // Server端會自動從認證中獲取UserId，不需要傳遞
             const data = {
-                bio: profile.bio,
-                displayName: profile.displayName,
-                email: profile.email,
-                password: profile.password,
-                website1: profile.website1,
-                website2: profile.website2,
-                website3: profile.website3
+                bio: updatProfile.bio,
+                displayName: updatProfile.displayName,
+                email: updatProfile.email,
+                // 只有當密碼不為空時才傳送密碼更新
+                ...(updatProfile.password && updatProfile.password.trim() !== '' && { password: updatProfile.password }),
+                isPrivate: updatProfile.isPrivate ? 1 : 0,
+                website1: updatProfile.website1,
+                website2: updatProfile.website2,
+                website3: updatProfile.website3,
             }
 
             const response = await fetch('/api/Profile/personal', {
@@ -72,43 +106,170 @@ const useProfile = () => {
 
             const result = await response.json();
             alert(result.message || "Profile updated successfully!");
+            
+            // 更新 profile 資料
+            Object.assign(profile, updatProfile);
+            
             editMode.value = false
-            delete profile.backup; // Clear backup after successful update
             rand.value = new Date().getTime() // Force re-render
         } catch (err) {
             alert("更新失敗")
             console.error("Failed to update profile:", err)
         }
     }
+
+    // 密碼驗證函數
+    const validatePassword = async (password) => {
+        if (!password || password.trim() === '') {
+            passwordValidation.isValid = true
+            passwordValidation.message = ''
+            passwordValidation.isValidating = false
+            return true
+        }
+
+        passwordValidation.isValidating = true
+
+        try {
+            const response = await fetch('/api/Profile/validate-password', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify({ password: password })
+            })
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`)
+            }
+
+            const result = await response.json()
+            passwordValidation.isValid = result.isValid
+            passwordValidation.message = result.message || ''
+            
+            return result.isValid
+        } catch (error) {
+            console.error('密碼驗證失敗:', error)
+            passwordValidation.isValid = false
+            passwordValidation.message = '驗證過程中發生錯誤，請稍後再試'
+            return false
+        } finally {
+            passwordValidation.isValidating = false
+        }
+    }
+
+    // 防抖動密碼驗證
+    let passwordValidationTimeout = null
+    const validatePasswordWithDebounce = (password) => {
+        if (passwordValidationTimeout) {
+            clearTimeout(passwordValidationTimeout)
+        }
+        
+        // 如果密碼為空，立即重設驗證狀態
+        if (!password || password.trim() === '') {
+            passwordValidation.isValid = true
+            passwordValidation.message = ''
+            passwordValidation.isValidating = false
+            return
+        }
+        
+        passwordValidationTimeout = setTimeout(() => {
+            validatePassword(password)
+        }, 500) // 500ms 後執行驗證
+    }
+
+    // 切換密碼顯示/隱藏
+    const togglePasswordVisibility = () => {
+        showPassword.value = !showPassword.value
+    }
     //#endregion
 
     //#region File Handling
-    const editFileChange = (inputTypeFile) => {
-        readURL(inputTypeFile, inputTypeFile.parentElement.previousSibling, document.getElementById("update"))
-    }
 
-    const readURL = (inputTypeFile, img, btn) => {
-        if (!inputTypeFile.files || inputTypeFile.files.length === 0) return;
-
-        const file = inputTypeFile.files[0]
-        const allowTypes = /^image\/.*/
+    const updateFile = type => {
+        // console.log('updateFile called with type:', type)
         
-        if (allowTypes.test(file.type)) {
-            if (btn) btn.disabled = false
-            const reader = new FileReader()
-            reader.onload = (e) => {
-                if (img) {
-                    img.src = e.target.result
-                    img.title = file.name
-                }
-            }
-            reader.readAsDataURL(file)
+        // 根據類型選擇對應的 input 元素
+        let inputId
+        if (type === 'avatar') {
+            inputId = 'avatar-file-input'
+        } else if (type === 'banner') {
+            inputId = 'banner-file-input'
         } else {
-            alert("不允許的檔案上傳類型！")
-            if (btn) btn.disabled = true
-            inputTypeFile.value = ""
+            console.error('Invalid file type:', type)
+            return
+        }
+        
+        // 找到對應的 input 元素並觸發點擊
+        const input = document.getElementById(inputId)
+        if (input) {
+            input.addEventListener('change', (event) => handleFileUpload(event, type), { once: true })
+            input.click()
+        } else {
+            console.error('File input not found:', inputId)
         }
     }
+
+    const handleFileUpload = async (event, type) => {
+        const file = event.target.files[0]
+        if (!file) return
+
+        // 檢查是否為圖片
+        if (!file.type.startsWith('image/')) {
+            alert('請選擇圖片檔案')
+            event.target.value = ''
+            return
+        }
+
+        // 檢查檔案大小 (限制 5MB)
+        const maxSize = 5 * 1024 * 1024 // 5MB
+        if (file.size > maxSize) {
+            alert('檔案大小不可超過 5MB')
+            event.target.value = ''
+            return
+        }
+
+        try {
+            // 建立 FormData
+            const formData = new FormData()
+            formData.append('file', file)
+            formData.append('type', type)
+
+            // 發送上傳請求
+            const response = await fetch('/api/Profile/upload-image', {
+                method: 'POST',
+                credentials: 'include',
+                body: formData
+            })
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`)
+            }
+
+            const result = await response.json()
+            
+            if (result.success) {
+                // 更新本地 profile 資料
+                if (type === 'avatar') {
+                    profile.avatarPath = result.data.filePath
+                } else if (type === 'banner') {
+                    profile.bannerPath = result.data.filePath
+                }
+                
+                // 強制更新顯示
+                rand.value = new Date().getTime()
+                
+                console.log(`${type} uploaded successfully:`, result.data.filePath)
+            } else {
+                throw new Error(result.message || '上傳失敗')
+            }
+        } catch (error) {
+            console.error('File upload failed:', error)
+            alert('上傳失敗，請稍後再試')
+        } finally {
+            // 清空 input 值，允許重複上傳同一檔案
+            event.target.value = ''
+        }
+    }
+
     //#endregion
 
     //#region User & Profile Loading
@@ -291,22 +452,27 @@ const useProfile = () => {
         editMode,
         isPublic,
         profile,
+        updatProfile,
         posts,
         counts,
         isLoading,
         hasMorePosts,
+        passwordValidation,
+        showPassword,
         
         // Methods
         toggleIcon,
         cancel,
         startEdit,
         update,
-        editFileChange,
-        readURL,
+        updateFile,
         loadProfile,
         stateFunc,
         loadMorePosts,
         cleanup,
+        validatePassword,
+        validatePasswordWithDebounce,
+        togglePasswordVisibility,
         
         // Manual load functions
         showLoadMoreButton: manualLoadFunctions?.showLoadMoreButton || Vue.ref(false),

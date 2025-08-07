@@ -29,8 +29,7 @@
     </div>
 
     <!-- Scripts moved outside of Vue app container -->
-    <script src="~/lib/jquery/jquery.min.js"></script>
-
+    @* <script src="~/lib/jquery/jquery.min.js"></script> *@
     @* 開發環境 (開發版 Vue) *@
     <environment include="Development">
         <script src="~/lib/vue/dist/vue.global.js" asp-append-version="true"></script>
@@ -39,16 +38,15 @@
     <environment exclude="Development">
         <script src="~/lib/vue/dist/vue.global.prod.js" asp-append-version="true"></script>
     </environment>
-
     <script src="~/lib/lucide/dist/umd/lucide.min.js"></script>
-    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 
     <script src="~/js/hooks/useFormatting.js" asp-append-version="true"></script>
     <script src="~/js/services/AuthService.js" asp-append-version="true"></script>
     <script src="~/js/auth/auth-manager.js" asp-append-version="true"></script>
     <script src="~/js/auth/login-popup.js" asp-append-version="true"></script>
+
     <script src="~/js/components/menu.js" asp-append-version="true"></script>
-    <script src="~/js/pages/profile.js" asp-append-version="true"></script>
+    <script src="~/js/pages/profile/profile.js" asp-append-version="true"></script>
     <script src="~/js/main.js" asp-append-version="true"></script>
 
     <!-- Scripts section rendered outside of Vue app -->

@@ -141,6 +141,7 @@ namespace Matrix.Services
                 ["SaveProfile"] = "儲存個人資料",
                 ["ProfileWellat"] = "錢包地址",
                 ["ProfileState"] = "是否公開",
+                ["ProfilePwd"] = "重設密碼",
 
                 #endregion
 
@@ -350,6 +351,7 @@ namespace Matrix.Services
                 ["SaveProfile"] = "Save Profile",
                 ["ProfileWellat"] = "Wallet Address",
                 ["ProfileState"] = "Profile State",
+                ["ProfilePwd"] = "Reset Password",
 
                 #endregion
 

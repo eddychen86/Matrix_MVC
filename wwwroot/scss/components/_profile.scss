@@ -5,16 +5,33 @@
       @apply relative h-56 w-full mb-26 col-span-7;
     }
 
-    &-banner {
-      @apply size-full rounded-[30px] object-cover object-right;
+    &-banner_layout {
+      @apply relative size-full rounded-[30px] object-cover object-right;
+
+      button {
+        @apply cursor-pointer transition duration-300 hover:opacity-100 opacity-0 bg-black/50 size-full flex items-center justify-center absolute z-10 top-1/2 left-1/2 -translate-1/2;
+      }
+      
+      img {
+        @apply size-full object-cover object-center;
+      }
     }
 
     &-avatar{
-      @apply absolute top-2/3 left-1/12 flex gap-4 items-end justify-between w-[calc(100%-600px)];
+      @apply absolute z-10 top-2/3 left-1/12 flex gap-4 items-end justify-between w-[calc(100%-600px)];
 
-      img {
-        @apply size-40 rounded-full outline-[1em] outline-[#161616] object-cover object-center;
+      &_img_layout {
+        @apply relative size-40 rounded-full outline-[1em] outline-[#161616] overflow-hidden;
+
+        .edit {
+          @apply cursor-pointer transition duration-300 hover:opacity-100 opacity-0 bg-black/50 size-full flex items-center justify-center absolute z-10 top-1/2 left-1/2 -translate-1/2;
+        }
+        
+        img {
+          @apply size-full object-cover object-center;
+        }
       }
+
 
       &_body {
         @apply flex gap-8 items-end;
@@ -62,21 +79,53 @@
       }
 
       &_layout {
-        @apply absolute rounded-[30px] p-8 z-40 top-1/2 left-1/2 transform -translate-1/2 flex flex-col gap-8 w-[700px];
+        @apply absolute rounded-[30px] p-8 z-40 top-1/2 left-1/2 transform -translate-1/2 flex flex-col gap-8 w-[800px] max-h-[80vh] overflow-y-auto;
 
-        li {
-          @apply flex flex-col gap-2;
-        }
+        ul {
+          @apply flex flex-col gap-8;
 
-        .avatar {
-          @apply flex-row justify-between items-center;
+          li {
+            @apply grid grid-cols-4 gap-4 items-start border-b-1 border-stone-500 pb-8;
 
-          img {
-            @apply min-w-36 min-h-36 max-w-36 max-h-36 rounded-full object-cover object-center;
+            &:last-child {
+              @apply border-none pb-0;
+            }
+  
+            h4 {
+              @apply font-semibold col-span-1 py-1;
+            }
+  
+            input, textarea {
+              @apply rounded-lg px-3 py-2 w-full bg-stone-600;
+            }
+
+            & input, & ul, & textarea {
+              @apply col-span-3;
+            }
+
+            & ul {
+              @apply flex flex-col gap-4;
+            }
+
+            .input-item_pwd {
+              @apply bg-stone-600 rounded-lg pr-4 flex gap-4 justify-between items-center focus:outline-1;
+
+              input {
+                @apply focus:outline-none;
+              }
+            }
           }
+        }
+        
+        .btnGroup {
+          @apply flex gap-8 items-center justify-center col-span-4;
 
           button {
-            @apply flex gap-4 px-4 py-2 bg-blue-700 rounded-full;
+            @apply px-4;
+          }
+
+          span {
+            @apply font-semibold;
           }
         }
       }
