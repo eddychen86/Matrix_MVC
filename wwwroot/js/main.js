@@ -93,7 +93,7 @@ globalApp({
                     bio: user.bio || '這位使用者尚未填寫個人簡介。'
                 }))
 
-                popupData.Search.Hashtags = tags
+                popupData.Search.Hashtags = tags.data
                 console.log('🎯 搜尋結果資料：', popupData.Search)
             } catch (err) {
                 console.error('Search API Error:', err)

@@ -56,7 +56,8 @@ public class Program
         builder.Services.AddScoped<IArticleHashtagRepository, ArticleHashtagRepository>();
         builder.Services.AddScoped<ILoginRecordRepository, LoginRecordRepository>();
         builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
-        
+        builder.Services.AddScoped<ISearchHashtagService, SearchHashtagService>();
+
         #endregion
 
         #region 註冊 Service
