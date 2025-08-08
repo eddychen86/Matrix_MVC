@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.DotNet.Scaffolding.Shared.Messaging;
+using Org.BouncyCastle.Bcpg;
 using System;
 
 namespace Matrix.Areas.Dashboard.Controllers.Api
@@ -54,7 +56,7 @@ namespace Matrix.Areas.Dashboard.Controllers.Api
         //Delete
         [HttpDelete("{id}")]
 
-        public async Task<IActionResult> DeleteUser(Guid id) 
+        public async Task<IActionResult> DeleteUser(Guid id)
         {
             try
             {
@@ -73,6 +75,43 @@ namespace Matrix.Areas.Dashboard.Controllers.Api
             {
                 return StatusCode(500, $"刪除失敗：{ex.Message}");
             }
+        }
+
+        //編輯
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Update(Guid id, [FromBody] UpdateUserStatusDto dto) 
+        {
+            if (dto == null || id != dto.UserId) 
+            {
+                return BadRequest(new
+                {
+                    Message = "id不一樣"
+                });
+            }
+            if (dto.Status < 0 || dto.Status > 2) 
+            {
+                return BadRequest(new
+                {
+                    Message = "只允許0,1,2"
+                });
+            }
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.UserId == id);
+            if (user == null) 
+            {
+                return NotFound();
+            }
+            user.Status = dto.Status;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+                return Ok(new { message = "更新成功" });
+            }
+            catch (DbUpdateException ex)
+            {
+                return StatusCode(500, new { message = "更新失敗", detail = ex.InnerException?.Message ?? ex.Message });
+            }
+
         }
 
     }
