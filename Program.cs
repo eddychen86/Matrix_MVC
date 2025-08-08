@@ -204,7 +204,7 @@ public class Program
         }
 
         app.UseHttpsRedirection();
-        app.UseResponseCompression(); // 啟用響應壓縮
+        //app.UseResponseCompression(); // 啟用響應壓縮
         app.UseStaticFiles();
         app.UseRouting();
         app.UseRequestLocalization();

@@ -15,10 +15,18 @@ const globalApp = content => {
 
 globalApp({
     setup() {
-        const { ref, reactive, computed,watch } = Vue
+        const { ref, reactive, computed, watch, onMounted } = Vue
         const { formatDate, timeAgo } = useFormatting()
         const isLoading = ref(false)
-        
+        const isAppReady = ref(false)
+
+
+        onMounted(() => {
+            isAppReady.value = true
+
+            const wrapper = document.getElementById('popup-wrapper')
+            if (wrapper) wrapper.style.display = ''
+        })
 
 
         //#region Pop-Up Events
@@ -35,7 +43,10 @@ globalApp({
 
         // Popup Data Storage
         const popupData = reactive({
-            Search: [],
+            Search: {
+                Users: [],
+                Hashtags: []
+            },
             Notify: [],
             Follows: [],
             Collects: []
@@ -60,24 +71,34 @@ globalApp({
             const keyword = searchQuery.value
 
             if (!keyword || keyword.trim().length < 1) {
-                console.log('eteqwtrey')
-                popupData.Search = []
+                popupData.Search.Users = []
+                popupData.Search.Hashtags = []
                 return
             }
 
             isLoading.value = true
             try {
-                const res = await fetch(`/api/search/users?keyword=${encodeURIComponent(keyword)}`)
-                const result = await res.json()
-                popupData.Search = result.data.map(item => ({
-                    displayName: item.displayName,
-                    avatarUrl: item.avatarPath,
-                    bio: item.bio || '這位使用者尚未填寫個人簡介。'
+                const [userRes, tagRes] = await Promise.all([
+                    fetch(`/api/search/users?keyword=${encodeURIComponent(keyword)}`),
+                    fetch(`/api/search/hashtags?keyword=${encodeURIComponent(keyword)}`)
+                ])
+
+                const users = await userRes.json()
+                const tags = await tagRes.json()
+
+
+                popupData.Search.Users = users.data.map(user => ({
+                    displayName: user.displayName,
+                    avatarUrl: user.avatarPath,
+                    bio: user.bio || '這位使用者尚未填寫個人簡介。'
                 }))
+
+                popupData.Search.Hashtags = tags
                 console.log('🎯 搜尋結果資料：', popupData.Search)
             } catch (err) {
                 console.error('Search API Error:', err)
-                popupData.Search = []
+                popupData.Search.Users = []
+                popupData.Search.Hashtags = []
             } finally {
                 isLoading.value = false
             }
@@ -111,7 +132,8 @@ globalApp({
 
             if (type === 'Search') {
                 searchQuery.value = ''
-                popupData.Search = []
+                popupData.Search.Users = []
+                popupData.Search.Hashtags = []
                 return
             }
 
@@ -158,6 +180,8 @@ globalApp({
             // 為新版 popup 提供向後兼容
             isOpen: computed(() => popupState.isVisible),
             closeCollectModal: closePopup,
+
+            isAppReady,
 
             // hooks
             formatDate,

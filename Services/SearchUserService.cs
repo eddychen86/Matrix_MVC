@@ -1,4 +1,6 @@
-﻿namespace Matrix.Services
+﻿using Microsoft.IdentityModel.Tokens;
+
+namespace Matrix.Services
 {
     public class SearchUserService : ISearchUserService
     {
