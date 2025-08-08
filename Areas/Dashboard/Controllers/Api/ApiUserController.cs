@@ -52,20 +52,27 @@ namespace Matrix.Areas.Dashboard.Controllers.Api
         }
 
         //Delete
-        [HttpDelete]
+        [HttpDelete("{id}")]
 
-        public async Task<IActionResult> DeleteUser([FromBody]Guid id) 
+        public async Task<IActionResult> DeleteUser(Guid id) 
         {
-            var deleteuser = await _context.Users.FindAsync(id);
-            if (deleteuser == null)
+            try
             {
-                return NotFound();  
+                var deleteuser = await _context.Users.FindAsync(id);
+                if (deleteuser == null)
+                {
+                    return NotFound();
+                }
+
+                _context.Users.Remove(deleteuser);
+                await _context.SaveChangesAsync();
+
+                return NoContent();
             }
-
-            _context.Users.Remove(deleteuser);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"刪除失敗：{ex.Message}");
+            }
         }
 
     }
