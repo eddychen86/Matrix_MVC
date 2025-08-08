@@ -46,6 +46,15 @@
                 .IsRequired();  // 確保關聯是必須的
 
             /// <summary>
+            /// 設定 Article 與 Person 的一對多關聯，一個 Person 可以有多篇 Article，使用 Article.AuthorId 作為外鍵
+            /// </summary>
+            modelBuilder.Entity<Article>()
+                .HasOne(a => a.Author)
+                .WithMany(p => p.Articles)
+                .HasForeignKey(a => a.AuthorId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            /// <summary>
             /// 設定通知接收者關聯，一人可接收多個通知，使用 GetId 作為外鍵，限制刪除以維護資料完整性
             /// </summary>
             modelBuilder.Entity<Notification>()

@@ -1,12 +1,13 @@
 @layer components {
   .sidebar {
-    @apply bg-secondary text-white text-3xl h-full rounded-[30px] p-5 flex flex-col justify-between transition-[width] duration-300;
+    @apply
+      bg-secondary text-white text-3xl h-full rounded-[30px] flex flex-col justify-between transition-[width] duration-300
+      p-1 sm:p-3 2xl:p-5
+    ;
 
     li {
-      @apply
-        flex flex-col gap-2 overflow-hidden
-        px-3 md:px-5
-      ;
+      @apply flex flex-col gap-2 overflow-hidden
+        px-1 sm:px-3 2xl:px-5;
 
       &:last-child {
         @apply bg-white w-full flex flex-col text-black p-3 rounded-3xl;
@@ -22,7 +23,7 @@
       span {
         @apply
           absolute truncate
-          left-10 md:left-18
+          left-2 sm:left-10 2xl:left-18
         ;
       }
 
@@ -30,44 +31,25 @@
         @apply px-0 bg-none;
       }
 
-      button, a {
+      button,
+      a {
         @apply overflow-hidden;
       }
     }
 
-    // 小螢幕：sidebar-open 表示收合，sidebar-close 表示展開
     &-open {
-      @apply w-[100px];
-
-      span {
-        @apply opacity-0;
-      }
-    }
-
-    &-close {
-      @apply w-[180px];
+      @apply w-[180px] 2xl:w-[260px] items-stretch;
 
       span {
         @apply opacity-100;
       }
     }
 
-    // 大螢幕：恢復原本的邏輯
-    @media (min-width: 640px) {
-      &-open {
-        @apply w-[200px] md:w-[260px] items-stretch;
+    &-close {
+      @apply w-[85px] 2xl:w-[130px];
 
-        span {
-          @apply opacity-100;
-        }
-      }
-
-      &-close {
-        @apply w-[100px] md:w-[130px];
-
-        span {
-          @apply opacity-0;
-        }
+      span {
+        @apply opacity-0;
       }
     }
   }

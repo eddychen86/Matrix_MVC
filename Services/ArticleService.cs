@@ -124,6 +124,7 @@ namespace Matrix.Services
                 var articleDtos = _mapper.Map<List<ArticleDto>>(articles);
                 Console.WriteLine($"Articles mapped successfully: {articleDtos.Count}");
 
+                // 載入文章附件
                 foreach (var articleDto in articleDtos)
                 {
                     var attachments = await _attachmentRepository.GetByArticleIdAsync(articleDto.ArticleId);
@@ -249,8 +250,9 @@ namespace Matrix.Services
             if (!string.IsNullOrEmpty(searchKeyword))
                 query = query.Where(a => a.Content.Contains(searchKeyword));
 
-            // 使用單一 Include 避免複雜的關聯
-            return query.Include(a => a.Author);
+            // 包含作者個人資料的關聯
+            return query.Include(a => a.Author!)
+                       .ThenInclude(p => p.User);
         }
 
         private async Task<bool> UpdateCountAsync(Guid articleId, Action<Article> updateAction)

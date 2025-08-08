@@ -2,26 +2,36 @@
   .profile {
     
     &-header {
-      @apply relative h-56 w-full mb-26 col-span-7;
+      @apply 
+        relative w-full col-span-7
+        h-14 sm:h-28 2xl:h-56
+        mb-6 sm:mb-14 2xl:mb-26
+      ;
     }
 
     &-banner_layout {
-      @apply relative size-full rounded-[30px] object-cover object-right;
+      @apply relative size-full rounded-[30px] object-cover object-right overflow-hidden;
 
       button {
         @apply cursor-pointer transition duration-300 hover:opacity-100 opacity-0 bg-black/50 size-full flex items-center justify-center absolute z-10 top-1/2 left-1/2 -translate-1/2;
       }
       
       img {
-        @apply size-full object-cover object-center;
+        @apply w-full object-cover object-center;
       }
     }
 
     &-avatar{
-      @apply absolute z-10 top-2/3 left-1/12 flex gap-4 items-end justify-between w-[calc(100%-600px)];
+      @apply
+        absolute z-10 top-2/3 left-1/12 flex gap-4 items-end justify-between
+        w-[calc(100%-200px)] sm:w-[calc(100%-400px)] 2xl:w-[calc(100%-600px)]
+      ;
 
       &_img_layout {
-        @apply relative size-40 rounded-full outline-[1em] outline-[#161616] overflow-hidden;
+        @apply
+          relative rounded-full outline-[1em] outline-[#161616] overflow-hidden
+          size-5 sm:size-20 2xl:size-40
+        ;
 
         .edit {
           @apply cursor-pointer transition duration-300 hover:opacity-100 opacity-0 bg-black/50 size-full flex items-center justify-center absolute z-10 top-1/2 left-1/2 -translate-1/2;
@@ -38,35 +48,61 @@
 
   
         h3 {
-          @apply mb-4 font-semibold text-5xl;
+          @apply
+            font-semibold
+            mb-0 2xl:mb-4
+            text-xl sm:text-3xl 2xl:text-5xl
+          ;
         }
       }
 
       button {
-        @apply mb-4 px-6 py-3 bg-white text-black rounded-full float-end;
+        @apply
+        bg-white text-black rounded-full float-end cursor-pointer
+          px-3 2xl:px-6
+          py-1 2xl:py-3
+          mb-0 2xl:mb-4
+        ;
       }
     }
 
     &-info {
-      @apply flex flex-col gap-8 p-8 rounded-[30px] relative col-span-2;
+      @apply
+        gap-8 p-8 rounded-[30px] relative overflow-hidden grid grid-flow-col
+        grid-cols-1 sm:grid-cols-2 2xl:grid-cols-1
+        sm:grid-rows-3
+        col-span-7 2xl:col-span-2
+      ;
 
       .editPen {
-        @apply absolute top-6 right-6 z-10 rounded-full size-10 p-2 cursor-pointer transition-colors duration-300 flex justify-center items-center;
+        @apply
+          absolute z-10 rounded-full p-2 cursor-pointer transition-colors duration-300 flex justify-center items-center
+          top-2 sm:top-4 2xl:top-6
+          right-2 sm:right-4 2xl:right-6
+          size-6 sm:size-8 2xl:size-10 
+        ;
 
         &:hover {
           @apply bg-stone-800;
         }
       }
 
-      li {
-        @apply flex flex-col gap-4;
-        
-        h4 {
+      & > li {
+        @apply
+          flex flex-col gap-4
+          col-span-2 sm:col-span-1 2xl:col-span-2;
+        ;
+
+        & h4 {
           @apply font-semibold;
         }
 
-        ul, p {
-          @apply indent-3;
+        & ul, & p {
+          @apply px-3;
+
+          & li {
+            @apply flex;
+          }
         }
       }
     }
@@ -79,7 +115,7 @@
       }
 
       &_layout {
-        @apply absolute rounded-[30px] p-8 z-40 top-1/2 left-1/2 transform -translate-1/2 flex flex-col gap-8 w-[800px] max-h-[80vh] overflow-y-auto;
+        @apply absolute rounded-[30px] p-8 z-40 top-1/2 left-1/2 transform -translate-1/2 flex flex-col gap-8 w-[60vw] max-h-[80vh] overflow-y-auto;
 
         ul {
           @apply flex flex-col gap-8;

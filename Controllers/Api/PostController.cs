@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Mvc;
 using Matrix.Services.Interfaces;
 using Matrix.DTOs;
 using System.Security.Claims;
+using Matrix.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace Matrix.Controllers.Api
 {
@@ -14,13 +16,15 @@ namespace Matrix.Controllers.Api
         private readonly ICollectService _collectService;
         private readonly IReplyService _replyService;
         private readonly IArticleService _articleService;
+        private readonly ApplicationDbContext _context;
 
         public PostController(
             ILogger<PostController> logger,
             IPraiseService praiseService,
             ICollectService collectService,
             IReplyService replyService,
-            IArticleService articleService
+            IArticleService articleService,
+            ApplicationDbContext context
         )
         {
             _logger = logger;
@@ -28,15 +32,18 @@ namespace Matrix.Controllers.Api
             _collectService = collectService;
             _replyService = replyService;
             _articleService = articleService;
+            _context = context;
         }
 
         [HttpPost("")]
-        public async Task<IActionResult> GetAllPosts([FromBody] GetAllPostsRequestDto request)
+        public async Task<IActionResult> GetAllPosts(
+            [FromBody] GetAllPostsRequestDto request,
+            [FromQuery] Guid? uid = null)
         {
             try
             {
-                _logger.LogInformation("GetAllPosts called - Page: {Page}, AuthorId: {AuthorId}", 
-                    request?.Page ?? 0, request?.AuthorId);
+                _logger.LogInformation("GetAllPosts called - Page: {Page}, PageSize: {PageSize}, Uid: {Uid}", 
+                    request?.Page ?? 0, request?.PageSize ?? 20, uid);
 
                 if (request == null)
                 {
@@ -44,17 +51,60 @@ namespace Matrix.Controllers.Api
                     return BadRequest(new { error = "Request body is required" });
                 }
 
-                _logger.LogInformation("About to call GetArticlesAsync with PageSize: {PageSize}", request.PageSize);
-                var result = await _articleService.GetArticlesAsync(request.Page, request.PageSize, null, request.AuthorId);
-                _logger.LogInformation("GetArticlesAsync completed successfully");
+                Guid? authorId = uid;
+
+                // 如果沒有提供 uid 但是在 profile 頁面且用戶已登入，使用當前用戶 ID
+                if (!uid.HasValue)
+                {
+                    var currentUserId = HttpContext.Items["UserId"] as Guid?;
+                    if (currentUserId.HasValue)
+                    {
+                        // 檢查是否為 Profile 頁面（這裡可以根據需要調整判斷邏輯）
+                        var referer = Request.Headers["Referer"].ToString();
+                        bool isProfilePage = referer.Contains("/profile", StringComparison.OrdinalIgnoreCase);
+                        
+                        if (isProfilePage)
+                        {
+                            // 需要將 UserId 轉換為 PersonId
+                            var userPerson = await _context.Persons
+                                .Where(p => p.UserId == currentUserId.Value)
+                                .FirstOrDefaultAsync();
+                            
+                            if (userPerson != null)
+                            {
+                                authorId = userPerson.PersonId;
+                                _logger.LogInformation("Using current user's PersonId: {PersonId}", authorId);
+                            }
+                        }
+                    }
+                }
+
+                var pageNumber = Math.Max(1, request.Page + 1);
+
+                var result = await _articleService.GetArticlesAsync(
+                    pageNumber, 
+                    request.PageSize, 
+                    null, // searchKeyword
+                    authorId
+                );
                 
-                _logger.LogInformation("GetArticlesAsync returned - Articles count: {Count}, Total: {Total}", 
-                    result.Articles?.Count ?? 0, result.TotalCount);
+                var articles = result.Articles;
+                var totalCount = result.TotalCount;
 
                 var response = new
                 {
-                    articles = result.Articles,
-                    totalCount = result.TotalCount
+                    articles = articles.Select(a => new
+                    {
+                        articleId = a.ArticleId,
+                        content = a.Content,
+                        createTime = a.CreateTime.ToString("yyyy-MM-dd HH:mm"),
+                        praiseCount = a.PraiseCount,
+                        collectCount = a.CollectCount,
+                        authorName = a.Author?.DisplayName ?? "未知作者",
+                        authorAvator = a.Author?.AvatarPath ?? "",
+                        attachments = a.Attachments ?? new List<ArticleAttachmentDto>()
+                    }).ToList(),
+                    totalCount = totalCount
                 };
 
                 _logger.LogInformation("About to return OK response");

@@ -9,6 +9,8 @@ const useProfile = () => {
     const editMode = ref(false)
     const isPublic = ref(false)
     const profile = reactive({
+        personId: null,
+        userId: null,
         bannerPath: '',
         avatarPath: '',
         displayName: '',
@@ -21,6 +23,8 @@ const useProfile = () => {
         isPrivate: false
     })
     const updatProfile = reactive({
+        personId: null,
+        userId: null,
         bannerPath: '',
         avatarPath: '',
         displayName: '',
@@ -319,26 +323,31 @@ const useProfile = () => {
 
         if (isLoading.value || (!hasMorePosts.value && append)) return null
         
+        if (!window.postListService) {
+            console.error('PostListService not available')
+            return null
+        }
+        
         try {
             isLoading.value = true
             
-            const res = await fetch('/api/post', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                credentials: 'include',
-                body: JSON.stringify({ page, pageSize })
-            })
-
-            if (!res.ok) {
-                throw new Error(`HTTP error! status: ${res.status}`)
+            // 使用統一的 PostListService，傳遞 PersonId 作為 uid
+            const result = await window.postListService.getPosts(
+                page, // 現在 PostListService 使用 1-based 頁碼
+                pageSize,
+                profile.personId, // 使用 PersonId 作為 uid 參數
+                true // isProfilePage = true
+            )
+            
+            if (!result.success) {
+                throw new Error(result.error || 'Failed to load posts')
             }
 
-            let data = await res.json()
-            const formattedArticles = data.articles.map(m => ({
+            const formattedArticles = window.postListService.formatArticles(result.articles).map(m => ({
                 ...m, 
                 createTime: timeAgo(m.createTime),
-                authorName: m.author.displayName,
-                authorAvator: m.author.avatarPath,
+                authorName: m.authorName,
+                authorAvator: m.authorAvator,
             }))
             
             if (append) {
@@ -349,17 +358,17 @@ const useProfile = () => {
                 posts.value = formattedArticles
             }
             
-            counts.value = data.totalCount
+            counts.value = result.totalCount
             
             // 檢查是否還有更多文章
             const totalLoaded = posts.value.length
-            hasMorePosts.value = totalLoaded < data.totalCount
+            hasMorePosts.value = totalLoaded < result.totalCount
             
             if (append) {
                 currentPage.value = page
             }
             
-            return data
+            return result
         } catch (err) {
             console.error('載入文章失敗:', err)
             return null
@@ -408,7 +417,7 @@ const useProfile = () => {
 
             const images = await response.json()
             userImages.value = images
-            console.log('載入用戶圖片成功:', images.length, '張圖片')
+            // console.log('載入用戶圖片成功:', images.length, '張圖片')
         } catch (err) {
             console.error('載入用戶圖片失敗:', err)
             userImages.value = []
@@ -492,12 +501,19 @@ const useProfile = () => {
     let manualLoadFunctions = null
     
     onMounted(async () => {
-        loadProfile()
+        await loadProfile()
         // 載入第一頁文章（限制 10 篇）
         await GetPostsAsync(1, false, 10)
         // 載入用戶圖片
         await loadUserImages()
         manualLoadFunctions = setupManualLoad()
+        
+        // 設置無限滾動（Profile 頁面）
+        Vue.nextTick(() => {
+            if (window.globalApp && typeof window.globalApp.setupInfiniteScroll === 'function') {
+                window.globalApp.setupInfiniteScroll(profile.personId, true)
+            }
+        })
         
         // 註冊為全域語言切換的回調函數
         if (!window.profileTranslationCallbacks) {
@@ -508,7 +524,10 @@ const useProfile = () => {
     
     // 清理函數（如果需要）
     const cleanup = () => {
-        // 清理邏輯（如果需要）
+        // 清理無限滾動
+        if (window.globalApp && typeof window.globalApp.cleanupInfiniteScroll === 'function') {
+            window.globalApp.cleanupInfiniteScroll()
+        }
     }
     //#endregion
 

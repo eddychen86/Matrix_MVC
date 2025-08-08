@@ -37,6 +37,20 @@
       "files": [
         "dist/cally.js"
       ]
+    },
+    {
+      "library": "@microsoft/signalr@latest",
+      "destination": "wwwroot/lib/signalr",
+      "files": [
+        "dist/browser/signalr.js"
+      ]
+    },
+    {
+      "library": "vue-i18n@11.1.11",
+      "destination": "wwwroot/lib/vue-i18n",
+      "files": [
+        "dist/vue-i18n.global.js"
+      ]
     }
   ]
 }

@@ -31,26 +31,6 @@ public class HomeController : WebControllerBase
         // 根據認證狀態決定文章數量限制
         int articleLimit = isAuthenticated ? int.MaxValue : 10; // 訪客只能看10篇
 
-        // 取得文章資料（只讀，使用 AsNoTracking 優化）
-        var articlesQuery = _context.Articles
-            .AsNoTracking()
-            .Include(a => a.Attachments)
-            .Include(a => a.Author)
-            .Where(a => a.IsPublic == 0) // 只顯示公開文章
-            .OrderByDescending(a => a.CreateTime);
-
-        // 根據認證狀態限制文章數量
-        var articles = await articlesQuery
-            .Take(articleLimit)
-            .Select(a => new ArticleViewModel
-            {
-                Article = a,
-                Author = a.Author,
-                Image = a.Attachments != null ? a.Attachments.FirstOrDefault(att => att.Type.ToLower() == "image") : null,
-                Attachments = a.Attachments ?? new List<ArticleAttachment>()
-            })
-            .ToListAsync();
-
         var currentUserId = Guid.Parse("870c0b75-97a3-4e4f-8215-204d5747d28c");
         var currentUser = await _context.Users
             .Include(u => u.Person)
@@ -71,13 +51,13 @@ public class HomeController : WebControllerBase
         ViewBag.TotalPublicArticles = await _context.Articles.CountAsync(a => a.IsPublic == 0);
 
         _logger.LogInformation(
-            "Index loaded - Authenticated: {IsAuthenticated}, Articles shown: {ArticleCount}/{TotalCount}",
+            "Index loaded - Authenticated: {IsAuthenticated}, ArticleLimit: {ArticleLimit}, TotalCount: {TotalCount}",
             isAuthenticated,
-            articles.Count(),
+            articleLimit,
             (int)ViewBag.TotalPublicArticles
         );
 
-        return View(articles);
+        return View(); // 不再傳遞 articles，改用 API
     }
 
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

@@ -61,14 +61,56 @@ window.stateFunc = function(action, articleId) {
  * 當 DOM 載入完成後執行首頁相關的初始化工作
  */
 document.addEventListener('DOMContentLoaded', function () {
-    // 輸出載入完成訊息到控制台（用於除錯）
     // console.log('首頁已載入完成');
-    
-    // 在這裡可以添加其他首頁專用功能，例如：
-    // - 文章互動功能
-    // - 輪播控制
-    // - 無限滾動載入
-    // - 熱門文章切換等
-    
     // console.log('認證資料:', window.matrixAuthData);
+    
+    // 設置熱門文章輪播
+    setupHotNewsCarousel();
 });
+
+/**
+ * 設置熱門文章輪播
+ */
+function setupHotNewsCarousel() {
+    const prevBtn = document.getElementById('hotPrev');
+    const nextBtn = document.getElementById('hotNext');
+    const carousel = document.querySelector('.carousel-center');
+    
+    if (!carousel || !prevBtn || !nextBtn) {
+        console.warn('Hot news carousel elements not found');
+        return;
+    }
+
+    let currentIndex = 0;
+    const items = carousel.querySelectorAll('.carousel-item');
+    const totalItems = items.length;
+    
+    if (totalItems === 0) {
+        // console.warn('No carousel items found');
+        return;
+    }
+
+    function updateCarousel() {
+        const itemWidth = items[0].offsetWidth + 16; // item width + gap
+        carousel.scrollTo({
+            left: currentIndex * itemWidth,
+            behavior: 'smooth'
+        });
+    }
+
+    prevBtn.addEventListener('click', () => {
+        currentIndex = (currentIndex - 1 + totalItems) % totalItems;
+        updateCarousel();
+    });
+
+    nextBtn.addEventListener('click', () => {
+        currentIndex = (currentIndex + 1) % totalItems;
+        updateCarousel();
+    });
+
+    // Auto-play carousel
+    setInterval(() => {
+        currentIndex = (currentIndex + 1) % totalItems;
+        updateCarousel();
+    }, 5000); // Change every 5 seconds
+}

@@ -1,0 +1,85 @@
+@inject ICustomLocalizer Localizer
+<li v-for="(item, index) in posts" :key="item.articleId">
+    <article class="bg-accent">
+        @* 文章標題區 *@
+        <div class="post-content_header">
+            <div class="author-info flex gap-4 items-center">
+                <div class="author-avatar">
+                    <img v-if="item?.authorAvator != null" :src="item?.authorAvator" alt="item?.authorName">
+                    <span v-else class="bg-secondary">{{ item?.authorName?.slice(0,1).toUpperCase() }}</span>
+                </div>
+                <div>
+                    <h3 class="text-white font-medium">{{ item.authorName || @Localizer["GuestAccount"] }}</h3>
+                    <p class="text-gray-400 text-sm">{{ item.createTime }}</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2 text-gray-400 text-sm">
+                <i data-lucide="heart" class="w-4 h-4"></i>
+                <span>{{ item.praiseCount }}</span>
+                <i data-lucide="bookmark" class="w-4 h-4 ml-2"></i>
+                <span>{{ item.collectCount }}</span>
+            </div>
+        </div>
+
+        @* 文章內容 *@
+        <div class="text-gray-300 mb-4 leading-relaxed">
+            {{ item.content }}
+        </div>
+
+        @* 文章附件區 *@
+        <div class="post-content_attachments" v-if="item.attachments && item.attachments.length > 0">
+            <div class="post-content_attachments_images" v-if="item.attachments.filter(f => f.type.toLowerCase() === 'image').length > 0">
+                <div class="img_layout" v-for="img in item.attachments.filter(f => f.type.toLowerCase() === 'image')" :key="img.fileId">
+                    <img :src="img.filePath" :alt="img.fileName" />
+                </div>
+            </div>
+
+            <div class="post-content_attachments_files" v-if="item.attachments.filter(f => f.type.toLowerCase() === 'file').length > 0">
+                <div v-for="file in item.attachments.filter(f => f.type.toLowerCase() === 'file')" :key="file.fileId">
+                    <a :download="file.fileName" target="_blank" rel="noopener noreferrer">{{ file.fileName }}</a>
+                </div>
+            </div>
+        </div>
+
+        @* 文章操作列 *@
+        <div class="post-content_state">
+            <button v-on:click="stateFunc(praize, item.articleId)">
+                <i data-lucide="heart" class="size-4"></i>
+                <span data-i18n="Praise">@Localizer["Praise"]</span>
+            </button>
+            <button v-on:click="stateFunc(comment, item.articleId)">
+                <i data-lucide="message-circle" class="size-4"></i>
+                <span data-i18n="Comment">@Localizer["Comment"]</span>
+            </button>
+            @* <button v-on:click="stateFunc(share, item.articleId)">
+                <i data-lucide="share" class="size-4"></i>
+                <span data-i18n="Share">@Localizer["Share"]</span>
+            </button> *@
+            <button v-on:click="stateFunc(collect, item.articleId)">
+                <i data-lucide="bookmark" class="size-4"></i>
+                <span data-i18n="Collect">@Localizer["Collect"]</span>
+            </button>
+        </div>
+    </article>
+</li>
+
+<!-- 載入狀態指示器 -->
+<li v-if="isLoading" class="text-center py-8">
+    <div class="flex items-center justify-center gap-2 text-gray-400">
+        <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
+        <span>載入中...</span>
+    </div>
+</li>
+
+<!-- 沒有更多文章的提示 -->
+<li v-if="!hasMorePosts && posts.length > 0" class="text-center py-8">
+    <span class="text-gray-400">已顯示所有文章</span>
+</li>
+
+<!-- 空狀態 -->
+<li v-if="!isLoading && posts.length === 0" class="text-center py-8">
+    <span class="text-gray-400">還沒有發布任何文章</span>
+</li>
+
+<!-- 無限滾動觸發點 -->
+<div class="infinite-scroll-trigger" style="height: 1px;"></div>

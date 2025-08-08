@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace Matrix.Controllers
 {
+    [Route("[controller]")]
     public class PostController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -17,6 +18,7 @@ namespace Matrix.Controllers
             _logger = logger;
         }
 
+        [HttpPost("Create")]
         public async Task<IActionResult> Create([FromForm] CreateArticleDto dto)
         {
             if (!ModelState.IsValid)
@@ -98,7 +100,7 @@ namespace Matrix.Controllers
         }
 
 
-        [HttpGet]
+        [HttpGet("GetHashtags")]
         public async Task<IActionResult> GetHashtags()
         {
             var hashtags = await _context.Hashtags.ToListAsync();

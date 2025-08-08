@@ -9,7 +9,7 @@ namespace Matrix.Extensions
         public string UserName { get; set; } = string.Empty;  // 實際為 DisplayName
         public string DisplayName { get; set; } = string.Empty;
         public int Role { get; set; }
-        public string? AvaterPath { get; set; }
+        public string? AvatarPath { get; set; }
     }
 
     // TODO: HttpContext 擴充方法，用於取得認證資訊
@@ -28,7 +28,7 @@ namespace Matrix.Extensions
                 UserName = displayName,  // 前端顯示用的名稱
                 DisplayName = displayName,
                 Role = context.Items["UserRole"] as int? ?? 0,
-                AvaterPath = context.Items["AvaterPath"] as string ?? ""
+                AvatarPath = context.Items["AvatarPath"] as string ?? ""
             };
         }
     }
