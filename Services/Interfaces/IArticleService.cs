@@ -70,5 +70,15 @@ namespace Matrix.Services.Interfaces
         /// 建立一篇新文章，並處理其檔案附件
         /// </summary>
         Task<ArticleDto?> CreateArticleWithAttachmentsAsync(Guid authorId, CreateArticleDto dto);
+
+        ///<summary>
+        ///後臺管理員更新文章
+        /// </summary>
+        Task<bool> AdminUpdateArticleContentAsync(Guid id, string content);
+
+        ///<summary>
+        ///後臺管理員刪除文章
+        /// </summary>
+        Task<bool> AdminDeleteArticleAsync(Guid id);
     }
 }

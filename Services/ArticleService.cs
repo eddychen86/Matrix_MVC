@@ -27,7 +27,7 @@ namespace Matrix.Services
                 .AsNoTracking() // 只讀查詢
                 .Include(a => a.Author)
                 .Include(a => a.Replies!)
-                    .ThenInclude(r => r.User)
+                .ThenInclude(r => r.User)
                 .FirstOrDefaultAsync(a => a.ArticleId == id);
 
             return article == null ? null : MapToArticleDto(article, true);
@@ -193,6 +193,32 @@ namespace Matrix.Services
         public async Task<bool> UpdateStatusAsync(Guid id, int status)
         {
             return await UpdateArticleStatusAsync(id, status);
+        }
+
+        /// <summary>
+        /// 後臺管理員更新文章
+        /// </summary>
+        public async Task<bool> AdminUpdateArticleContentAsync(Guid id, string content)
+        {
+            var article = await _context.Articles.FirstOrDefaultAsync(a => a.ArticleId == id);
+            if (article == null) return false;
+
+            article.Content = content;
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+        /// <summary>
+        /// 後臺管理員刪除文章
+        /// </summary>
+        public async Task<bool> AdminDeleteArticleAsync(Guid id)
+        {
+            var article = await _context.Articles.FirstOrDefaultAsync(a => a.ArticleId == id);
+            if (article == null) return false;
+
+            article.Status = 2;
+            await _context.SaveChangesAsync();
+            return true;
         }
 
         // 私有輔助方法

@@ -7,13 +7,13 @@ namespace Matrix.Areas.Dashboard.Controllers
     [AdminAuthorization] // 需要管理員權限 (Role >= 1)
     public class PostsController : Controller
     {
-        // GET: ReportsController
+        // GET: PostsController
         public ActionResult Index()
         {
             return View();
         }
 
-        // GET: Dashboard/Reports/Partial - AJAX 載入
+        // GET: Dashboard/Posts/Partial - AJAX 載入
         [HttpGet]
         [Route("Dashboard/Posts/Partial")]
         public ActionResult Partial()
