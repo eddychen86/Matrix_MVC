@@ -12,24 +12,28 @@
             <label class="mb-2 block font-medium text-gray-700">User name</label>
             <input type="text" class="w-full rounded border bg-gray-50 px-3 py-2 focus:ring-2 focus:ring-blue-200 focus:outline-none" placeholder="Please enter User name">
         </div>
-        <div class="flex w-full items-center justify-between">
+        <div class="flex w-full flex-col items-center sm:flex-row sm:items-center sm:justify-between">
             <!-- 左側文字 -->
-            <label class="font-medium whitespace-nowrap text-gray-700">Status</label>
+            <label class="font-medium text-gray-700 sm:whitespace-nowrap">Status</label>
 
-            <!-- 右側按鈕區塊 -->
-            <div class="flex gap-2">
-                <button class="rounded bg-blue-500 px-4 py-1 font-semibold text-white shadow hover:bg-blue-700">Enable</button>
-                <button class="rounded bg-gray-200 px-4 py-1 font-semibold text-gray-600 hover:bg-gray-300">Disable</button>
+            <!-- Enable,Disable按鈕 -->
+            <div class="flex w-full gap-2 sm:w-auto">
+                <button class="w-full cursor-pointer rounded bg-blue-500 px-3 py-2 text-sm font-semibold text-white shadow hover:bg-blue-700 sm:w-auto sm:px-4 sm:py-1 sm:text-base">Enable</button>
+                <button class="w-full cursor-pointer rounded bg-gray-200 px-3 py-2 text-sm font-semibold text-gray-600 hover:bg-gray-300 sm:w-auto sm:px-4 sm:py-1 sm:text-base">Disable</button>
             </div>
         </div>
-        <div class="flex w-full items-center justify-between">
+        <div class="mt-3 flex w-full flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <!-- 左側文字 -->
-            <label class="font-medium whitespace-nowrap text-gray-700">Ban</label>
+            <label class="font-medium text-gray-700 sm:whitespace-nowrap">Ban</label>
 
-            <!-- 右側按鈕區塊 -->
-            <div class="flex gap-2">
-                <button class="rounded bg-blue-500 px-[31px] py-1 font-semibold text-white shadow hover:bg-blue-700">Yes</button>
-                <button class="rounded bg-gray-200 px-[31px] py-1 font-semibold text-gray-600 hover:bg-gray-300">No</button>
+            <!-- YES / NO 按鈕 -->
+            <div class="flex w-full gap-2 sm:w-auto">
+                <button class="w-full cursor-pointer rounded bg-blue-500 px-8 py-2 text-sm font-semibold text-white shadow hover:bg-blue-700 sm:w-auto sm:px-8 sm:py-1 sm:text-base">
+                    Yes
+                </button>
+                <button class="w-full cursor-pointer rounded bg-gray-200 px-8 py-2 text-sm font-semibold text-gray-600 hover:bg-gray-300 sm:w-auto sm:px-8 sm:py-1 sm:text-base">
+                    No
+                </button>
             </div>
         </div>
         <div>
@@ -67,18 +71,61 @@
                         @* <td>{{ (pageIndex - 1) * pageSize + idx + 1 }}</td> *@
                         <td>{{item.userName}}</td>
                         <td>{{item.roleText}}</td>
-                        <td>{{item.	email}}</td>
-                        <td>{{item.status}}</td>
+                        <td>{{item.email}}</td>
+                        <td>
+                            <template v-if="editingId === item.userId">
+                                <select v-model.number="tempStatus"
+                                        class="rounded border px-1 py-0">
+                                    <option :value="0">未啟用</option>
+                                    <option :value="1">已啟用</option>
+                                    <option :value="2">被封禁</option>
+                                </select>
+                            </template>
+                            <template v-else>
+                                {{ statusText(item.status) }}
+                            </template>
+
+                        </td>
                         <td>{{formatDate(item.createTime)}}</td>
                         <td>{{formatDate(item.lastLoginTime)}}</td>
-                        <td class="w-12 text-center">
-                            <button class="flex cursor-pointer items-center justify-center rounded bg-blue-500 p-1 text-white hover:bg-blue-700" title="Edit">
+
+                        <!-- 編輯/確定/取消 -->
+                        <td class="w-28 text-center">
+                            <template v-if="editingId === item.userId">
+                                <div class="flex items-center justify-center gap-2">
+                                    <button @@click ="confirmEdit(item)"
+                                            :disabled="updating"
+                                            class="cursor-pointer rounded bg-green-600 px-2 py-1 text-white hover:bg-green-700 disabled:opacity-50">
+                                        update
+                                    </button>
+                                    <button @@click ="cancelEdit"
+                                            :disabled="updating"
+                                            class="cursor-pointer rounded bg-gray-300 px-2 py-1 text-gray-800 hover:bg-gray-400 disabled:opacity-50">
+                                        cancel
+                                    </button>
+                                </div>
+                            </template>
+                            <template v-else>
+                                <button @@click ="startEdit(item)"
+                                        class="flex cursor-pointer items-center justify-center rounded bg-blue-500 p-1 text-white hover:bg-blue-700">
+                                    <!--icon -->
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
+                                         stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-pencil-icon lucide-pencil">
+                                        <path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z" />
+                                        <path d="m15 5 4 4" />
+                                    </svg>
+                                </button>
+                            </template>
+                        </td>
+
+                        @* <td class="w-12 text-center">
+                            <button onclick="updateStatus" class="flex cursor-pointer items-center justify-center rounded bg-blue-500 p-1 text-white hover:bg-blue-700" title="Edit">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-pencil-icon lucide-pencil">
                                     <path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z" />
                                     <path d="m15 5 4 4" />
                                 </svg>
                             </button>
-                        </td>
+                        </td> *@
                         <td class="w-12 text-center">
                             <button @@click="deleteUser(item.userId)" class="flex cursor-pointer items-center justify-center rounded bg-red-500 p-1 text-white hover:bg-red-700" title="Delete">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-ban-icon lucide-ban">
@@ -122,13 +169,23 @@
           setup() {
             const users = ref([])
             const pageIndex = ref(1)
-            const pageSize = ref(12)
+            const pageSize = ref(11)
+
+            const editingId = ref(null)
+            const tempStatus = ref(0)
+            const updating = ref(false)
 
             const totalPages = computed(() => Math.ceil(users.value.length / pageSize.value))
             const pagedUsers = computed(() => {
               const start = (pageIndex.value - 1) * pageSize.value
               return users.value.slice(start, start + pageSize.value)
             })
+
+            const statusText = (value) =>({
+                0: "未啟用",
+                1: "已啟用",
+                2: "被封禁"
+            }[value] ?? value)
 
             const formatDate = (datetime) => {
               const date = new Date(datetime)
@@ -161,6 +218,46 @@
 
             }
 
+            const startEdit = (item) => {
+                editingId.value = item.userId
+                tempStatus.value = item.status
+            }
+
+            const cancelEdit = () => {
+                editingId.value = null
+                tempStatus.value = 0
+            }
+
+            const confirmEdit = async (item) => {
+                if(updating.value) return
+                updating.value = true
+                try {
+             // API：PUT 更改status狀態
+            const res = await fetch(`/api/ApiUser/${item.userId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status: tempStatus.value })
+            })
+            if(!res.ok){
+                const text = await res.text()
+                throw Error("更新失敗")
+            }
+
+            const index = users.value.findIndex(u => u.userId === item.userId)
+            if(index > -1)users.value[index].status = tempStatus.value
+
+            cancelEdit()
+            }
+            catch(err)
+            {
+                console.error("更新錯誤",err)
+                alert("更新失敗:" + err.message)
+            }
+            finally{
+                updating.value = false
+            }
+
+            }
 
             onMounted(fetchUsers)
 
@@ -171,7 +268,14 @@
               totalPages,
               pagedUsers,
               formatDate,
-              deleteUser
+              deleteUser,
+              editingId,
+              tempStatus,
+              updating,
+              statusText,
+              startEdit,
+              cancelEdit,
+              confirmEdit
             }
           }
         })

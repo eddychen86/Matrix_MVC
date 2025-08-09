@@ -81,14 +81,14 @@ namespace Matrix.Areas.Dashboard.Controllers.Api
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(Guid id, [FromBody] UpdateUserStatusDto dto) 
         {
-            if (dto == null || id != dto.UserId) 
+            if (dto == null) 
             {
                 return BadRequest(new
                 {
-                    Message = "id不一樣"
+                    Message = "查無資料"
                 });
             }
-            if (dto.Status < 0 || dto.Status > 2) 
+            if (dto.Status < 0 || dto.Status > 2)
             {
                 return BadRequest(new
                 {
