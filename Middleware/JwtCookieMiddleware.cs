@@ -104,7 +104,18 @@ namespace Matrix.Middleware
                             context.Items["IsAuthenticated"] = true;
                             context.Items["DisplayName"] = principal.FindFirst("DisplayName")?.Value ?? context.Items["UserName"];
                             context.Items["AvatarPath"] = principal.FindFirst("AvatarPath")?.Value ?? "";
-                            
+
+                            // 🟡 加入這段：從 PersonRepository 依據 UserId 撈 PersonId
+                            var person = await personRepository.GetByUserIdAsync(userId);
+                            if (person != null)
+                            {
+                                context.Items["PersonId"] = person.PersonId;
+                            }
+                            else
+                            {
+                                _logger.LogWarning("No Person found for UserId: {UserId}", userId);
+                            }
+
                             // 解析 LastLoginTime
                             if (DateTime.TryParse(principal.FindFirst("LastLoginTime")?.Value, out var lastLogin))
                             {
