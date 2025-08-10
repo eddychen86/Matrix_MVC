@@ -4,35 +4,59 @@ using Matrix.DTOs;
 using System.Security.Claims;
 using Matrix.Data;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Http;
 
 namespace Matrix.Controllers.Api
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class PostController : ControllerBase
+    public class PostController(
+        ILogger<PostController> _logger,
+        IPraiseService _praiseService,
+        ICollectService _collectService,
+        IReplyService _replyService,
+        IArticleService _articleService,
+        ApplicationDbContext _context
+    ) : ControllerBase
     {
-        private readonly ILogger<PostController> _logger;
-        private readonly IPraiseService _praiseService;
-        private readonly ICollectService _collectService;
-        private readonly IReplyService _replyService;
-        private readonly IArticleService _articleService;
-        private readonly ApplicationDbContext _context;
-
-        public PostController(
-            ILogger<PostController> logger,
-            IPraiseService praiseService,
-            ICollectService collectService,
-            IReplyService replyService,
-            IArticleService articleService,
-            ApplicationDbContext context
-        )
+        [HttpGet("hot")]
+        public async Task<IActionResult> GetHot([FromQuery] int count = 10)
         {
-            _logger = logger;
-            _praiseService = praiseService;
-            _collectService = collectService;
-            _replyService = replyService;
-            _articleService = articleService;
-            _context = context;
+            try
+            {
+                var articles = await _context.Articles
+                    .AsNoTracking()
+                    .Include(a => a.Author)
+                    .Include(a => a.Attachments)
+                    .Where(a => a.Status == 0 && a.IsPublic == 0)
+                    .OrderByDescending(a => a.PraiseCount)
+                    .ThenByDescending(a => a.CreateTime)
+                    .Take(Math.Max(1, Math.Min(count, 50)))
+                    .Select(a => new
+                    {
+                        articleId = a.ArticleId,
+                        content = a.Content,
+                        createTime = a.CreateTime.ToString("yyyy-MM-dd HH:mm"),
+                        praiseCount = a.PraiseCount,
+                        collectCount = a.CollectCount,
+                        authorId = a.AuthorId,
+                        authorName = a.Author!.DisplayName,
+                        authorAvatar = a.Author!.AvatarPath,
+                        image = a.Attachments!.Where(att => att.Type.ToLower() == "image").Select(att => new {
+                            fileId = att.FileId,
+                            filePath = att.FilePath,
+                            fileName = att.FileName
+                        }).FirstOrDefault()
+                    })
+                    .ToListAsync();
+
+                return Ok(new { items = articles });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error fetching hot posts");
+                return StatusCode(500, new { error = ex.Message });
+            }
         }
 
         [HttpPost("")]
@@ -42,12 +66,12 @@ namespace Matrix.Controllers.Api
         {
             try
             {
-                _logger.LogInformation("GetAllPosts called - Page: {Page}, PageSize: {PageSize}, Uid: {Uid}", 
+                _logger.LogInformation("\nGetAllPosts called - Page: {Page}, PageSize: {PageSize}, Uid: {Uid}\n",
                     request?.Page ?? 0, request?.PageSize ?? 20, uid);
 
                 if (request == null)
                 {
-                    _logger.LogWarning("Request is null");
+                    _logger.LogWarning("\nRequest is null\n");
                     return BadRequest(new { error = "Request body is required" });
                 }
 
@@ -62,34 +86,74 @@ namespace Matrix.Controllers.Api
                         // 檢查是否為 Profile 頁面（這裡可以根據需要調整判斷邏輯）
                         var referer = Request.Headers["Referer"].ToString();
                         bool isProfilePage = referer.Contains("/profile", StringComparison.OrdinalIgnoreCase);
-                        
+
                         if (isProfilePage)
                         {
                             // 需要將 UserId 轉換為 PersonId
                             var userPerson = await _context.Persons
                                 .Where(p => p.UserId == currentUserId.Value)
                                 .FirstOrDefaultAsync();
-                            
+
                             if (userPerson != null)
                             {
                                 authorId = userPerson.PersonId;
-                                _logger.LogInformation("Using current user's PersonId: {PersonId}", authorId);
+                                _logger.LogInformation("\nUsing current user's PersonId: {PersonId}\n", authorId);
                             }
                         }
                     }
                 }
 
-                var pageNumber = Math.Max(1, request.Page + 1);
+                // 訪客限制：未登入最多 10 筆，且固定僅傳回第一頁
+                const int GuestArticleLimit = 10;
+                var requestedPageNumber = Math.Max(1, request.Page + 1);
+                var requestedPageSize = request.PageSize;
+
+                // 判斷是否已登入（Cookie 中間件會設置 HttpContext.Items["UserId"]）
+                var isAuthenticated = User?.Identity?.IsAuthenticated == true ||
+                                      (HttpContext.Items["UserId"] as Guid?).HasValue;
+
+                // 訪客：僅允許首次呼叫返回第一批資料；之後一律要求登入
+                var pageNumber = isAuthenticated ? requestedPageNumber : 1;
+                var pageSize = isAuthenticated ? requestedPageSize : Math.Min(GuestArticleLimit, requestedPageSize);
+
+                if (!isAuthenticated)
+                {
+                    var guestFirstLoadDone = string.Equals(Request.Cookies["GuestFirstLoad"], "1", StringComparison.Ordinal);
+
+                    // 僅針對「第二頁以後」進行限制。
+                    // 允許第 1 頁在同一段期間內被多次請求（避免舊 Cookie 造成首次進站就被擋 403）。
+                    if (guestFirstLoadDone && requestedPageNumber > 1)
+                    {
+                        return StatusCode(403, new
+                        {
+                            requireLogin = true,
+                            message = "請登入以繼續瀏覽更多內容"
+                        });
+                    }
+
+                    if (!guestFirstLoadDone)
+                    {
+                        // 標記訪客已取得第一批資料（存於 Cookie）
+                        Response.Cookies.Append("GuestFirstLoad", "1", new CookieOptions
+                        {
+                            HttpOnly = false,
+                            IsEssential = true,
+                            SameSite = SameSiteMode.Lax,
+                            Path = "/",
+                            Expires = DateTimeOffset.UtcNow.AddHours(1)
+                        });
+                    }
+                }
 
                 var result = await _articleService.GetArticlesAsync(
-                    pageNumber, 
-                    request.PageSize, 
+                    pageNumber,
+                    pageSize,
                     null, // searchKeyword
                     authorId
                 );
-                
+
                 var articles = result.Articles;
-                var totalCount = result.TotalCount;
+                var totalCount = isAuthenticated ? result.TotalCount : Math.Min(result.TotalCount, GuestArticleLimit);
 
                 var response = new
                 {
@@ -104,18 +168,19 @@ namespace Matrix.Controllers.Api
                         authorAvator = a.Author?.AvatarPath ?? "",
                         attachments = a.Attachments ?? new List<ArticleAttachmentDto>()
                     }).ToList(),
-                    totalCount = totalCount
+                    totalCount
                 };
 
-                _logger.LogInformation("About to return OK response");
+                _logger.LogInformation("\nAbout to return OK response\n");
                 return Ok(response);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error in GetAllPosts: {Message}", ex.Message);
-                _logger.LogError("Stack trace: {StackTrace}", ex.StackTrace);
-                
-                return StatusCode(500, new { 
+                _logger.LogError(ex, "\nError in GetAllPosts: {Message}\n", ex.Message);
+                _logger.LogError("\nStack trace: {StackTrace}\n", ex.StackTrace);
+
+                return StatusCode(500, new
+                {
                     error = ex.Message,
                     type = ex.GetType().Name,
                     stackTrace = ex.StackTrace?.Split('\n').Take(5).ToArray()

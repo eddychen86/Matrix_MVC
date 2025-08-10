@@ -1,78 +1,76 @@
 ﻿@inject ICustomLocalizer Localizer
-<div class="text-white grid grid-cols-7 gap-4">
 
-    <!-- 頂部橫幅與頭像 -->
-    <header class="profile-header">
-        <div class="profile-banner_layout">
-            <button v-on:click="updateFile('banner')">
-                <i data-lucide="pen" class="icon-bg text-white"></i>
-            </button>
-            <input type="file" accept="image/*" class="hidden" id="banner-file-input">
-            <img :src="profile.bannerPath" alt="Profile Banner" class="profile-banner" />
-        </div>
-        <div class="profile-avatar">
-            <div class="profile-avatar_body">
-                <div class="profile-avatar_img_layout">
-                    <button class="edit" v-on:click="updateFile('avatar')">
-                        <i data-lucide="pen" class="icon-bg text-white"></i>
-                    </button>
-                    <input type="file" accept="image/*" class="hidden" id="avatar-file-input">
-                    <img :src="profile.avatarPath" alt="Profile Avatar" />
-                </div>
-                <h3>{{ profile.displayName }}</h3>
-                <i data-lucide="globe" v-if="!profile.isPrivate" class="size-4 sm:size-8 2xl:size-12 mb-0 2xl:mb-4 text-blue-500"></i>
-                <i data-lucide="globe-lock" v-else class="size-4 sm:size-8 2xl:size-12 mb-0 2xl:mb-4 text-blue-500"></i>
-                <i data-lucide="crown" v-show="profile.walletAddress" class="size-4 sm:size-8 2xl:size-12 mb-0 2xl:mb-4 text-yellow-500"></i>
-            </div>
-            <button class="subTitle font-semibold" data-i18n="Create">@Localizer["Create"]</button>
-        </div>
-    </header>
-
-    <!-- 左側：個人資訊 -->
-    <ul class="profile-info bg-accent">
-        <button @@click="startEdit" class="editPen">
-            <i data-lucide="pen" class="size-6"></i>
+<!-- 頂部橫幅與頭像 -->
+<header class="profile-header">
+    <div class="profile-banner_layout">
+        <button v-on:click="updateFile('banner')">
+            <i data-lucide="pen" class="icon-bg text-white"></i>
         </button>
-        <li class="sm:!col-span-2">
-            <h4 class="subTitle" data-i18n="ProfileBio">@Localizer["ProfileBio"]</h4>
-            <p class="para">{{ profile.bio }}</p>
-        </li>
-        <li>
-            <h4 class="subTitle" data-i18n="ProfileContact">@Localizer["ProfileContact"]</h4>
-            <p>{{ profile.email }}</p>
-        </li>
-        <li>
-            <h4 class="subTitle" data-i18n="ProfileLinks">@Localizer["ProfileLinks"]</h4>
-            <ul class="flex flex-col gap-2">
-                <li v-for="url in [profile.website1, profile.website2, profile.website3]">
-                    <div>
-                        <a class="para" :href="url" target="_blank" rel="noopener noreferrer">{{ url }}</a>
-                    </div>
-                </li>
-            </ul>
-        </li>
-        <li class="sm:row-span-2 sm:!row-start-2 sm:!row-end-3 sm:!col-start-2">
-            <h4 class="subTitle" data-i18n="ProfileImgs">@Localizer["ProfileImgs"]</h4>
-            <div class="flex gap-2 flex-wrap items-center">
-                <img v-for="(image, idx) in userImages.slice(0, 10)" :key="image.fileId"
-                    :src="image.filePath"
-                    :alt="image.fileName"
-                    class="h-[100px] w-[100px] rounded-lg object-cover cursor-pointer hover:opacity-80 transition-opacity" 
-                />
-                <div v-if="userImages.length === 0" class="text-gray-400 text-sm">
-                    還沒有圖片
-                </div>
+        <input type="file" accept="image/*" class="hidden" id="banner-file-input">
+        <img :src="profile.bannerPath" alt="Profile Banner" class="profile-banner" />
+    </div>
+    <div class="profile-avatar">
+        <div class="profile-avatar_body">
+            <div class="profile-avatar_img_layout">
+                <button class="edit" v-on:click="updateFile('avatar')">
+                    <i data-lucide="pen" class="icon-bg text-white"></i>
+                </button>
+                <input type="file" accept="image/*" class="hidden" id="avatar-file-input">
+                <img :src="profile.avatarPath" alt="Profile Avatar" />
             </div>
-        </li>
-    </ul>
-    
-    <!-- 中間：動態貼文 -->
-    <ul class="post-content col-span-5 2xl:col-span-3" id="profilePostsList">
-        @await Component.InvokeAsync("PostList")
-    </ul>
+            <h3>{{ profile.displayName }}</h3>
+            <i data-lucide="globe" v-if="!profile.isPrivate" class="size-4 sm:size-8 2xl:size-12 mb-0 2xl:mb-4 text-blue-500"></i>
+            <i data-lucide="globe-lock" v-else class="size-4 sm:size-8 2xl:size-12 mb-0 2xl:mb-4 text-blue-500"></i>
+            <i data-lucide="crown" v-show="profile.walletAddress" class="size-4 sm:size-8 2xl:size-12 mb-0 2xl:mb-4 text-yellow-500"></i>
+        </div>
+        <button class="subTitle font-semibold" data-i18n="Create">@Localizer["Create"]</button>
+    </div>
+</header>
 
-    <ul class="col-span-3"></ul>
- 
-    <!-- Edit Profile View -->
-    @await Component.InvokeAsync("EditProfilePopup")
-</div>
+<!-- 左側：個人資訊 -->
+<ul class="profile-info bg-accent">
+    <button @@click="startEdit" class="editPen">
+        <i data-lucide="pen" class="size-6"></i>
+    </button>
+    <li class="sm:!col-span-2">
+        <h4 class="subTitle" data-i18n="ProfileBio">@Localizer["ProfileBio"]</h4>
+        <p class="para">{{ profile.bio }}</p>
+    </li>
+    <li>
+        <h4 class="subTitle" data-i18n="ProfileContact">@Localizer["ProfileContact"]</h4>
+        <p>{{ profile.email }}</p>
+    </li>
+    <li>
+        <h4 class="subTitle" data-i18n="ProfileLinks">@Localizer["ProfileLinks"]</h4>
+        <ul class="flex flex-col gap-2">
+            <li v-for="url in [profile.website1, profile.website2, profile.website3]">
+                <div>
+                    <a class="para" :href="url" target="_blank" rel="noopener noreferrer">{{ url }}</a>
+                </div>
+            </li>
+        </ul>
+    </li>
+    <li class="sm:row-span-2 sm:!row-start-2 sm:!row-end-3 sm:!col-start-2">
+        <h4 class="subTitle" data-i18n="ProfileImgs">@Localizer["ProfileImgs"]</h4>
+        <div class="flex gap-2 flex-wrap items-center">
+            <img v-for="(image, idx) in userImages.slice(0, 10)" :key="image.fileId"
+                :src="image.filePath"
+                :alt="image.fileName"
+                class="h-[100px] w-[100px] rounded-lg object-cover cursor-pointer hover:opacity-80 transition-opacity" 
+            />
+            <div v-if="userImages.length === 0" class="text-gray-400 text-sm">
+                還沒有圖片
+            </div>
+        </div>
+    </li>
+</ul>
+
+<!-- 中間：動態貼文 -->
+<ul class="post-content col-span-5 2xl:col-span-3" id="profilePostsList">
+    @await Component.InvokeAsync("PostList")
+</ul>
+
+<ul class="col-span-3"></ul>
+
+<!-- Edit Profile View -->
+@await Component.InvokeAsync("EditProfilePopup")

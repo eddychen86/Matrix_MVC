@@ -1,5 +1,5 @@
-// PostList Service - 統一的文章列表服務
-class PostListService {
+// PostList Service - 統一的文章列表服務 (ESM)
+export class PostListService {
     constructor() {
         this.baseUrl = '/api/Post';
     }
@@ -36,6 +36,19 @@ class PostListService {
                 body: JSON.stringify(requestData)
             });
 
+            // 特別處理訪客第二次請求的 403，避免在前端噴錯
+            if (response.status === 403) {
+                let data = null;
+                try { data = await response.json(); } catch { /* ignore */ }
+                return {
+                    success: false,
+                    requireLogin: true,
+                    message: data?.message || '請登入以繼續瀏覽更多內容',
+                    articles: [],
+                    totalCount: 0
+                };
+            }
+
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
@@ -47,6 +60,7 @@ class PostListService {
                 totalCount: data.totalCount || 0
             };
         } catch (error) {
+            // 其它非 403 錯誤再記錄
             console.error('Error fetching posts:', error);
             return {
                 success: false,
@@ -97,6 +111,6 @@ class PostListService {
         });
     }
 }
-
 // 導出單例
-window.postListService = new PostListService();
+export const postListService = new PostListService();
+export default postListService;

@@ -15,10 +15,10 @@
 
 <body class="bg-primary">
     <div id="app" class="flex">
-        <partial name="_Menu" />
+        <partial name="_Menu" model="CommonController.BuildMenuModel(Context)" />
 
-        <div class="relative flex w-full flex-col gap-4 p-4 pl-0 h-screen overflow-y-auto">
-            <main class="text-white">
+        <div class="relative flex w-full flex-col h-screen gap-4 p-4 pl-0 overflow-y-auto">
+            <main class="text-white grid grid-cols-7 gap-4 flex-1">
                 @RenderBody()
             </main>
             <partial name="_Footer" />
@@ -40,15 +40,8 @@
     </environment>
     <script src="~/lib/lucide/dist/umd/lucide.min.js"></script>
 
-    <script src="~/js/hooks/useFormatting.js" asp-append-version="true"></script>
-    <script src="~/js/services/AuthService.js" asp-append-version="true"></script>
-    <script src="~/js/auth/auth-manager.js" asp-append-version="true"></script>
-    <script src="~/js/auth/login-popup.js" asp-append-version="true"></script>
-
-    <script src="~/js/components/menu.js" asp-append-version="true"></script>
-    <script src="~/js/components/PostListService.js" asp-append-version="true"></script>
-    <script src="~/js/pages/profile/profile.js" asp-append-version="true"></script>
-    <script src="~/js/main.js" asp-append-version="true"></script>
+    @* 以上四支已轉為 ES Modules，由 main.js 動態 import *@
+    <script type="module" src="~/js/main.js" asp-append-version="true"></script>
 
     <!-- Scripts section rendered outside of Vue app -->
     @await RenderSectionAsync("Scripts", required: false)

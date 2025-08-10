@@ -7,10 +7,11 @@ using Matrix.ViewModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System.Runtime.ConstrainedExecution;
+using Matrix.Repository.Interfaces;
 
 namespace Matrix.Controllers;
 
-public class HomeController : WebControllerBase
+public class HomeController : Controller
 {
     private readonly ApplicationDbContext _context;
     private readonly ILogger<HomeController> _logger;
@@ -31,19 +32,6 @@ public class HomeController : WebControllerBase
         // 根據認證狀態決定文章數量限制
         int articleLimit = isAuthenticated ? int.MaxValue : 10; // 訪客只能看10篇
 
-        var currentUserId = Guid.Parse("870c0b75-97a3-4e4f-8215-204d5747d28c");
-        var currentUser = await _context.Users
-            .Include(u => u.Person)
-            .FirstOrDefaultAsync(u => u.UserId == currentUserId);
-
-        var currentUserVm = new CurrentUserViewModel
-        {
-            UserId = currentUser?.UserId.ToString() ?? string.Empty,
-            DisplayName = currentUser?.UserName ?? string.Empty,
-            Avatar = currentUser?.Person?.AvatarPath ?? ""
-        };
-        ViewBag.CurrentUser = currentUserVm;
-
         // 傳遞認證狀態給前端
         ViewBag.IsAuthenticated = isAuthenticated;
         ViewBag.IsGuest = isGuest;
@@ -57,7 +45,8 @@ public class HomeController : WebControllerBase
             (int)ViewBag.TotalPublicArticles
         );
 
-        return View(); // 不再傳遞 articles，改用 API
+        // Hot List 改為前端透過 API 取得（/api/post/hot）
+        return View();
     }
 
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

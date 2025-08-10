@@ -1,10 +1,10 @@
-function useFormatting() {
+export const useFormatting = () => {
     const formatDate = (date, type = 'date', lang = 'zh-TW') => {
         if (!date) return '';
-        
+
         const dateObj = new Date(date);
         if (isNaN(dateObj.getTime())) return '';
-        
+
         // Simple date formatting without external dependencies
         const year = dateObj.getFullYear();
         const month = String(dateObj.getMonth() + 1).padStart(2, '0');
@@ -12,7 +12,7 @@ function useFormatting() {
         const hours = String(dateObj.getHours()).padStart(2, '0');
         const minutes = String(dateObj.getMinutes()).padStart(2, '0');
         const ampm = dateObj.getHours() >= 12 ? 'PM' : 'AM';
-        const engMonths = [{"01": "Jan"}, {"02": "Feb"}, {"03": "Mar"}, {"04": "Apr"}, {"05": "May"}, {"06": "Jun"}, {"07": "Jul"}, {"08": "Aug"}, {"09": "Sep"}, {"10": "Oct"}, {"11": "Nov"}, {"12": "Dec"}]
+        const engMonths = [{ "01": "Jan" }, { "02": "Feb" }, { "03": "Mar" }, { "04": "Apr" }, { "05": "May" }, { "06": "Jun" }, { "07": "Jul" }, { "08": "Aug" }, { "09": "Sep" }, { "10": "Oct" }, { "11": "Nov" }, { "12": "Dec" }]
         const formattedDate = lang === 'en-US' ? `${engMonths[month]} ${day} ${year}` : `${year} 年 ${month} 月 ${day} 日`
 
         if (type === 'date') {
@@ -28,9 +28,9 @@ function useFormatting() {
             lang = date.lang || "zh-TW";
             date = date.date;
         }
-        
+
         if (!date) return '';
-        
+
         const now = new Date();
         const past = new Date(date);
         const diffInSeconds = Math.floor((now - past) / 1000);
@@ -45,7 +45,7 @@ function useFormatting() {
             const hours = Math.floor(diffInSeconds / 3600);
             return lang === "en-US" ? `${hours} hours ago` : `${hours} 小時前`;
         }
-        
+
         if (days < 30) {
             return lang === "en-US" ? `${days} days ago` : `${days} 天前`;
         } else if (days < 365) {
@@ -62,3 +62,5 @@ function useFormatting() {
         timeAgo
     };
 }
+
+export default useFormatting;

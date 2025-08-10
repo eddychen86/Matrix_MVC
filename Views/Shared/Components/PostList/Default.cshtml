@@ -41,8 +41,8 @@
             </div>
         </div>
 
-        @* 文章操作列 *@
-        <div class="post-content_state">
+        @* 文章操作列（需登入） *@
+        <div class="post-content_state" v-if="currentUser?.isAuthenticated">
             <button v-on:click="stateFunc(praize, item.articleId)">
                 <i data-lucide="heart" class="size-4"></i>
                 <span data-i18n="Praise">@Localizer["Praise"]</span>
@@ -51,14 +51,18 @@
                 <i data-lucide="message-circle" class="size-4"></i>
                 <span data-i18n="Comment">@Localizer["Comment"]</span>
             </button>
-            @* <button v-on:click="stateFunc(share, item.articleId)">
-                <i data-lucide="share" class="size-4"></i>
-                <span data-i18n="Share">@Localizer["Share"]</span>
-            </button> *@
             <button v-on:click="stateFunc(collect, item.articleId)">
                 <i data-lucide="bookmark" class="size-4"></i>
                 <span data-i18n="Collect">@Localizer["Collect"]</span>
             </button>
+        </div>
+
+        @* 未登入狀態：顯示提示 *@
+        <div class="post-content_state" v-else>
+            <div class="text-gray-400 text-sm flex items-center gap-3">
+                <i data-lucide="lock" class="size-4"></i>
+                <span data-i18n="GuestBrowseMsg">@Localizer["GuestBrowseMsg"]</span>
+            </div>
         </div>
     </article>
 </li>

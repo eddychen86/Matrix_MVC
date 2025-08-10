@@ -18,7 +18,7 @@ namespace Matrix.Controllers
         IUserService _userService,
         IPersonRepository _personRepository,
         ICustomLocalizer _localizer
-    ) : WebControllerBase
+    ) : Controller
     {
         /// <summary>確認用戶郵件</summary>
         [HttpGet, Route("/confirm/{id}")]

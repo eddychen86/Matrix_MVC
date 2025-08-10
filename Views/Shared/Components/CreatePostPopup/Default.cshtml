@@ -2,10 +2,10 @@
 <div id="overlay" class="fixed inset-0 z-[1000] hidden bg-white opacity-20"></div>
 
 <!-- 編輯發文容器 -->
-<div id="postModel" class="fixed inset-0 z-[1010] flex hidden items-center justify-center">
+<div id="postModel" class="fixed inset-0 z-[1010] flex items-center justify-center">
     <div class="relative flex max-h-[800px] min-h-[450px] w-[600px] flex-col rounded-[15px] bg-[#161616] p-6 pt-[70px]">
         <!-- 頭像和名字 -->
-        <img src="@ViewBag.CurrentUser.Avatar"
+        @* <img src="@ViewBag.CurrentUser.Avatar"
              class="absolute top-[25px] left-[24px] h-[32px] w-[34px] rounded-[24px] object-cover object-center"
              alt="@ViewBag.CurrentUser.DisplayName" />
         <div class="absolute top-[30px] left-[69px] text-white text-[18px] font-['Roboto'] font-normal leading-[22px]">
@@ -14,7 +14,7 @@
         <button id="closePostBtn" class="absolute top-[22px] right-[24px] h-[32px] w-[32px] text-white hover:text-gray-300">
             <svg viewBox="0 0 24 24" class="h-full w-full fill-current">
                 <path d="M6 6 L18 18 M6 18 L18 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
-            </svg>
+            </svg> *@
         </button>
         <!-- 主要內容 -->
         <div class="flex flex-1 flex-col gap-4 pt-[10px] pb-[90px]">
@@ -69,7 +69,7 @@
         </div>
 
         <!--hashtag選擇視窗-->
-        <div id="hashtagModal" class="fixed inset-0 z-[1020] flex hidden items-center justify-center bg-black/40">
+        @* <div id="hashtagModal" class="fixed inset-0 z-[1020] flex items-center justify-center bg-black/40">
             <div style="height: 500px; width: 350px;" class="flex flex-shrink-0 flex-col rounded-xl bg-[#161616] p-4 text-white shadow-lg">
                 <h3 class="mb-4 text-xl font-semibold">選擇 Hashtag</h3>
                 <div id="hashtagList" class="mb-4 flex-1 overflow-y-auto"></div>
@@ -78,7 +78,7 @@
                     <button id="closeHashtagModalBtn" class="rounded bg-gray-500 px-4 py-1 text-white">取消</button>
                 </div>
             </div>
-        </div>
+        </div> *@
     </div>
 </div>
 

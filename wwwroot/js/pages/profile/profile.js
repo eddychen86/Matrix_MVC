@@ -1,4 +1,7 @@
-const useProfile = () => {
+import { useFormatting } from '/js/hooks/useFormatting.js'
+import postListService from '/js/components/PostListService.js'
+
+export const useProfile = () => {
     const { ref, reactive, onMounted } = Vue
     const { timeAgo } = useFormatting()
 
@@ -42,14 +45,14 @@ const useProfile = () => {
     const isLoading = ref(false)
     const hasMorePosts = ref(true)
     const userImages = ref([])
-    
+
     // 密碼驗證相關狀態
     const passwordValidation = reactive({
         isValid: true,
         message: '',
         isValidating: false
     })
-    
+
     // 密碼顯示狀態
     const showPassword = ref(false)
     //#endregion
@@ -72,7 +75,7 @@ const useProfile = () => {
         editMode.value = true
         // Create a deep copy for backup
         Object.assign(updatProfile, JSON.parse(JSON.stringify(profile)))
-        
+
         // 在下一個tick更新翻譯，確保DOM已經渲染
         Vue.nextTick(() => {
             updateEditPopupTranslations()
@@ -87,7 +90,7 @@ const useProfile = () => {
                 const currentLang = document.documentElement.lang || 'zh-TW'
                 translations = window.translationCache?.get(currentLang)
             }
-            
+
             if (translations) {
                 // 只更新EditProfilePopup區域內的翻譯
                 const popup = document.querySelector('.profile-edit')
@@ -150,10 +153,10 @@ const useProfile = () => {
 
             const result = await response.json();
             alert(result.message || "Profile updated successfully!");
-            
+
             // 更新 profile 資料
             Object.assign(profile, updatProfile);
-            
+
             editMode.value = false
             rand.value = new Date().getTime() // Force re-render
         } catch (err) {
@@ -188,7 +191,7 @@ const useProfile = () => {
             const result = await response.json()
             passwordValidation.isValid = result.isValid
             passwordValidation.message = result.message || ''
-            
+
             return result.isValid
         } catch (error) {
             console.error('密碼驗證失敗:', error)
@@ -206,7 +209,7 @@ const useProfile = () => {
         if (passwordValidationTimeout) {
             clearTimeout(passwordValidationTimeout)
         }
-        
+
         // 如果密碼為空，立即重設驗證狀態
         if (!password || password.trim() === '') {
             passwordValidation.isValid = true
@@ -214,7 +217,7 @@ const useProfile = () => {
             passwordValidation.isValidating = false
             return
         }
-        
+
         passwordValidationTimeout = setTimeout(() => {
             validatePassword(password)
         }, 500) // 500ms 後執行驗證
@@ -230,7 +233,7 @@ const useProfile = () => {
 
     const updateFile = type => {
         // console.log('updateFile called with type:', type)
-        
+
         // 根據類型選擇對應的 input 元素
         let inputId
         if (type === 'avatar') {
@@ -241,7 +244,7 @@ const useProfile = () => {
             console.error('Invalid file type:', type)
             return
         }
-        
+
         // 找到對應的 input 元素並觸發點擊
         const input = document.getElementById(inputId)
         if (input) {
@@ -289,7 +292,7 @@ const useProfile = () => {
             }
 
             const result = await response.json()
-            
+
             if (result.success) {
                 // 更新本地 profile 資料
                 if (type === 'avatar') {
@@ -297,10 +300,10 @@ const useProfile = () => {
                 } else if (type === 'banner') {
                     profile.bannerPath = result.data.filePath
                 }
-                
+
                 // 強制更新顯示
                 rand.value = new Date().getTime()
-                
+
                 console.log(`${type} uploaded successfully:`, result.data.filePath)
             } else {
                 throw new Error(result.message || '上傳失敗')
@@ -317,39 +320,37 @@ const useProfile = () => {
     //#endregion
 
     //#region User & Profile Loading
-    
+
     const GetPostsAsync = async (page = 1, append = false, pageSize = 10) => {
         // console.log(`載入第 ${page} 頁文章，每頁 ${pageSize} 篇`)
 
         if (isLoading.value || (!hasMorePosts.value && append)) return null
-        
-        if (!window.postListService) {
-            console.error('PostListService not available')
-            return null
-        }
-        
+
+        // 服務可用性檢查
+        if (!postListService) return null
+
         try {
             isLoading.value = true
-            
+
             // 使用統一的 PostListService，傳遞 PersonId 作為 uid
-            const result = await window.postListService.getPosts(
+            const result = await postListService.getPosts(
                 page, // 現在 PostListService 使用 1-based 頁碼
                 pageSize,
                 profile.personId, // 使用 PersonId 作為 uid 參數
                 true // isProfilePage = true
             )
-            
+
             if (!result.success) {
                 throw new Error(result.error || 'Failed to load posts')
             }
 
-            const formattedArticles = window.postListService.formatArticles(result.articles).map(m => ({
-                ...m, 
+            const formattedArticles = postListService.formatArticles(result.articles).map(m => ({
+                ...m,
                 createTime: timeAgo(m.createTime),
                 authorName: m.authorName,
                 authorAvator: m.authorAvator,
             }))
-            
+
             if (append) {
                 // 追加新文章到現有列表
                 posts.value = [...posts.value, ...formattedArticles]
@@ -357,17 +358,17 @@ const useProfile = () => {
                 // 替換整個列表（初次載入）
                 posts.value = formattedArticles
             }
-            
+
             counts.value = result.totalCount
-            
+
             // 檢查是否還有更多文章
             const totalLoaded = posts.value.length
             hasMorePosts.value = totalLoaded < result.totalCount
-            
+
             if (append) {
                 currentPage.value = page
             }
-            
+
             return result
         } catch (err) {
             console.error('載入文章失敗:', err)
@@ -393,7 +394,7 @@ const useProfile = () => {
             currentPage.value = 1
             hasMorePosts.value = true
             posts.value = []
-            
+
             // 載入個人資料
             const data = await response.json()
             Object.assign(profile, data)
@@ -427,7 +428,7 @@ const useProfile = () => {
     // 載入更多文章
     const loadMorePosts = async () => {
         if (!hasMorePosts.value || isLoading.value) return
-        
+
         const nextPage = currentPage.value + 1
         await GetPostsAsync(nextPage, true)
     }
@@ -438,7 +439,7 @@ const useProfile = () => {
         const showLoadMoreButton = Vue.computed(() => {
             return hasMorePosts.value && !isLoading.value && posts.value.length > 0
         })
-        
+
         return {
             showLoadMoreButton,
             loadMore: loadMorePosts
@@ -477,7 +478,7 @@ const useProfile = () => {
         // TODO: Implement comment functionality, e.g., opening a comment modal
         console.log('Comment button clicked for article:', aid);
     };
-    
+
     const share = (aid) => {
         // TODO: Implement share functionality
         console.log('Share button clicked for article:', aid);
@@ -499,7 +500,7 @@ const useProfile = () => {
 
     //#region Lifecycle
     let manualLoadFunctions = null
-    
+
     onMounted(async () => {
         await loadProfile()
         // 載入第一頁文章（限制 10 篇）
@@ -507,21 +508,21 @@ const useProfile = () => {
         // 載入用戶圖片
         await loadUserImages()
         manualLoadFunctions = setupManualLoad()
-        
+
         // 設置無限滾動（Profile 頁面）
         Vue.nextTick(() => {
             if (window.globalApp && typeof window.globalApp.setupInfiniteScroll === 'function') {
                 window.globalApp.setupInfiniteScroll(profile.personId, true)
             }
         })
-        
+
         // 註冊為全域語言切換的回調函數
         if (!window.profileTranslationCallbacks) {
             window.profileTranslationCallbacks = []
         }
         window.profileTranslationCallbacks.push(updateEditPopupTranslations)
     })
-    
+
     // 清理函數（如果需要）
     const cleanup = () => {
         // 清理無限滾動
@@ -548,7 +549,7 @@ const useProfile = () => {
         passwordValidation,
         showPassword,
         userImages,
-        
+
         // Methods
         toggleIcon,
         cancel,
@@ -563,13 +564,15 @@ const useProfile = () => {
         validatePassword,
         validatePasswordWithDebounce,
         togglePasswordVisibility,
-        
+
         // Manual load functions
         showLoadMoreButton: manualLoadFunctions?.showLoadMoreButton || Vue.ref(false),
-        loadMore: manualLoadFunctions?.loadMore || (() => {})
+        loadMore: manualLoadFunctions?.loadMore || (() => { })
     }
     //#endregion
 }
 
-// Export for global usage
+// 為相容既有全域用法，仍掛到 window（ESM 匯入則使用 import）
 window.useProfile = useProfile
+
+export default useProfile

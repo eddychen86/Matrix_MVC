@@ -81,7 +81,7 @@ namespace Matrix.Services
                 ["Follow"] = "追蹤",
                 ["Collect"] = "收藏",
                 ["Share"] = "分享",
-                ["GuestBrowseMsg"] = "登入後可操作",
+                ["GuestBrowseMsg"] = "請先登入以進行互動",
                 ["GuestAccount"] = "訪客",
 
                 // 狀態

@@ -68,7 +68,7 @@ document.addEventListener('DOMContentLoaded', function () {
      * 重置發文彈窗狀態
      * 清空所有輸入內容、檔案預覽、已選標籤等，回到初始狀態
      */
-    function resetPostModal() {
+    const resetPostModal = () => {
         // 清空文章內容輸入框
         document.querySelector('#postModel textarea').value = '';
         
@@ -214,7 +214,7 @@ document.addEventListener('DOMContentLoaded', function () {
      * @param {string} name - 原始檔案名稱
      * @returns {string} - 處理後的檔案名稱
      */
-    function truncateFilename(name) {
+    const truncateFilename = (name) => {
         // 使用正規表達式檢查是否包含中文字元
         const hasChinese = /[^\x00-\x7F]/.test(name);
         
@@ -233,7 +233,7 @@ document.addEventListener('DOMContentLoaded', function () {
      * 渲染圖片與檔案的預覽區域
      * 動態產生預覽元素，讓使用者可以視覺化確認已選擇的檔案
      */
-    function renderPreviews() {
+    const renderPreviews = () => {
         // ========== 圖片預覽區域處理 ==========
         
         // 清空現有的圖片預覽內容
@@ -314,7 +314,7 @@ document.addEventListener('DOMContentLoaded', function () {
      * 從後端 API 非同步獲取所有可用標籤
      * 使用快取機制，避免重複呼叫 API
      */
-    async function fetchHashtags() {
+    const fetchHashtags = async () => {
         // 如果已經載入過標籤，直接返回，避免重複請求
         if (allHashtags.length > 0) return;
         
@@ -334,7 +334,7 @@ document.addEventListener('DOMContentLoaded', function () {
      * 渲染標籤選擇彈窗內的標籤清單
      * 顯示所有可用標籤，並標記已選中的標籤
      */
-    function renderHashtagModal() {
+    const renderHashtagModal = () => {
         // 清空現有的標籤清單
         if (hashtagList) {
             hashtagList.innerHTML = '';
@@ -364,7 +364,7 @@ document.addEventListener('DOMContentLoaded', function () {
      * 渲染已選標籤的顯示區域
      * 在發文彈窗中顯示使用者已選中的標籤
      */
-    function renderSelectedHashtags() {
+    const renderSelectedHashtags = () => {
         // 獲取已選標籤顯示區域的容器
         const container = document.getElementById('selected-hashtags');
         

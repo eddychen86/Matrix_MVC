@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', function() {
 /**
  * 初始化個人檔案文章列表
  */
-function initializeProfilePostList() {
+const initializeProfilePostList = () => {
     const container = document.getElementById('profilePostsList');
     if (!container) {
         console.error('Profile posts list container not found');
@@ -121,17 +121,17 @@ function initializeProfilePostList() {
     }).mount(container);
     
     // Define action functions
-    window.praize = function(articleId) {
+    window.praize = (articleId) => {
         console.log('Praise action for article:', articleId);
         // TODO: Implement praise API call
     };
     
-    window.comment = function(articleId) {
+    window.comment = (articleId) => {
         console.log('Comment action for article:', articleId);
         // TODO: Implement comment functionality
     };
     
-    window.collect = function(articleId) {
+    window.collect = (articleId) => {
         console.log('Collect action for article:', articleId);
         // TODO: Implement collect API call
     };
@@ -141,7 +141,7 @@ function initializeProfilePostList() {
  * 從 URL 獲取用戶 ID（如果適用）
  * @returns {string|null} 用戶 ID
  */
-function getProfileUserIdFromUrl() {
+const getProfileUserIdFromUrl = () => {
     // 這裡可以實作從 URL 路徑或查詢參數中提取用戶 ID 的邏輯
     // 例如：/profile/123 或 /profile?userId=123
     const pathParts = window.location.pathname.split('/');

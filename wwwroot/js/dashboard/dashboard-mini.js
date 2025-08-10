@@ -3,7 +3,7 @@
  * 統一混合語法，自動支援 Vue2/Vue3
  */
 
-function createDashboardApp(config = {}) {
+const createDashboardApp = (config = {}) => {
     // 頁面檢測
     const path = window.location.pathname.toLowerCase()
     if (!path.includes('/dashboard/')) {
@@ -92,29 +92,3 @@ function createDashboardApp(config = {}) {
 // 導出
 window.createDashboardApp = createDashboardApp
 console.log('超極簡 Dashboard 適配器已載入')
-
-/* 使用範例：
-// 最簡單
-createDashboardApp()
-
-// Vue2 風格
-createDashboardApp({
-    data: () => ({ posts: [] }),
-    methods: { deletePo st(id) { ... } }
-})
-
-// Vue3 風格  
-createDashboardApp({
-    setup() {
-        const users = ref([])
-        return { users }
-    }
-})
-
-// 混合風格
-createDashboardApp({
-    setup() { return { adminData: reactive({}) } },
-    data: () => ({ uiState: 'ready' }),
-    methods: { handleClick() { ... } }
-})
-*/
