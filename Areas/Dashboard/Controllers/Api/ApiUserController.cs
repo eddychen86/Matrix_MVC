@@ -20,7 +20,7 @@ namespace Matrix.Areas.Dashboard.Controllers.Api
 
         //取得使用者清單
         [HttpGet]
-        public IActionResult GetUsers([FromQuery] string? search, [FromQuery] int? status)
+        public IActionResult GetUsers([FromQuery] string? search, [FromQuery] int? status ,[FromQuery] DateTime? createDate)
         {
             var query = _context.Users.AsQueryable();
 
@@ -35,6 +35,14 @@ namespace Matrix.Areas.Dashboard.Controllers.Api
             {
                 query = query.Where(u => u.Status == status.Value);
             }
+            //月曆篩選
+            if (createDate.HasValue) 
+            {
+                var start = createDate.Value.Date;
+                var end = start.AddDays(1);
+                query = query.Where(u => u.CreateTime >= start && u.CreateTime < end);
+            }
+
 
             var users = query
                 .OrderByDescending(u => u.CreateTime)

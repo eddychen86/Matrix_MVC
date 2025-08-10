@@ -41,7 +41,7 @@
             <input id="calendar" class="w-full rounded border bg-gray-50 px-3 py-2" placeholder="請選擇日期">
         </div>
         <div class="h-40 w-full">
-            <calendar-date class="cally bg-base-100 border-base-300 rounded-box w-full border shadow-lg">
+            <calendar-date :value="selectedDate ? formatYMD(selectedDate) : ''" @@change="onCalendarChange" class="cally bg-base-100 border-base-300 rounded-box w-full border shadow-lg">
                 <svg aria-label="Previous" class="size-4 fill-current text-[#161616]" slot="previous" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="currentColor" d="M15.75 19.5 8.25 12l7.5-7.5"></path></svg>
                 <svg aria-label="Next" class="size-4 fill-current text-[#161616]" slot="next" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="currentColor" d="m8.25 4.5 7.5 7.5-7.5 7.5"></path></svg>
                 <calendar-month></calendar-month>
@@ -181,6 +181,8 @@
               return users.value.slice(start, start + pageSize.value)
             })
 
+        
+
             const statusText = (value) =>({
                 0: "未啟用",
                 1: "已啟用",
@@ -192,16 +194,59 @@
               return date.toLocaleDateString() + ' ' + date.toLocaleTimeString()
             }
 
-            const fetchUsers = async () => {
-              try {
-                const response = await fetch('/api/ApiUser')
-                if (!response.ok) throw new Error('API 錯誤')
-                const data = await response.json()
-                users.value = data
-              } catch (error) {
-                console.error('載入失敗：', error)
-              }
+            const selectedDate = ref(null)
+            const lastYmd = ref(null)
+
+            //轉YYYY-MM-DD字串給後端
+            function formatYMD(dt)
+            {
+                const d = new Date(dt)
+                const y = d.getFullYear()
+                const m = String(d.getMonth()+1).padStart(2, '0')
+                const day = String(d.getDate()).padStart(2, '0')
+                return `${y}-${m}-${day}`
             }
+
+            const fetchUsers = async (dateYmd = null) => {
+                try {
+            const qs = dateYmd ? `?createDate=${dateYmd}` : ''
+            const response = await fetch(`/api/ApiUser${qs}`)
+                if (!response.ok) throw new Error('API 錯誤')
+            const data = await response.json()
+            users.value = data
+            pageIndex.value = 1
+                }catch (error) {
+            console.error('載入失敗：', error)
+                }
+            }
+            //月曆
+
+            const onCalendarChange = (e) =>{
+                const raw = e?.detail?.value ?? e?.target?.value
+                if (!raw){
+                    selectedDate.value = null
+                    lastYmd.value = null
+                    fetchUsers(null)
+                    return
+                }
+                const ymd = formatYMD(new Date(raw))
+                if(lastYmd.value === ymd){
+                    //點第二次同一天,取消篩選
+                    selectedDate.value = null
+                    lastYmd.value = null
+                    fetchUsers(null)
+                }else{
+                    //第一天或換一天,設定篩選
+                    selectedDate.value = new Date(raw)
+                    lastYmd.value = ymd
+                    fetchUsers(ymd)
+                }
+
+                // selectedDate.value = new Date(raw)
+                // const ymd = formatYMD(selectedDate.value)
+                // fetchUsers(ymd)
+            }
+
             const deleteUser = (id) => {
                 if(!confirm("你確定要刪除嗎?要不要再考慮一下"))return;
 
@@ -259,7 +304,7 @@
 
             }
 
-            onMounted(fetchUsers)
+            onMounted(() => fetchUsers(null))
 
             return {
               users,
@@ -275,10 +320,15 @@
               statusText,
               startEdit,
               cancelEdit,
-              confirmEdit
+              confirmEdit,
+              onCalendarChange,
+              selectedDate,
+              formatYMD
             }
           }
         })
+        app.config.compilerOptions.isCustomElement = tag =>
+          tag === 'calendar-date' || tag === 'calendar-month'
 
         app.mount('#adminUser')
     </script>
