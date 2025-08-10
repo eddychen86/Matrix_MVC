@@ -9,10 +9,10 @@ namespace Matrix.Models
     /// </summary>
     public enum FriendshipStatus
     {
-        Pending,    // 待確認
-        Accepted,   // 已接受
-        Declined,   // 已拒絕
-        Blocked     // 已封鎖
+        Pending,    // 0 = 待確認
+        Accepted,   // 1 = 已接受
+        Declined,   // 2 = 已拒絕
+        Blocked     // 3 = 已封鎖
     }
 
     /// <summary>

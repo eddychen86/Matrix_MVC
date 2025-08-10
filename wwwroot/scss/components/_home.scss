@@ -2,7 +2,7 @@
     .home-hots_list {
         @apply
             flex flex-col gap-4
-            h-80
+            h-28 sm:h-48 2xl:h-80
         ;
 
         .title {
@@ -38,7 +38,10 @@
                 }
 
                 &-item_cts {
-                    @apply h-full w-[19%] overflow-hidden rounded-[30px];
+                    @apply
+                        h-full overflow-hidden rounded-[30px]
+                        w-[10%] sm:w-[15%] 2xl:w-[19%]
+                    ;
 
                     figure {
                         @apply h-full w-full;

@@ -9,11 +9,14 @@ namespace Matrix.Controllers
 {
     [Route("[controller]")]
     public class PostController(
-        IArticleService _articleService,
-        IHashtagRepository _hashtagRepository,
-        ILogger<PostController> _logger
+        IArticleService articleService,
+        IHashtagRepository hashtagRepository,
+        ILogger<PostController> logger
     ) : Controller
     {
+        private readonly IArticleService _articleService = articleService;
+        private readonly IHashtagRepository _hashtagRepository = hashtagRepository;
+        private readonly ILogger<PostController> _logger = logger;
         [HttpPost("Create")]
         public async Task<IActionResult> Create([FromForm] CreateArticleDto dto)
         {

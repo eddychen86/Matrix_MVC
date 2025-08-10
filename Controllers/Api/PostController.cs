@@ -9,14 +9,20 @@ namespace Matrix.Controllers.Api
     [Route("api/[controller]")]
     [ApiController]
     public class PostController(
-        ILogger<PostController> _logger,
-        IPraiseService _praiseService,
-        ICollectService _collectService,
-        IReplyService _replyService,
-        IArticleService _articleService,
-        IUserService _userService
+        ILogger<PostController> logger,
+        IPraiseService praiseService,
+        ICollectService collectService,
+        IReplyService replyService,
+        IArticleService articleService,
+        IUserService userService
     ) : ControllerBase
     {
+        private readonly ILogger<PostController> _logger = logger;
+        private readonly IPraiseService _praiseService = praiseService;
+        private readonly ICollectService _collectService = collectService;
+        private readonly IReplyService _replyService = replyService;
+        private readonly IArticleService _articleService = articleService;
+        private readonly IUserService _userService = userService;
         [HttpGet("hot")]
         public async Task<IActionResult> GetHot([FromQuery] int count = 10)
         {

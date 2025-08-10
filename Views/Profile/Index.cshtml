@@ -7,7 +7,10 @@
             <i data-lucide="pen" class="icon-bg text-white"></i>
         </button>
         <input type="file" accept="image/*" class="hidden" id="banner-file-input">
-        <img :src="profile.bannerPath" alt="Profile Banner" class="profile-banner" />
+        <img v-if="profile.bannerPath" :src="profile.bannerPath" alt="Profile Banner" />
+        <div v-else class="no-banner bg-accent">
+            <i data-lucide="image" class="size-10 text-stone-200"></i>
+        </div>
     </div>
     <div class="profile-avatar">
         <div class="profile-avatar_body">
@@ -16,7 +19,10 @@
                     <i data-lucide="pen" class="icon-bg text-white"></i>
                 </button>
                 <input type="file" accept="image/*" class="hidden" id="avatar-file-input">
-                <img :src="profile.avatarPath" alt="Profile Avatar" />
+                <img v-if="profile.avatarPath" :src="profile.avatarPath" alt="Profile Avatar" />
+                <div v-else class="no-avatar bg-accent">
+                    <i data-lucide="user-round" class="size-10 text-stone-200"></i>
+                </div>
             </div>
             <h3>{{ profile.displayName }}</h3>
             <i data-lucide="globe" v-if="!profile.isPrivate" class="size-4 sm:size-8 2xl:size-12 mb-0 2xl:mb-4 text-blue-500"></i>
@@ -70,7 +76,10 @@
     @await Component.InvokeAsync("PostList")
 </ul>
 
-<ul class="col-span-3"></ul>
+<!-- 好友列表 -->
+<aside class="friends-list col-span-2">
+    @await Component.InvokeAsync("FriendsList")
+</aside>
 
 <!-- Edit Profile View -->
 @await Component.InvokeAsync("EditProfilePopup")

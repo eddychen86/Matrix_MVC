@@ -1,61 +1,39 @@
-@model List<Matrix.ViewModels.FriendListViewModel>
-<aside class="friends-list">
-    <ul class="list bg-base-100 rounded-box shadow-md">
-        <li class="p-4 pb-2 text-xs opacity-60 tracking-wide">好友列表</li>
-        <li class="p-4 pb-2 text-xs opacity-60 tracking-wide">好友列表</li>
+@inject ICustomLocalizer Localizer
 
-        <li class="list-row" v-for="item in friends" :key="item.userId">
-            <div><img class="size-10 rounded-box" src="https://img.daisyui.com/images/profile/demo/1@94.webp" /></div>
-            <div>
-                <div>Dio Lupa</div>
-                <div class="text-xs uppercase font-semibold opacity-60">Remaining Reason</div>
+<div class="flex items-center justify-between mb-2">
+    <h3 class="title">好友列表</h3>
+    <span class="para opacity-60">共 {{ friendsTotal }} 位</span>
+</div>
+
+<div class="join mb-3 rounded-[30px] border border-white overflow-hidden">
+    <button class="join-item btn btn-xs border border-white"
+            :class="friendsStatus==='accepted' ? 'btn-primary' : 'btn-ghost'"
+            v-on:click="changeFriendsStatus('accepted')">已接受</button>
+    <button class="join-item btn btn-xs border border-white"
+            :class="friendsStatus==='pending' ? 'btn-primary' : 'btn-ghost'"
+            v-on:click="changeFriendsStatus('pending')">待處理</button>
+    <button class="join-item btn btn-xs border border-white"
+            :class="friendsStatus==='declined' ? 'btn-primary' : 'btn-ghost'"
+            v-on:click="changeFriendsStatus('declined')">已拒絕</button>
+    <button class="join-item btn btn-xs border border-white"
+            :class="friendsStatus==='blocked' ? 'btn-primary' : 'btn-ghost'"
+            v-on:click="changeFriendsStatus('blocked')">封鎖</button>
+    <button class="join-item btn btn-xs border border-white"
+            :class="friendsStatus==='all' ? 'btn-primary' : 'btn-ghost'"
+            v-on:click="changeFriendsStatus('all')">全部</button>
+</div>
+
+<ul class="list flex flex-col gap-3">
+    <li v-if="friendsLoading" class="para opacity-60">載入中...</li>
+    <li v-else-if="!friends || friends.length === 0" class="para opacity-60">尚無好友</li>
+
+    <li class="list-row !p-2 items-center" v-for="item in friends" :key="item.userId">
+        <div>
+            <img v-if="item.avatarPath" class="size-10 rounded-full object-cover" :src="item.avatarPath" :alt="item.userName" />
+            <div v-else class="size-10 rounded-full bg-secondary flex items-center justify-center text-white font-bold">
+                {{ (item.userName || '?').slice(0,1).toUpperCase() }}
             </div>
-        </li>
-    </ul>
-</aside>
-
-@* <aside class="friends-list friend-panel top-0 right-0 z-[1000] flex w-[300px] flex-col rounded-xl shadow">
-    <div class="friend-search-bar flex h-[44px] w-[300px] items-center rounded-[24px] bg-[#323232] pr-4 pl-2 shadow-[2px_2px_4px_rgba(255,255,255,0.1)]">
-        <div class="friend-icon-div mr-2 flex h-[35px] w-[35px] max-w-[35px] min-w-[35px] cursor-default items-center justify-center rounded-full border-0 bg-[#787878] p-0 outline-none">
-            <svg class="friend-icon h-[14px] w-[14px] fill-[#323232] text-[#323232] text-[14px]" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path d="M0 0h24v24H0z" fill="none"></path>
-                <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"></path>
-            </svg>
         </div>
-        <input type="text" v-model="searchFriends" placeholder="Search friends" class="friend-search-input flex-1 bg-transparent text-[#a1a1a1] text-[14px] font-['Roboto'] leading-[16px] outline-none placeholder-[#a1a1a1]" />
-    </div>
-
-    <div class="overflow-y-auto">
-        <div v-for="friend in filterFriends" :key="friend.UserId" class="friend-item flex items-center rounded-lg px-2 py-2 transition hover:bg-[#222]">
-            <img :src="friend.AvatarPath" class="friend-avatar h-[50px] w-[50px] rounded-full object-cover" />
-            <span class="friend-name ml-3 text-white text-[16px] font-['Source_Sans_Pro'] leading-[19px]">{{friend.UserName}}</span>
-        </div>
-        <div v-if="filterFriends.length === 0" class="p-4 text-[#a1a1a1] font-['Roboto'] leading-[16px] outline-none placeholder-[#a1a1a1]">
-            查無好友
-        </div>
-    </div>
-</aside> *@
-
-@* <script src="~/lib/vue/dist/vue.global.js" asp-append-version="true"></script>
-<script>
-    const friendData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model))
-
-
-    const friendApp = Vue.createApp({
-        data() {
-            return {
-                searchFriends: "",
-                friends: friendData
-            }
-        },
-        computed: {
-            filterFriends() {
-                const keyword = this.searchFriends.toLowerCase();
-                return this.friends.filter(a =>
-                    a.UserName.toLowerCase().includes(keyword)
-                );
-            }
-        }
-    });
-    friendApp.mount('#friends_list');
-</script> *@
+        <div class="font-medium text-white">{{ item.userName }}</div>
+    </li>
+</ul>

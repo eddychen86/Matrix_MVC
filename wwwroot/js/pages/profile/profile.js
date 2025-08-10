@@ -380,7 +380,16 @@ export const useProfile = () => {
 
     const loadProfile = async () => {
         try {
-            const response = await fetch('/api/Profile', {
+            // 從網址判斷是否帶入 username：/profile/{username}
+            const pathParts = window.location.pathname.split('/').filter(Boolean)
+            const isProfilePath = pathParts[0]?.toLowerCase() === 'profile'
+            const maybeUsername = isProfilePath && pathParts.length >= 2 ? pathParts[1] : null
+            // 過濾掉可能的 Index 舊路由片段
+            const username = (maybeUsername && maybeUsername.toLowerCase() !== 'index') ? maybeUsername : null
+
+            const url = username ? `/api/Profile/${encodeURIComponent(username)}` : '/api/Profile'
+
+            const response = await fetch(url, {
                 method: 'GET',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include'
@@ -406,7 +415,13 @@ export const useProfile = () => {
 
     const loadUserImages = async () => {
         try {
-            const response = await fetch('/api/Profile/images?count=10', {
+            // 若已載入 profile，優先以該使用者的 UserId 查詢圖片
+            const query = new URLSearchParams({ count: '10' })
+            if (profile?.userId) {
+                query.append('userId', profile.userId)
+            }
+
+            const response = await fetch(`/api/Profile/images?${query.toString()}`, {
                 method: 'GET',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include'

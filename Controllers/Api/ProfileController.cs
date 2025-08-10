@@ -59,63 +59,39 @@ namespace Matrix.Controllers.Api
         }
 
         /// <summary>
-        /// 根據使用者 ID 獲取個人資料和相關文章
-        /// 返回包含個人資料、使用者資訊和相關文章的完整資料
+        /// 取得用戶個人資料
+        /// - GET /api/Profile           → 查詢目前登入者
+        /// - GET /api/Profile/{username} → 以指定 username 查詢
         /// </summary>
-        /// <param name="model">包含使用者 ID 的請求模型</param>
-        /// <returns>個人資料 DTO</returns>
-        [HttpPost("get")]
-        public async Task<ActionResult<PersonDto>> GetProfileById([FromBody] ProfileGetUserDto model) 
-        {
-            try
-            {
-                _logger.LogInformation("開始查詢個人資料，使用者 ID: {UserId}", model.id);
-                
-                var personDto = await _userService.GetProfileByIdAsync(model.id);
-                
-                if (personDto == null)
-                {
-                    _logger.LogWarning("找不到個人資料，使用者 ID: {UserId}", model.id);
-                    return NotFound("找不到指定的個人資料");
-                }
-                
-                _logger.LogInformation("成功查詢個人資料，使用者 ID: {UserId}", model.id);
-                return Ok(personDto);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "查詢個人資料時發生例外，使用者 ID: {UserId}", model.id);
-                return StatusCode(500, "伺服器內部錯誤，請稍後再試");
-            }
-        }
-
-        /// <summary>
-        /// 獲取用戶個人資料
-        /// 預設使用認證中的用戶 ID，但可以通過查詢參數覆蓋
-        /// </summary>
-        /// <param name="userId">可選的用戶 ID，如果不提供則使用認證中的 ID</param>
+        /// <param name="username">路由中的使用者名稱（可選）</param>
         /// <returns>指定用戶的個人資料</returns>
-        [HttpGet("")]
-        public async Task<ActionResult<PersonDto>> GetMyProfile([FromQuery] Guid? userId = null)
+        [HttpGet("{username?}")]
+        public async Task<ActionResult<PersonDto>> GetMyProfile([FromRoute] string? username = null)
         {
             try
             {
                 Guid targetUserId;
-                
-                if (userId.HasValue)
+
+                if (!string.IsNullOrWhiteSpace(username))
                 {
-                    // 使用外部傳入的 userId
-                    targetUserId = userId.Value;
-                    _logger.LogInformation("使用外部傳入的用戶 ID: {UserId}", targetUserId);
+                    // 以路由提供的 username 查詢
+                    _logger.LogInformation("使用路由中的用戶名查詢: {Username}", username);
+                    var user = await _userService.GetUserByUsernameAsync(username);
+                    if (user == null)
+                    {
+                        _logger.LogWarning("找不到指定的用戶名: {Username}", username);
+                        return NotFound("找不到該使用者");
+                    }
+                    targetUserId = user.UserId;
                 }
                 else
                 {
-                    // 從 HttpContext.Items 中獲取已認證的用戶 ID
+                    // 不帶 username：使用當前認證使用者
                     var userIdFromContext = HttpContext.Items["UserId"] as Guid?;
                     if (!userIdFromContext.HasValue)
                     {
-                        _logger.LogWarning("無法從認證中獲取用戶 ID，且未提供外部 userId");
-                        return Unauthorized("用戶未認證且未提供用戶 ID");
+                        _logger.LogWarning("無法從認證中獲取用戶 ID，且未提供 username");
+                        return Unauthorized("用戶未認證且未提供用戶名稱");
                     }
                     targetUserId = userIdFromContext.Value;
                     _logger.LogInformation("使用認證中的用戶 ID: {UserId}", targetUserId);
@@ -204,27 +180,19 @@ namespace Matrix.Controllers.Api
             {
                 // 驗證輸入參數
                 if (file == null || file.Length == 0)
-                {
                     return BadRequest(new { success = false, message = "請選擇要上傳的檔案" });
-                }
 
                 if (string.IsNullOrEmpty(type) || (type != "avatar" && type != "banner"))
-                {
                     return BadRequest(new { success = false, message = "檔案類型必須是 avatar 或 banner" });
-                }
 
                 // 檢查檔案類型
                 if (!file.ContentType.StartsWith("image/"))
-                {
                     return BadRequest(new { success = false, message = "只允許上傳圖片檔案" });
-                }
 
                 // 檢查檔案大小 (5MB)
                 const long maxFileSize = 5 * 1024 * 1024;
                 if (file.Length > maxFileSize)
-                {
                     return BadRequest(new { success = false, message = "檔案大小不可超過 5MB" });
-                }
 
                 // 獲取當前用戶 ID
                 var userIdFromContext = HttpContext.Items["UserId"] as Guid?;

@@ -12,7 +12,7 @@
                 <span data-i18n="Matrix">@Localizer["Matrix"]</span>
             </a>
             @if (Model.IsAuthenticated) {
-                <a asp-controller="Profile" asp-action="Index" aria-current="page" asp-route-id="@Model.UserId" class="cts-btn">
+                <a asp-controller="Profile" asp-action="Index" aria-current="page" class="cts-btn">
                     <img src="@Model.UserImg" alt="" class="icon-lg object-cover object-center border-2 border-white" />
                     <span class="title">@Model.UserName</span>
                 </a>
