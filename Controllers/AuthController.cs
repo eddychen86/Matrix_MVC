@@ -217,12 +217,15 @@ namespace Matrix.Controllers
                 expires = new DateTimeOffset(endOfDay, TimeZoneInfo.Local.GetUtcOffset(endOfDay));
             }
 
+            // 透過設定檔控制是否在開發跨站情境下攜帶 Cookie（需 https + SameSite=None）
+            var crossSiteCookies = _configuration.GetValue<bool>("Auth:CrossSiteCookies");
+
             var cookieOptions = new CookieOptions
             {
                 HttpOnly = true,
-                Secure = false, // 開發環境設為 false，生產環境應設為 true
-                SameSite = SameSiteMode.Lax, // 允許跨頁面導航時傳送 Cookie
-                Path = "/", // 確保整個網站都能存取 Cookie
+                Secure = crossSiteCookies ? true : false,
+                SameSite = crossSiteCookies ? SameSiteMode.None : SameSiteMode.Lax,
+                Path = "/",
                 Expires = expires
             };
 
@@ -234,7 +237,8 @@ namespace Matrix.Controllers
             Console.WriteLine($"Remember Me: {rememberMe}");
             Console.WriteLine($"Expires: {cookieOptions.Expires}");
             Console.WriteLine($"Secure: {cookieOptions.Secure}");
-            Console.WriteLine($"SameSite: {cookieOptions.SameSite}\n\n");
+            Console.WriteLine($"SameSite: {cookieOptions.SameSite}");
+            Console.WriteLine($"CrossSiteCookies: {crossSiteCookies}\n\n");
         }
 
     }

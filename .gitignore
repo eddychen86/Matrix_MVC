@@ -100,3 +100,7 @@ _[Ss]cripts
 CLAUDE.md
 GEMINI.md
 AGENTSsu3.md
+############################
+# Data Protection Key files #
+############################
+DataProtectionKeys/*.xml

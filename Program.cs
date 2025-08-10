@@ -12,6 +12,8 @@ using Matrix.Services.Interfaces;
 using Matrix.Models;
 using Matrix.DTOs;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.DataProtection;
+using System.IO;
 // using Microsoft.AspNetCore.Identity;
 
 namespace Matrix;
@@ -21,12 +23,6 @@ public class Program
     public static void Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
-        
-        // 開發環境提示
-        if (builder.Environment.IsDevelopment())
-        {
-            Console.WriteLine("💡 如遇 403 錯誤，通常是 port 衝突 - 使用 port 5002 避免 AirTunes");
-        }
 
         // 配置 Console Logging Provider
         builder.Logging.ClearProviders();
@@ -49,6 +45,13 @@ public class Program
                 sqlOptions.EnableRetryOnFailure(3, TimeSpan.FromSeconds(5), null); // 啟用重試機制
             }));
         builder.Services.AddDatabaseDeveloperPageExceptionFilter();
+
+        // DataProtection 金鑰持久化，避免重啟後 Cookie/Antiforgery 失效
+        var keysPath = System.IO.Path.Combine(builder.Environment.ContentRootPath, "DataProtectionKeys");
+        System.IO.Directory.CreateDirectory(keysPath);
+        builder.Services.AddDataProtection()
+            .PersistKeysToFileSystem(new System.IO.DirectoryInfo(keysPath))
+            .SetApplicationName("Matrix");
 
         #region 註冊 Repository
 
