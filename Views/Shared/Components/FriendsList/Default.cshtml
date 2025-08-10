@@ -1,6 +1,20 @@
-﻿@model List<Matrix.ViewModels.FriendListViewModel>
-<aside id="friends_list"
-       class="friend-panel top-0 right-0 z-[1000] flex w-[300px] flex-col rounded-xl shadow">
+@model List<Matrix.ViewModels.FriendListViewModel>
+<aside class="friends-list">
+    <ul class="list bg-base-100 rounded-box shadow-md">
+        <li class="p-4 pb-2 text-xs opacity-60 tracking-wide">好友列表</li>
+        <li class="p-4 pb-2 text-xs opacity-60 tracking-wide">好友列表</li>
+
+        <li class="list-row" v-for="item in friends" :key="item.userId">
+            <div><img class="size-10 rounded-box" src="https://img.daisyui.com/images/profile/demo/1@94.webp" /></div>
+            <div>
+                <div>Dio Lupa</div>
+                <div class="text-xs uppercase font-semibold opacity-60">Remaining Reason</div>
+            </div>
+        </li>
+    </ul>
+</aside>
+
+@* <aside class="friends-list friend-panel top-0 right-0 z-[1000] flex w-[300px] flex-col rounded-xl shadow">
     <div class="friend-search-bar flex h-[44px] w-[300px] items-center rounded-[24px] bg-[#323232] pr-4 pl-2 shadow-[2px_2px_4px_rgba(255,255,255,0.1)]">
         <div class="friend-icon-div mr-2 flex h-[35px] w-[35px] max-w-[35px] min-w-[35px] cursor-default items-center justify-center rounded-full border-0 bg-[#787878] p-0 outline-none">
             <svg class="friend-icon h-[14px] w-[14px] fill-[#323232] text-[#323232] text-[14px]" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -20,9 +34,9 @@
             查無好友
         </div>
     </div>
-</aside>
+</aside> *@
 
-<script src="~/lib/vue/dist/vue.global.js" asp-append-version="true"></script>
+@* <script src="~/lib/vue/dist/vue.global.js" asp-append-version="true"></script>
 <script>
     const friendData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model))
 
@@ -44,4 +58,4 @@
         }
     });
     friendApp.mount('#friends_list');
-</script>
+</script> *@

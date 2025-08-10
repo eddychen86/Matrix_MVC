@@ -2,8 +2,6 @@ using Microsoft.AspNetCore.Mvc;
 using Matrix.Services.Interfaces;
 using Matrix.DTOs;
 using System.Security.Claims;
-using Matrix.Data;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Http;
 
 namespace Matrix.Controllers.Api
@@ -16,7 +14,7 @@ namespace Matrix.Controllers.Api
         ICollectService _collectService,
         IReplyService _replyService,
         IArticleService _articleService,
-        ApplicationDbContext _context
+        IUserService _userService
     ) : ControllerBase
     {
         [HttpGet("hot")]
@@ -24,33 +22,24 @@ namespace Matrix.Controllers.Api
         {
             try
             {
-                var articles = await _context.Articles
-                    .AsNoTracking()
-                    .Include(a => a.Author)
-                    .Include(a => a.Attachments)
-                    .Where(a => a.Status == 0 && a.IsPublic == 0)
-                    .OrderByDescending(a => a.PraiseCount)
-                    .ThenByDescending(a => a.CreateTime)
-                    .Take(Math.Max(1, Math.Min(count, 50)))
-                    .Select(a => new
-                    {
-                        articleId = a.ArticleId,
-                        content = a.Content,
-                        createTime = a.CreateTime.ToString("yyyy-MM-dd HH:mm"),
-                        praiseCount = a.PraiseCount,
-                        collectCount = a.CollectCount,
-                        authorId = a.AuthorId,
-                        authorName = a.Author!.DisplayName,
-                        authorAvatar = a.Author!.AvatarPath,
-                        image = a.Attachments!.Where(att => att.Type.ToLower() == "image").Select(att => new {
-                            fileId = att.FileId,
-                            filePath = att.FilePath,
-                            fileName = att.FileName
-                        }).FirstOrDefault()
-                    })
-                    .ToListAsync();
+                var limit = Math.Max(1, Math.Min(count, 50));
+                var list = await _articleService.GetPopularArticlesAsync(limit);
 
-                return Ok(new { items = articles });
+                var items = list.Select(a => new
+                {
+                    articleId = a.ArticleId,
+                    content = a.Content,
+                    createTime = a.CreateTime,
+                    praiseCount = a.PraiseCount,
+                    collectCount = a.CollectCount,
+                    authorId = a.AuthorId,
+                    authorName = a.AuthorName,
+                    authorAvatar = a.AuthorAvatar,
+                    image = a.Attachments
+                        .FirstOrDefault(att => string.Equals(att.Type, "image", StringComparison.OrdinalIgnoreCase))
+                });
+
+                return Ok(new { items });
             }
             catch (Exception ex)
             {
@@ -89,16 +78,10 @@ namespace Matrix.Controllers.Api
 
                         if (isProfilePage)
                         {
-                            // 需要將 UserId 轉換為 PersonId
-                            var userPerson = await _context.Persons
-                                .Where(p => p.UserId == currentUserId.Value)
-                                .FirstOrDefaultAsync();
-
-                            if (userPerson != null)
-                            {
-                                authorId = userPerson.PersonId;
-                                _logger.LogInformation("\nUsing current user's PersonId: {PersonId}\n", authorId);
-                            }
+                            // 需要將 UserId 轉換為 PersonId（透過 UserService 取得 Profile）
+                            var profile = await _userService.GetProfileByIdAsync(currentUserId.Value);
+                            if (profile != null)
+                                authorId = profile.PersonId;
                         }
                     }
                 }
@@ -161,7 +144,7 @@ namespace Matrix.Controllers.Api
                     {
                         articleId = a.ArticleId,
                         content = a.Content,
-                        createTime = a.CreateTime.ToString("yyyy-MM-dd HH:mm"),
+                        createTime = a.CreateTime,
                         praiseCount = a.PraiseCount,
                         collectCount = a.CollectCount,
                         authorName = a.Author?.DisplayName ?? "未知作者",
