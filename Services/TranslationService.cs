@@ -145,6 +145,18 @@ namespace Matrix.Services
 
                 #endregion
 
+                #region Friends 模組
+
+                ["FriendsTitle"] = "好友列表",
+                ["FriendsAccepted"] = "已接受",
+                ["FriendsPending"] = "待處裡",
+                ["FriendsDeclined"] = "已拒絕",
+                ["FriendsBlocked"] = "封鎖",
+                ["FriendsAll"] = "全部",
+                ["FriendsNone"] = "尚無好友",
+
+                #endregion
+
                 #region Admin 模組
 
                 ["DashboardTitle"] = "管理儀表板",
@@ -352,6 +364,18 @@ namespace Matrix.Services
                 ["ProfileWellat"] = "Wallet Address",
                 ["ProfileState"] = "Profile State",
                 ["ProfilePwd"] = "Reset Password",
+
+                #endregion
+
+                #region Friends 模組
+
+                ["FriendsTitle"] = "Friends",
+                ["FriendsAccepted"] = "Accepted",
+                ["FriendsPending"] = "Pending",
+                ["FriendsDeclined"] = "Declined",
+                ["FriendsBlocked"] = "Blocked",
+                ["FriendsAll"] = "All",
+                ["FriendsNone"] = "No friends yet",
 
                 #endregion
 

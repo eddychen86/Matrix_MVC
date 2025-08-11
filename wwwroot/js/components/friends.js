@@ -76,6 +76,8 @@ export class FriendsService {
             avatarPath: item.avatarPath || null
         }));
     }
+
+    
 }
 
 // 導出單例

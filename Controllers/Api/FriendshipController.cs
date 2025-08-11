@@ -23,7 +23,6 @@ namespace Matrix.Controllers.Api
         /// 兼容舊路徑：GET /api/Friendship/{username}/friends
         /// 推薦新路徑：GET /api/friends/{username}?status=accepted|pending|declined|blocked|all
         /// </summary>
-        [HttpGet("{username}/friends")]
         public async Task<IActionResult> GetFriendsByUsername(
             [FromRoute] string username,
             [FromQuery] string? status = "accepted")
