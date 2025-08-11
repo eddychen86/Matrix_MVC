@@ -1,10 +1,9 @@
-<div id="reports-app" class="flex h-full w-full border border-gray-300 bg-white shadow-lg">
+@* <div id="reports-app" class="flex h-full w-full border border-gray-300 bg-white shadow-lg"> *@
     <!-- ¥ª°¼Äæ -->
-    <aside class="flex flex-col gap-8 border-r border-gray-200 bg-white p-8">
-        <div>
-            <h2 class="mb-4 text-2xl font-bold text-gray-700">Reports Management</h2>
-        </div>
-
+<div id="reports-app" class="grid h-full w-full grid-cols-4 gap-4">
+    <h2 class="col-span-4 text-5xl font-bold text-gray-700">Reports Management</h2>
+    <!-- ¥ª°¼Äæ -->
+    <aside class="col-span-1 flex flex-col gap-8 border-r border-gray-200 bg-white p-8">
         <!-- Keyword -->
         <div>
             <h3 class="mb-2 block font-semibold text-[20px] text-gray-700">Keyword</h3>
@@ -82,8 +81,8 @@
     </aside>
 
     <!-- ¥k°¼¥Dªí®æ -->
-    <main class="flex-1 p-8">
-        <div class="h-full w-full rounded-2xl border border-black/10 bg-yellow-50 p-8">
+    <main class="col-span-3 h-full p-8">
+        <div class="h-full w-full rounded-2xl border border-black/10 bg-yellow-50 p-4">
             <table class="table w-full">
                 <thead>
                     <tr>
