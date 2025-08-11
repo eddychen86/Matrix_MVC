@@ -96,7 +96,7 @@ globalApp({
         const editingId = ref(null)
         const editContent = ref('')
 
-        // 目前選取的文章（用於左側開關）
+        // 目前選取的文章
         const selectedId = ref(null)
         const statusEditor = ref(null)
 
@@ -118,7 +118,7 @@ globalApp({
             }
         }
 
-        // 狀態中文對照（顯示用）
+        // 狀態中文對照
         const statusText = (s) => (s === 0 ? '正常' : s === 1 ? '隱藏' : s === 2 ? '已刪除' : '未知')
 
         // 展開以選取列完整內文
@@ -171,7 +171,7 @@ globalApp({
             }
         }
 
-        // 左側開關：切換狀態就更新該篇
+        // 左側開關
         const onChangeStatus = async () => {
             const id = selectedId.value
             if (!id || statusEditor.value == null) return
@@ -179,16 +179,16 @@ globalApp({
             const a = findArticle(id)
             if (!a) return
 
-            const newStatus = statusEditor.value   // 0 或 1
+            const newStatus = statusEditor.value
             const prevStatus = a.status
-            if (newStatus === prevStatus) return   // 沒變不送
+            if (newStatus === prevStatus) return
 
             try {
                 // 用你現有的更新 API；若你的後端要別的路由，改這裡即可
-                const res = await fetch(`/api/posts/update/${id}`, {
-                    method: 'PUT',
+                const res = await fetch(`/api/posts/status/${selectedId.value}`, {
+                    method: 'PATCH',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ status: newStatus })
+                    body: JSON.stringify({ status: statusEditor.value })
                 })
                 if (!res.ok) throw new Error()
 
@@ -200,7 +200,7 @@ globalApp({
             }
         }
 
-        // 文章刪除功能（原樣）
+        // 文章刪除功能
         const deleteArticle = async (id) => {
             if (!confirm('確定要刪除這篇文章嗎?')) return
             const res = await fetch(`/api/posts/delete/${id}`, { method: 'DELETE' })
@@ -213,7 +213,7 @@ globalApp({
 
         Vue.onMounted(loadArticles)
 
-        // 管理表格換頁功能（原樣）
+        // 管理表格換頁功能
         const goPage = async (p) => {
             const newPage = Math.max(1, Math.min(totalPages.value, p))
             if (newPage === page.value) return
@@ -221,7 +221,7 @@ globalApp({
             await loadArticles()
         }
 
-        // 頁面簡化顯示功能（原樣）
+        // 頁面簡化顯示功能
         const showPage = computed(() => {
             const result = []
             const total = totalPages.value

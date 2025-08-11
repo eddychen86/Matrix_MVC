@@ -204,6 +204,15 @@ namespace Matrix.DTOs
         {
             public string Content { get; set; } = string.Empty;
         }
+
+        /// <summary>
+        /// 後臺管理員更改文章顯示狀態
+        /// </summary>
+        public class UpdateStatusDto
+        {
+            public int Status { get; set; }
+        }
+        
     }
 
     /// <summary>
@@ -401,8 +410,6 @@ namespace Matrix.DTOs
                 ["CollectCount"] = 0
             };
         }
-
-
 
     }
 }

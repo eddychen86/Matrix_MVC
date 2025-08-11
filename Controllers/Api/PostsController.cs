@@ -37,12 +37,26 @@ namespace Matrix.Controllers.Api
         {
             if (string.IsNullOrWhiteSpace(dto.Content))
                 return BadRequest("Content is required");
-            var succeess = await _articleService.AdminUpdateArticleContentAsync(id, dto.Content);
-            if (!succeess)
+            var success = await _articleService.AdminUpdateArticleContentAsync(id, dto.Content);
+            if (!success)
                 return NotFound();
 
-            return Ok(new { succeess = true });
+            return Ok(new { success = true });
         }
+
+        //更改文章狀態
+        [HttpPatch("status/{id}")]
+        public async Task<IActionResult> SetStatus(Guid id, [FromBody] UpdateStatusDto dto)
+        {
+            if (dto is null) return BadRequest("Body required");
+            if(dto.Status  is <0 or > 1) return BadRequest("status must be 0 or 1");
+
+            var ok = await _articleService.UpdateStatusAsync(id, dto.Status);
+            if(!ok) return NotFound();
+
+            return Ok(new { success = true, status = dto.Status });
+        }
+
 
         //刪除文章
         [HttpDelete("delete/{id}")]
