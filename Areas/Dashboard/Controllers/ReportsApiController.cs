@@ -29,45 +29,52 @@ namespace Matrix.Areas.Dashboard.Controllers
             int? status = null, int? type = null,
             DateTime? from = null, DateTime? to = null, string? keyword = null)
         {
-            var (reports, total) = await _reportService.GetReportsAsync(page, pageSize, status, null, null);
-
-            // 批次查 Target 顯示字串（避免 N+1）
-            var userIds    = reports.Where(r => r.Type == 0).Select(r => r.TargetId).Distinct().ToList();
-            var articleIds = reports.Where(r => r.Type == 1).Select(r => r.TargetId).Distinct().ToList();
-
-            var userNames = await _db.Persons
-                .Where(p => userIds.Contains(p.PersonId))
-                .Select(p => new { p.PersonId, p.DisplayName })
-                .ToDictionaryAsync(x => x.PersonId, x => x.DisplayName);
-
-
-            var articleContents = await _db.Articles
-                .Where(a => articleIds.Contains(a.ArticleId))
-                .Select(a => new { a.ArticleId, a.Content })
-                .ToDictionaryAsync(x => x.ArticleId, x => x.Content);
-
-            // 映射成前端需要的欄位（CreateTime 先回 null；ModifyTime 用 ProcessTime）
-            var items = reports.Select(r => new ReportListItemDto
+            try
             {
-                ReportId   = r.ReportId,
-                Reason     = r.Reason,
-                Reporter   = r.Reporter?.DisplayName ?? "(unknown)",
-                Type       = r.Type == 0 ? "User" : "Article",
-                Target     = r.Type == 0
-                                ? (userNames.TryGetValue(r.TargetId, out var name) ? name : "-")
-                                : (articleContents.TryGetValue(r.TargetId, out var content) ? content : "-"),
-                CreateTime = null,              // 沒有欄位 → 回 null，前端會顯示 "-"
-                ModifyTime = r.ProcessTime,     // 用處理/駁回時間當 ModifyTime
-                Status     = r.Status switch { 0 => "Pending", 1 => "Processed", 2 => "Rejected", _ => r.Status.ToString() }
-            }).ToList();
+                var (reports, total) = await _reportService.GetReportsAsync(page, pageSize, status, null, null);
 
-            return Ok(new PagedResult<ReportListItemDto>
+                // 批次查 Target 顯示字串（避免 N+1）
+                var userIds = reports.Where(r => r.Type == 0).Select(r => r.TargetId).Distinct().ToList();
+                var articleIds = reports.Where(r => r.Type == 1).Select(r => r.TargetId).Distinct().ToList();
+
+                var userNames = await _db.Persons
+                    .Where(p => userIds.Contains(p.PersonId))
+                    .Select(p => new { p.PersonId, p.DisplayName })
+                    .ToDictionaryAsync(x => x.PersonId, x => x.DisplayName);
+
+
+                var articleContents = await _db.Articles
+                    .Where(a => articleIds.Contains(a.ArticleId))
+                    .Select(a => new { a.ArticleId, a.Content })
+                    .ToDictionaryAsync(x => x.ArticleId, x => x.Content);
+
+                // 映射成前端需要的欄位（CreateTime 先回 null；ModifyTime 用 ProcessTime）
+                var items = reports.Select(r => new ReportListItemDto
+                {
+                    ReportId = r.ReportId,
+                    Reason = r.Reason,
+                    Reporter = r.Reporter?.DisplayName ?? "(unknown)",
+                    Type = r.Type == 0 ? "User" : "Article",
+                    Target = r.Type == 0
+                                    ? (userNames.TryGetValue(r.TargetId, out var name) ? name : "-")
+                                    : (articleContents.TryGetValue(r.TargetId, out var content) ? content : "-"),
+                    CreateTime = null,              // 沒有欄位 → 回 null，前端會顯示 "-"
+                    ModifyTime = r.ProcessTime,     // 用處理/駁回時間當 ModifyTime
+                    Status = r.Status switch { 0 => "Pending", 1 => "Processed", 2 => "Rejected", _ => r.Status.ToString() }
+                }).ToList();
+
+                return Ok(new PagedResult<ReportListItemDto>
+                {
+                    Items = items,
+                    TotalCount = total,
+                    Page = page,
+                    PageSize = pageSize
+                });
+            }
+            catch (Exception ex)
             {
-                Items = items,
-                TotalCount = total,
-                Page = page,
-                PageSize = pageSize
-            });
+                return Problem(ex.ToString());
+            }
         }
 
         // POST /api/dashboard/reports/{id}/process

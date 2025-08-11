@@ -75,12 +75,13 @@ globalApp({
 
         async function loadReports() {
             try {
-                const res = await fetch(`/api/dashboard/reports?${buildQuery()}`)
+                const url = `/api/dashboard/reports?${buildQuery()}`
+                const res = await fetch(url)
+                console.log('GET', url, '→', res.status)   // 👈 看看是 200/401/404
                 if (!res.ok) return
                 const data = await res.json()
                 reports.value = data.items ?? []
                 total.value = data.totalCount ?? 0
-                // 讓 lucide 圖示重繪（若頁面上有 icon）
                 if (window.lucide) setTimeout(() => window.lucide.createIcons(), 0)
             } catch (e) {
                 console.error('loadReports error', e)
@@ -112,7 +113,17 @@ globalApp({
         // 如果目前頁面存在 Reports 的容器，就自動載入（避免其它頁面多呼叫）
         if (document.getElementById('reports-app')) {
             loadReports()
+        } else {
+            // 監聽 DOM，等 #reports-app 出現再載一次
+            const mo = new MutationObserver((mutations, obs) => {
+                if (document.getElementById('reports-app')) {
+                    loadReports()
+                    obs.disconnect()
+                }
+            })
+            mo.observe(document.body, { childList: true, subtree: true })
         }
+        
 
         //#endregion Reports
 
