@@ -4,6 +4,18 @@ const globalApp = content => {
         return
     } else {
         lucide.createIcons()
+
+        // ✅ 註冊 DatePicker 為 Vue 全域元件
+        const app = Vue.createApp(content)
+
+        // ✅ Vue 3 的寫法：使用 app.component()
+        if (window.VueDatePicker) {
+            app.component('VueDatePicker', window.VueDatePicker)
+            console.log('✅ VueDatePicker 已註冊為全域元件')
+        } else {
+            console.warn('⚠️ VueDatePicker 尚未載入')
+        }
+
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', () => window.globalApp = Vue.createApp(content).mount('#app'))
         } else {
@@ -15,10 +27,22 @@ const globalApp = content => {
 
 globalApp({
     setup() {
+        const DatePicker = window.VueDatePicker
         const { ref, reactive, computed, watch, onMounted } = Vue
         const { formatDate, timeAgo } = useFormatting()
         const isLoading = ref(false)
         const isAppReady = ref(false)
+
+        function formatDateValue(date) {
+            const d = new Date(date)
+            return d.toISOString().split('T')[0]  // yyyy-MM-dd 格式
+        }
+
+        function applyFilters() {
+            page.value = 1
+            loadReports()
+        }
+
 
 
         onMounted(() => {
@@ -39,8 +63,8 @@ globalApp({
         const keyword = ref('')
         const status = ref('')      // '', 0=Pending, 1=Processed, 2=Rejected
         const type = ref('')      // '', 0=User, 1=Article
-        const from = ref('')      // yyyy-mm-dd
-        const to = ref('')      // yyyy-mm-dd
+        const from = ref(null)      // yyyy-mm-dd
+        const to = ref(null)      // yyyy-mm-dd
         const page = ref(1)
         const pageSize = ref(10)
         const total = ref(0)
@@ -67,8 +91,8 @@ globalApp({
             const sp = new URLSearchParams({ page: page.value, pageSize: pageSize.value })
             if (status.value !== '') sp.append('status', status.value)
             if (type.value !== '') sp.append('type', type.value)
-            if (from.value) sp.append('from', from.value)
-            if (to.value) sp.append('to', to.value)
+            if (from.value) sp.append('from', formatDateValue(from.value))
+            if (to.value) sp.append('to', formatDateValue(to.value))
             if (keyword.value.trim()) sp.append('keyword', keyword.value.trim())
             return sp.toString()
         }
@@ -290,6 +314,10 @@ globalApp({
             processReport, rejectReport,
 
             isAppReady,
+
+            DatePicker,
+
+            applyFilters,
 
             // hooks
             formatDate,
