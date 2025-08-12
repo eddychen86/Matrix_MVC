@@ -12,7 +12,7 @@
                        placeholder="Please enter User name" 
                        class="w-full rounded border bg-gray-50 px-3 py-2 focus:ring-2 focus:ring-blue-200 focus:outline-none"
                        v-model="nameFilterInput"
-                       >
+                       @@keyup.enter="applyNameFilter">
                 <button @@click="applyNameFilter" class="absolute top-1/2 right-4 -translate-y-1/2 cursor-pointer">
                     <i data-lucide="search" class="icon-base"></i>
                 </button>
@@ -50,9 +50,17 @@
                 </button>
             </div>
         </div>
-        <div>
-            <label class="mb-2 block font-medium text-gray-700">Create time</label>
-            <input id="calendar" class="w-full rounded border bg-gray-50 px-3 py-2" placeholder="請選擇日期">
+        <div class="flex justify-end gap-4">
+            <div class="relative w-full">
+                <input type="text"
+                       placeholder="Please enter YYYY-MM-DD"
+                       class="w-full rounded border bg-gray-50 px-3 py-2 focus:ring-2 focus:ring-blue-200 focus:outline-none"
+                       v-model="createDateInput"
+                       @@keyup.enter="applyCreateDateFilter">
+                <button @@click="applyCreateDateFilter" class="absolute top-1/2 right-4 -translate-y-1/2 cursor-pointer">
+                    <i data-lucide="search" class="icon-base"></i>
+                </button>
+            </div>
         </div>
         <div class="h-40 w-full">
             <calendar-date :value="selectedDate ? formatYMD(selectedDate) : ''" @@change="onCalendarChange" class="cally bg-base-100 border-base-300 rounded-box w-full border shadow-lg">
@@ -181,6 +189,8 @@
 
         const app = createApp({
           setup() {
+            const createDateInput = ref("")
+            
             //名字篩選用
             const nameFilterInput = ref("")  //輸入框暫存
             const nameFilter = ref("")   //真正篩選用
@@ -198,28 +208,39 @@
             const editingId = ref(null)
             const tempStatus = ref(0)
             const updating = ref(false)
-            //篩選 + 分頁
+
+            //Ban
+            const statusFilter = ref(null)  // 1=Enable, 0=Disable
+            const bannedFilter = ref(null)  // true=yes, false=no
+            // 篩選 + 分頁：把所有條件串在一起，最後一次性 return
             const filteredUsers = computed(() => {
-                let arr = users.value
+                let arr = users.value.slice()
+
+            // 1) 名稱
+                if (nameFilter.value) {
+                    const q = nameFilter.value.toLowerCase()
+                    arr = arr.filter(u => (u.userName ?? '').toLowerCase().includes(q))
+                }
+
+            // 2) Status (0/1)
                 if (statusFilter.value !== null) {
                     arr = arr.filter(u => u.status === statusFilter.value)
-                    return arr
                 }
+
+            // 3) Ban (status===2)
                 if (bannedFilter.value !== null) {
-                    arr = bannedFilter.value
-                    ? arr.filter(u => u.status === 2)     // Yes → 被封禁
-                    : arr.filter(u => u.status !== 2)     // No  → 非封禁
+                     arr = bannedFilter.value
+                        ? arr.filter(u => u.status === 2)   // Yes → 被封禁
+                        : arr.filter(u => u.status !== 2)   // No  → 非封禁
                 }
                 return arr
-                })
+            })
 
             const totalPages = computed(() => Math.max(1, Math.ceil(filteredUsers.value.length / pageSize.value)))
             const pagedUsers = computed(() => {
               const start = (pageIndex.value - 1) * pageSize.value
               return filteredUsers.value.slice(start, start + pageSize.value)
             })
-
-        
 
             const statusText = (value) =>({
                 0: "未啟用",
@@ -231,9 +252,7 @@
               const date = new Date(datetime)
               return date.toLocaleDateString() + ' ' + date.toLocaleTimeString()
             }
-            //Ban
-            const statusFilter = ref(null)  // 1=Enable, 0=Disable
-            const bannedFilter = ref(null)  // true=yes, false=no
+            
 
             //Status change
             function toggleStatus(v){
@@ -247,8 +266,6 @@
                   statusFilter.value = null
                   pageIndex.value = 1
             }
-
-
 
             const selectedDate = ref(null)
             const lastYmd = ref(null)
@@ -275,11 +292,12 @@
             console.error('載入失敗：', error)
                 }
             }
-            //月曆
+            //月曆 (跟輸入框同步)
 
             const onCalendarChange = (e) =>{
                 const raw = e?.detail?.value ?? e?.target?.value
                 if (!raw){
+                    createDateInput.value = ""
                     selectedDate.value = null
                     lastYmd.value = null
                     fetchUsers(null)
@@ -288,6 +306,7 @@
                 const ymd = formatYMD(new Date(raw))
                 if(lastYmd.value === ymd){
                     //點第二次同一天,取消篩選
+                    createDateInput.value = null
                     selectedDate.value = null
                     lastYmd.value = null
                     fetchUsers(null)
@@ -295,12 +314,9 @@
                     //第一天或換一天,設定篩選
                     selectedDate.value = new Date(raw)
                     lastYmd.value = ymd
+                    createDateInput.value = ymd //更新輸入框
                     fetchUsers(ymd)
                 }
-
-                // selectedDate.value = new Date(raw)
-                // const ymd = formatYMD(selectedDate.value)
-                // fetchUsers(ymd)
             }
 
             const deleteUser = (id) => {
@@ -360,6 +376,29 @@
 
             }
 
+            //日期篩選 (手動or按月曆)
+            const applyCreateDateFilter = () =>{
+                let val = createDateInput.value.trim()
+                if(!val){
+                    //清除篩選
+                    selectedDate.value = null
+                    lastYmd.value = null
+                    fetchUsers(null)
+                    return
+                }
+            
+            //驗證日期
+            const dateObj = new Date(val)
+            if(isNaN(dateObj)){
+                alert("日期格式錯誤!")
+                return
+            }
+            //更新月曆與篩選
+                selectedDate.value = dateObj
+                lastYmd.value = formatYMD(dateObj)
+                fetchUsers(lastYmd.value)
+            }
+
             onMounted(() => fetchUsers(null))
 
             return {
@@ -386,13 +425,12 @@
               toggleBanned,
               nameFilterInput,
               nameFilter,
-              applyNameFilter
-
+              applyNameFilter,
+              createDateInput,
+              applyCreateDateFilter
             }
           }
         })
-        app.config.compilerOptions.isCustomElement = tag =>
-          tag === 'calendar-date' || tag === 'calendar-month'
 
         app.mount('#adminUser')
     </script>
