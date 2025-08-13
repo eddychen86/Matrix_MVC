@@ -32,7 +32,8 @@
       ]
     },
     {
-      "library": "cally@latest",
+      "provider": "unpkg",
+      "library": "cally@0.8.0",
       "destination": "wwwroot/lib/cally/",
       "files": [
         "dist/cally.js"
