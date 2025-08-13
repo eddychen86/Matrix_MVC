@@ -1,7 +1,7 @@
-﻿@{
-    ViewData["Title"] = "Matrix - Control";
+﻿@inject ICustomLocalizer Localizer
+@{
+    ViewData["Title"] = Localizer["Dashboard"];
     var authInfo = Context.GetAuthInfo();
-
 }
 
 <!DOCTYPE html>
@@ -16,7 +16,23 @@
 </head>
 
 <body class="bg-white">
-    <div class="flex">
+    <div id="dashboard" class="flex">
+        <partial name="_Menu" model="CommonController.BuildMenuModel(Context)" />
+
+        <div class="relative flex h-screen w-full flex-col gap-4 overflow-y-auto p-4 pl-0">
+            <header class="relative">
+                <img src="~/static/img/image-top.png" alt="" class="h-56 w-full rounded-[30px] object-cover object-center" >
+            </header>
+            <main class="min-h-[calc(100%-56px))]">
+                <div id="dashboard-content">
+                    @RenderBody()
+                </div>
+            </main>
+            <partial name="_Footer" />
+        </div>
+    </div>
+
+    @* <div class="flex">
         <div id="app">
             @await Html.PartialAsync("_Menu")
         </div>
@@ -33,7 +49,7 @@
             </main>
             <partial name="_Footer" />
         </div>
-    </div>
+    </div> *@
 
     <script src="~/lib/jquery/jquery.min.js"></script>
 
@@ -47,11 +63,9 @@
     </environment>
 
     <script src="~/lib/lucide/dist/umd/lucide.min.js"></script>
-    <script src="~/js/hooks/useFormatting.js" asp-append-version="true"></script>
-    <script src="~/js/components/menu.js" asp-append-version="true"></script>
     <script type="module" src="~/lib/cally/dist/cally.js"></script>
-    <script src="~/js/main.js" asp-append-version="true"></script>
-    
+
+    <script type="module" src="~/js/dashboard/d_main.js" asp-append-version="true"></script>
 
     @await RenderSectionAsync("Scripts", required: false)
 </body>

@@ -25,6 +25,13 @@ namespace Matrix.Controllers
                     new MenuItemModel { Title = "Follows", Icon = "share-2" },
                     new MenuItemModel { Title = "Collects", Icon = "bookmark" },
                 },
+                Dashboards = !isAdmin ? [] : new[] {
+                    new MenuItemModel { Title = "Overview", Icon = "layout-dashboard"},
+                    new MenuItemModel { Title = "Users", Icon = "user"},
+                    new MenuItemModel { Title = "Posts", Icon = "file-text"},
+                    new MenuItemModel { Title = "Reports", Icon = "flag"},
+                    new MenuItemModel { Title = "Config", Icon = "bug"},
+                },
                 Bottoms = new[]
                 {
                     new MenuItemModel { Title = "Language", Icon = "languages", Click = "toggleLang" },

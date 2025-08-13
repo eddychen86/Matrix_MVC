@@ -3,6 +3,7 @@ namespace Matrix.ViewModels
     public class MenuViewModel
     {
         public MenuItemModel[] Menus { get; set; } = Array.Empty<MenuItemModel>();
+        public MenuItemModel[] Dashboards { get; set; } = Array.Empty<MenuItemModel>();
         public MenuItemModel[] Bottoms { get; set; } = Array.Empty<MenuItemModel>();
         public bool IsAuthenticated { get; set; }
         public string? UserName { get; set; }

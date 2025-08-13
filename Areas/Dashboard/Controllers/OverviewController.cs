@@ -13,7 +13,7 @@ namespace Matrix.Areas.Dashboard.Controllers
             return View();
         }
 
-        // GET: Dashboard/Overview/Partial - AJAX 載入
+        // GET: Dashboard/Overview/Partial - AJAX 載入  
         [HttpGet]
         [Route("Dashboard/Overview/Partial")]
         public ActionResult Partial()
