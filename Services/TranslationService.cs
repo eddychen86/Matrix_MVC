@@ -107,7 +107,7 @@ namespace Matrix.Services
                 ["Users"] = "用戶管理",
                 ["Posts"] = "貼文管理",
                 ["Reports"] = "檢舉管理",
-                ["Logs"] = "網站日誌",
+                ["Config"] = "網站設置",
 
                 #endregion
 
@@ -397,7 +397,7 @@ namespace Matrix.Services
                 ["Users"] = "Users",
                 ["Posts"] = "Posts",
                 ["Reports"] = "Reports",
-                ["Logs"] = "Logs",
+                ["Config"] = "Settings",
 
                 #endregion
 

@@ -1,7 +1,7 @@
+﻿@inject ICustomLocalizer Localizer
 @{
-    ViewData["Title"] = "Matrix - Control";
+    ViewData["Title"] = Localizer["Dashboard"];
     var authInfo = Context.GetAuthInfo();
-
 }
 
 <!DOCTYPE html>
@@ -16,19 +16,23 @@
 </head>
 
 <body class="bg-white">
-    <div id="app" class="flex">
-        @await Html.PartialAsync("_Menu")
+    <div class="flex">
+        <div id="dashboard-menu">
+            @await Html.PartialAsync("_Menu", Matrix.Controllers.CommonController.BuildMenuModel(Context))
+        </div>
 
-        <div class="relative flex w-full flex-col gap-4 p-4 pl-0 h-screen overflow-y-auto">
-            <header class="relative">
-                <img src="~/static/img/image-top.png" alt="" class="w-full h-56 object-cover object-center rounded-[30px]" >
-            </header>
-            <main class="min-h-[calc(100%-56px))]">
-                <div id="dashboard-content">
-                    @RenderBody()
-                </div>
-            </main>
-            <partial name="_Footer" />
+        <div class="relative h-screen w-full overflow-y-auto p-4 pl-0">
+            <div class="flex flex-col gap-4 min-w-[1500px]">
+                <main id="dashboard-content" class="min-h-screen">
+                    <div id="dashboard-loader" class="hidden">
+                        @await Html.PartialAsync("loadingpage")
+                    </div>
+                    <div id="dashboard-slot">
+                        @RenderBody()
+                    </div>
+                </main>
+                <partial name="_Footer" />
+            </div>
         </div>
     </div>
 
@@ -44,7 +48,9 @@
     </environment>
 
     <script src="~/lib/lucide/dist/umd/lucide.min.js"></script>
-    <script type="module" src="~/js/main.js" asp-append-version="true"></script>
+    <script type="module" src="~/lib/cally/dist/cally.js"></script>
+
+    <script src="~/js/dashboard/d_main.js" asp-append-version="true"></script>
 
     @await RenderSectionAsync("Scripts", required: false)
 </body>

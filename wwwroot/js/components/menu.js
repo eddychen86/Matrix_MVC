@@ -330,16 +330,13 @@ export const useMenu = () => {
 
             // 設定載入狀態
             const contentArea = document.querySelector('#dashboard-content')
-            if (contentArea) {
-                contentArea.innerHTML = '<div class="flex justify-center items-center h-64"><div class="loading loading-spinner loading-lg"></div></div>'
-            }
 
             // 將第一個字母大寫以匹配路由
             const capitalizedPage = page.charAt(0).toUpperCase() + page.slice(1)
             const fetchUrl = `/Dashboard/${capitalizedPage}/Partial`
             // console.log(`Fetching URL: ${fetchUrl}`)
 
-            // AJAX 請求載入 Partial View
+            // fetch 請求載入 Partial View
             const response = await fetch(fetchUrl, {
                 method: 'GET',
                 headers: {

@@ -180,23 +180,24 @@ public class Program
 
         #endregion
 
-        // 添加響應壓縮以加速數據傳輸
+        // 響應壓縮：排除 HTML 避免解碼錯誤
         builder.Services.AddResponseCompression(options =>
         {
             options.EnableForHttps = true;
             options.Providers.Add<Microsoft.AspNetCore.ResponseCompression.BrotliCompressionProvider>();
             options.Providers.Add<Microsoft.AspNetCore.ResponseCompression.GzipCompressionProvider>();
-            options.MimeTypes = Microsoft.AspNetCore.ResponseCompression.ResponseCompressionDefaults.MimeTypes.Concat(new[]
+            // 明確排除 text/html，只壓縮 API 和靜態資源
+            options.MimeTypes = new[]
             {
                 "application/json",
-                "text/plain",
-                "text/css",
                 "application/javascript",
-                "text/html",
+                "text/javascript",
+                "text/css",
+                "text/plain",
                 "application/xml",
                 "text/xml",
-                "application/json; charset=utf-8"
-            });
+                "image/svg+xml"
+            };
         });
         
         builder.Services.AddControllersWithViews(options =>

@@ -3,6 +3,7 @@ namespace Matrix.ViewModels
     public class MenuViewModel
     {
         public MenuItemModel[] Menus { get; set; } = Array.Empty<MenuItemModel>();
+        public MenuItemModel[] Dashboards { get; set; } = Array.Empty<MenuItemModel>();
         public MenuItemModel[] Bottoms { get; set; } = Array.Empty<MenuItemModel>();
         public bool IsAuthenticated { get; set; }
         public string? UserName { get; set; }
@@ -17,5 +18,6 @@ namespace Matrix.ViewModels
         public string Title { get; set; } = string.Empty;
         public string Icon { get; set; } = string.Empty;
         public string Click { get; set; } = string.Empty;
+        public string Key { get; set; } = string.Empty; // 用於路由的英文鍵值
     }
 }
