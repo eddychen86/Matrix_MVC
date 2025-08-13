@@ -60,6 +60,50 @@ globalApp({
         })
         //#endregion
 
+        //#region Friends Data
+        const friends = ref([])
+        const friendsLoading = ref(false)
+        const friendsTotal = ref(0)
+        const friendsStatus = ref('accepted')
+
+        const getUsernameFromPath = () => {
+            const parts = window.location.pathname.split('/').filter(Boolean)
+            if (parts[0]?.toLowerCase() === 'profile' && parts[1] && parts[1].toLowerCase() !== 'index') {
+                return parts[1]
+            }
+            return null
+        }
+
+        const loadFriends = async (page = 1, pageSize = 20, username = null, status = friendsStatus.value) => {
+            try {
+                friendsLoading.value = true
+                const { friendsService } = await import('/js/components/friends.js')
+
+                const targetUsername = username || getUsernameFromPath() || currentUser.username || null
+                const result = await friendsService.getFriends(page, pageSize, targetUsername, status)
+
+                if (result.success) {
+                    friends.value = result.friends
+                    friendsTotal.value = result.totalCount
+                } else if (result.unauthorized) {
+                    friends.value = []
+                    friendsTotal.value = 0
+                } else {
+                    console.error('Failed to load friends:', result.error)
+                }
+            } catch (err) {
+                console.error('Error loading friends:', err)
+            } finally {
+                friendsLoading.value = false
+            }
+        }
+        const changeFriendsStatus = (status) => {
+            friendsStatus.value = status
+            // 預設重新載入列表
+            loadFriends(1, 20, null, friendsStatus.value)
+        }
+        //#endregion
+
         //#region 獲取用戶信息
 
         const getCurrentUser = async () => {
@@ -154,6 +198,7 @@ globalApp({
         const Menu = (typeof useMenu === 'function') ? useMenu() : {}
         const Home = LoadingPage(/^\/(?:home(?:\/|$))?$|^\/$/i, useHome)
         const Profile = LoadingPage(/^\/profile(?:\/|$)/i, useProfile)
+        // const Friends = LoadingPage(/^\/friends(?:\/|$)/i, useFriends)
 
         //#endregion
 
@@ -384,6 +429,11 @@ globalApp({
                     })
                 }
             }
+
+            // 若頁面包含好友列表區塊，載入好友
+            if (document.querySelector('.friends-list')) {
+                loadFriends(1, 20, null, friendsStatus.value)
+            }
         })
 
         //#endregion
@@ -422,6 +472,13 @@ globalApp({
             ...Menu,
             ...Profile,
             ...Home,
+            // friends
+            friends,
+            friendsLoading,
+            friendsTotal,
+            friendsStatus,
+            loadFriends,
+            changeFriendsStatus,
         }
     }
 })

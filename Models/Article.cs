@@ -10,7 +10,6 @@ namespace Matrix.Models
     {
         /// <summary>
         /// 文章的 ID
-        /// 改用 UUID 以確保唯一性和安全性，並以 ArrayExtension.GenerateOrdered(1)[0] 方法生成一個劇時間排序的唯一的值
         /// </summary>
         [Key]
         public Guid ArticleId { get; set; } = Guid.NewGuid();
@@ -77,5 +76,10 @@ namespace Matrix.Models
         /// 文章的附件集合
         /// </summary>
         public virtual ICollection<ArticleAttachment>? Attachments { get; set; }
+
+        /// <summary>
+        /// 擁有者 Navigation Property
+        /// </summary>
+        public virtual Person? Owner { get; set; }
     }
 }

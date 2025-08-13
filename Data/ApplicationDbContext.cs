@@ -1,4 +1,7 @@
-﻿namespace Matrix.Data{
+﻿using Matrix.Data.Configurations;
+
+namespace Matrix.Data
+{
 
     /// <summary>
     /// 應用程式資料庫上下文類別，繼承自 Entity Framework Core 的 DbContext，
@@ -6,21 +9,6 @@
     /// </summary>
     public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : DbContext(options)
     {
-        /*
-            暫時廢棄
-
-            /// <summary>
-            /// 配置資料庫約定，特別是針對自訂型別 UUID 的全域轉換規則。
-            /// </summary>
-            /// <param name="configurationBuilder">用於設定資料庫約定的建構器。</param>
-            protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
-            {
-                // 設定所有 UUID 型別的屬性都使用 UuidConverter 進行資料庫轉換
-                // 這讓 EF Core 知道如何將 UUID 物件與資料庫中的 Guid 欄位對應
-                configurationBuilder.Properties<UUID>().HaveConversion<UuidConverter>();
-            }
-        */
-        
         /// <summary>
         /// 配置實體模型的關聯性、約束條件和資料庫行為
         /// </summary>
@@ -143,7 +131,7 @@
                 .WithMany(p => p.FriendOf)     // 這裡指定 Person.FriendOf
                 .HasForeignKey(f => f.FriendId)
                 .OnDelete(DeleteBehavior.Restrict);
-                
+
             /// <summary>
             /// 設定文章附件關聯，一篇文章可有多個附件，使用 ArticleId 作為外鍵，刪除文章時級聯刪除
             /// </summary>
@@ -152,7 +140,7 @@
                 .WithMany(a => a.Attachments)
                 .HasForeignKey(aa => aa.ArticleId)
                 .OnDelete(DeleteBehavior.Cascade);
-                
+
             /// <summary>
             /// 設定追蹤者關聯，一人可追蹤多個對象，使用 UserId 作為外鍵，限制刪除以維護追蹤關係
             /// FollowedId 不設外鍵，可指向不同實體類型
@@ -162,74 +150,81 @@
                 .WithMany(p => p.Follows)
                 .HasForeignKey(f => f.UserId)
                 .OnDelete(DeleteBehavior.Restrict);
-                
+
             // FollowedId 不設定外鍵關聯，由商業邏輯處理
             // 註釋：FollowedId 可能指向不同類型的實體，例如 Person、Article 等，因此不設定外鍵關聯
+
+            modelBuilder.ApplyConfiguration(new NFTConfiguration());
         }
 
         /// <summary>
         /// 使用者資料表
         /// </summary>
         public DbSet<User> Users { get; set; } = null!;
-        
+
         /// <summary>
         /// 個人資料表
         /// </summary>
         public DbSet<Person> Persons { get; set; } = null!;
-        
+
         /// <summary>
         /// 文章資料表
         /// </summary>
         public DbSet<Article> Articles { get; set; } = null!;
-        
+
         /// <summary>
         /// 回覆資料表
         /// </summary>
         public DbSet<Reply> Replies { get; set; } = null!;
-        
+
         /// <summary>
         /// 讚美收藏資料表
         /// </summary>
         public DbSet<PraiseCollect> PraiseCollects { get; set; } = null!;
-        
+
         /// <summary>
         /// 追蹤資料表
         /// </summary>
         public DbSet<Follow> Follows { get; set; } = null!;
-        
+
         /// <summary>
         /// 通知資料表
         /// </summary>
         public DbSet<Notification> Notifications { get; set; } = null!;
-        
+
         /// <summary>
         /// 檢舉資料表
         /// </summary>
         public DbSet<Report> Reports { get; set; } = null!;
-        
+
         /// <summary>
         /// 登入記錄資料表
         /// </summary>
         public DbSet<LoginRecord> LoginRecords { get; set; } = null!;
-        
+
         /// <summary>
         /// 標籤資料表
         /// </summary>
         public DbSet<Hashtag> Hashtags { get; set; } = null!;
-        
+
         /// <summary>
         /// 文章標籤關聯資料表
         /// </summary>
         public DbSet<ArticleHashtag> ArticleHashtags { get; set; } = null!;
-        
+
         /// <summary>
         /// 好友關係資料表
         /// </summary>
         public DbSet<Friendship> Friendships { get; set; } = null!;
-        
+
         /// <summary>
         /// 文章附件資料表
         /// </summary>
         public DbSet<ArticleAttachment> ArticleAttachments { get; set; } = null!;
+
+        /// <summary>
+        /// NFT 收藏資料表
+        /// </summary>
+        public DbSet<NFT> NFTs { get; set; } = null!;
     }
 }

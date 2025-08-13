@@ -2,8 +2,8 @@
 @using Matrix.Services
 @inject ICustomLocalizer Localizer
 
-<!-- 熱門文章輪播 -->
-<div class="col-start-2 col-span-4 flex flex-col gap-8">
+<!-- 文章 -->
+<div class="col-span-5 2xl:col-span-4 2xl:col-start-2 flex flex-col gap-8">
 
     @* 熱門文章輪播（僅登入可見） *@
     @if (ViewBag.IsAuthenticated == true)
@@ -53,6 +53,7 @@
         </section>
     }
 
+    
     <!-- 文章列表 -->
     <section class="home-posts_list">
 
@@ -74,6 +75,10 @@
     </section>
 </div>
 
+<!-- 好友列表 -->
+<aside class="friends-list">
+    @await Component.InvokeAsync("FriendsList")
+</aside>
 
 @* Create Post Popup Component *@
 <div v-if="openCreatePost">

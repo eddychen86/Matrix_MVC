@@ -7,12 +7,16 @@ namespace Matrix.Controllers.Api
     /// <summary>認證相關的 API - 狀態檢查、登出和確認信</summary>
     [Route("api/auth")]
     public class AuthController(
-        ILogger<AuthController> _logger,
-        IEmailService _emailService,
-        IUserService _userService,
-        ICustomLocalizer _localizer
+        ILogger<AuthController> logger,
+        IEmailService emailService,
+        IUserService userService,
+        ICustomLocalizer localizer
     ) : ApiControllerBase
     {
+        private readonly ILogger<AuthController> _logger = logger;
+        private readonly IEmailService _emailService = emailService;
+        private readonly IUserService _userService = userService;
+        private readonly ICustomLocalizer _localizer = localizer;
         /// <summary>檢查用戶當前的認證狀態</summary>
         [HttpGet("status")]
         public IActionResult GetAuthStatus()

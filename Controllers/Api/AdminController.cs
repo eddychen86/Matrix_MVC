@@ -6,8 +6,9 @@ namespace Matrix.Controllers.Api
 {
     /// <summary>管理功能 API - 僅開發環境使用</summary>
     [Route("api/admin")]
-    public class AdminController(IUserService _userService) : ApiControllerBase
+    public class AdminController(IUserService userService) : ApiControllerBase
     {
+        private readonly IUserService _userService = userService;
         /// <summary>檢查並修正用戶狀態</summary>
         [HttpPost("fix-user-status/{userId}")]
         public async Task<IActionResult> FixUserStatus(Guid userId)

@@ -19,6 +19,10 @@
       img {
         @apply w-full object-cover object-center;
       }
+
+      .no-banner {
+        @apply flex h-full w-full items-center justify-center;
+      }
     }
 
     &-avatar{
@@ -39,6 +43,10 @@
         
         img {
           @apply size-full object-cover object-center;
+        }
+
+        .no-avatar {
+          @apply flex h-full w-full items-center justify-center;
         }
       }
 

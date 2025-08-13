@@ -1,6 +1,9 @@
 ﻿@layer components {
     .home-hots_list {
-        @apply flex flex-col gap-4 h-1/6;
+        @apply
+            flex flex-col gap-4
+            h-28 sm:h-48 2xl:h-80
+        ;
 
         .title {
             @apply font-bold;
@@ -11,7 +14,7 @@
 
             button {
                 @apply
-                    absolute top-1/2 z-50 flex -translate-y-1/2 transform items-center justify-center rounded-full bg-white text-black shadow transition
+                    absolute top-1/2 z-50 flex -translate-y-1/2 transform items-center justify-center rounded-full bg-white text-black shadow transition cursor-pointer
                     hover:bg-gray-200 focus:outline-none
                     w-6 sm:w-8 2xl:w-10
                     h-6 sm:h-8 2xl:h-10
@@ -28,11 +31,17 @@
 
             .carousel {
                 &_layout {
-                    @apply gap-4 text-center;
+                    @apply
+                        gap-8 text-center h-full
+                        mx-1 sm:mx-4 2xl:mx-8
+                    ;
                 }
 
                 &-item_cts {
-                    @apply h-full w-48 overflow-hidden rounded-[30px];
+                    @apply
+                        h-full overflow-hidden rounded-[30px]
+                        w-[10%] sm:w-[15%] 2xl:w-[19%]
+                    ;
 
                     figure {
                         @apply h-full w-full;

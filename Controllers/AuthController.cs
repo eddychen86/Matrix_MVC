@@ -13,13 +13,18 @@ namespace Matrix.Controllers
 {
     /// <summary>認證相關的 Web 控制器</summary>
     public class AuthController(
-        ILogger<AuthController> _logger,
-        IConfiguration _configuration,
-        IUserService _userService,
-        IPersonRepository _personRepository,
-        ICustomLocalizer _localizer
+        ILogger<AuthController> logger,
+        IConfiguration configuration,
+        IUserService userService,
+        IPersonRepository personRepository,
+        ICustomLocalizer localizer
     ) : Controller
     {
+        private readonly ILogger<AuthController> _logger = logger;
+        private readonly IConfiguration _configuration = configuration;
+        private readonly IUserService _userService = userService;
+        private readonly IPersonRepository _personRepository = personRepository;
+        private readonly ICustomLocalizer _localizer = localizer;
         /// <summary>確認用戶郵件</summary>
         [HttpGet, Route("/confirm/{id}")]
         public async Task<IActionResult> ConfirmEmail(string id)

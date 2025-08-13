@@ -1,0 +1,28 @@
+@layer components {
+  .friends {
+    &-list {
+      @apply flex flex-col gap-4
+        col-span-2 2xl:col-span-1 2xl:col-start-7;
+    }
+
+    &-header {
+      @apply flex items-center justify-between;
+
+      span {
+        @apply opacity-60;
+      }
+    }
+
+    &-states {
+      @apply flex rounded-full overflow-hidden;
+
+      button {
+        @apply rounded-full flex-1 w-full;
+      }
+    }
+
+    &-layout {
+      @apply flex flex-col gap-2;
+    }
+  }
+}
