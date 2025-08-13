@@ -1,19 +1,22 @@
 using Microsoft.AspNetCore.Mvc;
 using Matrix.Attributes;
+using Matrix.Controllers;
 
 namespace Matrix.Areas.Dashboard.Controllers
 {
     [Area("Dashboard")]
     [AdminAuthorization] // 需要管理員權限 (Role >= 1)
-    public class ConfigsController : Controller
+    public class ConfigController : Controller
     {
-        // GET: LogsController
+        // GET: ConfigsController
         public ActionResult Index()
         {
+            // 傳遞 MenuViewModel 給 Layout
+            ViewBag.Menu = CommonController.BuildMenuModel(HttpContext);
             return View();
         }
 
-        // GET: Dashboard/Logs/Partial - AJAX 載入
+        // GET: Dashboard/Config/Partial - AJAX 載入
         [HttpGet]
         [Route("Dashboard/Config/Partial")]
         public ActionResult Partial()

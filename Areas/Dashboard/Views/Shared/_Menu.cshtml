@@ -11,24 +11,27 @@
                 <img src="~/static/img/Matrix_logo_white.png" alt="Matrix Logo" class="icon-lg">
                 <span data-i18n="Matrix">@Localizer["Matrix"]</span>
             </a>
-            @if (Model.IsAuthenticated) {
-                <a asp-controller="Profile" asp-action="Index" aria-current="page" asp-route-id="@Model.UserId" class="cts-btn">
-                    <img src="@Model.UserImg" alt="" class="icon-lg object-cover object-center border-2 border-white" />
+            @if (Model.IsAuthenticated)
+            {
+                <a asp-controller="Profile" asp-action="Index" aria-current="page" class="cts-btn">
+                    <img src="@(!string.IsNullOrEmpty(Model.UserImg) ? Model.UserImg : "/static/img/default-avatar.png")" alt="" class="icon-lg object-cover object-center border-2 border-white" />
                     <span class="title">@Model.UserName</span>
                 </a>
             }
         </li>
         <li>
-            @foreach (var i in Model.Dashboards)
+            @* Dashboard-specific menu items from CommonController *@
+            @foreach (var item in Model.Dashboards)
             {
-                <button class="cts-btn hover:bg-gray-900" v-on:click="loadDashboardPage('@i.Title')">
-                    <i data-lucide="@i.Icon" class="icon-base text-white"></i>
-                    <span class="title" data-i18n="@i.Title">@Localizer[i.Title]</span>
+                <button class="cts-btn hover:bg-gray-900" v-on:click="loadDashboardPage('@item.Key')">
+                    <i data-lucide="@item.Icon" class="icon-base text-white"></i>
+                    <span class="title" data-i18n="@item.Key">@item.Title</span>
                 </button>
             }
         </li>
         <li>
-            @if (Model.UserRole >= 1) {
+            @if (Model.UserRole >= 1)
+            {
                 <a asp-area="Dashboard" asp-controller="Overview" asp-action="Index" aria-current="page">
                     <button :class="isCollapsed ? 'sidebar-btn-none-text' : ''" class="cts-btn">
                         <i data-lucide="layout-dashboard" class="icon-base"></i>
@@ -36,12 +39,15 @@
                     </button>
                 </a>
             }
-            @foreach (var i in Model.Bottoms) {
-                <button v-on:click="handleMenuClick('@i.Click')" :class="isCollapsed ? 'sidebar-btn-none-text' : ''" class="cts-btn">
-                    <i data-lucide="@i.Icon" class="icon-base"></i>
-                    <span class="title" data-i18n="@i.Title">@Localizer[i.Title]</span>
+            @foreach (var item in Model.Bottoms)
+            {
+                <button v-on:click="handleMenuClick('@item.Click')" :class="isCollapsed ? 'sidebar-btn-none-text' : ''" class="cts-btn">
+                    <i data-lucide="@item.Icon" class="icon-base"></i>
+                    <span class="title" data-i18n="@item.Title">@item.Title</span>
                 </button>
             }
         </li>
     </ul>
+    
 </aside>
+

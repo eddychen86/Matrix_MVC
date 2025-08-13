@@ -1,9 +1,32 @@
-export const useReports = () => {
-  // setup() 內的內容全部移到這裡
+const { createApp, ref, onMounted } = Vue
 
-  return {
+window.mountReportsPage = function() {
+  const app = createApp({
+    setup() {
+      const isLoading = ref(true)
 
+      const init = async () => {
+        try {
+          // 預留：若未來有 /api/Db_ReportsApi 可在此呼叫
+        } finally {
+          isLoading.value = false
+        }
+      }
+
+      onMounted(() => init())
+
+      return { isLoading }
+    }
+  })
+
+  if (window.ReportsApp && typeof window.ReportsApp.unmount === 'function') {
+    try { window.ReportsApp.unmount() } catch (_) {}
   }
+  const el = document.querySelector('#adminReports')
+  if (el) window.ReportsApp = app.mount(el)
 }
 
-export default useReports
+if (document.querySelector('#adminReports')) {
+  window.mountReportsPage()
+}
+

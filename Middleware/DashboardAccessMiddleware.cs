@@ -33,8 +33,18 @@ namespace Matrix.Middleware
                 if (!authInfo.IsAuthenticated)
                 {
                     _logger.LogWarning("Unauthenticated user attempted to access Dashboard: {Path}", path);
-                    context.Response.Redirect("/login");
-                    return;
+                    // AJAX 請求返回 401，讓前端自行導向
+                    if (IsAjaxRequest(context.Request))
+                    {
+                        context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                        await context.Response.WriteAsync("Unauthorized");
+                        return;
+                    }
+                    else
+                    {
+                        context.Response.Redirect("/login");
+                        return;
+                    }
                 }
 
                 // 檢查是否為管理員 (Role >= 1)
@@ -47,9 +57,18 @@ namespace Matrix.Middleware
                         path
                     );
 
-                    // 重導向到首頁
-                    context.Response.Redirect("/home/index");
-                    return;
+                    if (IsAjaxRequest(context.Request))
+                    {
+                        context.Response.StatusCode = StatusCodes.Status403Forbidden;
+                        await context.Response.WriteAsync("Forbidden");
+                        return;
+                    }
+                    else
+                    {
+                        // 重導向到首頁
+                        context.Response.Redirect("/home/index");
+                        return;
+                    }
                 }
 
                 _logger.LogInformation(
@@ -62,6 +81,11 @@ namespace Matrix.Middleware
 
             // 繼續執行下一個中介軟體
             await _next(context);
+        }
+
+        private static bool IsAjaxRequest(HttpRequest request)
+        {
+            return string.Equals(request.Headers["X-Requested-With"], "XMLHttpRequest", StringComparison.OrdinalIgnoreCase);
         }
     }
 

@@ -1,7 +1,8 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.DotNet.Scaffolding.Shared.Messaging;
-using Org.BouncyCastle.Bcpg;
+using Microsoft.EntityFrameworkCore;
+using Matrix.DTOs;
+using Matrix.Data;
 using System;
 
 namespace Matrix.Areas.Dashboard.Controllers.Api
@@ -22,7 +23,7 @@ namespace Matrix.Areas.Dashboard.Controllers.Api
         [HttpGet]
         public IActionResult GetUsers([FromQuery] string? search, [FromQuery] int? status ,[FromQuery] DateTime? createDate)
         {
-            var query = _context.Users.AsQueryable();
+            var query = _context.Users.AsNoTracking().AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(search))
             {
