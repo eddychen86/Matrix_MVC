@@ -116,46 +116,7 @@ namespace Matrix.ViewModels
         /// </summary>
         public string FormattedDateTime => CollectTime.ToString("yyyy-MM-dd HH:mm");
 
-        /// <summary>
-        /// 相對時間顯示（例如：2 天前）
-        /// </summary>
-        public string RelativeTime
-        {
-            get
-            {
-                var timeSpan = DateTime.Now - CollectTime;
-                
-                if (timeSpan.TotalDays >= 365)
-                {
-                    int years = (int)(timeSpan.TotalDays / 365);
-                    return $"{years} 年前";
-                }
-                else if (timeSpan.TotalDays >= 30)
-                {
-                    int months = (int)(timeSpan.TotalDays / 30);
-                    return $"{months} 個月前";
-                }
-                else if (timeSpan.TotalDays >= 1)
-                {
-                    int days = (int)timeSpan.TotalDays;
-                    return $"{days} 天前";
-                }
-                else if (timeSpan.TotalHours >= 1)
-                {
-                    int hours = (int)timeSpan.TotalHours;
-                    return $"{hours} 小時前";
-                }
-                else if (timeSpan.TotalMinutes >= 1)
-                {
-                    int minutes = (int)timeSpan.TotalMinutes;
-                    return $"{minutes} 分鐘前";
-                }
-                else
-                {
-                    return "剛剛";
-                }
-            }
-        }
+        
 
         /// <summary>
         /// 圖片 URL（用於顯示 NFT 圖片）
@@ -311,48 +272,7 @@ namespace Matrix.ViewModels
         /// </summary>
         public string FormattedAverageValue => $"{AverageValue:F4}";
 
-        /// <summary>
-        /// 最近收藏時間的相對顯示
-        /// </summary>
-        public string? LastCollectRelativeTime
-        {
-            get
-            {
-                if (!LastCollectTime.HasValue) return null;
-                
-                var timeSpan = DateTime.Now - LastCollectTime.Value;
-                
-                if (timeSpan.TotalDays >= 365)
-                {
-                    int years = (int)(timeSpan.TotalDays / 365);
-                    return $"{years} 年前";
-                }
-                else if (timeSpan.TotalDays >= 30)
-                {
-                    int months = (int)(timeSpan.TotalDays / 30);
-                    return $"{months} 個月前";
-                }
-                else if (timeSpan.TotalDays >= 1)
-                {
-                    int days = (int)timeSpan.TotalDays;
-                    return $"{days} 天前";
-                }
-                else if (timeSpan.TotalHours >= 1)
-                {
-                    int hours = (int)timeSpan.TotalHours;
-                    return $"{hours} 小時前";
-                }
-                else if (timeSpan.TotalMinutes >= 1)
-                {
-                    int minutes = (int)timeSpan.TotalMinutes;
-                    return $"{minutes} 分鐘前";
-                }
-                else
-                {
-                    return "剛剛";
-                }
-            }
-        }
+        
 
         /// <summary>
         /// 是否為活躍收藏者（近30天內有收藏）

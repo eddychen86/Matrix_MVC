@@ -80,40 +80,40 @@ namespace Matrix.DTOs
         /// <summary>
         /// 擁有者 ID
         /// </summary>
-        [Required(ErrorMessage = "擁有者 ID 為必填")]
+        [Required(ErrorMessage = "NFT_OwnerIdRequired")]
         public Guid OwnerId { get; set; }
 
         /// <summary>
         /// NFT 名稱
         /// </summary>
-        [Required(ErrorMessage = "NFT 名稱為必填")]
-        [StringLength(255, ErrorMessage = "NFT 名稱長度不能超過 255 個字元")]
+        [Required(ErrorMessage = "NFT_FileNameRequired")]
+        [StringLength(255, ErrorMessage = "NFT_FileNameMaxLength255")]
         public string FileName { get; set; } = "";
 
         /// <summary>
         /// 檔案儲存路徑
         /// </summary>
-        [Required(ErrorMessage = "檔案路徑為必填")]
-        [StringLength(2048, ErrorMessage = "檔案路徑長度不能超過 2048 個字元")]
+        [Required(ErrorMessage = "NFT_FilePathRequired")]
+        [StringLength(2048, ErrorMessage = "NFT_FilePathMaxLength2048")]
         public string FilePath { get; set; } = "";
 
         /// <summary>
         /// 收藏時間
         /// </summary>
-        [Required(ErrorMessage = "收藏時間為必填")]
+        [Required(ErrorMessage = "NFT_CollectTimeRequired")]
         public DateTime CollectTime { get; set; }
 
         /// <summary>
         /// 幣別
         /// </summary>
-        [Required(ErrorMessage = "幣別為必填")]
-        [StringLength(10, ErrorMessage = "幣別長度不能超過 10 個字元")]
+        [Required(ErrorMessage = "NFT_CurrencyRequired")]
+        [StringLength(10, ErrorMessage = "NFT_CurrencyMaxLength10")]
         public string Currency { get; set; } = "";
 
         /// <summary>
         /// 價格
         /// </summary>
-        [Range(0, double.MaxValue, ErrorMessage = "價格必須大於等於 0")]
+        [Range(0, double.MaxValue, ErrorMessage = "NFT_PriceMin0")]
         public decimal Price { get; set; }
 
         /// <summary>
@@ -148,13 +148,13 @@ namespace Matrix.DTOs
         /// <summary>
         /// NFT 名稱
         /// </summary>
-        [StringLength(255, ErrorMessage = "NFT 名稱長度不能超過 255 個字元")]
+        [StringLength(255, ErrorMessage = "NFT_FileNameMaxLength255")]
         public string? FileName { get; set; }
 
         /// <summary>
         /// 檔案儲存路徑
         /// </summary>
-        [StringLength(2048, ErrorMessage = "檔案路徑長度不能超過 2048 個字元")]
+        [StringLength(2048, ErrorMessage = "NFT_FilePathMaxLength2048")]
         public string? FilePath { get; set; }
 
         /// <summary>
@@ -165,13 +165,13 @@ namespace Matrix.DTOs
         /// <summary>
         /// 幣別
         /// </summary>
-        [StringLength(10, ErrorMessage = "幣別長度不能超過 10 個字元")]
+        [StringLength(10, ErrorMessage = "NFT_CurrencyMaxLength10")]
         public string? Currency { get; set; }
 
         /// <summary>
         /// 價格
         /// </summary>
-        [Range(0, double.MaxValue, ErrorMessage = "價格必須大於等於 0")]
+        [Range(0, double.MaxValue, ErrorMessage = "NFT_PriceMin0")]
         public decimal? Price { get; set; }
 
         /// <summary>
@@ -225,13 +225,13 @@ namespace Matrix.DTOs
         /// <summary>
         /// 最低價格
         /// </summary>
-        [Range(0, double.MaxValue, ErrorMessage = "最低價格必須大於等於 0")]
+        [Range(0, double.MaxValue, ErrorMessage = "NFT_MinPriceMin0")]
         public decimal? MinPrice { get; set; }
 
         /// <summary>
         /// 最高價格
         /// </summary>
-        [Range(0, double.MaxValue, ErrorMessage = "最高價格必須大於等於 0")]
+        [Range(0, double.MaxValue, ErrorMessage = "NFT_MaxPriceMin0")]
         public decimal? MaxPrice { get; set; }
 
         /// <summary>
@@ -247,13 +247,13 @@ namespace Matrix.DTOs
         /// <summary>
         /// 頁數
         /// </summary>
-        [Range(1, int.MaxValue, ErrorMessage = "頁數必須大於 0")]
+        [Range(1, int.MaxValue, ErrorMessage = "NFT_PageMin1")]
         public int Page { get; set; } = 1;
 
         /// <summary>
         /// 每頁筆數
         /// </summary>
-        [Range(1, 100, ErrorMessage = "每頁筆數必須在 1-100 之間")]
+        [Range(1, 100, ErrorMessage = "NFT_PageSizeRange1To100")]
         public int PageSize { get; set; } = 20;
 
         /// <summary>

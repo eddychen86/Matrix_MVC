@@ -226,8 +226,76 @@ namespace Matrix.Services
                 ["Email"] = "電子郵件",
                 ["Password"] = "密碼",
                 ["ConfirmPassword"] = "確認密碼",
-                ["Register"] = "註冊"
-                
+                ["Register"] = "註冊",
+
+                #endregion
+
+                // 驗證錯誤訊息（來自 DTOs）
+                #region User
+                ["User_UserNameRequired"] = "使用者名稱為必填欄位",
+                ["User_UserNameLength1To50"] = "使用者名稱長度必須介於 1 到 50 個字元之間",
+                ["User_EmailRequired"] = "電子郵件為必填欄位",
+                ["User_EmailInvalid"] = "請輸入有效的電子郵件地址",
+                ["User_EmailMaxLength100"] = "電子郵件長度不能超過 100 個字元",
+                ["User_CountryMaxLength100"] = "國家名稱長度不能超過 100 個字元",
+                ["User_UserNameLength3To20"] = "使用者名稱長度必須介於 3 到 20 個字元之間",
+                ["User_UserNameAllowedChars"] = "使用者名稱只能包含英文字母、數字和底線",
+                ["User_EmailMaxLength30"] = "電子郵件長度不能超過 30 個字元",
+                ["User_PasswordRequired"] = "密碼為必填欄位",
+                ["User_PasswordLength8To20"] = "密碼長度必須介於 8 到 20 個字元之間",
+                ["User_PasswordComplexity"] = "密碼必須包含至少一個大寫字母、一個小寫字母、一個數字、一個特殊符號",
+                ["User_PasswordConfirmRequired"] = "確認密碼為必填欄位",
+                ["User_PasswordsMustMatch"] = "確認密碼必須與密碼相符",
+                ["User_GenderRange0To3"] = "性別值必須在 0 到 3 之間",
+                ["User_RoleRange0To2"] = "權限等級必須在 0 到 2 之間",
+                ["User_DisplayNameMaxLength50"] = "顯示名稱長度不能超過 50 個字元",
+                ["User_DisplayNameLength1To50"] = "顯示名稱長度必須介於 1 到 50 個字元之間",
+                ["User_BioMaxLength300"] = "個人簡介長度不能超過 300 個字元",
+                ["User_PrivacyRange0Or1"] = "隱私設定必須是 0（公開）或 1（私人）",
+                ["User_UserNameAllowedCharsWithChinese"] = "使用者名稱只能包含字母、數字、底線和中文字元",
+                #endregion
+
+                #region Person
+                ["Person_DisplayNameLength1To50"] = "顯示名稱長度必須介於 1 到 50 個字元之間",
+                ["Person_BioMaxLength300"] = "個人簡介長度不能超過 300 個字元",
+                ["Person_PrivacyRange0To1"] = "隱私設定值必須在 0 到 1 之間",
+                ["Person_WalletAddressMaxLength100"] = "錢包地址長度不能超過 100 個字元",
+                #endregion
+
+                #region Notification
+                ["Notification_TitleRequired"] = "通知標題為必填欄位",
+                ["Notification_TitleMaxLength100"] = "通知標題長度不能超過 100 個字元",
+                ["Notification_ContentMaxLength500"] = "通知內容長度不能超過 500 個字元",
+                #endregion
+
+                #region Article
+                ["Article_ContentRequired"] = "文章內容為必填欄位",
+                ["Article_ContentMaxLength4000"] = "文章內容長度不能超過 4000 個字元",
+                ["Article_ContentLength1To4000"] = "文章內容長度必須介於 1 到 4000 個字元之間",
+                ["Article_IsPublicRange0Or1"] = "文章狀態必須是 0（公開）或 1（私人）",
+                #endregion
+
+                #region Reply
+                ["Reply_ArticleIdRequired"] = "文章 ID 為必填欄位",
+                ["Reply_ContentRequired"] = "回覆內容為必填欄位",
+                ["Reply_ContentMaxLength1000"] = "回覆內容長度不能超過 1000 個字元",
+                ["Reply_ContentLength1To1000"] = "回覆內容長度必須介於 1 到 1000 個字元之間",
+                #endregion
+
+                #region NFT
+                ["NFT_OwnerIdRequired"] = "擁有者 ID 為必填",
+                ["NFT_FileNameRequired"] = "NFT 名稱為必填",
+                ["NFT_FileNameMaxLength255"] = "NFT 名稱長度不能超過 255 個字元",
+                ["NFT_FilePathRequired"] = "檔案路徑為必填",
+                ["NFT_FilePathMaxLength2048"] = "檔案路徑長度不能超過 2048 個字元",
+                ["NFT_CollectTimeRequired"] = "收藏時間為必填",
+                ["NFT_CurrencyRequired"] = "幣別為必填",
+                ["NFT_CurrencyMaxLength10"] = "幣別長度不能超過 10 個字元",
+                ["NFT_PriceMin0"] = "價格必須大於等於 0",
+                ["NFT_MinPriceMin0"] = "最低價格必須大於等於 0",
+                ["NFT_MaxPriceMin0"] = "最高價格必須大於等於 0",
+                ["NFT_PageMin1"] = "頁數必須大於 0",
+                ["NFT_PageSizeRange1To100"] = "每頁筆數必須在 1-100 之間",
                 #endregion
             },
             
@@ -448,9 +516,78 @@ namespace Matrix.Services
                 ["Email"] = "Email",
                 ["Password"] = "Password",
                 ["ConfirmPassword"] = "Confirm Password",
-                ["Register"] = "Register"
-                
+                ["Register"] = "Register",
+
                 #endregion
+
+                // Validation error messages (from DTOs)
+                #region User
+                ["User_UserNameRequired"] = "User name is required.",
+                ["User_UserNameLength1To50"] = "User name length must be between 1 and 50 characters.",
+                ["User_EmailRequired"] = "Email is required.",
+                ["User_EmailInvalid"] = "Please enter a valid email address.",
+                ["User_EmailMaxLength100"] = "Email length must not exceed 100 characters.",
+                ["User_CountryMaxLength100"] = "Country name length must not exceed 100 characters.",
+                ["User_UserNameLength3To20"] = "User name length must be between 3 and 20 characters.",
+                ["User_UserNameAllowedChars"] = "User name may only contain letters, numbers, and underscores.",
+                ["User_EmailMaxLength30"] = "Email length must not exceed 30 characters.",
+                ["User_PasswordRequired"] = "Password is required.",
+                ["User_PasswordLength8To20"] = "Password length must be between 8 and 20 characters.",
+                ["User_PasswordComplexity"] = "Password must contain at least one uppercase letter, one lowercase letter, one digit, and one special character.",
+                ["User_PasswordConfirmRequired"] = "Password confirmation is required.",
+                ["User_PasswordsMustMatch"] = "Password confirmation must match the password.",
+                ["User_GenderRange0To3"] = "Gender must be between 0 and 3.",
+                ["User_RoleRange0To2"] = "Role level must be between 0 and 2.",
+                ["User_DisplayNameMaxLength50"] = "Display name length must not exceed 50 characters.",
+                ["User_DisplayNameLength1To50"] = "Display name length must be between 1 and 50 characters.",
+                ["User_BioMaxLength300"] = "Bio length must not exceed 300 characters.",
+                ["User_PrivacyRange0Or1"] = "Privacy must be 0 (public) or 1 (private).",
+                ["User_UserNameAllowedCharsWithChinese"] = "User name may only contain letters, numbers, underscores, and Chinese characters.",
+                #endregion
+
+                #region Person
+                ["Person_DisplayNameLength1To50"] = "Display name length must be between 1 and 50 characters.",
+                ["Person_BioMaxLength300"] = "Bio length must not exceed 300 characters.",
+                ["Person_PrivacyRange0To1"] = "Privacy value must be between 0 and 1.",
+                ["Person_WalletAddressMaxLength100"] = "Wallet address length must not exceed 100 characters.",
+                #endregion
+
+                #region Notification
+                ["Notification_TitleRequired"] = "Notification title is required.",
+                ["Notification_TitleMaxLength100"] = "Notification title length must not exceed 100 characters.",
+                ["Notification_ContentMaxLength500"] = "Notification content length must not exceed 500 characters.",
+                #endregion
+
+                #region Article
+                ["Article_ContentRequired"] = "Article content is required.",
+                ["Article_ContentMaxLength4000"] = "Article content length must not exceed 4000 characters.",
+                ["Article_ContentLength1To4000"] = "Article content length must be between 1 and 4000 characters.",
+                ["Article_IsPublicRange0Or1"] = "Article visibility must be 0 (public) or 1 (private).",
+                #endregion
+
+                #region Reply
+                ["Reply_ArticleIdRequired"] = "Article ID is required.",
+                ["Reply_ContentRequired"] = "Reply content is required.",
+                ["Reply_ContentMaxLength1000"] = "Reply content length must not exceed 1000 characters.",
+                ["Reply_ContentLength1To1000"] = "Reply content length must be between 1 and 1000 characters.",
+                #endregion
+
+                #region NFT
+                ["NFT_OwnerIdRequired"] = "Owner ID is required.",
+                ["NFT_FileNameRequired"] = "NFT name is required.",
+                ["NFT_FileNameMaxLength255"] = "NFT name length must not exceed 255 characters.",
+                ["NFT_FilePathRequired"] = "File path is required.",
+                ["NFT_FilePathMaxLength2048"] = "File path length must not exceed 2048 characters.",
+                ["NFT_CollectTimeRequired"] = "Collection time is required.",
+                ["NFT_CurrencyRequired"] = "Currency is required.",
+                ["NFT_CurrencyMaxLength10"] = "Currency length must not exceed 10 characters.",
+                ["NFT_PriceMin0"] = "Price must be greater than or equal to 0.",
+                ["NFT_MinPriceMin0"] = "Minimum price must be greater than or equal to 0.",
+                ["NFT_MaxPriceMin0"] = "Maximum price must be greater than or equal to 0.",
+                ["NFT_PageMin1"] = "Page must be greater than 0.",
+                ["NFT_PageSizeRange1To100"] = "Page size must be between 1 and 100.",
+                #endregion
+                
             }
         };
 
@@ -513,5 +650,6 @@ namespace Matrix.Services
         {
             return AllTranslations.Keys;
         }
+
     }
 }

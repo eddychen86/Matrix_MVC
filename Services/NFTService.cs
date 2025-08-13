@@ -36,7 +36,7 @@ namespace Matrix.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error getting NFTs for owner {OwnerId}", ownerId);
+                _logger.LogError(ex, "\n\n取得擁有者 {OwnerId} 的 NFT 時發生錯誤\n\n", ownerId);
                 return Enumerable.Empty<NFTDto>();
             }
         }
@@ -53,7 +53,7 @@ namespace Matrix.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error getting NFTs with owner for owner {OwnerId}", ownerId);
+                _logger.LogError(ex, "\n\n取得擁有者 {OwnerId} 的 NFT（含擁有者資訊）時發生錯誤\n\n", ownerId);
                 return Enumerable.Empty<NFTDto>();
             }
         }
@@ -70,7 +70,7 @@ namespace Matrix.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error getting NFT by ID {NftId}", nftId);
+                _logger.LogError(ex, "\n\n依 ID {NftId} 取得 NFT 時發生錯誤\n\n", nftId);
                 return null;
             }
         }
@@ -113,7 +113,7 @@ namespace Matrix.Services
                 var createdNft = await _nftRepository.AddAsync(nft);
                 var nftDto = _mapper.Map<NFTDto>(createdNft);
 
-                _logger.LogInformation("Created NFT {NftId} for owner {OwnerId}", nft.NftId, createDto.OwnerId);
+                _logger.LogInformation("\n\n已為擁有者 {OwnerId} 建立 NFT {NftId}\n\n", nft.NftId, createDto.OwnerId);
                 return new ReturnType<NFTDto>
                 {
                     Success = true,
@@ -123,7 +123,7 @@ namespace Matrix.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error creating NFT for owner {OwnerId}", createDto.OwnerId);
+                _logger.LogError(ex, "\n\n為擁有者 {OwnerId} 建立 NFT 時發生錯誤\n\n", createDto.OwnerId);
                 return new ReturnType<NFTDto>
                 {
                     Success = false,
@@ -188,7 +188,7 @@ namespace Matrix.Services
 
                 await _nftRepository.UpdateAsync(existingNft);
 
-                _logger.LogInformation("Updated NFT {NftId}", nftId);
+                _logger.LogInformation("\n\n已更新 NFT {NftId}\n\n", nftId);
                 return new ReturnType<bool>
                 {
                     Success = true,
@@ -198,7 +198,7 @@ namespace Matrix.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error updating NFT {NftId}", nftId);
+                _logger.LogError(ex, "\n\n更新 NFT {NftId} 時發生錯誤\n\n", nftId);
                 return new ReturnType<bool>
                 {
                     Success = false,
@@ -239,7 +239,7 @@ namespace Matrix.Services
 
                 await _nftRepository.DeleteAsync(nft);
 
-                _logger.LogInformation("Deleted NFT {NftId} by owner {OwnerId}", nftId, ownerId);
+                _logger.LogInformation("\n\n擁有者 {OwnerId} 已刪除 NFT {NftId}\n\n", nftId, ownerId);
                 return new ReturnType<bool>
                 {
                     Success = true,
@@ -249,7 +249,7 @@ namespace Matrix.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error deleting NFT {NftId} by owner {OwnerId}", nftId, ownerId);
+                _logger.LogError(ex, "\n\n刪除 NFT {NftId}（擁有者 {OwnerId}）時發生錯誤\n\n", nftId, ownerId);
                 return new ReturnType<bool>
                 {
                     Success = false,
@@ -271,7 +271,7 @@ namespace Matrix.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error getting NFTs by currency {Currency} for owner {OwnerId}", currency, ownerId);
+                _logger.LogError(ex, "\n\n依幣別 {Currency} 取得擁有者 {OwnerId} 的 NFT 時發生錯誤\n\n", currency, ownerId);
                 return Enumerable.Empty<NFTDto>();
             }
         }
@@ -288,7 +288,7 @@ namespace Matrix.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error getting recent NFTs for owner {OwnerId}", ownerId);
+                _logger.LogError(ex, "\n\n取得擁有者 {OwnerId} 的最近 NFT 時發生錯誤\n\n", ownerId);
                 return Enumerable.Empty<NFTDto>();
             }
         }
@@ -305,7 +305,7 @@ namespace Matrix.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error getting NFTs by price range {MinPrice}-{MaxPrice} for owner {OwnerId}", minPrice, maxPrice, ownerId);
+                _logger.LogError(ex, "\n\n依價格範圍 {MinPrice}-{MaxPrice} 取得擁有者 {OwnerId} 的 NFT 時發生錯誤\n\n", minPrice, maxPrice, ownerId);
                 return Enumerable.Empty<NFTDto>();
             }
         }
@@ -322,7 +322,7 @@ namespace Matrix.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error searching NFTs by filename {FileName} for owner {OwnerId}", fileName, ownerId);
+                _logger.LogError(ex, "\n\n依檔名 {FileName} 搜尋擁有者 {OwnerId} 的 NFT 時發生錯誤\n\n", fileName, ownerId);
                 return Enumerable.Empty<NFTDto>();
             }
         }
@@ -339,7 +339,7 @@ namespace Matrix.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error getting NFTs by date range {StartDate}-{EndDate} for owner {OwnerId}", startDate, endDate, ownerId);
+                _logger.LogError(ex, "\n\n依日期範圍 {StartDate}-{EndDate} 取得擁有者 {OwnerId} 的 NFT 時發生錯誤\n\n", startDate, endDate, ownerId);
                 return Enumerable.Empty<NFTDto>();
             }
         }
@@ -408,7 +408,7 @@ namespace Matrix.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error searching NFTs for owner {OwnerId}", searchDto.OwnerId);
+                _logger.LogError(ex, "\n\n搜尋擁有者 {OwnerId} 的 NFT 時發生錯誤\n\n", searchDto.OwnerId);
                 return Enumerable.Empty<NFTDto>();
             }
         }
@@ -448,7 +448,7 @@ namespace Matrix.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error getting NFT stats for owner {OwnerId}", ownerId);
+                _logger.LogError(ex, "\n\n取得擁有者 {OwnerId} 的 NFT 統計資料時發生錯誤\n\n", ownerId);
                 return new NFTStatsDto { OwnerId = ownerId };
             }
         }
@@ -464,7 +464,7 @@ namespace Matrix.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error getting NFT count for owner {OwnerId}", ownerId);
+                _logger.LogError(ex, "\n\n取得擁有者 {OwnerId} 的 NFT 總數時發生錯誤\n\n", ownerId);
                 return 0;
             }
         }
@@ -480,7 +480,7 @@ namespace Matrix.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error getting NFT total value for owner {OwnerId}, currency {Currency}", ownerId, currency);
+                _logger.LogError(ex, "\n\n取得擁有者 {OwnerId} 的 NFT 總價值（幣別 {Currency}）時發生錯誤\n\n", ownerId, currency);
                 return 0;
             }
         }
@@ -497,7 +497,7 @@ namespace Matrix.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error checking ownership of NFT {NftId} by owner {OwnerId}", nftId, ownerId);
+                _logger.LogError(ex, "\n\n檢查擁有者 {OwnerId} 是否為 NFT {NftId} 的擁有者時發生錯誤\n\n", nftId, ownerId);
                 return false;
             }
         }
@@ -556,7 +556,7 @@ namespace Matrix.Services
                     message += $"，{errors.Count} 個失敗";
                 }
 
-                _logger.LogInformation("Bulk imported {Count} NFTs", validNfts.Count);
+                _logger.LogInformation("\n\n已批量導入 {Count} 個 NFT\n\n", validNfts.Count);
                 return new ReturnType<int>
                 {
                     Success = true,
@@ -566,7 +566,7 @@ namespace Matrix.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error bulk importing NFTs");
+                _logger.LogError(ex, "\n\n批量導入 NFT 時發生錯誤\n\n");
                 return new ReturnType<int>
                 {
                     Success = false,
@@ -611,7 +611,7 @@ namespace Matrix.Services
                     message += $"，{errors.Count} 個失敗";
                 }
 
-                _logger.LogInformation("Bulk deleted {Count} NFTs by owner {OwnerId}", deletedCount, ownerId);
+                _logger.LogInformation("\n\n擁有者 {OwnerId} 已批量刪除 {Count} 個 NFT\n\n", deletedCount, ownerId);
                 return new ReturnType<int>
                 {
                     Success = true,
@@ -621,7 +621,7 @@ namespace Matrix.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error bulk deleting NFTs by owner {OwnerId}", ownerId);
+                _logger.LogError(ex, "\n\n擁有者 {OwnerId} 批量刪除 NFT 時發生錯誤\n\n", ownerId);
                 return new ReturnType<int>
                 {
                     Success = false,

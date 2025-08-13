@@ -30,14 +30,14 @@ namespace Matrix.DTOs
         /// <summary>
         /// 通知的標題
         /// </summary>
-        [Required(ErrorMessage = "通知標題為必填欄位")]
-        [StringLength(100, ErrorMessage = "通知標題長度不能超過 100 個字元")]
+        [Required(ErrorMessage = "Notification_TitleRequired")]
+        [StringLength(100, ErrorMessage = "Notification_TitleMaxLength100")]
         public string Title { get; set; } = string.Empty;
 
         /// <summary>
         /// 通知的內容
         /// </summary>
-        [StringLength(500, ErrorMessage = "通知內容長度不能超過 500 個字元")]
+        [StringLength(500, ErrorMessage = "Notification_ContentMaxLength500")]
         public string? Content { get; set; }
 
         /// <summary>

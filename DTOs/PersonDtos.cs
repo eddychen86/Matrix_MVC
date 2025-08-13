@@ -72,13 +72,13 @@ namespace Matrix.DTOs
         /// <summary>
         /// 使用者的顯示名稱
         /// </summary>
-        [StringLength(50, MinimumLength = 1, ErrorMessage = "顯示名稱長度必須介於 1 到 50 個字元之間")]
+        [StringLength(50, MinimumLength = 1, ErrorMessage = "Person_DisplayNameLength1To50")]
         public string? DisplayName { get; set; }
 
         /// <summary>
         /// 使用者的個人簡介
         /// </summary>
-        [StringLength(300, ErrorMessage = "個人簡介長度不能超過 300 個字元")]
+        [StringLength(300, ErrorMessage = "Person_BioMaxLength300")]
         public string? Bio { get; set; }
 
         /// <summary>
@@ -101,7 +101,7 @@ namespace Matrix.DTOs
         /// <summary>
         /// 使用者的區塊鏈錢包地址
         /// </summary>
-        [StringLength(100, ErrorMessage = "錢包地址長度不能超過 100 個字元")]
+        [StringLength(100, ErrorMessage = "Person_WalletAddressMaxLength100")]
         public string? WalletAddress { get; set; }
 
         /// <summary>
@@ -166,13 +166,13 @@ namespace Matrix.DTOs
         /// <summary>
         /// 使用者的顯示名稱
         /// </summary>
-        [StringLength(50, MinimumLength = 1, ErrorMessage = "顯示名稱長度必須介於 1 到 50 個字元之間")]
+        [StringLength(50, MinimumLength = 1, ErrorMessage = "Person_DisplayNameLength1To50")]
         public string? DisplayName { get; set; }
 
         /// <summary>
         /// 使用者的個人簡介
         /// </summary>
-        [StringLength(300, ErrorMessage = "個人簡介長度不能超過 300 個字元")]
+        [StringLength(300, ErrorMessage = "Person_BioMaxLength300")]
         public string? Bio { get; set; }
 
         /// <summary>
@@ -190,13 +190,13 @@ namespace Matrix.DTOs
         /// <summary>
         /// 使用者的隱私設定
         /// </summary>
-        [Range(0, 1, ErrorMessage = "隱私設定值必須在 0 到 1 之間")]
+        [Range(0, 1, ErrorMessage = "Person_PrivacyRange0To1")]
         public int? IsPrivate { get; set; }
 
         /// <summary>
         /// 使用者的區塊鏈錢包地址
         /// </summary>
-        [StringLength(100, ErrorMessage = "錢包地址長度不能超過 100 個字元")]
+        [StringLength(100, ErrorMessage = "Person_WalletAddressMaxLength100")]
         public string? WalletAddress { get; set; }
 
         /// <summary>
