@@ -1,9 +1,7 @@
-﻿<div class="flex h-full w-full">
+﻿<div class="grid h-full w-full grid-cols-4 gap-4">
+    <h2 class="col-span-4 text-5xl font-bold text-gray-700">Users Management</h2>
     <!-- 左側欄 -->
     <aside class="flex flex-col gap-8 border-r border-gray-200 bg-white p-8">
-        <div>
-            <h2 class="mb-4 text-2xl font-bold text-gray-700">Users Management</h2>
-        </div>
         <div>
             <h3 class="mb-2 block font-semibold text-[20px] text-gray-700">Keyword</h3>
             <div class="relative w-full">
@@ -22,30 +20,42 @@
         <div class="flex items-center justify-between gap-3">
             <span class="text-base font-semibold text-[20px] text-gray-700">Status</span>
             <div class="flex rounded-full border border-blue-400 bg-white p-0.5 shadow-inner">
-                <input type="radio" id="enable" name="status" class="peer/enable hidden" v-model="statusEditor" :value="0" :disabled="!selectedId" @@change="onChangeStatus">
-                <label for="enable"
-                       class="cursor-pointer rounded-full px-3 py-1 text-sm font-semibold
-                   text-gray-400 transition
-                   peer-checked/enable:bg-blue-700 peer-checked/enable:text-white
-                   peer-checked/enable:shadow">
+                <!-- All -->
+                <input type="radio" id="status-all" name="statusFilter" class="peer/all hidden"
+                       v-model.number="filterStatus" :value="-1" @@change="applyFilters">
+                <label for="status-all"
+                       class="cursor-pointer rounded-full px-3 py-1 text-sm font-semibold text-gray-400 transition
+                  peer-checked/all:bg-blue-700 peer-checked/all:text-white peer-checked/all:shadow">
+                    All
+                </label>
+
+                <!-- Enable (0) -->
+                <input type="radio" id="status-enable" name="statusFilter" class="peer/enable hidden"
+                       v-model.number="filterStatus" :value="0" @@change="applyFilters">
+                <label for="status-enable"
+                       class="cursor-pointer rounded-full px-3 py-1 text-sm font-semibold text-gray-400 transition
+                  peer-checked/enable:bg-blue-700 peer-checked/enable:text-white peer-checked/enable:shadow">
                     Enable
                 </label>
-                <input type="radio" id="disable" name="status" class="peer/disable hidden" v-model="statusEditor" :value="1" :disabled="!selectedId" @@change="onChangeStatus">
-                <label for="disable"
-                       class="cursor-pointer rounded-full px-3 py-1 text-sm font-semibold
-                   text-gray-400 transition
-                   peer-checked/disable:bg-blue-700 peer-checked/disable:text-white
-                   peer-checked/disable:shadow">
+
+                <!-- Disable (1) -->
+                <input type="radio" id="status-disable" name="statusFilter" class="peer/disable hidden"
+                       v-model.number="filterStatus" :value="1" @@change="applyFilters">
+                <label for="status-disable"
+                       class="cursor-pointer rounded-full px-3 py-1 text-sm font-semibold text-gray-400 transition
+                  peer-checked/disable:bg-blue-700 peer-checked/disable:text-white peer-checked/disable:shadow">
                     Disable
                 </label>
             </div>
         </div>
+
         <div>
             <label class="mb-2 block font-semibold text-[20px] text-gray-700">Create time</label>
-            <input id="calendar" class="w-full rounded border bg-gray-50 px-3 py-2" placeholder="請選擇日期">
+            <input id="calendar" v-model="filterDate" @@change="toggleDate($event)" class="w-full rounded border bg-gray-50 px-3 py-2" placeholder="請選擇日期">
         </div>
         <div>
-            <calendar-date class="cally bg-base-100 border-base-300 rounded-box w-full border shadow-lg">
+            <calendar-date class="cally bg-base-100 border-base-300 rounded-box w-full border shadow-lg"
+                           @@change="toggleDate($event)">
                 <svg aria-label="Previous" class="size-4 fill-current text-[#161616]" slot="previous" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="currentColor" d="M15.75 19.5 8.25 12l7.5-7.5"></path></svg>
                 <svg aria-label="Next" class="size-4 fill-current text-[#161616]" slot="next" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="currentColor" d="m8.25 4.5 7.5 7.5-7.5 7.5"></path></svg>
                 <calendar-month></calendar-month>
@@ -53,7 +63,7 @@
         </div>
     </aside>
     <!-- 右側主表格 -->
-    <main class="flex-1 p-8">
+    <main class="col-span-3 h-full p-8">
         <div class="h-full w-full rounded-2xl border border-black/10 bg-yellow-50 p-8">
             <table class="table w-full">
                 <thead>
@@ -70,23 +80,45 @@
 
                 <tbody class="text-[14px]">
                     <template v-for="item in articles" :key="item.articleId">
-                        <tr class="cursor-pointer hover:bg-blue-100"
-                            @@click="toggleExpand(item.articleId)">
+                        <tr class="cursor-pointer hover:bg-blue-100">
                             <td class="max-w-[200px] truncate">{{ item.content }}</td>
                             <td>{{ item.authorName }}</td>
-                            <td>{{ item.statusText || statusText(item.status) }}</td>
+                            <td>
+                                <template v-if="editingId === item.articleId">
+                                    <div class="flex items-center gap-2">
+                                        <select v-model.number="editingStatus" class="rounded border px-2 py-1">
+                                            <option :value="0">正常</option>
+                                            <option :value="1">隱藏</option>
+                                        </select>
+                                        <button @@click.stop="saveStatus(item)" :disabled="savingStatus"
+                                                class="rounded bg-green-600 px-2 py-1 text-white disabled:opacity-50">
+                                            儲存
+                                        </button>
+                                        <button @@click.stop="cancelEdit"
+                                                class="rounded bg-gray-400 px-2 py-1 text-white">
+                                            取消
+                                        </button>
+                                    </div>
+                                </template>
+                                <template v-else>
+                                    {{ item.statusText || statusText(item.status) }}
+                                </template>
+                            </td>
                             <td>{{ formatDate(item.createTime) }}</td>
                             <td>{{ formatDate(item.createTime) }}</td>
                             <td class="w-12 text-center">
                                 <!-- 編輯 -->
-                                <button @@click.stop="startEdit(item)" class="flex items-center justify-center rounded bg-blue-500 p-1 text-white hover:bg-blue-700" title="Edit">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-                                         viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                         stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                        <path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z" />
-                                        <path d="m15 5 4 4" />
-                                    </svg>
-                                </button>
+                                <div v-if="editingId !== item.articleId" class="flex justify-center">
+                                    <button @@click.stop="startEdit(item)"
+                                            class="rounded bg-blue-500 p-1 text-white hover:bg-blue-700" title="Edit status">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                                             viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                             stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z" />
+                                            <path d="m15 5 4 4" />
+                                        </svg>
+                                    </button>
+                                </div>
                             </td>
                             <td class="w-12 text-center">
                                 <!-- 刪除 -->
@@ -101,21 +133,6 @@
                             </td>
                         </tr>
 
-                        <!-- 詳細/編輯列 -->
-                        <tr :key="item.articleId + '-detail'" v-if="expandedId === item.articleId" class="detail-row">
-                            <td colspan="7" class="border-t border-blue-100 bg-yellow-50">
-                                <div v-if="editingId !== item.articleId" class="view-mode line-clamp-4 overflow-hidden break-words whitespace-normal text-gray-900">
-                                    {{ item.content }}
-                                </div>
-                                <div v-else class="edit-mode">
-                                    <textarea v-model="editContent" class="min-h-[120px] w-full rounded border p-2"></textarea>
-                                    <div class="mt-2 flex gap-2">
-                                        <button @@click="saveEdit(item.articleId)" class="rounded bg-green-500 px-3 py-1 text-white hover:bg-green-700">儲存</button>
-                                        <button @@click="cancelEdit" class="rounded bg-gray-400 px-3 py-1 text-white hover:bg-gray-600">取消</button>
-                                    </div>
-                                </div>
-                            </td>
-                        </tr>
                     </template>
                 </tbody>
 

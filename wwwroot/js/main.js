@@ -15,7 +15,7 @@ const globalApp = content => {
 
 globalApp({
     setup() {
-        const { ref, reactive, computed, watch } = Vue
+        const { ref, reactive, computed } = Vue
         const { formatDate, timeAgo } = useFormatting()
 
         //#region Pop-Up Events
@@ -91,113 +91,55 @@ globalApp({
         const totalPages = ref(0)
         const articles = ref([])
         const keyword = ref('')
+        const filterStatus = ref(-1)
+        const filterDate = ref('')
 
-        const expandedId = ref(null)
+        // 狀態編輯用
         const editingId = ref(null)
-        const editContent = ref('')
-
-        // 目前選取的文章
-        const selectedId = ref(null)
-        const statusEditor = ref(null)
-
-        const findArticle = (id) => articles.value.find(a => a.articleId === id) || null
-
-        const loadArticles = async () => {
-            let url = `/api/posts/list?page=${page.value}&pagesize=${pageSize.value}`
-            if (keyword.value) url += `&keyword=${encodeURIComponent(keyword.value)}`
-
-            const res = await fetch(url)
-            const data = await res.json()
-            articles.value = data.items
-            totalPages.value = data.totalPages
-
-            // 載入後若仍有選取，讓左側開關跟新資料同步
-            if (selectedId.value) {
-                const a = findArticle(selectedId.value)
-                statusEditor.value = a ? (a.status === 1 ? 1 : 0) : null
-            }
-        }
+        const editingStatus = ref(null)
+        const savingStatus = ref(false)
 
         // 狀態中文對照
         const statusText = (s) => (s === 0 ? '正常' : s === 1 ? '隱藏' : s === 2 ? '已刪除' : '未知')
 
-        // 展開以選取列完整內文
-        const toggleExpand = (id) => {
-            if (expandedId.value === id) {
-                expandedId.value = null
-                editingId.value = null
-                selectedId.value = null
-                statusEditor.value = null
+        const findArticle = (id) => articles.value.find(a => a.articleId === id) || null
+
+
+        function toggleDate(e) {
+            const val = e.target.value
+            if (filterDate.value === val) {
+                filterDate.value = ''
+                e.target.value = ''
+            } else {
+                filterDate.value = val
+            }
+            page.value = 1
+            loadArticles()
+        }
+
+        function applyFilters() {
+            page.value = 1
+            loadArticles()
+        }
+
+        const loadArticles = async () => {
+            let url = `/api/posts/list?page=${page.value}&pagesize=${pageSize.value}`
+            if (keyword.value) url += `&keyword=${encodeURIComponent(keyword.value)}`
+            if (filterStatus.value !== -1) url += `&status=${filterStatus.value}`
+            if (filterDate.value) url += `&date=${encodeURIComponent(filterDate.value)}` // 新增日期條件
+
+            const res = await fetch(url)
+            if (!res.ok) {
+                alert('讀取清單失敗')
                 return
             }
-            editingId.value = null
-            expandedId.value = id
-
-            // 同步左側開關
-            selectedId.value = id
-            const a = findArticle(id)
-            statusEditor.value = a ? (a.status === 1 ? 1 : 0) : null
-        }
-
-        // 開始編輯文章
-        const startEdit = (article) => {
-            expandedId.value = article.articleId
-            editingId.value = article.articleId
-            editContent.value = article.content || ''
-
-            selectedId.value = article.articleId
-            statusEditor.value = article.status === 1 ? 1 : 0
-        }
-
-        // 取消編輯
-        const cancelEdit = () => {
-            editingId.value = null
-            expandedId.value = null
-        }
-
-        // 儲存文章內容
-        const saveEdit = async (id) => {
-            const res = await fetch(`/api/posts/update/${id}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ content: editContent.value })
-            })
-            if (res.ok) {
-                await loadArticles()
-                editingId.value = null
-                expandedId.value = null
-            } else {
-                alert('更新失敗')
+            const data = await res.json()
+            let items = data.items || []
+            if (filterStatus.value !== -1) {
+                items = items.filter(a => Number(a.status) === Number(filterStatus.value))
             }
-        }
-
-        // 左側開關
-        const onChangeStatus = async () => {
-            const id = selectedId.value
-            if (!id || statusEditor.value == null) return
-
-            const a = findArticle(id)
-            if (!a) return
-
-            const newStatus = statusEditor.value
-            const prevStatus = a.status
-            if (newStatus === prevStatus) return
-
-            try {
-                // 用你現有的更新 API；若你的後端要別的路由，改這裡即可
-                const res = await fetch(`/api/posts/status/${selectedId.value}`, {
-                    method: 'PATCH',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ status: statusEditor.value })
-                })
-                if (!res.ok) throw new Error()
-
-                a.status = newStatus
-                a.statusText = newStatus === 0 ? '正常' : '隱藏'
-            } catch {
-                alert('狀態更新失敗')
-                statusEditor.value = prevStatus
-            }
+            articles.value = items
+            totalPages.value = data.totalPages || 0
         }
 
         // 文章刪除功能
@@ -209,6 +151,43 @@ globalApp({
             } else {
                 alert('刪除失敗')
             }
+        }
+
+        // 點 Edit：進入該列的狀態編輯
+        const startEdit = (article) => {
+            editingId.value = article.articleId
+            editingStatus.value = article.status ?? 0 // 0: 正常, 1: 隱藏
+        }
+
+        // 儲存狀態
+        const saveStatus = async (article) => {
+            try {
+                savingStatus.value = true
+
+                // 若你的後端路由不同，改這條即可
+                const res = await fetch(`/api/posts/status/${article.articleId}`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status: Number(editingStatus.value) })
+                })
+                if (!res.ok) throw new Error('更新失敗')
+
+                // 前端就地更新
+                article.status = Number(editingStatus.value)
+                article.statusText = null // 讓 {{ item.statusText || statusText(item.status) }} 重新顯示
+                article.modifyTime = new Date().toISOString()
+
+                editingId.value = null
+            } catch (e) {
+                alert('狀態更新失敗')
+            } finally {
+                savingStatus.value = false
+            }
+        }
+
+        // 取消編輯
+        const cancelEdit = () => {
+            editingId.value = null
         }
 
         Vue.onMounted(loadArticles)
@@ -252,7 +231,7 @@ globalApp({
             getPopupTitle,
             openPopup,
             closePopup,
-            // 為新版 popup 提供向後兼容
+            // 向後相容
             isOpen: computed(() => popupState.isVisible),
             closeCollectModal: closePopup,
 
@@ -272,26 +251,24 @@ globalApp({
             showPage,
             keyword,
             search,
+            filterDate,
+            toggleDate,
 
             // 顯示/狀態文字
             statusText,
+            filterStatus,
+            applyFilters,
 
-            // 選取 + 左側開關
-            selectedId,
-            statusEditor,
-            onChangeStatus,
-
-            // 展開/編輯/刪除
-            expandedId,
+            // 行內狀態編輯
             editingId,
-            editContent,
-            toggleExpand,
+            editingStatus,
+            savingStatus,
             startEdit,
+            saveStatus,
             cancelEdit,
-            saveEdit,
+
+            // 刪除
             deleteArticle,
         }
-
-
     }
 })

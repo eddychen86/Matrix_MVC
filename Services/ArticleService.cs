@@ -85,9 +85,11 @@ namespace Matrix.Services
         /// 獲取文章列表
         /// </summary>
         public async Task<(List<ArticleDto> Articles, int TotalCount)> GetArticlesAsync(
-            int page = 1, int pageSize = 20, string? searchKeyword = null, Guid? authorId = null)
+            int page = 1, int pageSize = 20, string? searchKeyword = null, Guid? authorId = null,
+            int? status = null, bool onlyPublic = true, DateTime? dateFrom = null, DateTime? dateTo = null)
         {
-            var query = BuildArticleQuery(searchKeyword, authorId);
+            var query = BuildArticleQuery(searchKeyword, authorId, status, onlyPublic, dateFrom, dateTo);
+
             var totalCount = await query.CountAsync();
 
             var articles = await query
@@ -222,22 +224,43 @@ namespace Matrix.Services
         }
 
         // 私有輔助方法
-        private IQueryable<Article> BuildArticleQuery(string? searchKeyword, Guid? authorId)
+        private IQueryable<Article> BuildArticleQuery(
+            string? searchKeyword, Guid? authorId, int? status, bool onlyPublic, DateTime? dateFrom, DateTime? dateTo)
         {
-            var query = _context.Articles
-                .AsNoTracking() // 只讀查詢
-                .Include(a => a.Author)
-                .Where(a => a.Status == 0 && a.IsPublic == 0);
+            IQueryable<Article> query = _context.Articles.AsNoTracking();
+
+            if (onlyPublic)
+            {
+                query = query.Where(a => a.Status == 0 && a.IsPublic == 0);
+            }
+            else
+            {
+                query = query.Where(a => a.Status != 2);
+                if (status.HasValue)
+                    query = query.Where(a => a.Status == status.Value);
+            }
 
             if (authorId.HasValue)
                 query = query.Where(a => a.Author != null && a.Author.UserId == authorId.Value);
 
-            if (!string.IsNullOrEmpty(searchKeyword))
-                query = query.Where(a => a.Content.Contains(searchKeyword) ||
-                                       (a.Author != null && a.Author.DisplayName != null && a.Author.DisplayName.Contains(searchKeyword)));
+            if (!string.IsNullOrWhiteSpace(searchKeyword))
+                query = query.Where(a =>
+                    a.Content.Contains(searchKeyword) ||
+                    (a.Author != null && a.Author.DisplayName != null && a.Author.DisplayName.Contains(searchKeyword))
+                );
+            if (dateFrom.HasValue && dateTo.HasValue)
+            {
+                query = query.Where(a => a.CreateTime >= dateFrom.Value && a.CreateTime <= dateTo.Value);
+            }
+            else if (dateFrom.HasValue)
+            {
+                var next = dateFrom.Value.Date.AddDays(1);
+                query = query.Where(a => a.CreateTime >= dateFrom.Value.Date && a.CreateTime < next);
+            }
 
             return query;
         }
+
 
         private async Task<bool> UpdateCountAsync(Guid articleId, Action<Article> updateAction)
         {

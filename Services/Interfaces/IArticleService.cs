@@ -34,7 +34,12 @@ namespace Matrix.Services.Interfaces
             int page = 1,
             int pageSize = 20,
             string? searchKeyword = null,
-            Guid? authorId = null);
+            Guid? authorId = null,
+            int? status = null,
+            bool onlyPublic = true,
+            DateTime? dateFrom = null,
+            DateTime? dateTo = null
+            );
 
         /// <summary>
         /// 增加文章讚數

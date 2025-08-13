@@ -19,11 +19,24 @@ namespace Matrix.Controllers.Api
 
         //查詢文章
         [HttpGet("list")]
-        public async Task<IActionResult> GetArticles(int page = 1, int pagesize = 10, string? keyword = null)
+        public async Task<IActionResult> GetArticles(int page = 1, int pagesize = 10, string? keyword = null, int? status = null, string? date = null)
         {
-            var (articles, totalCount) = await _articleService.GetArticlesAsync(page, pagesize, keyword);
-            return Ok(new
+            if (status is < 0 or > 1) status = null;
+
+            DateTime? dateFrom = null;
+            DateTime? dateTo = null;
+            if (!string.IsNullOrWhiteSpace(date))
             {
+                if(DateTime.TryParse(date, out var d))
+                {
+                    dateFrom = d.Date;
+                    dateTo = d.Date.AddDays(1);
+                }
+            }
+            var (articles, totalCount) = await _articleService.GetArticlesAsync(
+            page, pagesize, keyword, authorId: null, status: status, onlyPublic: false, dateFrom:dateFrom, dateTo:dateTo);
+            return Ok(new
+            {   
                 items = articles,
                 totalCount,
                 totalPages = (int)Math.Ceiling(totalCount / (double)pagesize),
@@ -49,10 +62,10 @@ namespace Matrix.Controllers.Api
         public async Task<IActionResult> SetStatus(Guid id, [FromBody] UpdateStatusDto dto)
         {
             if (dto is null) return BadRequest("Body required");
-            if(dto.Status  is <0 or > 1) return BadRequest("status must be 0 or 1");
+            if (dto.Status is < 0 or > 1) return BadRequest("status must be 0 or 1");
 
             var ok = await _articleService.UpdateStatusAsync(id, dto.Status);
-            if(!ok) return NotFound();
+            if (!ok) return NotFound();
 
             return Ok(new { success = true, status = dto.Status });
         }
