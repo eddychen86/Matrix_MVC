@@ -9,6 +9,14 @@ namespace Matrix.Services
         {
             ["zh-TW"] = new Dictionary<string, string>
             {
+                #region footer 模組
+
+                ["AboutUs"] = "關於我們",
+                ["ContactUs"] = "聯繫我們",
+                ["Disclamer"] = "免責聲明",
+
+                #endregion
+
                 #region Auth 模組
 
                 // 標題
@@ -130,7 +138,7 @@ namespace Matrix.Services
                 #endregion
 
                 #region Profile 模組
-                
+
                 ["ProfileBio"] = "自我介紹",
                 ["ProfileContact"] = "聯絡方式",
                 ["ProfileLinks"] = "其他連結",
@@ -178,7 +186,7 @@ namespace Matrix.Services
                 ["ReportName"] = "報告名稱",
                 ["ReportDate"] = "報告日期",
                 ["ReportType"] = "報告類型",
-                
+
                 // === 確認模組 ===
                 ["InvalidConfirmLink"] = "無效的確認連結",
                 ["UserNotExistOrExpired"] = "用戶不存在或確認連結已失效",
@@ -189,7 +197,7 @@ namespace Matrix.Services
                 ["WelcomeRegisterConfirmEmail"] = "歡迎註冊！請確認您的電子郵件地址",
                 ["ConfirmEmailSent"] = "確認信已發送，請檢查您的電子郵件。",
                 ["SendConfirmEmailError"] = "發送確認信時發生錯誤，請稍後再試。",
-                
+
                 // === 確認信內容 ===
                 ["EmailWelcomeTitle"] = "歡迎加入 Matrix",
                 ["EmailWelcomeSubtitle"] = "Welcome to the Matrix.",
@@ -199,7 +207,7 @@ namespace Matrix.Services
                 ["EmailAlternativeText"] = "如果按鈕無法點擊，請複製以下連結到瀏覽器：",
                 ["EmailFooterText"] = "此連結將在 24 小時後失效。",
                 ["EmailBrandMotto"] = "The world is a fog, filled with out-of-focus noise. We choose to become an eternal lighthouse.",
-                
+
                 // === 確認頁面 ===
                 ["ConfirmPageTitle"] = "郵件確認",
                 ["PleaseWait"] = "請稍候...",
@@ -220,7 +228,7 @@ namespace Matrix.Services
                 ["ProcessingResultError"] = "處理確認結果時發生錯誤。",
                 ["CannotGetResult"] = "無法獲取確認結果，請重新嘗試。",
                 ["UseConfirmLink"] = "請透過郵件中的確認連結來訪問此頁面。",
-                
+
                 // 其他常用
                 ["Title"] = "Matrix",
                 ["Email"] = "電子郵件",
@@ -298,9 +306,17 @@ namespace Matrix.Services
                 ["NFT_PageSizeRange1To100"] = "每頁筆數必須在 1-100 之間",
                 #endregion
             },
-            
+
             ["en-US"] = new Dictionary<string, string>
             {
+                #region footer 模組
+
+                ["AboutUs"] = "About",
+                ["ContactUs"] = "Contact Us",
+                ["Disclamer"] = "Disclamer",
+
+                #endregion
+
                 #region Auth 模組
                 // 標題
                 ["LoginTitle"] = "Login",
@@ -468,7 +484,7 @@ namespace Matrix.Services
                 ["ReportName"] = "Report Name",
                 ["ReportDate"] = "Report Date",
                 ["ReportType"] = "Report Type",
-                
+
                 // === 確認模組 ===
                 ["InvalidConfirmLink"] = "Invalid confirmation link",
                 ["UserNotExistOrExpired"] = "User does not exist or confirmation link has expired",
@@ -479,7 +495,7 @@ namespace Matrix.Services
                 ["WelcomeRegisterConfirmEmail"] = "Welcome to register! Please confirm your email address",
                 ["ConfirmEmailSent"] = "Confirmation email has been sent, please check your email.",
                 ["SendConfirmEmailError"] = "An error occurred while sending confirmation email, please try again later.",
-                
+
                 // === 確認信內容 ===
                 ["EmailWelcomeTitle"] = "Welcome to Matrix",
                 ["EmailWelcomeSubtitle"] = "Welcome to the Matrix.",
@@ -489,7 +505,7 @@ namespace Matrix.Services
                 ["EmailAlternativeText"] = "If the button doesn't work, please copy the following link to your browser:",
                 ["EmailFooterText"] = "This link will expire in 24 hours.",
                 ["EmailBrandMotto"] = "The world is a fog, filled with out-of-focus noise. We choose to become an eternal lighthouse.",
-                
+
                 // === 確認頁面 ===
                 ["ConfirmPageTitle"] = "Email Confirmation",
                 ["PleaseWait"] = "Please wait...",
@@ -510,7 +526,7 @@ namespace Matrix.Services
                 ["ProcessingResultError"] = "An error occurred while processing the confirmation result.",
                 ["CannotGetResult"] = "Unable to get confirmation result, please try again.",
                 ["UseConfirmLink"] = "Please access this page through the confirmation link in your email.",
-                
+
                 // 其他常用
                 ["Title"] = "Matrix",
                 ["Email"] = "Email",
@@ -587,7 +603,7 @@ namespace Matrix.Services
                 ["NFT_PageMin1"] = "Page must be greater than 0.",
                 ["NFT_PageSizeRange1To100"] = "Page size must be between 1 and 100.",
                 #endregion
-                
+
             }
         };
 
@@ -602,7 +618,7 @@ namespace Matrix.Services
             {
                 return AllTranslations[culture];
             }
-            
+
             // 回退到繁體中文
             return AllTranslations["zh-TW"];
         }
@@ -616,18 +632,18 @@ namespace Matrix.Services
         public static string GetTranslation(string culture, string key)
         {
             var translations = GetTranslations(culture);
-            
+
             if (translations.ContainsKey(key))
             {
                 return translations[key];
             }
-            
+
             // 如果當前語言找不到，嘗試從中文字典找
             if (culture != "zh-TW" && AllTranslations["zh-TW"].ContainsKey(key))
             {
                 return AllTranslations["zh-TW"][key];
             }
-            
+
             // 都找不到則返回鍵值本身
             return key;
         }
