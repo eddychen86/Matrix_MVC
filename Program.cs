@@ -14,6 +14,8 @@ using Matrix.DTOs;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.DataProtection;
 using System.IO;
+using System.Net.NetworkInformation;
+using System.Net;
 // using Microsoft.AspNetCore.Identity;
 
 namespace Matrix;
@@ -221,6 +223,27 @@ public class Program
 
         #endregion
 
+        // 動態端口配置
+        var originalUrls = builder.Configuration["Urls"];
+        if (!string.IsNullOrEmpty(originalUrls))
+        {
+            var uri = new Uri(originalUrls);
+            var originalPort = uri.Port;
+            var availablePort = FindAvailablePort(originalPort);
+            
+            if (availablePort != originalPort)
+            {
+                var newUrl = $"{uri.Scheme}://{uri.Host}:{availablePort}";
+                builder.WebHost.UseUrls(newUrl);
+                Console.WriteLine($"原始端口 {originalPort} 已被占用，改用端口 {availablePort}");
+                Console.WriteLine($"應用程式將在 {newUrl} 上執行");
+            }
+            else
+            {
+                Console.WriteLine($"應用程式將在 {originalUrls} 上執行");
+            }
+        }
+
         var app = builder.Build();
 
         // Configure the HTTP request pipeline.
@@ -268,5 +291,32 @@ public class Program
         app.MapRazorPages();
 
         app.Run();
+    }
+
+    private static int FindAvailablePort(int startPort)
+    {
+        int port = startPort;
+        while (port <= 65535)
+        {
+            if (IsPortAvailable(port))
+            {
+                return port;
+            }
+            port++;
+        }
+        throw new InvalidOperationException($"No available port found starting from {startPort}");
+    }
+
+    private static bool IsPortAvailable(int port)
+    {
+        try
+        {
+            var tcpListeners = IPGlobalProperties.GetIPGlobalProperties().GetActiveTcpListeners();
+            return !tcpListeners.Any(listener => listener.Port == port);
+        }
+        catch
+        {
+            return false;
+        }
     }
 }
