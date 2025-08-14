@@ -287,6 +287,9 @@ globalApp({
 
             // profile functions (only available on profile page)
             ...profileFunctions,
+
+            //發文功能
+            ...createPost(),
         }
     }
 })
