@@ -15,7 +15,7 @@ const globalApp = content => {
 
 globalApp({
     setup() {
-        const { ref, reactive, computed } = Vue
+        const { ref, reactive, computed, watch } = Vue
         const { formatDate, timeAgo } = useFormatting()
 
         //#region Pop-Up Events
@@ -104,7 +104,6 @@ globalApp({
 
         const findArticle = (id) => articles.value.find(a => a.articleId === id) || null
 
-
         function toggleDate(e) {
             const val = e.target.value
             if (filterDate.value === val) {
@@ -164,7 +163,6 @@ globalApp({
             try {
                 savingStatus.value = true
 
-                // 若你的後端路由不同，改這條即可
                 const res = await fetch(`/api/posts/status/${article.articleId}`, {
                     method: 'PATCH',
                     headers: { 'Content-Type': 'application/json' },
