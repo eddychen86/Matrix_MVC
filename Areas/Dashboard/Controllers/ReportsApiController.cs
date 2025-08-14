@@ -11,12 +11,12 @@ namespace Matrix.Areas.Dashboard.Controllers
     [ApiController]
     [AdminAuthorization] // 跟頁面一樣，只有管理員可用
     [Route("api/dashboard/reports")]
-    public class ReportsApiController : ControllerBase
+    public class Db_ReportsApiController : ControllerBase
    {
         private readonly IReportService _reportService;
         private readonly ApplicationDbContext _db;
 
-        public ReportsApiController(IReportService reportService, ApplicationDbContext db)
+        public Db_ReportsApiController(IReportService reportService, ApplicationDbContext db)
         {
             _reportService = reportService;
             _db = db;
