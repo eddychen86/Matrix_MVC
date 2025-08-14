@@ -230,6 +230,7 @@ namespace Matrix.Services
 
                 #endregion
 
+<<<<<<< HEAD
                 // 驗證錯誤訊息（來自 DTOs）
                 #region User
                 ["User_UserNameRequired"] = "使用者名稱為必填欄位",
@@ -296,6 +297,34 @@ namespace Matrix.Services
                 ["NFT_MaxPriceMin0"] = "最高價格必須大於等於 0",
                 ["NFT_PageMin1"] = "頁數必須大於 0",
                 ["NFT_PageSizeRange1To100"] = "每頁筆數必須在 1-100 之間",
+=======
+                #region UsersManagement 模組
+
+                ["UsersManagement"] = "使用者管理",
+                ["Status"] = "狀態",
+                ["Ban"] = "被封禁",
+                ["CreateTime"] = "建立時間",
+                ["Enable"] = "已啟用",
+                ["Disable"] = "未啟用",
+                ["Yes"] = "是",
+                ["No"] = "否",
+                ["Name"] = "名稱",
+                ["RoleText"] = "角色",
+                ["Email"] = "電子郵件",
+                ["LastLoginTime"] = "最後登入",
+                ["Edit"] = "編輯",
+                ["Delete"] = "刪除",
+                ["Update"] = "更新",
+                ["Cancel"] = "取消",
+                ["SearchUserPlaceholder"] = "請輸入使用者名稱",
+                ["SearchDatePlaceholder"] = "請輸入日期YYYY-MM-DD",
+                ["Status_Disabled"] = "未啟用",
+                ["Status_Enabled"] = "已啟用",
+                ["Status_Banned"] = "被封禁",
+                ["Role_Admin"] = "管理員",
+                ["Role_User"] = "一般使用者"
+
+>>>>>>> dev-users
                 #endregion
             },
             
@@ -518,6 +547,37 @@ namespace Matrix.Services
                 ["ConfirmPassword"] = "Confirm Password",
                 ["Register"] = "Register",
 
+<<<<<<< HEAD
+=======
+                #endregion
+
+                #region UsersManagement 模組
+
+                ["UsersManagement"] = "UsersManagement",
+                ["Status"] = "Status",
+                ["Ban"] = "Ban",
+                ["CreateTime"] = "Createtime",
+                ["Enable"] = "Enable",
+                ["Disable"] = "Disable",
+                ["Yes"] = "Yes",
+                ["No"] = "No",
+                ["Name"] = "Name",
+                ["RoleText"] = "Role",
+                ["Email"] = "Email",
+                ["LastLoginTime"] = "Lastlogin",
+                ["Edit"] = "Edit",
+                ["Delete"] = "Delete",
+                ["Update"] = "Update",
+                ["Cancel"] = "Cancel",
+                ["SearchUserPlaceholder"] = "Please enter user name",
+                ["SearchDatePlaceholder"] = "Please enter YYYY-MM-DD",
+                ["Status_Disabled"] = "Disabled",
+                ["Status_Enabled"] = "Enabled",
+                ["Status_Banned"] = "Banned",
+                ["Role_Admin"] = "Admin",
+                ["Role_User"] = "User"
+
+>>>>>>> dev-users
                 #endregion
 
                 // Validation error messages (from DTOs)

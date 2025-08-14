@@ -9,11 +9,19 @@ namespace Matrix.Areas.Dashboard.Controllers.Api
 {
     [Route("api/[controller]")]
     [ApiController]
+<<<<<<< HEAD
     public class Db_UsersApiController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
 
         public Db_UsersApiController(ApplicationDbContext context)
+=======
+    public class DB_UsersController : ControllerBase
+    {
+        private readonly ApplicationDbContext _context;
+
+        public DB_UsersController(ApplicationDbContext context)
+>>>>>>> dev-users
         {
             _context = context;
         }
