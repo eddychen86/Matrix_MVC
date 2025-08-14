@@ -87,6 +87,7 @@ public class Program
         builder.Services.AddScoped<ICustomLocalizer, CustomLocalizer>();
         builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
         builder.Services.AddScoped<ISearchUserService, SearchUserService>();
+        builder.Services.AddScoped<IFollowService, FollowService>();
 
         // 配置本地化選項
         builder.Services.Configure<RequestLocalizationOptions>(options =>

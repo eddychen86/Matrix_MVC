@@ -213,6 +213,26 @@ globalApp({
             }
         }
 
+        const openFollows = async () => {
+            popupState.type = 'Follows'
+            popupState.title = getPopupTitle('Follows')
+            popupState.isVisible = true
+            isLoading.value = true
+
+            try {
+                const res = await fetch(`/api/follows?page=1&pageSize=10`, {
+                    method: 'GET',
+                    credentials: 'include'
+                })
+                const result = await res.json()
+                popupData.Follows = Array.isArray(result.data) ? result.data : []
+            } catch (e) {
+                console.error('❌ 載入 Follows 失敗', e)
+                popupData.Follows = []
+            } finally {
+                isLoading.value = false
+            }
+        }
 
         // popup helper
         const getPopupTitle = type => {
@@ -233,6 +253,10 @@ globalApp({
 
         // Popup click
         const openPopup = async type => {
+            if (type === 'Follows') {
+                return openFollows()  // 👈 直接走新流程
+            }
+
             popupState.type = type
             popupState.title = getPopupTitle(type)
             popupState.isVisible = true

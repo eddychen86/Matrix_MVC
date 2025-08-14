@@ -4,16 +4,20 @@ using Matrix.ViewModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
+using Matrix.Services.Interfaces;
 
 namespace Matrix.Controllers
 {
     public class FollowController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly IFollowService _followService;
 
-        public FollowController(ApplicationDbContext context)
+        public FollowController(ApplicationDbContext context, IFollowService followService)
         {
             _context = context;
+            _followService = followService;
         }
 
         public IActionResult Index()
@@ -23,44 +27,69 @@ namespace Matrix.Controllers
 
         [HttpGet]
         [Route("api/follows")]
-        public IActionResult GetFollowData()
+        public async Task<IActionResult> GetFollowData(int page = 1, int pageSize = 10)
         {
-            // TODO: 未來改成從登入者取得 PersonId
-            var currentUserId = Guid.Parse("ba19a9e2-53ab-4764-9cd4-04a9d6595515"); 
-
-            var follows = _context.Follows
-                .AsNoTracking() // 只讀查詢，優化效能
-                .Where(f => f.UserId == currentUserId)
-                .Include(f => f.User) // 載入 User 的 Person 對象
-                .OrderByDescending(f => f.FollowTime)
-                .Take(10)
-                .ToList();
-
-            var followedIds = follows.Select(f=>f.FollowedId).ToList();
-
-            var followedPeople = _context.Persons
-                .AsNoTracking() // 只讀查詢
-                .Where(p => followedIds.Contains(p.PersonId))
-                .ToDictionary(p => p.PersonId, p => p);
-
-            var followList = follows.Select(f =>
+            // 1) 取得目前登入者的 UserId
+            Guid currentUserId;
+            var auth = HttpContext.GetAuthInfo(); // 若你們專案有這個擴充方法
+            if (auth != null && auth.UserId != Guid.Empty)
             {
-                followedPeople.TryGetValue(f.FollowedId, out var person);
+                currentUserId = auth.PersonId;
+            }
+            else
+            {
+                var idStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                if (string.IsNullOrWhiteSpace(idStr) || !Guid.TryParse(idStr, out currentUserId))
+                    return Unauthorized(new { success = false, message = "尚未登入" });
+            }
 
-                return new FollowItemViewModel
-                {
-                    SenderName = person?.DisplayName ?? "未知用戶",
-                    SenderAvatarUrl = !string.IsNullOrEmpty(person?.AvatarPath) ? person.AvatarPath : "/static/img/cute.png",
-                    FollowTime = f.FollowTime
-                };
-            }).ToList();
-
-            return Json(followList);
+            if (page <= 0) page = 1;
+            if (pageSize <= 0) pageSize = 10;
 
 
+            // 2) 只撈「使用者」型別的追蹤 (Type = 1)，並 JOIN 到 Persons（FollowedId = PersonId）
+            var followList = await _context.Follows
+                .AsNoTracking()
+                .Where(f => f.UserId == currentUserId && f.Type == 1)
+                .OrderByDescending(f => f.FollowTime)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .Join(
+                    _context.Persons.AsNoTracking(),
+                    f => f.FollowedId,           // ← FollowedId = Persons.PersonId（你選的路線A）
+                    p => p.PersonId,
+                    (f, p) => new FollowItemViewModel
+                    {
+                        SenderName = string.IsNullOrWhiteSpace(p.DisplayName) ? "未知用戶" : p.DisplayName,
+                        SenderAvatarUrl = string.IsNullOrEmpty(p.AvatarPath)
+                            ? "/static/img/cute.png" // 改成你的預設圖路徑
+                            : p.AvatarPath,
+                        FollowTime = f.FollowTime
+                    }
+                )
+                .ToListAsync();
 
+            // 3) 建議用 Ok(...)（標準 API 回應）
+            return Ok(new
+            {
+                success = true,
+                data = followList,
+                pagination = new { page, pageSize }
+            });
         }
-        
+        [HttpGet("search")]
+        [Route("api/follows/search")]
+        public async Task<IActionResult> SearchUsers([FromQuery] string keyword)
+        {
+            var auth = HttpContext.GetAuthInfo();
+            if (auth == null || auth.PersonId == Guid.Empty)
+                return Unauthorized(new { success = false, message = "尚未登入" });
 
+            var currentPersonId = auth.PersonId;
+
+            var result = await _followService.SearchUsersAsync(currentPersonId, keyword);
+
+            return Ok(new { success = true, data = result });
+        }
     }
 }

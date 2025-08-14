@@ -50,5 +50,7 @@ namespace Matrix.Services.Interfaces
         /// 獲取兩個使用者的共同追蹤
         /// </summary>
         Task<List<Guid>> GetMutualFollowsAsync(Guid userId1, Guid userId2);
+
+        Task<List<FollowUserSearchDto>> SearchUsersAsync(Guid currentPersonId, string keyword);
     }
 }
