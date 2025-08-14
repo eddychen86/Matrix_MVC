@@ -63,7 +63,7 @@
     </div>
 
     <!-- 快速操作 -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
         <div class="bg-white rounded-lg shadow-md p-6">
             <h3 class="text-lg font-semibold text-gray-800 mb-4">快速操作</h3>
             <div class="space-y-3">
@@ -109,4 +109,171 @@
             </div>
         </div>
     </div>
+
+    <!-- ==================== 分析圖表區域 ==================== -->
+    <!-- 第一排：核心業務指標 -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+        <!-- 用戶增長趨勢圖 -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                <i class="fas fa-chart-line text-blue-500 mr-2"></i>
+                用戶增長趨勢
+            </h3>
+            <div class="h-64 flex items-center justify-center text-gray-400">
+                <!-- TODO: 實作 Chart.js 折線圖 -->
+                <!-- 數據來源: User.CreateTime, LoginRecord.LoginTime -->
+                <!-- X軸: 時間（近30天） Y軸: 新註冊用戶數、活躍用戶數 -->
+                <canvas id="userGrowthChart" width="400" height="200"></canvas>
+            </div>
+        </div>
+
+        <!-- 內容創作活躍度 -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                <i class="fas fa-edit text-green-500 mr-2"></i>
+                內容創作活躍度
+            </h3>
+            <div class="h-64 flex items-center justify-center text-gray-400">
+                <!-- TODO: 實作 Chart.js 柱狀圖 -->
+                <!-- 數據來源: Article.CreateTime, Reply.ReplyTime -->
+                <!-- 顯示每日文章發布量、回覆量 -->
+                <canvas id="contentActivityChart" width="400" height="200"></canvas>
+            </div>
+        </div>
+
+        <!-- 社交互動熱度 -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                <i class="fas fa-heart text-red-500 mr-2"></i>
+                社交互動熱度
+            </h3>
+            <div class="h-64 flex items-center justify-center text-gray-400">
+                <!-- TODO: 實作 Chart.js 環圈圖 -->
+                <!-- 數據來源: PraiseCollect.Type, Reply 計數 -->
+                <!-- 讚、收藏、回覆的比例分布 -->
+                <canvas id="socialInteractionChart" width="400" height="200"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- 第二排：深度分析 -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+        <!-- 熱門標籤雲 -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                <i class="fas fa-tags text-purple-500 mr-2"></i>
+                熱門標籤
+            </h3>
+            <div class="h-64 flex items-center justify-center text-gray-400">
+                <!-- TODO: 實作標籤雲或橫條圖 -->
+                <!-- 數據來源: ArticleHashtag JOIN Hashtag -->
+                <!-- 顯示最熱門的 Hashtag 使用頻率 -->
+                <canvas id="popularTagsChart" width="400" height="200"></canvas>
+            </div>
+        </div>
+
+        <!-- 用戶行為漏斗 -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                <i class="fas fa-filter text-orange-500 mr-2"></i>
+                用戶行為漏斗
+            </h3>
+            <div class="h-64 flex items-center justify-center text-gray-400">
+                <!-- TODO: 實作漏斗圖 -->
+                <!-- 數據來源: 多表關聯分析 -->
+                <!-- 註冊 → 發布第一篇文章 → 獲得互動 → 建立社交關係 -->
+                <canvas id="userFunnelChart" width="400" height="200"></canvas>
+            </div>
+        </div>
+
+        <!-- 社群健康度 -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                <i class="fas fa-heartbeat text-pink-500 mr-2"></i>
+                社群健康度
+            </h3>
+            <div class="h-64 flex items-center justify-center text-gray-400">
+                <!-- TODO: 實作儀表板 -->
+                <!-- 數據來源: Report.Status, 互動數據綜合計算 -->
+                <!-- 檢舉處理率、用戶活躍度、內容質量分數 -->
+                <canvas id="communityHealthChart" width="400" height="200"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- 第三排：運營洞察 -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+        <!-- 內容類型分析 -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                <i class="fas fa-file-image text-indigo-500 mr-2"></i>
+                內容類型分析
+            </h3>
+            <div class="h-64 flex items-center justify-center text-gray-400">
+                <!-- TODO: 實作餅圖 -->
+                <!-- 數據來源: ArticleAttachment.Type -->
+                <!-- 根據附件類型分析內容偏好 -->
+                <canvas id="contentTypeChart" width="400" height="200"></canvas>
+            </div>
+        </div>
+
+        <!-- 時段活躍度 -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                <i class="fas fa-clock text-teal-500 mr-2"></i>
+                時段活躍度
+            </h3>
+            <div class="h-64 flex items-center justify-center text-gray-400">
+                <!-- TODO: 實作熱力圖 -->
+                <!-- 數據來源: LoginRecord.LoginTime, Article.CreateTime -->
+                <!-- 24小時 x 7天 的用戶活躍熱力圖 -->
+                <canvas id="timeActivityChart" width="400" height="200"></canvas>
+            </div>
+        </div>
+
+        <!-- 通知效率統計 -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                <i class="fas fa-bell text-yellow-500 mr-2"></i>
+                通知效率統計
+            </h3>
+            <div class="h-64 flex items-center justify-center text-gray-400">
+                <!-- TODO: 實作進度條圖表 -->
+                <!-- 數據來源: Notification.IsRead, IsReadTime -->
+                <!-- 通知送達率、閱讀率、回應率 -->
+                <canvas id="notificationEfficiencyChart" width="400" height="200"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== 實作說明 ==================== -->
+    <!--
+    技術實作建議:
+    1. 前端圖表庫: Chart.js (已在 LibMan 中)
+    2. 數據 API: 在 Controllers/Api/ 下建立 DashboardController
+    3. 後端服務: 建立 IDashboardService 處理數據聚合
+    4. 快取策略: 使用 MemoryCache 快取圖表數據 (5-15分鐘)
+
+    建議的數據結構:
+    - UserGrowthData: { Date, NewUsers, ActiveUsers }
+    - ContentActivityData: { Date, Articles, Replies }
+    - SocialInteractionData: { Type, Count, Percentage }
+    - PopularTagsData: { TagName, Usage, Trend }
+    - UserFunnelData: { Stage, UserCount, ConversionRate }
+    - CommunityHealthData: { Metric, Score, Status }
+    - ContentTypeData: { Type, Count, Percentage }
+    - TimeActivityData: { Hour, Day, ActivityLevel }
+    - NotificationEfficiencyData: { Metric, Rate, Target }
+
+    API 端點建議:
+    - GET /api/dashboard/user-growth
+    - GET /api/dashboard/content-activity
+    - GET /api/dashboard/social-interaction
+    - GET /api/dashboard/popular-tags
+    - GET /api/dashboard/user-funnel
+    - GET /api/dashboard/community-health
+    - GET /api/dashboard/content-type
+    - GET /api/dashboard/time-activity
+    - GET /api/dashboard/notification-efficiency
+    -->
 </div>

@@ -11,6 +11,7 @@
     <title>Matrix</title>
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/components.css" asp-append-version="true" />
+    @await RenderSectionAsync("Styles", required: false)
 </head>
 
 <body class="bg-primary">
@@ -18,7 +19,7 @@
         <partial name="_Menu" model="CommonController.BuildMenuModel(Context)" />
 
         <div class="relative flex w-full flex-col h-screen gap-4 py-4 pr-4 overflow-y-auto">
-            <main class="text-white grid grid-cols-7 gap-4 flex-1">
+            <main class="text-white grid grid-cols-7 gap-4 flex-1 min-h-screen">
                 @RenderBody()
             </main>
             <partial name="_Footer" />

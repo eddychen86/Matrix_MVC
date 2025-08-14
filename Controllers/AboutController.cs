@@ -13,11 +13,11 @@ namespace Matrix.Controllers
                     engName = "Eddy",
                     email = "eddychen101020@gmail.com",
                     github = "eddychen86",
-                    img = "",
+                    img = "eddy.png",
                     level = "組長",
                     description = "擁有 2~3 年前端開發經歷的工程師，正為全端工程師為目標邁進。",
                     skill = new string[] {
-                        "React", "NextJS", "SCSS", "JS", "JQuery", "Tailwindcss", "MUI", "Bootstrap", "Vue", "ASP.NET Core", "C#", "SQL"
+                        "SCSS", "JS", "Tailwindcss", "Vue", "ASP.NET Core", "SQL"
                     },
                     works = new string[] {
                         "專案主題構想",
@@ -52,7 +52,7 @@ namespace Matrix.Controllers
                     level = "組員",
                     description = "",
                     skill = new string[] {
-                        "Vue","SCSS", "JS", "JQuery", "Tailwindcss", "Bootstrap", "ASP.NET Core", "C#", "SQL"
+                        "SCSS", "JS", "Tailwindcss", "Vue", "ASP.NET Core", "SQL"
                     },
                     works = new string[] {
                         "專案主題構想",
@@ -73,7 +73,7 @@ namespace Matrix.Controllers
                     level = "組員",
                     description = "",
                     skill = new string[] {
-                        "Vue", "SCSS", "JS", "JQuery", "Tailwindcss", "Bootstrap", "ASP.NET Core", "C#", "SQL"
+                        "SCSS", "JS", "Tailwindcss", "Vue", "ASP.NET Core", "SQL"
                     },
                     works = new string[] {
                         "專案主題構想",
@@ -93,7 +93,7 @@ namespace Matrix.Controllers
                     level = "組員",
                     description = "",
                     skill = new string[] {
-                        "Vue", "SCSS", "JS", "JQuery", "Tailwindcss", "Bootstrap", "ASP.NET Core", "C#", "SQL"
+                        "SCSS", "JS", "Tailwindcss", "Vue", "ASP.NET Core", "SQL"
                     },
                     works = new string[] {
                         "專案主題構想",
