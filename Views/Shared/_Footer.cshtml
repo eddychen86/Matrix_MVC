@@ -1,4 +1,12 @@
 @inject ICustomLocalizer Localizer
+@inject Microsoft.Extensions.Options.IOptions<GoogleSmtpDTOs> GoogleSmtpOptions
+@{
+    var List = new[]{
+        new { title = "Disclaimer", icon = "scroll-text", controller = "Disclaimer", href = ""},
+        new { title = "ContactUs", icon = "headset", controller = "", href = GoogleSmtpOptions.Value.SenderEmail },
+        new { title = "About", icon = "person-standing", controller = "About", href = "" },
+    };
+}
 
 <footer id="footer" class="footer sm:footer-horizontal text-white p-10 rounded-[30px] bg-accent">
     <div class="flex justify-between w-full">
@@ -9,22 +17,26 @@
             </div>
             <p>@Localizer["Providing reliable tech since 2025"]</p>
         </div>
-        <ul class="flex gap-8 items-center">
-            <li>
-                <a asp-controller="About" asp-action="Index" aria-current="page">
-                    <span class="title" data-i18n="About">@Localizer["About"]</span>
-                </a>
-            </li>
-            <li>
-                <a asp-controller="ContactUs" asp-action="Index" aria-current="page">
-                    <span class="title" data-i18n="ContactUs">@Localizer["ContactUs"]</span>
-                </a>
-            </li>
-            <li>
-                <a asp-controller="Disclamer" asp-action="Index" aria-current="page">
-                    <span class="title" data-i18n="Disclaimer">@Localizer["Disclaimer"]</span>
-                </a>
-            </li>
+        <ul class="grid grid-cols-3 gap-8 items-center">
+            @foreach (var i in List){
+                <li>
+                    @if (i.controller != ""){
+                        <a asp-area="" asp-controller="@i.controller" asp-action="Index" aria-current="page" class="flex items-center gap-2">
+                            <div class="flex items-center justify-center p-2 bg-white rounded-full">
+                                <i data-lucide="@i.icon" class="size-5 text-secondary"></i>
+                            </div>
+                            <span class="title" data-i18n="@i.title">@Localizer[@i.title]</span>
+                        </a>
+                    } else {
+                        <a class="flex items-center gap-2" href="mailto:@i.href">
+                            <div class="flex items-center justify-center p-2 bg-white rounded-full">
+                                <i data-lucide="@i.icon" class="size-5 text-secondary"></i>
+                            </div>
+                            <span class="title" data-i18n="@i.title">@Localizer[@i.title]</span>
+                        </a>
+                    }
+                </li>
+            }
         </ul>
     </div>
 </footer>

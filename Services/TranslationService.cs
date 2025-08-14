@@ -11,9 +11,9 @@ namespace Matrix.Services
             {
                 #region footer 模組
 
-                ["AboutUs"] = "關於我們",
+                ["About"] = "關於我們",
                 ["ContactUs"] = "聯繫我們",
-                ["Disclamer"] = "免責聲明",
+                ["Disclaimer"] = "免責聲明",
 
                 #endregion
 
@@ -311,9 +311,9 @@ namespace Matrix.Services
             {
                 #region footer 模組
 
-                ["AboutUs"] = "About",
+                ["About"] = "About",
                 ["ContactUs"] = "Contact Us",
-                ["Disclamer"] = "Disclamer",
+                ["Disclaimer"] = "Disclaimer",
 
                 #endregion
 
