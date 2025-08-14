@@ -230,7 +230,7 @@ namespace Matrix.Services
 
                 #endregion
 
-<<<<<<< HEAD
+
                 // 驗證錯誤訊息（來自 DTOs）
                 #region User
                 ["User_UserNameRequired"] = "使用者名稱為必填欄位",
@@ -297,7 +297,9 @@ namespace Matrix.Services
                 ["NFT_MaxPriceMin0"] = "最高價格必須大於等於 0",
                 ["NFT_PageMin1"] = "頁數必須大於 0",
                 ["NFT_PageSizeRange1To100"] = "每頁筆數必須在 1-100 之間",
-=======
+
+                #endregion
+
                 #region UsersManagement 模組
 
                 ["UsersManagement"] = "使用者管理",
@@ -322,9 +324,8 @@ namespace Matrix.Services
                 ["Status_Enabled"] = "已啟用",
                 ["Status_Banned"] = "被封禁",
                 ["Role_Admin"] = "管理員",
-                ["Role_User"] = "一般使用者"
+                ["Role_User"] = "一般使用者",
 
->>>>>>> dev-users
                 #endregion
             },
             
@@ -547,8 +548,7 @@ namespace Matrix.Services
                 ["ConfirmPassword"] = "Confirm Password",
                 ["Register"] = "Register",
 
-<<<<<<< HEAD
-=======
+
                 #endregion
 
                 #region UsersManagement 模組
@@ -575,9 +575,9 @@ namespace Matrix.Services
                 ["Status_Enabled"] = "Enabled",
                 ["Status_Banned"] = "Banned",
                 ["Role_Admin"] = "Admin",
-                ["Role_User"] = "User"
+                ["Role_User"] = "User",
 
->>>>>>> dev-users
+
                 #endregion
 
                 // Validation error messages (from DTOs)
