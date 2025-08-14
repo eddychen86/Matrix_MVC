@@ -1,11 +1,13 @@
+using Matrix.Models;
+
 namespace Matrix.Services
 {
     /// <summary>
     /// 追蹤服務
     /// </summary>
-    #pragma warning disable CS9113 // Parameter is unread
+#pragma warning disable CS9113 // Parameter is unread
     public class FollowService : IFollowService
-    #pragma warning restore CS9113
+#pragma warning restore CS9113
     {
         private readonly ApplicationDbContext _context;
         private const int TypeUser = 1;
@@ -73,8 +75,17 @@ namespace Matrix.Services
         public Task<bool> UnfollowUserAsync(Guid followerId, Guid followedId)
             => throw new NotImplementedException();
 
-        public Task<bool> IsFollowingAsync(Guid followerId, Guid followedId)
-            => throw new NotImplementedException();
+        public async Task<bool> IsFollowingAsync(Guid followerId, Guid followedId)
+        {
+            return await _context.Follows
+                .AsNoTracking()
+                .AnyAsync(f =>
+                    f.UserId == followerId &&
+                    f.FollowedId == followedId &&
+                    f.Type == TypeUser // TypeUser = 1（追蹤使用者）
+                );
+        }
+        
 
         public Task<(List<FollowDto> Followers, int TotalCount)> GetFollowersAsync(Guid userId, int page = 1, int pageSize = 20)
             => throw new NotImplementedException();
@@ -88,30 +99,63 @@ namespace Matrix.Services
         public Task<List<Guid>> GetMutualFollowsAsync(Guid userId1, Guid userId2)
             => throw new NotImplementedException();
 
-public async Task<List<FollowUserSearchDto>> SearchUsersAsync(Guid currentPersonId, string keyword)
-{
-    keyword = keyword.Trim().ToLower();
-
-    var result = await _context.Persons
-        .Include(p => p.User)
-        .Where(p =>
-            p.PersonId != currentPersonId &&
-            (p.DisplayName.ToLower().Contains(keyword) ||
-             p.User.UserName.ToLower().Contains(keyword)))
-        .Select(p => new FollowUserSearchDto
+        public async Task<List<FollowUserSearchDto>> SearchUsersAsync(Guid currentPersonId, string keyword)
         {
-            PersonId = p.PersonId,
-            DisplayName = p.DisplayName ?? "無名氏",
-            AvatarPath = p.AvatarPath ?? "/static/img/cute.png",
-            IsFollowed = _context.Follows.Any(f =>
-                f.UserId == currentPersonId &&
-                f.FollowedId == p.PersonId &&
-                f.Type == 1)
-        })
-        .Take(10)
-        .ToListAsync();
+            keyword = keyword.Trim().ToLower();
 
-    return result;
-}
+            var result = await _context.Persons
+                .Include(p => p.User)
+                .Where(p =>
+                    p.PersonId != currentPersonId &&
+                    (p.DisplayName.ToLower().Contains(keyword) ||
+                     p.User.UserName.ToLower().Contains(keyword)))
+                .Select(p => new FollowUserSearchDto
+                {
+                    PersonId = p.PersonId,
+                    DisplayName = p.DisplayName ?? "無名氏",
+                    AvatarPath = p.AvatarPath ?? "/static/img/cute.png",
+                    IsFollowed = _context.Follows.Any(f =>
+                        f.UserId == currentPersonId &&
+                        f.FollowedId == p.PersonId &&
+                        f.Type == 1)
+                })
+                .Take(10)
+                .ToListAsync();
+
+            return result;
+        }
+        public async Task<bool> FollowAsync(Guid userId, Guid targetId)
+        {
+            if (userId == targetId) return false;
+
+            var exist = await _context.Follows
+                .AnyAsync(f => f.UserId == userId && f.FollowedId == targetId && f.Type == 1);
+            if (exist) return true;
+
+            _context.Follows.Add(new Follow
+            {
+                UserId = userId,
+                FollowedId = targetId,
+                Type = 1,  // 追蹤使用者
+                FollowTime = DateTime.UtcNow,
+                User = null!
+            });
+
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task<bool> UnfollowAsync(Guid userId, Guid targetId)
+        {
+            var follow = await _context.Follows
+                .FirstOrDefaultAsync(f => f.UserId == userId && f.FollowedId == targetId && f.Type == 1);
+
+            if (follow == null) return false;
+
+            _context.Follows.Remove(follow);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
     }
 }

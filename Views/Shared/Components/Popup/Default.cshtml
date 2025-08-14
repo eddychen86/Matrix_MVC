@@ -89,7 +89,10 @@
                                     </div>
                                 </div>
                                 <div class="flex flex-col items-end justify-between space-y-1">
-                                    <button class="cts-btn !text-blue-400 hover:underline">追蹤 / 取消</button>
+                                    <button class="cts-btn !text-blue-400 hover:underline"
+                                            @@click="toggleFollow(item.personId, item.isFollowed)">
+                                        {{ item.isFollowed ? '取消追蹤' : '追蹤' }}
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -109,7 +112,10 @@
                                     </div>
                                 </div>
                                 <div class="flex flex-col items-end justify-between space-y-1">
-                                    <button class="cts-btn !text-red-400 hover:underline">取消追蹤</button>
+                                    <button class="cts-btn !text-red-400 hover:underline"
+                                            @@click="toggleFollow(item.personId, true)">
+                                        取消追蹤
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -139,7 +145,10 @@
                                     </div>
                                 </div>
                                 <div class="flex flex-col items-end justify-between space-y-1">
-                                    <button class="cts-btn !text-blue-400 hover:underline">查看</button>
+                                    <button class="cts-btn !text-blue-400 hover:underline"
+                                            @@click="toggleFollow(user.personId, user.isFollowed)">
+                                        {{ user.isFollowed ? '取消追蹤' : '追蹤' }}
+                                    </button>
                                 </div>
                             </div>
                         </div>

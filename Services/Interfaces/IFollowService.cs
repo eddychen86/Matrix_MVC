@@ -52,5 +52,8 @@ namespace Matrix.Services.Interfaces
         Task<List<Guid>> GetMutualFollowsAsync(Guid userId1, Guid userId2);
 
         Task<List<FollowUserSearchDto>> SearchUsersAsync(Guid currentPersonId, string keyword);
+
+        Task<bool> FollowAsync(Guid userId, Guid targetId);
+        Task<bool> UnfollowAsync(Guid userId, Guid targetId);
     }
 }

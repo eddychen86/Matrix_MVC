@@ -91,5 +91,42 @@ namespace Matrix.Controllers
 
             return Ok(new { success = true, data = result });
         }
+
+        // ✅ 追蹤使用者（POST）
+        [HttpPost("{targetId}")]
+        public async Task<IActionResult> FollowUser( Guid targetId)
+        {
+            var auth = HttpContext.GetAuthInfo();
+            if (auth == null || auth.UserId == Guid.Empty)
+                return Unauthorized(new { success = false, message = "尚未登入" });
+
+            var success = await _followService.FollowAsync(auth.UserId, targetId);
+            return Ok(new { success });
+        }
+
+        // ✅ 取消追蹤（POST）
+        [HttpDelete("{targetId}")]
+        public async Task<IActionResult> UnfollowUser( Guid targetId)
+        {
+            var auth = HttpContext.GetAuthInfo();
+            if (auth == null || auth.UserId == Guid.Empty)
+                return Unauthorized(new { success = false, message = "尚未登入" });
+
+            var success = await _followService.UnfollowAsync(auth.UserId, targetId);
+            return Ok(new { success });
+        }
+
+        // ✅ 是否追蹤中
+        [HttpGet("is-following")]
+        [Route("api/follows/is-following")]
+        public async Task<IActionResult> IsFollowing(Guid targetId)
+        {
+            var auth = HttpContext.GetAuthInfo();
+            if (auth == null || auth.UserId == Guid.Empty)
+                return Unauthorized(new { success = false, message = "尚未登入" });
+
+            var isFollow = await _followService.IsFollowingAsync(auth.UserId, targetId);
+            return Ok(new { success = true, isFollow });
+        }
     }
 }

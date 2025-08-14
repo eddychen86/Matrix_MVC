@@ -60,6 +60,33 @@ globalApp({
             isMember: false
         })
 
+        const toggleFollow = async (targetPersonId, currentStatus) => {
+            if (!currentUser.isAuthenticated) {
+                alert('請先登入才能追蹤')
+                return
+            }
+
+            try {
+                const method = currentStatus ? 'DELETE' : 'POST'
+                const res = await fetch(`/api/follows/${targetPersonId}`, {
+                    method,
+                    credentials: 'include'
+                })
+
+                const result = await res.json()
+
+                if (result.success) {
+                    // 成功後，更新 Search 裡對應的 isFollowed 狀態
+                    const user = popupData.Search.find(u => u.personId === targetPersonId)
+                    if (user) user.isFollowed = !currentStatus
+                } else {
+                    alert('操作失敗，請稍後再試')
+                }
+            } catch (err) {
+                console.error('追蹤操作錯誤：', err)
+            }
+        }
+
         // 獲取當前用戶信息
         const getCurrentUser = async () => {
             try {
@@ -199,7 +226,9 @@ globalApp({
                 popupData.Search.Users = users.data.map(user => ({
                     displayName: user.displayName,
                     avatarUrl: user.avatarPath,
-                    bio: user.bio || '這位使用者尚未填寫個人簡介。'
+                    bio: user.bio || '這位使用者尚未填寫個人簡介。',
+                    isFollowed: user.isFollowed,     // ✅ 已有
+                    personId: user.personId          // ✅ 需要這個來傳給 API
                 }))
 
                 popupData.Search.Hashtags = tags.data
@@ -331,6 +360,8 @@ globalApp({
             closeCollectModal: closePopup,
 
             isAppReady,
+
+            toggleFollow,
 
             // hooks
             formatDate,
