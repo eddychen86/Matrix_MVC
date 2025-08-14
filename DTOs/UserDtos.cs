@@ -251,6 +251,7 @@ namespace Matrix.DTOs
         /// 驗證輸入資料的完整性
         /// </summary>
         public bool IsValid
+
         {
             get
             {
@@ -554,5 +555,41 @@ namespace Matrix.DTOs
             
             return updates.Count > 0 ? string.Join(", ", updates) : "沒有要更新的資料";
         }
+    }
+
+    /// <summary>
+    /// 用戶圖片資料傳輸物件
+    /// </summary>
+    public class UserImageDto
+    {
+        /// <summary>
+        /// 附件檔案的 ID
+        /// </summary>
+        public Guid FileId { get; set; }
+
+        /// <summary>
+        /// 關聯文章的 ArticleId
+        /// </summary>
+        public Guid ArticleId { get; set; }
+
+        /// <summary>
+        /// 附件檔案的儲存路徑
+        /// </summary>
+        public string FilePath { get; set; } = string.Empty;
+
+        /// <summary>
+        /// 附件的原始檔案名稱
+        /// </summary>
+        public string? FileName { get; set; }
+
+        /// <summary>
+        /// 附件的MIME類型
+        /// </summary>
+        public string? MimeType { get; set; }
+
+        /// <summary>
+        /// 文章建立時間（用於排序）
+        /// </summary>
+        public DateTime ArticleCreateTime { get; set; }
     }
 }

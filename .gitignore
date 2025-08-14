@@ -71,6 +71,7 @@ TestResults/
 *.sqlite
 _appsettings.json
 tailwind*.json
+.VSCodeCounter/
 # OS generated files #
 ######################
 .DS_Store?

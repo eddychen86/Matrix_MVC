@@ -60,7 +60,7 @@ const useMenu = () => {
                 
                 // 4. 使用 AbortController 設置合理超時
                 const controller = new AbortController()
-                const timeoutId = setTimeout(() => controller.abort(), 5000) // 5秒超時
+                const timeoutId = setTimeout(() => controller.abort("Request timeout"), 10000) // 10秒超時
                 
                 const response = await fetch(url, {
                     ...optimizedOptions,
@@ -73,8 +73,16 @@ const useMenu = () => {
                     throw new Error(`HTTP ${response.status}: ${response.statusText}`)
                 }
                 
-                return response
+                // 解析 JSON 並返回數據，而不是 Response 對象
+                const data = await response.json()
+                return data
             } catch (error) {
+                // Handle AbortError specifically
+                if (error.name === 'AbortError') {
+                    console.warn('Request was aborted (likely due to timeout):', url)
+                } else {
+                    console.error('Fetch error:', error)
+                }
                 throw error
             } finally {
                 // 5. 清理請求快取
@@ -88,10 +96,20 @@ const useMenu = () => {
         return requestPromise
     }
 
+    // 預載翻譯狀態追蹤
+    let preloadInProgress = false
+    
     // 預載翻譯
     const preloadTranslations = async () => {
-        const languages = ['zh-TW', 'en-US']
-        const currentLang = document.documentElement.lang
+        if (preloadInProgress) {
+            console.log('Translation preload already in progress, skipping...')
+            return
+        }
+        
+        preloadInProgress = true
+        try {
+            const languages = ['zh-TW', 'en-US']
+            const currentLang = document.documentElement.lang
         
         // 標準化當前語言，確定要預載的目標語言
         let normalizedCurrentLang = currentLang
@@ -104,16 +122,23 @@ const useMenu = () => {
         // 預載另一種語言
         const targetLang = (normalizedCurrentLang === 'zh-TW' || normalizedCurrentLang.includes('zh')) ? 'en-US' : 'zh-TW'
         
-        if (!translationCache.has(targetLang)) {
-            try {
-                // console.log(`Preloading translations for ${targetLang}`)
-                const response = await fastFetch(`/api/translation/${targetLang}`)
-                const translations = await response.json()
-                translationCache.set(targetLang, translations)
-                // console.log(`Successfully preloaded ${Object.keys(translations).length} translations for ${targetLang}`)
-            } catch (error) {
-                console.warn('Failed to preload translations:', error)
+            if (!translationCache.has(targetLang)) {
+                try {
+                    // console.log(`Preloading translations for ${targetLang}`)
+                    const translations = await fastFetch(`/api/translation/${targetLang}`)
+                    translationCache.set(targetLang, translations)
+                    // console.log(`Successfully preloaded ${Object.keys(translations).length} translations for ${targetLang}`)
+                } catch (error) {
+                    // 預載失敗不應影響應用正常運行，靜默處理
+                    if (error.name === 'AbortError') {
+                        console.debug('Translation preload timed out for:', targetLang, '- will load on demand')
+                    } else {
+                        console.debug('Translation preload failed for:', targetLang, '- will load on demand')
+                    }
+                }
             }
+        } finally {
+            preloadInProgress = false
         }
     }
 
@@ -142,8 +167,7 @@ const useMenu = () => {
                 translations = translationCache.get(changeLang)
             } else {
                 // 2. 從 API 取得新語言的翻譯（使用優化的 fastFetch）
-                const response = await fastFetch(`/api/translation/${changeLang}`)
-                translations = await response.json()
+                translations = await fastFetch(`/api/translation/${changeLang}`)
                 translationCache.set(changeLang, translations)
             }
 
@@ -217,9 +241,26 @@ const useMenu = () => {
 
         // 更新頁面標題（如果有 title 翻譯）
         if (translations['Title']) document.title = translations['Title']
+        
+        // 呼叫 Profile 頁面的翻譯回調函數（如果存在）
+        if (window.profileTranslationCallbacks) {
+            window.profileTranslationCallbacks.forEach(callback => {
+                if (typeof callback === 'function') {
+                    try {
+                        callback(translations)
+                    } catch (error) {
+                        console.error('Profile translation callback error:', error)
+                    }
+                }
+            })
+        }
 
         // console.log('Page text updated with new translations')
     }
+    
+    // 將翻譯相關函數暴露到全域
+    window.updatePageText = updatePageText
+    window.translationCache = translationCache
 
     //#endregion
 
@@ -350,9 +391,25 @@ const useMenu = () => {
 
     //#endregion
 
-    // 初始化優化
+    // 初始化優化 - 延遲預載以避免與應用啟動衝突
     preconnectToAPI()
-    preloadTranslations()
+    
+    // 延遲預載翻譯，讓應用先完全啟動
+    const initPreloading = () => {
+        if (document.readyState === 'complete') {
+            setTimeout(() => {
+                preloadTranslations()
+            }, 1000) // 1秒後開始預載
+        } else {
+            window.addEventListener('load', () => {
+                setTimeout(() => {
+                    preloadTranslations()
+                }, 1000) // 頁面完全載入後1秒開始預載
+            })
+        }
+    }
+    
+    initPreloading()
 
     return {
         isCollapsed,

@@ -1,37 +1,134 @@
 @layer components {
-  #profile-header {
-    @apply relative mb-30;
-
-    #profile-banner {
-      @apply h-40 w-full object-cover rounded-[30px];
+  .profile {
+    
+    &-header {
+      @apply relative h-56 w-full mb-26 col-span-7;
     }
-  
-    #profile-avatar {
-      @apply flex items-center gap-4 absolute top-25 left-20 justify-between;
-  
-      #profile-avatar_img {
-        @apply p-4 bg-[#161616] rounded-full;
-  
+
+    &-banner_layout {
+      @apply relative size-full rounded-[30px] object-cover object-right;
+
+      button {
+        @apply cursor-pointer transition duration-300 hover:opacity-100 opacity-0 bg-black/50 size-full flex items-center justify-center absolute z-10 top-1/2 left-1/2 -translate-1/2;
+      }
+      
+      img {
+        @apply size-full object-cover object-center;
+      }
+    }
+
+    &-avatar{
+      @apply absolute z-10 top-2/3 left-1/12 flex gap-4 items-end justify-between w-[calc(100%-600px)];
+
+      &_img_layout {
+        @apply relative size-40 rounded-full outline-[1em] outline-[#161616] overflow-hidden;
+
+        .edit {
+          @apply cursor-pointer transition duration-300 hover:opacity-100 opacity-0 bg-black/50 size-full flex items-center justify-center absolute z-10 top-1/2 left-1/2 -translate-1/2;
+        }
+        
         img {
-          @apply h-36 w-36 object-cover object-center rounded-full;
+          @apply size-full object-cover object-center;
         }
       }
+
+
+      &_body {
+        @apply flex gap-8 items-end;
+
   
-      #profile-name {
-        @apply mt-10 flex items-center gap-4;
-  
-        h1 {
-          @apply font-bold p-0;
+        h3 {
+          @apply mb-4 font-semibold text-5xl;
+        }
+      }
+
+      button {
+        @apply mb-4 px-6 py-3 bg-white text-black rounded-full float-end;
+      }
+    }
+
+    &-info {
+      @apply flex flex-col gap-8 p-8 rounded-[30px] relative col-span-2;
+
+      .editPen {
+        @apply absolute top-6 right-6 z-10 rounded-full size-10 p-2 cursor-pointer transition-colors duration-300 flex justify-center items-center;
+
+        &:hover {
+          @apply bg-stone-800;
+        }
+      }
+
+      li {
+        @apply flex flex-col gap-4;
+        
+        h4 {
+          @apply font-semibold;
+        }
+
+        ul, p {
+          @apply indent-3;
         }
       }
     }
-  }
 
-  #profile-body {
-    @apply w-[calc(100%-320px)] flex gap-4;
+    &-edit {
+      @apply fixed top-0 left-0 h-full w-full z-30;
 
-    #profile-user_info {
-      @apply w-1/3 rounded-[30px] bg-accent p-6 flex flex-col gap-4;
+      .mock {
+        @apply bg-white/20 h-full w-full absolute top-0 left-0;
+      }
+
+      &_layout {
+        @apply absolute rounded-[30px] p-8 z-40 top-1/2 left-1/2 transform -translate-1/2 flex flex-col gap-8 w-[800px] max-h-[80vh] overflow-y-auto;
+
+        ul {
+          @apply flex flex-col gap-8;
+
+          li {
+            @apply grid grid-cols-4 gap-4 items-start border-b-1 border-stone-500 pb-8;
+
+            &:last-child {
+              @apply border-none pb-0;
+            }
+  
+            h4 {
+              @apply font-semibold col-span-1 py-1;
+            }
+  
+            input, textarea {
+              @apply rounded-lg px-3 py-2 w-full bg-stone-600;
+            }
+
+            & input, & ul, & textarea {
+              @apply col-span-3;
+            }
+
+            & ul {
+              @apply flex flex-col gap-4;
+            }
+
+            .input-item_pwd {
+              @apply bg-stone-600 rounded-lg pr-4 flex gap-4 justify-between items-center focus:outline-1;
+
+              input {
+                @apply focus:outline-none;
+              }
+            }
+          }
+        }
+        
+        .btnGroup {
+          @apply flex gap-8 items-center justify-center col-span-4;
+
+          button {
+            @apply px-4;
+          }
+
+          span {
+            @apply font-semibold;
+          }
+        }
+      }
     }
   }
 }

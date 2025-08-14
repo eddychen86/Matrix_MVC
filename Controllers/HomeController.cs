@@ -1,6 +1,12 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using Matrix.Data;
+using Matrix.Models;
+using Matrix.ViewModels;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using System.Runtime.ConstrainedExecution;
 
 namespace Matrix.Controllers;
 
@@ -36,21 +42,27 @@ public class HomeController : WebControllerBase
         // 根據認證狀態限制文章數量
         var articles = await articlesQuery
             .Take(articleLimit)
-            .Select(a => new
+            .Select(a => new ArticleViewModel
             {
                 Article = a,
                 Author = a.Author,
-                image = a.Attachments != null
-                    ? a.Attachments.FirstOrDefault(att => att.Type.ToLower() == "image")
-                    : null
+                Image = a.Attachments != null ? a.Attachments.FirstOrDefault(att => att.Type.ToLower() == "image") : null,
+                Attachments = a.Attachments ?? new List<ArticleAttachment>()
             })
             .ToListAsync();
 
-        var hot_list = articles.Take(5);
-        var default_list = articles;
+        var currentUserId = Guid.Parse("870c0b75-97a3-4e4f-8215-204d5747d28c");
+        var currentUser = await _context.Users
+            .Include(u => u.Person)
+            .FirstOrDefaultAsync(u => u.UserId == currentUserId);
 
-        ViewBag.HotList = hot_list;
-        ViewBag.DefaultList = default_list;
+        var currentUserVm = new CurrentUserViewModel
+        {
+            UserId = currentUser?.UserId.ToString() ?? string.Empty,
+            DisplayName = currentUser?.UserName ?? string.Empty,
+            Avatar = currentUser?.Person?.AvatarPath ?? ""
+        };
+        ViewBag.CurrentUser = currentUserVm;
 
         // 傳遞認證狀態給前端
         ViewBag.IsAuthenticated = isAuthenticated;
@@ -65,7 +77,7 @@ public class HomeController : WebControllerBase
             (int)ViewBag.TotalPublicArticles
         );
 
-        return View();
+        return View(articles);
     }
 
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

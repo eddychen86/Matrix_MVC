@@ -5,19 +5,129 @@ const globalApp = content => {
     } else {
         lucide.createIcons()
         if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', () => window.globalApp = Vue.createApp(content).mount('#app'))
+            document.addEventListener('DOMContentLoaded', () => {
+                const app = Vue.createApp(content)
+                // 配置警告處理器來忽略 script/style 標籤警告
+                app.config.warnHandler = (msg, instance, trace) => {
+                    if (msg.includes('Tags with side effect') && msg.includes('are ignored in client component templates')) {
+                        return // 忽略這類警告
+                    }
+                    console.warn(msg)
+                }
+                window.globalApp = app.mount('#app')
+            })
         } else {
             // DOM 已經載入完成
-            window.globalApp = Vue.createApp(content).mount('#app')
+            const app = Vue.createApp(content)
+            // 配置警告處理器來忽略 script/style 標籤警告
+            app.config.warnHandler = (msg, instance, trace) => {
+                if (msg.includes('Tags with side effect') && msg.includes('are ignored in client component templates')) {
+                    return // 忽略這類警告
+                }
+                console.warn(msg)
+            }
+            window.globalApp = app.mount('#app')
         }
     }
 }
 
 globalApp({
     setup() {
-        const { ref, reactive, computed, } = Vue
+        const { reactive, ref, computed, onMounted } = Vue
         const { formatDate, timeAgo } = useFormatting()
         const isLoading = ref(false)
+
+        //#region User Authentication State
+        
+        // 全局用戶狀態
+        const currentUser = reactive({
+            isAuthenticated: false,
+            userId: null,
+            username: '',
+            email: '',
+            role: 0,
+            status: 0,
+            isAdmin: false,
+            isMember: false
+        })
+
+        // 獲取當前用戶信息
+        const getCurrentUser = async () => {
+            try {
+                if (window.authService) {
+                    const authStatus = await window.authService.getAuthStatus()
+                    
+                    if (authStatus.success && authStatus.data.authenticated) {
+                        const user = authStatus.data.user
+                        currentUser.isAuthenticated = true
+                        currentUser.userId = user.id
+                        currentUser.username = user.username
+                        currentUser.email = user.email
+                        currentUser.role = user.role || 0
+                        currentUser.status = user.status || 0
+                        currentUser.isAdmin = user.isAdmin || false
+                        currentUser.isMember = user.isMember || true
+                    } else {
+                        // 未認證狀態
+                        currentUser.isAuthenticated = false
+                        currentUser.userId = null
+                    }
+                } else {
+                    console.warn('AuthService not available, using direct API call')
+                    // Fallback to direct API call (should rarely happen)
+                    const response = await fetch('/api/auth/status')
+                    const data = await response.json()
+                    
+                    if (data.success && data.data.authenticated) {
+                        const user = data.data.user
+                        currentUser.isAuthenticated = true
+                        currentUser.userId = user.id
+                        currentUser.username = user.username
+                        currentUser.email = user.email
+                        currentUser.role = user.role || 0
+                        currentUser.status = user.status || 0
+                        currentUser.isAdmin = user.isAdmin || false
+                        currentUser.isMember = user.isMember || true
+                    } else {
+                        // 未認證狀態
+                        currentUser.isAuthenticated = false
+                        currentUser.userId = null
+                    }
+                }
+            } catch (err) {
+                console.error('獲取用戶信息失敗:', err)
+                currentUser.isAuthenticated = false
+                currentUser.userId = null
+            }
+        }
+
+        // 將 currentUser 設為全局可訪問
+        window.currentUser = currentUser
+
+        //#endregion
+
+        //#region Page Detection and Profile Integration
+        
+        // 檢測是否為 Profile 頁面
+        const isProfilePage = window.location.pathname.toLowerCase().includes('/profile')
+        let profileFunctions = {}
+        
+        // 如果是 Profile 頁面，載入 Profile 功能
+        if (isProfilePage) {
+            try {
+                if (typeof useProfile === 'function') {
+                    profileFunctions = useProfile()
+                    // console.log('Profile 模組載入成功')
+                } else {
+                    console.warn('找不到 Profile 模組函數')
+                }
+            } catch (error) {
+                console.error('Profile 模組載入失敗:', error)
+                profileFunctions = {}
+            }
+        }
+
+        //#endregion
 
         //#region Pop-Up Events
 
@@ -58,11 +168,13 @@ globalApp({
             popupState.type = type
             popupState.title = getPopupTitle(type)
             popupState.isVisible = true
-
             isLoading.value = true   // 👈 加上這行：開始 loading
 
             try {
-                const res = await fetch('/api/' + type.toLowerCase())
+                const res = await fetch('/api/' + type.toLowerCase(), {
+                    method: 'GET',
+                    credentials: 'include'  // ✅ 加這行就會自動帶 cookie
+                })
                 const data = await res.json()
 
                 updatePopupData(type, data)
@@ -90,7 +202,20 @@ globalApp({
 
         //#endregion
 
+        //#region Lifecycle
+        
+        // 組件掛載時獲取用戶信息
+        onMounted(async () => {
+            await getCurrentUser()
+        })
+
+        //#endregion
+
         return {
+            // user state
+            currentUser,
+            getCurrentUser,
+            
             // pop-up
             popupState,
             popupData,
@@ -108,6 +233,9 @@ globalApp({
 
             // menu functions (spread from useMenu)
             ...menuFunctions,
+
+            // profile functions (only available on profile page)
+            ...profileFunctions,
         }
     }
 })

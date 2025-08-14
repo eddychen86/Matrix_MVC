@@ -82,47 +82,6 @@ namespace Matrix.DTOs
         /// </summary>
         public bool IsActiveFriendship => IsAccepted;
 
-        /// <summary>
-        /// 獲取好友請求發送時間的友善顯示格式
-        /// </summary>
-        public string RequestTimeAgoText
-        {
-            get
-            {
-                var timeSpan = DateTime.Now - CreateTime;
-
-                return timeSpan.TotalDays switch
-                {
-                    > 365 => $"{(int)(timeSpan.TotalDays / 365)} 年前發送",
-                    > 30 => $"{(int)(timeSpan.TotalDays / 30)} 個月前發送",
-                    > 7 => $"{(int)(timeSpan.TotalDays / 7)} 週前發送",
-                    > 1 => $"{(int)timeSpan.TotalDays} 天前發送",
-                    _ => timeSpan.TotalHours > 1 ? $"{(int)timeSpan.TotalHours} 小時前發送" : "剛剛發送"
-                };
-            }
-        }
-
-        /// <summary>
-        /// 獲取好友請求回應時間的友善顯示格式
-        /// </summary>
-        public string ResponseTimeAgoText
-        {
-            get
-            {
-                if (ResponseTime == null) return "尚未回應";
-
-                var timeSpan = DateTime.Now - ResponseTime.Value;
-
-                return timeSpan.TotalDays switch
-                {
-                    > 365 => $"{(int)(timeSpan.TotalDays / 365)} 年前回應",
-                    > 30 => $"{(int)(timeSpan.TotalDays / 30)} 個月前回應",
-                    > 7 => $"{(int)(timeSpan.TotalDays / 7)} 週前回應",
-                    > 1 => $"{(int)timeSpan.TotalDays} 天前回應",
-                    _ => timeSpan.TotalHours > 1 ? $"{(int)timeSpan.TotalHours} 小時前回應" : "剛剛回應"
-                };
-            }
-        }
 
         /// <summary>
         /// 獲取好友請求發送者的顯示名稱
@@ -320,7 +279,6 @@ namespace Matrix.DTOs
                 ["AddresseeName"] = AddresseeName,
                 ["Status"] = StatusText,
                 ["CreateTime"] = CreateTime.ToString("yyyy-MM-dd HH:mm:ss"),
-                ["RequestTimeAgo"] = RequestTimeAgoText,
                 ["IsActiveFriendship"] = IsActiveFriendship,
                 ["RequiresImmediateAttention"] = RequiresImmediateAttention
             };
@@ -328,7 +286,6 @@ namespace Matrix.DTOs
             if (ResponseTime.HasValue)
             {
                 info["ResponseTime"] = ResponseTime.Value.ToString("yyyy-MM-dd HH:mm:ss");
-                info["ResponseTimeAgo"] = ResponseTimeAgoText;
             }
 
             if (IsAccepted)

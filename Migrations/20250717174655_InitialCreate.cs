@@ -54,7 +54,6 @@ namespace Matrix.Migrations
                     Bio = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: true),
                     AvatarPath = table.Column<string>(type: "nvarchar(2048)", maxLength: 2048, nullable: true),
                     BannerPath = table.Column<string>(type: "nvarchar(2048)", maxLength: 2048, nullable: true),
-                    ExternalUrl = table.Column<string>(type: "nvarchar(2048)", maxLength: 2048, nullable: true),
                     IsPrivate = table.Column<int>(type: "int", nullable: false),
                     WalletAddress = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ModifyTime = table.Column<DateTime>(type: "datetime2", nullable: true)

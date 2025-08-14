@@ -62,6 +62,11 @@ namespace Matrix.DTOs
         public List<ReplyDto> Replies { get; set; } = new List<ReplyDto>();
 
         /// <summary>
+        /// 文章的附件列表
+        /// </summary>
+        public List<ArticleAttachmentDto> Attachments { get; set; } = new List<ArticleAttachmentDto>();
+
+        /// <summary>
         /// 獲取文章狀態的描述文字
         /// 用途：在前端顯示人類可讀的狀態描述
         /// </summary>
@@ -117,26 +122,6 @@ namespace Matrix.DTOs
             }
         }
 
-        /// <summary>
-        /// 獲取文章發布時間的友善顯示格式
-        /// 用途：在前端顯示人類可讀的時間格式
-        /// </summary>
-        public string TimeAgoText
-        {
-            get
-            {
-                var timeSpan = DateTime.Now - CreateTime;
-
-                return timeSpan.TotalDays switch
-                {
-                    > 365 => $"{(int)(timeSpan.TotalDays / 365)} 年前",
-                    > 30 => $"{(int)(timeSpan.TotalDays / 30)} 個月前",
-                    > 7 => $"{(int)(timeSpan.TotalDays / 7)} 週前",
-                    > 1 => $"{(int)timeSpan.TotalDays} 天前",
-                    _ => timeSpan.TotalHours > 1 ? $"{(int)timeSpan.TotalHours} 小時前" : "剛剛"
-                };
-            }
-        }
 
         /// <summary>
         /// 獲取文章的回覆數量
@@ -197,6 +182,15 @@ namespace Matrix.DTOs
         public string AuthorAvatar => !string.IsNullOrEmpty(Author?.AvatarPath) ? Author.AvatarPath : "/static/images/default_avatar.png";
     }
 
+    public class ArticleAttachmentDto
+    {
+        public Guid FileId { get; set; }
+        public string FilePath { get; set; } = null!;
+        public string? FileName { get; set; }
+        public string Type { get; set; } = null!;
+        public DateTime CreateTime { get; set; }
+    }
+
     /// <summary>
     /// 用於建立 Article 的資料傳輸物件 (Data Transfer Object)
     ///
@@ -235,6 +229,11 @@ namespace Matrix.DTOs
         /// 要附加到文章的檔案列表
         /// </summary>
         public List<IFormFile>? Attachments { get; set; }
+
+        /// <summary>
+        /// 選擇的標籤列表
+        /// </summary>
+        public List<string>? SelectedHashtags { get; set; }
 
         /// <summary>
         /// 獲取文章可見性的描述文字

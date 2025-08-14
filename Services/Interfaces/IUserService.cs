@@ -118,5 +118,52 @@ namespace Matrix.Services.Interfaces
         /// 更新使用者的個人資料，包含處理頭像和橫幅的檔案上傳
         /// </summary>
         Task<PersonDto?> UpdateProfileAsync(Guid userId, ApiUpdateProfileDto dto);
+
+        /// <summary>
+        /// 根據使用者 ID 獲取個人資料和相關文章
+        /// </summary>
+        /// <param name="userId">使用者 ID</param>
+        /// <returns>個人資料 DTO，包含相關文章</returns>
+        Task<PersonDto?> GetProfileByIdAsync(Guid userId);
+
+        /// <summary>
+        /// 更新個人資料（包括密碼和網站連結）
+        /// </summary>
+        /// <param name="userId">使用者 ID</param>
+        /// <param name="dto">個人資料 DTO</param>
+        /// <returns>更新結果</returns>
+        Task<ReturnType<object>> UpdatePersonProfileAsync(Guid userId, PersonDto dto);
+
+        /// <summary>
+        /// 更新使用者狀態
+        /// </summary>
+        /// <param name="userId">使用者 ID</param>
+        /// <param name="status">新的狀態值</param>
+        /// <returns>更新是否成功</returns>
+        Task<bool> UpdateUserStatusAsync(Guid userId, int status);
+
+        /// <summary>
+        /// 更新個人資料圖片（頭像或橫幅）
+        /// </summary>
+        /// <param name="userId">使用者 ID</param>
+        /// <param name="type">圖片類型：avatar 或 banner</param>
+        /// <param name="filePath">檔案相對路徑</param>
+        /// <returns>更新結果</returns>
+        Task<ReturnType<object>> UpdateProfileImageAsync(Guid userId, string type, string filePath);
+
+        /// <summary>
+        /// 驗證密碼是否符合規則
+        /// </summary>
+        /// <param name="password">要驗證的密碼</param>
+        /// <returns>驗證結果</returns>
+        (bool IsValid, string ErrorMessage) ValidatePassword(string password);
+
+        /// <summary>
+        /// 獲取用戶文章中的前N張圖片
+        /// </summary>
+        /// <param name="userId">使用者 ID</param>
+        /// <param name="count">圖片數量限制，預設為10</param>
+        /// <returns>圖片資訊列表</returns>
+        Task<List<UserImageDto>> GetUserImagesAsync(Guid userId, int count = 10);
     }
 }

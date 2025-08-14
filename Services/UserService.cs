@@ -1,10 +1,13 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.EntityFrameworkCore;
 using System.Text.RegularExpressions;
 using Matrix.DTOs;
 using Matrix.Models;
 using Matrix.Services.Interfaces;
 using Matrix.Repository.Interfaces;
+using AutoMapper;
 
 namespace Matrix.Services
 {
@@ -18,31 +21,65 @@ namespace Matrix.Services
         private readonly IFileService _fileService;
         private readonly IOptions<UserValidationOptions> _validationOptions;
         private readonly IPasswordHasher<User> _passwordHasher;
+        private readonly IMapper _mapper;
+        private readonly IMemoryCache _cache;
+        private readonly IArticleAttachmentRepository _articleAttachmentRepository;
+        private readonly ApplicationDbContext _context;
 
         public UserService(
             IUserRepository userRepository,
             IPersonRepository personRepository,
             IFileService fileService,
             IOptions<UserValidationOptions> validationOptions,
-            IPasswordHasher<User> passwordHasher)
+            IPasswordHasher<User> passwordHasher,
+            IMapper mapper,
+            IMemoryCache cache,
+            IArticleAttachmentRepository articleAttachmentRepository,
+            ApplicationDbContext context)
         {
             _userRepository = userRepository;
             _personRepository = personRepository;
             _fileService = fileService;
             _validationOptions = validationOptions;
             _passwordHasher = passwordHasher;
+            _mapper = mapper;
+            _cache = cache;
+            _articleAttachmentRepository = articleAttachmentRepository;
+            _context = context;
         }
 
         /// <summary>
-        /// 根據ID獲取使用者
+        /// 根據ID獲取使用者（含快取機制）
         /// </summary>
         public async Task<UserDto?> GetUserAsync(Guid id)
         {
+            // 快取鍵
+            var cacheKey = $"user_{id}";
+            
+            // 嘗試從快取讀取
+            if (_cache.TryGetValue(cacheKey, out UserDto? cachedUser))
+            {
+                return cachedUser;
+            }
+
+            // 快取未命中，從資料庫查詢
             var user = await _userRepository.GetUserWithPersonAsync(id);
 
             if (user?.Person == null) return null;
 
-            return MapToUserDto(user);
+            var userDto = _mapper.Map<UserDto>(user);
+            
+            // 存入快取，15分鐘過期
+            var cacheEntryOptions = new MemoryCacheEntryOptions
+            {
+                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(15),
+                SlidingExpiration = TimeSpan.FromMinutes(5), // 5分鐘內有存取就延長
+                Priority = CacheItemPriority.Normal
+            };
+            
+            _cache.Set(cacheKey, userDto, cacheEntryOptions);
+            
+            return userDto;
         }
 
         /// <summary>
@@ -54,7 +91,7 @@ namespace Matrix.Services
 
             if (user?.Person == null) return null;
 
-            return MapToUserDto(user);
+            return _mapper.Map<UserDto>(user);
         }
 
         /// <summary>
@@ -66,7 +103,7 @@ namespace Matrix.Services
 
             if (user?.Person == null) return null;
 
-            return MapToUserDto(user);
+            return _mapper.Map<UserDto>(user);
         }
 
         /// <summary>
@@ -78,7 +115,7 @@ namespace Matrix.Services
 
             if (user == null) return null;
 
-            return MapToUserDto(user);
+            return _mapper.Map<UserDto>(user);
         }
 
         /// <summary>
@@ -172,6 +209,11 @@ namespace Matrix.Services
             user.Status = status;
             await _userRepository.UpdateAsync(user);
             await _userRepository.SaveChangesAsync();
+            
+            // 清除快取，確保下次取得最新狀態
+            var cacheKey = $"user_{id}";
+            _cache.Remove(cacheKey);
+            
             return true;
         }
 
@@ -181,6 +223,83 @@ namespace Matrix.Services
         public async Task<bool> UpdateStatusAsync(Guid id, int status)
         {
             return await UpdateUserStatusAsync(id, status);
+        }
+
+        /// <summary>
+        /// 更新個人資料圖片（頭像或橫幅）
+        /// </summary>
+        public async Task<ReturnType<object>> UpdateProfileImageAsync(Guid userId, string type, string filePath)
+        {
+            try
+            {
+                var person = await _personRepository.GetByUserIdAsync(userId);
+                if (person == null)
+                {
+                    return new ReturnType<object> 
+                    { 
+                        Success = false, 
+                        Message = "找不到使用者的個人資料" 
+                    };
+                }
+
+                // 備份舊的檔案路徑，以便在更新失敗時回復
+                string? oldFilePath = null;
+
+                // 根據類型更新對應的欄位
+                switch (type.ToLower())
+                {
+                    case "avatar":
+                        oldFilePath = person.AvatarPath;
+                        person.AvatarPath = filePath;
+                        break;
+                    case "banner":
+                        oldFilePath = person.BannerPath;
+                        person.BannerPath = filePath;
+                        break;
+                    default:
+                        return new ReturnType<object> 
+                        { 
+                            Success = false, 
+                            Message = "無效的檔案類型" 
+                        };
+                }
+
+                // 更新修改時間
+                person.ModifyTime = DateTime.UtcNow;
+
+                // 儲存到資料庫
+                await _personRepository.UpdateAsync(person);
+                await _personRepository.SaveChangesAsync();
+
+                // 如果有舊檔案，刪除它
+                if (!string.IsNullOrEmpty(oldFilePath))
+                {
+                    await _fileService.DeleteFileAsync(oldFilePath);
+                }
+
+                // 清除相關快取
+                var userCacheKey = $"user_{userId}";
+                var profileCacheKey = $"profile_{userId}";
+                _cache.Remove(userCacheKey);
+                _cache.Remove(profileCacheKey);
+
+                return new ReturnType<object> 
+                { 
+                    Success = true, 
+                    Message = $"{(type == "avatar" ? "頭像" : "橫幅")}更新成功" 
+                };
+            }
+            catch (Exception ex)
+            {
+                // 記錄錯誤
+                Console.WriteLine($"更新個人資料圖片時發生錯誤: {ex.Message}");
+                
+                return new ReturnType<object> 
+                { 
+                    Success = false, 
+                    Message = "更新過程中發生錯誤，請稍後再試" 
+                };
+            }
         }
 
         #region 驗證方法
@@ -269,33 +388,7 @@ namespace Matrix.Services
 
         #region 私有方法
 
-        /// <summary>
-        /// 將 User 實體轉換為 UserDto
-        /// </summary>
-        private static UserDto MapToUserDto(User user)
-        {
-            return new UserDto
-            {
-                UserId = user.UserId,
-                Role = user.Role,
-                UserName = user.UserName,
-                Email = user.Email,
-                CreateTime = user.CreateTime,
-                Status = user.Status,
-                Person = user.Person != null ? new PersonDto
-                {
-                    PersonId = user.Person.PersonId,
-                    UserId = user.Person.UserId,
-                    DisplayName = user.Person.DisplayName,
-                    Bio = user.Person.Bio,
-                    AvatarPath = user.Person.AvatarPath,
-                    BannerPath = user.Person.BannerPath,
-                    IsPrivate = user.Person.IsPrivate,
-                    WalletAddress = user.Person.WalletAddress,
-                    ModifyTime = user.Person.ModifyTime
-                } : null
-            };
-        }
+        // 映射方法已由 AutoMapper 取代
 
         // private static string HashPassword(string password)
         // {
@@ -407,6 +500,135 @@ namespace Matrix.Services
                 ModifyTime = person.ModifyTime
             };
         }
+
+        /// <summary>
+        /// 根據使用者 ID 獲取個人資料和相關文章 - 優化版本
+        /// </summary>
+        public async Task<PersonDto?> GetProfileByIdAsync(Guid userId)
+        {
+            try
+            {
+                // 使用 AsNoTracking 進行只讀查詢，提升性能
+                var person = await _personRepository.GetByUserIdWithIncludesAsync(userId);
+                if (person?.User == null) return null;
+
+                // 使用 AutoMapper 進行映射，簡化代碼
+                return new PersonDto
+                {
+                    PersonId = person.PersonId,
+                    UserId = person.UserId,
+                    DisplayName = person.DisplayName,
+                    Bio = person.Bio,
+                    AvatarPath = person.AvatarPath,
+                    BannerPath = person.BannerPath,
+                    IsPrivate = person.IsPrivate,
+                    WalletAddress = person.WalletAddress,
+                    ModifyTime = person.ModifyTime,
+                    Email = person.User.Email,
+                    Website1 = person.Website1,
+                    Website2 = person.Website2,
+                    Website3 = person.Website3,
+                    Articles = new List<ArticleDto>(), // 空列表，避免查詢文章
+                    Content = new List<string>() // 空列表
+                };
+            }
+            catch (Exception ex)
+            {
+                // 記錄錯誤但不拋出異常
+                Console.WriteLine($"GetProfileByIdAsync Error: {ex.Message}");
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// 更新個人資料（包括密碼和網站連結）
+        /// </summary>
+        public async Task<ReturnType<object>> UpdatePersonProfileAsync(Guid userId, PersonDto dto)
+        {
+            try
+            {
+                // UserId 由 Controller 從認證中安全獲取，無需驗證 DTO 中的 UserId
+
+                var person = await _personRepository.GetByUserIdAsync(userId);
+                if (person == null)
+                {                    return new ReturnType<object> { Success = false, Message = "找不到個人資料" };
+                }
+
+                var user = await _userRepository.GetByIdAsync(userId);
+                if (user == null)
+                {
+                    return new ReturnType<object> { Success = false, Message = "找不到使用者" };
+                }
+
+                // 更新個人資料
+                person.DisplayName = dto.DisplayName;
+                person.Bio = dto.Bio;
+                person.Website1 = dto.Website1;
+                person.Website2 = dto.Website2;
+                person.Website3 = dto.Website3;
+                person.ModifyTime = DateTime.UtcNow;
+
+                // 更新使用者資料
+                if (!string.IsNullOrEmpty(dto.Password))
+                {
+                    user.Password = _passwordHasher.HashPassword(user, dto.Password);
+                }
+                if (!string.IsNullOrEmpty(dto.Email))
+                {
+                    user.Email = dto.Email;
+                }
+
+                await _personRepository.UpdateAsync(person);
+                await _userRepository.UpdateAsync(user);
+                await _personRepository.SaveChangesAsync();
+
+                return new ReturnType<object> { Success = true, Message = "更新成功!" };
+            }
+            catch (Exception)
+            {
+                return new ReturnType<object> { Success = false, Message = "更新失敗!" };
+            }
+        }
+
+        /// <summary>
+        /// 獲取用戶文章中的前N張圖片
+        /// </summary>
+        /// <param name="userId">使用者 ID</param>
+        /// <param name="count">圖片數量限制，預設為10</param>
+        /// <returns>圖片資訊列表</returns>
+        public async Task<List<UserImageDto>> GetUserImagesAsync(Guid userId, int count = 10)
+        {
+            try
+            {
+                // 查詢用戶的文章
+                var user = await _userRepository.GetByIdAsync(userId);
+                if (user == null) return new List<UserImageDto>();
+
+                // 使用 DbContext 查詢獲取用戶文章的圖片附件
+                var imageAttachments = await _context.ArticleAttachments
+                    .Include(aa => aa.Article)
+                    .Where(aa => aa.Article!.AuthorId == userId && aa.Type.ToLower() == "image")
+                    .OrderByDescending(aa => aa.Article!.CreateTime)
+                    .Take(count)
+                    .ToListAsync();
+
+                return imageAttachments.Select(aa => new UserImageDto
+                {
+                    FileId = aa.FileId,
+                    ArticleId = aa.ArticleId,
+                    FilePath = aa.FilePath,
+                    FileName = aa.FileName,
+                    MimeType = aa.MimeType,
+                    ArticleCreateTime = aa.Article!.CreateTime
+                }).ToList();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"GetUserImagesAsync Error: {ex.Message}");
+                return new List<UserImageDto>();
+            }
+        }
+
 
         #endregion
     }
