@@ -33,9 +33,18 @@ const globalApp = content => {
 
 globalApp({
     setup() {
-        const { reactive, ref, computed, onMounted } = Vue
+        const { ref, reactive, computed, watch, onMounted } = Vue
         const { formatDate, timeAgo } = useFormatting()
         const isLoading = ref(false)
+        const isAppReady = ref(false)
+
+
+        onMounted(() => {
+            isAppReady.value = true
+
+            const wrapper = document.getElementById('popup-wrapper')
+            if (wrapper) wrapper.style.display = ''
+        })
 
         //#region User Authentication State
         
@@ -138,13 +147,72 @@ globalApp({
             title: ''
         })
 
+        const searchQuery = ref('')
+
+
         // Popup Data Storage
         const popupData = reactive({
-            Search: [],
+            Search: {
+                Users: [],
+                Hashtags: []
+            },
             Notify: [],
             Follows: [],
             Collects: []
         })
+
+
+        watch(searchQuery, (newVal) => {
+            console.log('👀 searchQuery 改變：', newVal)
+        })
+
+        // 當 openPopup 的類型是 Search 的時候，清空 searchQuery
+        //watch(() => popupState.type, (newType) => {
+        //    if (newType === 'Search') {
+        //        searchQuery.value = ''
+        //        popupData.Search = []
+        //    }
+        //})
+
+        const manualSearch = async () => {
+            console.log('🔍 手動搜尋按鈕觸發！', searchQuery)
+
+            const keyword = searchQuery.value
+
+            if (!keyword || keyword.trim().length < 1) {
+                popupData.Search.Users = []
+                popupData.Search.Hashtags = []
+                return
+            }
+
+            isLoading.value = true
+            try {
+                const [userRes, tagRes] = await Promise.all([
+                    fetch(`/api/search/users?keyword=${encodeURIComponent(keyword)}`),
+                    fetch(`/api/search/hashtags?keyword=${encodeURIComponent(keyword)}`)
+                ])
+
+                const users = await userRes.json()
+                const tags = await tagRes.json()
+
+
+                popupData.Search.Users = users.data.map(user => ({
+                    displayName: user.displayName,
+                    avatarUrl: user.avatarPath,
+                    bio: user.bio || '這位使用者尚未填寫個人簡介。'
+                }))
+
+                popupData.Search.Hashtags = tags.data
+                console.log('🎯 搜尋結果資料：', popupData.Search)
+            } catch (err) {
+                console.error('Search API Error:', err)
+                popupData.Search.Users = []
+                popupData.Search.Hashtags = []
+            } finally {
+                isLoading.value = false
+            }
+        }
+
 
         // popup helper
         const getPopupTitle = type => {
@@ -168,6 +236,16 @@ globalApp({
             popupState.type = type
             popupState.title = getPopupTitle(type)
             popupState.isVisible = true
+
+            console.log('🧠 開啟 popup：', popupState.type)
+
+            if (type === 'Search') {
+                searchQuery.value = ''
+                popupData.Search.Users = []
+                popupData.Search.Hashtags = []
+                return
+            }
+
             isLoading.value = true   // 👈 加上這行：開始 loading
 
             try {
@@ -211,6 +289,7 @@ globalApp({
 
         //#endregion
 
+        console.log('✅ setup() 成功初始化，searchQuery =', searchQuery.value)
         return {
             // user state
             currentUser,
@@ -227,10 +306,13 @@ globalApp({
             isOpen: computed(() => popupState.isVisible),
             closeCollectModal: closePopup,
 
+            isAppReady,
+
             // hooks
             formatDate,
             timeAgo,
-
+            searchQuery,
+            manualSearch,
             // menu functions (spread from useMenu)
             ...menuFunctions,
 

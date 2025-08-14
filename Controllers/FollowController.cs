@@ -50,7 +50,7 @@ namespace Matrix.Controllers
                 return new FollowItemViewModel
                 {
                     SenderName = person?.DisplayName ?? "未知用戶",
-                    SenderAvatarUrl = !string.IsNullOrEmpty(person?.AvatarPath) ? person.AvatarPath : "/static/images/default_avatar.png",
+                    SenderAvatarUrl = !string.IsNullOrEmpty(person?.AvatarPath) ? person.AvatarPath : "/static/img/cute.png",
                     FollowTime = f.FollowTime
                 };
             }).ToList();

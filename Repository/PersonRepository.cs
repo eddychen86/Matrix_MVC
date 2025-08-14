@@ -22,7 +22,7 @@ namespace Matrix.Repository
         {
             return await _dbSet
                 .Include(p => p.User)
-                .Where(p => p.DisplayName != null && p.DisplayName.Contains(displayName))
+                .Where(p => p.DisplayName != null && p.DisplayName.ToLower().Contains(displayName.ToLower()))
                 .ToListAsync();
         }
 
