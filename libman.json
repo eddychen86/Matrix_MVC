@@ -30,6 +30,13 @@
       "files": [
         "cdn.min.js"
       ]
+    },
+    {
+      "library": "cally@0.8.0",
+      "destination": "wwwroot/lib/cally/",
+      "files": [
+        "dist/cally.js"
+      ]
     }
   ]
 }

@@ -5,16 +5,6 @@ const globalApp = content => {
     } else {
         lucide.createIcons()
 
-        // ✅ 註冊 DatePicker 為 Vue 全域元件
-        const app = Vue.createApp(content)
-
-        // ✅ Vue 3 的寫法：使用 app.component()
-        if (window.VueDatePicker) {
-            app.component('VueDatePicker', window.VueDatePicker)
-            console.log('✅ VueDatePicker 已註冊為全域元件')
-        } else {
-            console.warn('⚠️ VueDatePicker 尚未載入')
-        }
 
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', () => window.globalApp = Vue.createApp(content).mount('#app'))
@@ -135,7 +125,7 @@ globalApp({
         }
 
         // 如果目前頁面存在 Reports 的容器，就自動載入（避免其它頁面多呼叫）
-        if (document.getElementById('reports-app')) {
+                        if (document.getElementById('reports-app')) {
             loadReports()
         } else {
             // 監聽 DOM，等 #reports-app 出現再載一次
@@ -315,7 +305,6 @@ globalApp({
 
             isAppReady,
 
-            DatePicker,
 
             applyFilters,
 
