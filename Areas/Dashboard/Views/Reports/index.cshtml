@@ -1,8 +1,7 @@
-@* <div id="reports-app" class="flex h-full w-full border border-gray-300 bg-white shadow-lg"> *@
-    <!-- ¥ª°¼Äæ -->
-<div id="reports-app" class="grid h-full w-full grid-cols-4 gap-4">
+ï»¿<div id="reports-app" class="grid h-full w-full grid-cols-4 gap-4">
     <h2 class="col-span-4 text-5xl font-bold text-gray-700">Reports Management</h2>
-    <!-- ¥ª°¼Äæ -->
+
+    <!-- ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ -->
     <aside class="col-span-1 flex flex-col gap-8 border-r border-gray-200 bg-white p-8">
         <!-- Keyword -->
         <div>
@@ -25,13 +24,11 @@
         <div class="flex items-center justify-between gap-3">
             <span class="text-base font-semibold text-[20px] text-gray-700">Status</span>
             <div class="flex rounded-full border border-blue-400 bg-white p-0.5 shadow-inner">
-                <!-- Not yet (­ì¥»¬O Pending ¹ïÀ³ value=0) -->
                 <input type="radio" id="st-pending" class="peer/p hidden" value="0" v-model.number="status">
                 <label for="st-pending"
                        class="cursor-pointer rounded-full px-3 py-1 text-sm font-semibold text-blue-600 transition
                       peer-checked/p:bg-blue-700 peer-checked/p:text-white peer-checked/p:shadow">Not yet</label>
 
-                <!-- Processed -->
                 <input type="radio" id="st-processed" class="peer/a hidden" value="1" v-model.number="status">
                 <label for="st-processed"
                        class="cursor-pointer rounded-full px-3 py-1 text-sm font-semibold text-blue-600 transition
@@ -41,50 +38,46 @@
 
         <!-- Type -->
         <div class="flex items-center justify-between gap-3">
-            <!-- ¥ª°¼¼ÐÃD -->
             <span class="text-base font-semibold text-[20px] text-gray-700">Type</span>
-
-            <!-- «ö¶s¸s²Õ®e¾¹ -->
             <div class="flex rounded-full border border-blue-400 bg-white p-0.5 shadow-inner">
-                <!-- Users ¿ï¶µ¡]value = 0¡^ -->
                 <input type="radio" id="tp-user" class="peer/u hidden" value="0" v-model.number="type">
                 <label for="tp-user"
                        class="cursor-pointer rounded-full px-3 py-1 text-sm font-semibold text-blue-600 transition
-                      peer-checked/u:bg-blue-700 peer-checked/u:text-white peer-checked/u:shadow">
-                    Users
-                </label>
+                      peer-checked/u:bg-blue-700 peer-checked/u:text-white peer-checked/u:shadow">Users</label>
 
-                <!-- Article ¿ï¶µ¡]value = 1¡^ -->
                 <input type="radio" id="tp-article" class="peer/t hidden" value="1" v-model.number="type">
                 <label for="tp-article"
                        class="cursor-pointer rounded-full px-3 py-1 text-sm font-semibold text-blue-600 transition
-                      peer-checked/t:bg-blue-700 peer-checked/t:text-white peer-checked/t:shadow">
-                    Article
-                </label>
+                      peer-checked/t:bg-blue-700 peer-checked/t:text-white peer-checked/t:shadow">Article</label>
             </div>
         </div>
-
-        <!-- Date range¡]¥i«O¯d§A­Ìªº calendar ¤¸¥ó¡F³o¸Ì¥ÎÂ²³æ input date¡^ -->
+        <!-- Modify timeï¼ˆå¸¸é§æ—¥æ›†ï¼‰ -->
         <div>
-            <label class="mb-2 block font-semibold text-[20px] text-gray-700">Create time</label>
-            <div class="flex flex-col gap-2">
-                <VueDatePicker v-model="from"
-                               format="YYYY-MM-DD"
-                               input-class="w-full rounded border bg-gray-50 px-3 py-2"
-                               placeholder="Start date" />
-                <VueDatePicker v-model="to"
-                               format="YYYY-MM-DD"
-                               input-class="w-full rounded border bg-gray-50 px-3 py-2"
-                               placeholder="End date" />
+            <label class="mb-2 block font-semibold text-[20px] text-gray-700">Modify time</label>
+
+            <!-- ç›´æŽ¥é¡¯ç¤ºæ—¥æ›†ï¼Œä¸ç”¨ popover / input -->
+            <div>
+                <calendar-date class="cally bg-base-100 border-base-300 rounded-box w-full border shadow-lg" onchange="window.setReportDate && window.setReportDate(this.value)">
+                    >
+                    <svg aria-label="Previous" class="size-4 fill-current text-[#161616]" slot="previous" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="currentColor" d="M15.75 19.5 8.25 12l7.5-7.5"></path></svg>
+                    <svg aria-label="Next" class="size-4 fill-current text-[#161616]" slot="next" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="currentColor" d="m8.25 4.5 7.5 7.5-7.5 7.5"></path></svg>
+                    <calendar-month></calendar-month>
+                </calendar-date>
             </div>
+
+                <div class="flex justify-end gap-2 p-2">
+                    <button type="button" class="btn btn-sm" id="btn-clear-date">æ¸…é™¤</button>
+                </div>
         </div>
+        
+
 
         <div>
             <button class="btn btn-primary w-full" @@click="applyFilters">Apply filters</button>
         </div>
     </aside>
 
-    <!-- ¥k°¼¥Dªí®æ -->
+    <!--  -->
     <main class="col-span-3 h-full p-8">
         <div class="h-full w-full rounded-2xl border border-black/10 bg-yellow-50 p-4">
             <table class="table w-full">
@@ -94,10 +87,7 @@
                         <th>Reporter</th>
                         <th>Type</th>
                         <th>Target</th>
-                        <th>CreateTime</th>
                         <th>ModifyTime</th>
-                        <th class="text-center">Process</th>
-                        <th class="text-center">Reject</th>
                     </tr>
                 </thead>
                 <tbody class="text-[14px]">
@@ -106,27 +96,14 @@
                         <td>{{ item.reporter }}</td>
                         <td>{{ item.type }}</td>
                         <td class="max-w-[200px] truncate" :title="item.target">{{ item.target }}</td>
-                        <td>{{ formatDate(item.createTime) }}</td>
                         <td>{{ item.modifyTime ? formatDate(item.modifyTime) : '-' }}</td>
-                        <td class="w-14 text-center">
-                            <button class="flex items-center justify-center rounded bg-blue-500 p-1 text-white hover:bg-blue-700"
-                                    title="Process" @@click="processReport(item.reportId)">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check-circle-2"><path d="M12 22a10 10 0 1 0-10-10 10 10 0 0 0 10 10" /><path d="m9 12 2 2 4-4" /></svg>
-                            </button>
-                        </td>
-                        <td class="w-14 text-center">
-                            <button class="flex items-center justify-center rounded bg-red-500 p-1 text-white hover:bg-red-700"
-                                    title="Reject" @@click="rejectReport(item.reportId)">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-ban"><path d="M4.93 4.93 19.07 19.07" /><circle cx="12" cy="12" r="10" /></svg>
-                            </button>
-                        </td>
                     </tr>
                 </tbody>
 
-                <!-- ¤À­¶ -->
+                <!--  -->
                 <tfoot v-if="totalPages > 0">
                     <tr>
-                        <td colspan="8">
+                        <td colspan="5">
                             <div class="bg-yellow-50 px-4 py-2">
                                 <div class="flex justify-center gap-1">
                                     <button :disabled="page === 1"

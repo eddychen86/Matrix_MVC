@@ -31,7 +31,18 @@ namespace Matrix.Areas.Dashboard.Controllers
         {
             try
             {
-                var (reports, total) = await _reportService.GetReportsAsync(page, pageSize, status, null, null);
+                // ✅ 把所有條件傳給 Service（新多載）
+                var (reports, total) = await _reportService.GetReportsAsync(
+                    page: page,
+                    pageSize: pageSize,
+                    status: status,
+                    type: type,
+                    keyword: keyword,
+                    from: from,
+                    to: to,
+                    reporterId: null,
+                    reportedUserId: null
+                );
 
                 // 批次查 Target 顯示字串（避免 N+1）
                 var userIds = reports.Where(r => r.Type == 0).Select(r => r.TargetId).Distinct().ToList();

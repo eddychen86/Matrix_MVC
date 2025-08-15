@@ -7,7 +7,7 @@ namespace Matrix.Services
     public enum ReportType { User = 0, Article = 1 }
     public enum ReportStatus { Pending = 0, Processed = 1, Rejected = 2 }
     public class ReportService(ApplicationDbContext _context) : IReportService
-    #pragma warning disable CS9113
+#pragma warning disable CS9113
     {
 
         public async Task<bool> CreateReportAsync(Guid reporterId, Guid reportedUserId, Guid? articleId, string reason, string? description = null)
@@ -32,6 +32,34 @@ namespace Matrix.Services
                 .FirstOrDefaultAsync(r => r.ReportId == id);
         }
 
+        //public async Task<(List<Report> Reports, int TotalCount)> GetReportsAsync(
+        //    int page = 1,
+        //    int pageSize = 20,
+        //    int? status = null,
+        //    Guid? reporterId = null,
+        //    Guid? reportedUserId = null)
+        //{
+        //    var q = _context.Reports
+        //        .Include(r => r.Reporter)
+        //        .AsQueryable();
+
+        //    if (status.HasValue) q = q.Where(r => r.Status == status.Value);
+        //    if (reporterId.HasValue) q = q.Where(r => r.ReporterId == reporterId.Value);
+        //    if (reportedUserId.HasValue)
+        //        q = q.Where(r => r.Type == (int)ReportType.User && r.TargetId == reportedUserId.Value);
+
+        //    var total = await q.CountAsync();
+
+        //    var list = await q
+        //        .OrderByDescending(r => r.ReportId)   // 時間序 GUID 當作時間排序
+        //        .Skip((page - 1) * pageSize)
+        //        .Take(pageSize)
+        //        .AsNoTracking()
+        //        .ToListAsync();
+
+        //    return (list, total);
+        //}
+
         public async Task<(List<Report> Reports, int TotalCount)> GetReportsAsync(
             int page = 1,
             int pageSize = 20,
@@ -39,19 +67,86 @@ namespace Matrix.Services
             Guid? reporterId = null,
             Guid? reportedUserId = null)
         {
+            // ✅ 舊簽名直接導到新簽名（其餘條件用 null）
+            return await GetReportsAsync(
+                page: page,
+                pageSize: pageSize,
+                status: status,
+                type: null,
+                keyword: null,
+                from: null,
+                to: null,
+                reporterId: reporterId,
+                reportedUserId: reportedUserId
+            );
+        }
+
+        // ✅ 新簽名（包含 type/keyword/from/to）
+        public async Task<(List<Report> Reports, int TotalCount)> GetReportsAsync(
+            int page,
+            int pageSize,
+            int? status,
+            int? type,
+            string? keyword,
+            DateTime? from,
+            DateTime? to,
+            Guid? reporterId = null,
+            Guid? reportedUserId = null)
+        {
             var q = _context.Reports
                 .Include(r => r.Reporter)
                 .AsQueryable();
 
-            if (status.HasValue) q = q.Where(r => r.Status == status.Value);
-            if (reporterId.HasValue) q = q.Where(r => r.ReporterId == reporterId.Value);
+            // 狀態
+            if (status.HasValue)
+                q = q.Where(r => r.Status == status.Value);
+
+            // 類型（0=User, 1=Article）
+            if (type.HasValue)
+                q = q.Where(r => r.Type == type.Value);
+
+            // 指定檢舉人
+            if (reporterId.HasValue)
+                q = q.Where(r => r.ReporterId == reporterId.Value);
+
+            // 指定被檢舉使用者（僅在 Type=User 時）
             if (reportedUserId.HasValue)
                 q = q.Where(r => r.Type == (int)ReportType.User && r.TargetId == reportedUserId.Value);
 
+            // 關鍵字（Reason / Reporter.DisplayName / 若為 Article 也比對文章內容）
+            if (!string.IsNullOrWhiteSpace(keyword))
+            {
+                var k = keyword.Trim();
+
+                // 一次取出命中的文章 Id（避免 N+1）
+                var articleIdsMatched = await _context.Articles
+                    .Where(a => a.Content.Contains(k))
+                    .Select(a => a.ArticleId)
+                    .ToListAsync();
+
+                q = q.Where(r =>
+                    r.Reason.Contains(k) ||
+                    (r.Reporter != null && r.Reporter.DisplayName.Contains(k)) ||
+                    (r.Type == (int)ReportType.Article && articleIdsMatched.Contains(r.TargetId))
+                );
+            }
+
+            // 日期：用 ProcessTime 當 ModifyTime 篩選（僅對已處理/已駁回會生效）
+            if (from.HasValue)
+                q = q.Where(r => r.ProcessTime.HasValue && r.ProcessTime.Value >= from.Value);
+
+            if (to.HasValue)
+            {
+                var toEnd = to.Value.Date.AddDays(1); // 含當日 23:59:59
+                q = q.Where(r => r.ProcessTime.HasValue && r.ProcessTime.Value < toEnd);
+            }
+
             var total = await q.CountAsync();
 
+            q = q.OrderByDescending(r => r.ProcessTime) // null(未處理) 會自然排後面
+                 .ThenByDescending(r => r.ReportId);
+
             var list = await q
-                .OrderByDescending(r => r.ReportId)   // 時間序 GUID 當作時間排序
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
                 .AsNoTracking()

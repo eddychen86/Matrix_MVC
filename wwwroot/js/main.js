@@ -18,7 +18,7 @@ const globalApp = content => {
 globalApp({
     setup() {
         const DatePicker = window.VueDatePicker
-        const { ref, reactive, computed, watch, onMounted } = Vue
+        const { ref, reactive, computed, watch, onMounted, onUnmounted } = Vue
         const { formatDate, timeAgo } = useFormatting()
         const isLoading = ref(false)
         const isAppReady = ref(false)
@@ -40,7 +40,46 @@ globalApp({
 
             const wrapper = document.getElementById('popup-wrapper')
             if (wrapper) wrapper.style.display = ''
+
+            //REPORT----------------------------------------------
+
+            const clearBtn = document.getElementById('btn-clear-date');
+            if (clearBtn) {
+                clearBtn.addEventListener('click', () => {
+                    from.value = '';
+                    to.value = '';
+                    // 如果有 cally 的話，同步清空 UI
+                    const callyEl = document.querySelector('calendar-date');
+                    if (callyEl) {
+                        callyEl.start = null;
+                        callyEl.end = null;
+                    }
+                    loadReports(); // 重新載入資料
+                })
+            }
+
+            // === Cally 單日：以 ModifyTime(ProcessTime) 篩選 ===
+            window.setReportDate = (val) => {
+                const v = String(val || '').trim()       // "YYYY-MM-DD"
+                from.value = v                            // 單日 → from = to
+                to.value = v
+                page.value = 1
+                loadReports()
+                document.getElementById('popover-date')?.hidePopover?.()
+            }
+            window.clearReportDate = () => {
+                from.value = null
+                to.value = null
+                page.value = 1
+                loadReports()
+                document.getElementById('popover-date')?.hidePopover?.()
+            }
         })
+        onUnmounted(() => {
+            delete window.setReportDate
+            delete window.clearReportDate
+        })
+        //REPORT----------------------------------------------
 
 
         //#region Pop-Up Events
@@ -81,8 +120,9 @@ globalApp({
             const sp = new URLSearchParams({ page: page.value, pageSize: pageSize.value })
             if (status.value !== '') sp.append('status', status.value)
             if (type.value !== '') sp.append('type', type.value)
-            if (from.value) sp.append('from', formatDateValue(from.value))
-            if (to.value) sp.append('to', formatDateValue(to.value))
+            // from/to 可能是 null 或已是 yyyy-MM-dd 字串
+            if (from.value) sp.append('from', typeof from.value === 'string' ? from.value : formatDateValue(from.value))
+            if (to.value) sp.append('to', typeof to.value === 'string' ? to.value : formatDateValue(to.value))
             if (keyword.value.trim()) sp.append('keyword', keyword.value.trim())
             return sp.toString()
         }
