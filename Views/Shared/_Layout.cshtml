@@ -1,4 +1,4 @@
-@{
+﻿@{
     ViewData["Title"] = "Matrix";
 }
 
@@ -22,14 +22,14 @@
                 @RenderBody()
             </main>
             <partial name="_Footer" />
-        </div>
 
-        <!-- Universal Popup Component -->
-        @await Component.InvokeAsync("Popup")
+            <!-- Universal Popup Component -->
+            @await Component.InvokeAsync("Popup")
+        </div>
     </div>
 
-    <!-- Scripts moved outside of Vue app container -->
     @* <script src="~/lib/jquery/jquery.min.js"></script> *@
+
     @* 開發環境 (開發版 Vue) *@
     <environment include="Development">
         <script src="~/lib/vue/dist/vue.global.js" asp-append-version="true"></script>

@@ -72,7 +72,8 @@ public class Program
         builder.Services.AddScoped<IArticleHashtagRepository, ArticleHashtagRepository>();
         builder.Services.AddScoped<ILoginRecordRepository, LoginRecordRepository>();
         builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
-        
+        builder.Services.AddScoped<ISearchHashtagService, SearchHashtagService>();
+
         #endregion
 
         #region 註冊 Service
@@ -97,7 +98,9 @@ public class Program
         builder.Services.AddHttpContextAccessor(); // 為 CustomLocalizer 提供 HttpContext 訪問
         builder.Services.AddScoped<ICustomLocalizer, CustomLocalizer>();
         builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
-        
+        builder.Services.AddScoped<ISearchUserService, SearchUserService>();
+        builder.Services.AddScoped<IFollowService, FollowService>();
+
         // 配置本地化選項
         builder.Services.Configure<RequestLocalizationOptions>(options =>
         {
@@ -257,7 +260,7 @@ public class Program
         }
 
         app.UseHttpsRedirection();
-        app.UseResponseCompression(); // 啟用響應壓縮
+        //app.UseResponseCompression(); // 啟用響應壓縮
         app.UseStaticFiles();
         app.UseRouting();
         app.UseRequestLocalization();

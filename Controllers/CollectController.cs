@@ -33,9 +33,18 @@ namespace Matrix.Controllers
             try
             {
                 // TODO: 未來改為從登入者取得 PersonId，例如 User.Identity.Name → User → Person.Id
-                var currentUserId = Guid.Parse("36a9c596-b298-49b5-8300-7c3479aed145");
+                //var currentUserId = Guid.Parse("36a9c596-b298-49b5-8300-7c3479aed145");
+                // ✅ 從登入者取得 PersonId（專案已有擴充方法）
+                var authInfo = HttpContext.GetAuthInfo();
 
-                var collectDtos = await _collectService.GetUserCollectsAsync(currentUserId, 30);
+                if (authInfo == null || authInfo.PersonId == Guid.Empty)
+                {
+                    return Unauthorized(new { error = "未登入或無效的使用者資料" });
+                }
+
+                var personId = authInfo.PersonId;
+
+                var collectDtos = await _collectService.GetUserCollectsAsync(personId, 30);
                 
                 var collectViewModels = collectDtos.Select(dto => new CollectItemViewModel
                 {

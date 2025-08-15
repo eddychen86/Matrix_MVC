@@ -10,7 +10,9 @@ namespace Matrix.Models
     public class Follow
     {
         /// <summary>
-        /// 關注記錄的唯一識別碼
+        /// 被關注對象的「實體主鍵」
+        /// Type=1(使用者) → 對應 Persons.PersonId
+        /// Type=0(文章)   → 對應 Articles.ArticleId
         /// </summary>
         [Key]
         public Guid FollowId { get; set; } = Guid.NewGuid();
