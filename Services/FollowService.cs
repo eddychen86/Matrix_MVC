@@ -101,34 +101,31 @@ namespace Matrix.Services
 
         public async Task<List<FollowUserSearchDto>> SearchUsersAsync(Guid currentPersonId, string keyword)
         {
-            keyword = keyword.Trim().ToLower();
+            keyword = (keyword ?? string.Empty).Trim();
+            if (keyword.Length == 0) return new List<FollowUserSearchDto>();
 
-            var currentUserId = await _context.Persons
-                .Where(p => p.PersonId == currentPersonId)
-                .Select(p => p.UserId)
-                .FirstOrDefaultAsync();
-
-            var result = await _context.Persons
+            return await _context.Persons
+                .AsNoTracking()
                 .Include(p => p.User)
                 .Where(p =>
                     p.PersonId != currentPersonId &&
-                    (p.DisplayName.ToLower().Contains(keyword) ||
-                     p.User.UserName.ToLower().Contains(keyword)))
+                    (EF.Functions.Like(p.DisplayName ?? string.Empty, $"%{keyword}%") ||
+                     EF.Functions.Like(p.User.UserName, $"%{keyword}%")))
                 .Select(p => new FollowUserSearchDto
                 {
                     PersonId = p.PersonId,
                     DisplayName = p.DisplayName ?? "無名氏",
-                    AvatarPath = p.AvatarPath ?? "/static/img/cute.png",
-                    IsFollowed = currentUserId != Guid.Empty && _context.Follows.Any(f =>
-                        f.UserId == currentUserId &&
+                    AvatarPath = string.IsNullOrEmpty(p.AvatarPath) ? "/static/img/cute.png" : p.AvatarPath,
+                    // 關鍵：用 currentPersonId（我的 PersonId）對 Follows.UserId（你表裡存的是 PersonId）
+                    IsFollowed = _context.Follows.Any(f =>
+                        f.UserId == currentPersonId &&
                         f.FollowedId == p.PersonId &&
                         f.Type == 1)
                 })
                 .Take(10)
                 .ToListAsync();
-
-            return result;
         }
+
         public async Task<bool> FollowAsync(Guid followerPersonId, Guid followedPersonId)
         {
             if (followerPersonId == followedPersonId) return false;
