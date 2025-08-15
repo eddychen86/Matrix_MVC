@@ -40,6 +40,7 @@ namespace Matrix.Controllers.Api
                     p => p.PersonId,
                     (f, p) => new FollowItemViewModel
                     {
+                        PersonId = p.PersonId,
                         SenderName = string.IsNullOrWhiteSpace(p.DisplayName) ? "未知用戶" : p.DisplayName,
                         SenderAvatarUrl = string.IsNullOrEmpty(p.AvatarPath)
                             ? "/static/img/cute.png"
@@ -71,10 +72,10 @@ namespace Matrix.Controllers.Api
         public async Task<IActionResult> FollowUser(Guid targetId)
         {
             var auth = HttpContext.GetAuthInfo();
-            if (auth == null || auth.UserId == Guid.Empty)
+            if (auth == null || auth.PersonId == Guid.Empty)
                 return Unauthorized(new { success = false, message = "尚未登入" });
 
-            var success = await _followService.FollowAsync(auth.UserId, targetId);
+            var success = await _followService.FollowAsync(auth.PersonId, targetId);
             return Ok(new { success });
         }
 
@@ -82,10 +83,10 @@ namespace Matrix.Controllers.Api
         public async Task<IActionResult> UnfollowUser(Guid targetId)
         {
             var auth = HttpContext.GetAuthInfo();
-            if (auth == null || auth.UserId == Guid.Empty)
+            if (auth == null || auth.PersonId == Guid.Empty)
                 return Unauthorized(new { success = false, message = "尚未登入" });
 
-            var success = await _followService.UnfollowAsync(auth.UserId, targetId);
+            var success = await _followService.UnfollowAsync(auth.PersonId, targetId);
             return Ok(new { success });
         }
 
@@ -93,10 +94,10 @@ namespace Matrix.Controllers.Api
         public async Task<IActionResult> IsFollowing(Guid targetId)
         {
             var auth = HttpContext.GetAuthInfo();
-            if (auth == null || auth.UserId == Guid.Empty)
+            if (auth == null || auth.PersonId == Guid.Empty)
                 return Unauthorized(new { success = false, message = "尚未登入" });
 
-            var isFollow = await _followService.IsFollowingAsync(auth.UserId, targetId);
+            var isFollow = await _followService.IsFollowingAsync(auth.PersonId, targetId);
             return Ok(new { success = true, isFollow });
         }
     }

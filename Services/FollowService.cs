@@ -103,6 +103,11 @@ namespace Matrix.Services
         {
             keyword = keyword.Trim().ToLower();
 
+            var currentUserId = await _context.Persons
+                .Where(p => p.PersonId == currentPersonId)
+                .Select(p => p.UserId)
+                .FirstOrDefaultAsync();
+
             var result = await _context.Persons
                 .Include(p => p.User)
                 .Where(p =>
@@ -114,8 +119,8 @@ namespace Matrix.Services
                     PersonId = p.PersonId,
                     DisplayName = p.DisplayName ?? "無名氏",
                     AvatarPath = p.AvatarPath ?? "/static/img/cute.png",
-                    IsFollowed = _context.Follows.Any(f =>
-                        f.UserId == currentPersonId &&
+                    IsFollowed = currentUserId != Guid.Empty && _context.Follows.Any(f =>
+                        f.UserId == currentUserId &&
                         f.FollowedId == p.PersonId &&
                         f.Type == 1)
                 })
@@ -124,19 +129,22 @@ namespace Matrix.Services
 
             return result;
         }
-        public async Task<bool> FollowAsync(Guid userId, Guid targetId)
+        public async Task<bool> FollowAsync(Guid followerPersonId, Guid followedPersonId)
         {
-            if (userId == targetId) return false;
+            if (followerPersonId == followedPersonId) return false;
 
             var exist = await _context.Follows
-                .AnyAsync(f => f.UserId == userId && f.FollowedId == targetId && f.Type == 1);
+                .AsNoTracking()
+                .AnyAsync(f => f.UserId == followerPersonId
+                            && f.FollowedId == followedPersonId
+                            && f.Type == 1);
             if (exist) return true;
 
             _context.Follows.Add(new Follow
             {
-                UserId = userId,
-                FollowedId = targetId,
-                Type = 1,  // 追蹤使用者
+                UserId = followerPersonId,
+                FollowedId = followedPersonId,
+                Type = 1,
                 FollowTime = DateTime.UtcNow,
                 User = null!
             });
@@ -145,10 +153,12 @@ namespace Matrix.Services
             return true;
         }
 
-        public async Task<bool> UnfollowAsync(Guid userId, Guid targetId)
+        public async Task<bool> UnfollowAsync(Guid followerPersonId, Guid followedPersonId)
         {
             var follow = await _context.Follows
-                .FirstOrDefaultAsync(f => f.UserId == userId && f.FollowedId == targetId && f.Type == 1);
+                .FirstOrDefaultAsync(f => f.UserId == followerPersonId
+                                       && f.FollowedId == followedPersonId
+                                       && f.Type == 1);
 
             if (follow == null) return false;
 

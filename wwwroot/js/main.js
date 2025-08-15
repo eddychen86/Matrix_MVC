@@ -66,6 +66,11 @@ globalApp({
                 return
             }
 
+            // ✅ 防呆：targetPersonId 必須存在
+            if (!targetPersonId) {
+                console.warn('toggleFollow: targetPersonId 為空，取消請求')
+                return
+            }
             try {
                 const method = currentStatus ? 'DELETE' : 'POST'
                 const res = await fetch(`/api/follows/${targetPersonId}`, {
@@ -76,9 +81,14 @@ globalApp({
                 const result = await res.json()
 
                 if (result.success) {
-                    // 成功後，更新 Search 裡對應的 isFollowed 狀態
-                    const user = popupData.Search.find(u => u.personId === targetPersonId)
+                    // ✅ 這裡要從 Users 陣列找
+                    const user = popupData.Search.Users.find(u => u.personId === targetPersonId)
                     if (user) user.isFollowed = !currentStatus
+
+                    // 若在 Follows 視窗點「取消追蹤」，同步把該人移出列表
+                    if (currentStatus === true) {
+                        popupData.Follows = popupData.Follows.filter(f => f.personId !== targetPersonId)
+                    }
                 } else {
                     alert('操作失敗，請稍後再試')
                 }
@@ -254,7 +264,14 @@ globalApp({
                     credentials: 'include'
                 })
                 const result = await res.json()
-                popupData.Follows = Array.isArray(result.data) ? result.data : []
+
+                // ✅ 容錯：同時支援 data 是陣列或是物件(items)
+                const list = Array.isArray(result?.data)
+                    ? result.data
+                    : (result?.data?.items ?? [])
+
+                // ✅ 做大小寫兼容 & 預設值
+                popupData.Follows = list
             } catch (e) {
                 console.error('❌ 載入 Follows 失敗', e)
                 popupData.Follows = []

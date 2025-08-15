@@ -79,7 +79,7 @@
                             <div v-for="(item, index) in popupData.Search.Users" :key="'search-' + index"
                                  class="item-center flex justify-between rounded-lg bg-neutral-800 px-4 py-3 transition hover:bg-neutral-700">
                                 <div class="flex items-center space-x-4">
-                                    <img :src="item.avatarUrl || '/static/images/default_avatar.png'"
+                                    <img :src="item.avatarUrl || '/static/img/cute.png'"
                                          class="h-10 w-10 rounded-full border border-gray-600" />
                                     <div>
                                         <p class="title">{{ item.displayName }}</p>
@@ -102,7 +102,7 @@
                             <div v-for="(item, index) in popupData.Follows" :key="'follow-' + index"
                                  class="item-center flex justify-between rounded-lg bg-neutral-800 px-4 py-3 transition hover:bg-neutral-700">
                                 <div class="flex items-center space-x-4">
-                                    <img :src="item.senderAvatarUrl || '/static/images/default_avatar.png'"
+                                    <img :src="item.senderAvatarUrl || '/static/img/cute.png'"
                                          class="h-10 w-10 rounded-full border border-gray-600" />
                                     <div>
                                         <p class="title">{{ item.senderName }}</p>
@@ -137,7 +137,7 @@
                                  :key="'user-' + index"
                                  class="flex items-center justify-between rounded-lg bg-neutral-800 px-4 py-3 transition hover:bg-neutral-700">
                                 <div class="flex items-center space-x-4">
-                                    <img :src="user.avatarUrl || '/static/img/default-avatar.png'"
+                                    <img :src="user.avatarUrl || '/static/img/cute.png'"
                                          class="h-12 w-12 rounded-full border border-gray-600" />
                                     <div>
                                         <p class="title">{{ user.displayName }}</p>
