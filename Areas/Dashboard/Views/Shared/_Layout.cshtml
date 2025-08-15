@@ -1,4 +1,4 @@
-﻿@inject ICustomLocalizer Localizer
+@inject ICustomLocalizer Localizer
 @{
     ViewData["Title"] = Localizer["Dashboard"];
     var authInfo = Context.GetAuthInfo();
@@ -13,6 +13,7 @@
     <title>Matrix</title>
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/components.css" asp-append-version="true" />
+    @* <script type="module" src="https://unpkg.com/caLLy"></script> *@
 </head>
 
 <body class="bg-white">

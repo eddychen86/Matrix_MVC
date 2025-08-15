@@ -34,7 +34,12 @@ namespace Matrix.Services.Interfaces
             int page = 1,
             int pageSize = 20,
             string? searchKeyword = null,
-            Guid? authorId = null);
+            Guid? authorId = null,
+            int? status = null,
+            bool onlyPublic = true,
+            DateTime? dateFrom = null,
+            DateTime? dateTo = null
+            );
 
         /// <summary>
         /// 增加文章讚數
@@ -70,5 +75,16 @@ namespace Matrix.Services.Interfaces
         /// 建立一篇新文章，並處理其檔案附件
         /// </summary>
         Task<ArticleDto?> CreateArticleWithAttachmentsAsync(Guid authorId, CreateArticleDto dto);
+
+        ///<summary>
+        ///後臺管理員更新文章
+        /// </summary>
+        Task<bool> AdminUpdateArticleContentAsync(Guid id, string content);
+
+        ///<summary>
+        ///後臺管理員刪除文章
+        /// </summary>
+        Task<bool> AdminDeleteArticleAsync(Guid id);
     }
+
 }

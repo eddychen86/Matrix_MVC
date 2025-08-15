@@ -26,7 +26,7 @@ namespace Matrix.Areas.Dashboard.Controllers
             {
                 return PartialView("Index");
             }
-            
+
             // 否則重導向到完整頁面
             return RedirectToAction("Index");
         }
