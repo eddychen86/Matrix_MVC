@@ -4,10 +4,12 @@ import { useHome } from '/js/pages/home/home.js'
 import { useProfile } from '/js/pages/profile/profile.js'
 import authManager from '/js/auth/auth-manager.js'
 import loginPopupManager from '/js/auth/login-popup.js'
+import { useCreatePost } from '/js/components/create-post.js'
 
 const globalApp = content => {
     if (typeof Vue === 'undefined') {
         console.log('Vue not ready, retrying...')
+
         return
     } else {
         lucide.createIcons()
@@ -15,9 +17,8 @@ const globalApp = content => {
             document.addEventListener('DOMContentLoaded', () => {
                 const app = Vue.createApp(content)
 
-                if (window.CKEditor?.component) {
-                    app.component('ckeditor', window.CKEditor.component)
-                }
+                if (window.CKEditor?.component) app.component('ckeditor', window.CKEditor.component)
+                else if (window.CKEditor) app.use(window.CKEditor)
 
                 // 配置警告處理器來忽略 script/style 標籤警告
                 app.config.warnHandler = (msg, instance, trace) => {
@@ -212,7 +213,7 @@ globalApp({
         const Home = LoadingPage(/^\/(?:home(?:\/|$))?$|^\/$/i, useHome)
         const Profile = LoadingPage(/^\/profile(?:\/|$)/i, useProfile)
         // const Friends = LoadingPage(/^\/friends(?:\/|$)/i, useFriends)
-
+        const postFns = useCreatePost()
         //#endregion
 
         //#region PostList Data (共用於所有使用 PostList ViewComponent 的頁面)
@@ -395,10 +396,6 @@ globalApp({
             popupState.type = ''
         }
 
-        const postFns = (window.createPost && typeof window.createPost === 'function')
-            ? window.createPost()
-            : {}
-
         // Global Methods
         window.toggleFunc = (show, type) => show ? openPopup(type) : closePopup()
 
@@ -496,6 +493,8 @@ globalApp({
             friendsStatus,
             loadFriends,
             changeFriendsStatus,
+            //發文功能
+            ...postFns,
         }
     }
 })

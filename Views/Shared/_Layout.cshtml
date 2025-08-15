@@ -17,8 +17,8 @@
     <div id="app" class="flex">
         <partial name="_Menu" model="CommonController.BuildMenuModel(Context)" />
 
-        <div class="relative flex w-full flex-col h-screen gap-4 py-4 pr-4 overflow-y-auto">
-            <main class="text-white grid grid-cols-7 gap-4 flex-1">
+        <div class="relative flex h-screen w-full flex-col gap-4 overflow-y-auto py-4 pr-4">
+            <main class="grid flex-1 grid-cols-7 gap-4 text-white">
                 @RenderBody()
             </main>
             <partial name="_Footer" />
@@ -39,8 +39,9 @@
         <script src="~/lib/vue/dist/vue.global.prod.js" asp-append-version="true"></script>
     </environment>
     <script src="~/lib/lucide/dist/umd/lucide.min.js"></script>
-    <script src="~/lib/cKEditor5/ckeditor.js"></script>
-    @* <script src="https://cdn.ckeditor.com/ckeditor5/41.4.2/classic/ckeditor.js"></script> *@
+    @* <script src="~/lib/cKEditor5/ckeditor.js"></script> *@
+    <script src="https://cdn.ckeditor.com/ckeditor5/41.4.2/classic/ckeditor.js"></script>
+    <script src="@("https://unpkg.com/@ckeditor/ckeditor5-vue@5.1.0/dist/ckeditor.js")"></script>
 
     @* 以上四支已轉為 ES Modules，由 main.js 動態 import *@
     <script type="module" src="~/js/main.js" asp-append-version="true"></script>

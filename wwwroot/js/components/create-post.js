@@ -1,4 +1,4 @@
-window.createPost = function () {
+export function useCreatePost() {
     const { ref, onMounted } = Vue
 
     const URL_API = (typeof window !== 'undefined')
@@ -40,6 +40,16 @@ window.createPost = function () {
         ]
     }
 
+    function htmlToText(html) {
+        const el = document.createElement('div');
+        el.innerHTML = html || '';
+        const withBreaks = el.innerHTML
+            .replace(/<\/p>\s*<p>/gi, '\n\n')
+            .replace(/<br\s*\/?>/gi, '\n')
+            .replace(/<\/?p[^>]*>/gi, '');
+        el.innerHTML = withBreaks;
+        return el.textContent || '';
+    }
 
     function onEditorReady(editor) {
 
@@ -158,17 +168,30 @@ window.createPost = function () {
     }
 
     function handleFileChange(e) {
+
+        for (const f of files) {
+            if (f.size > MAX_FILE_SIZE) {
+                alert(`檔案 ${f.name} 超過 5MB，請重新選擇`);
+                if (fileInput.value) fileInput.value.value = '';
+                return;
+            }
+        }
         const files = Array.from(e.target.files).filter(f => f instanceof File)
         const images = files.filter(f => f.type.startsWith('image/'))
         const nonImages = files.filter(f => !f.type.startsWith('image/'))
 
+
         if (fileInputMode.value === 'image') {
-            if (nonImages.length) { alert('僅限選擇圖片檔案'); return }
+            if (nonImages.length) { alert('僅限選擇圖片'); return }
             selectedImages.value = dedupe([...selectedImages.value, ...images])
         } else {
-            if (images.length) { alert('請勿在檔案欄選擇圖片'); return }
+            if (images.length) { alert('僅限選擇檔案'); return }
             selectedFiles.value = dedupe([...selectedFiles.value, ...nonImages])
         }
+        if (fileInput.value) fileInput.value.value = '';
+
+
+
     }
 
     async function submitPost() {
@@ -176,7 +199,7 @@ window.createPost = function () {
             alert('文章內容不得為空'); return
         }
         const formData = new FormData()
-        formData.append('Content', postContent.value)
+        formData.append('Content', htmlToText(postContent.value))
         formData.append('IsPublic', '0')
 
         selectedImages.value.forEach(f => formData.append('Attachments', f))
@@ -206,6 +229,7 @@ window.createPost = function () {
         toggleTempTag,
         setFileInput, handleFileChange, submitPost,
         truncateFilename, safeURL,
-        ClassicEditor, editorConfig, onEditorReady
+        ClassicEditor, editorConfig, onEditorReady,
+        htmlToText
     }
 }

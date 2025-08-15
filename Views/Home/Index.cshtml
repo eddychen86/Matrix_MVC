@@ -1,9 +1,9 @@
-@* Model no longer used; hot list loads via API *@
+﻿@* Model no longer used; hot list loads via API *@
 @using Matrix.Services
 @inject ICustomLocalizer Localizer
 
 <!-- 文章 -->
-<div class="col-span-5 2xl:col-span-4 2xl:col-start-2 flex flex-col gap-8">
+<div class="col-span-5 flex flex-col gap-8 2xl:col-span-4 2xl:col-start-2">
 
     @* 熱門文章輪播（僅登入可見） *@
     @if (ViewBag.IsAuthenticated == true)
@@ -62,7 +62,7 @@
             <!--發文編輯-->
             @if (ViewBag.IsAuthenticated == true)
             {
-                <button v-on:click="toggleCreatePost">
+                <button v-on:click="openModal">
                     <i data-lucide="plus" class="size-6 text-black"></i>
                     <span class="subTitle">Post</span>
                 </button>
@@ -81,8 +81,7 @@
 </aside>
 
 @* Create Post Popup Component *@
-<div v-if="openCreatePost">
     @await Component.InvokeAsync("CreatePostPopup")
-</div>
+
 
 @* Hot list logic moved to /js/pages/home/home.js (Vue setup) *@
