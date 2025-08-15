@@ -32,8 +32,14 @@
       ]
     },
     {
+<<<<<<< HEAD
       "library": "cally@latest",
       "destination": "wwwroot/lib/cally",
+=======
+      "provider": "unpkg",
+      "library": "cally@0.8.0",
+      "destination": "wwwroot/lib/cally/",
+>>>>>>> dev-users
       "files": [
         "dist/cally.js"
       ]
