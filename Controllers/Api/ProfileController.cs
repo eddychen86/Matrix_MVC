@@ -33,9 +33,9 @@ namespace Matrix.Controllers.Api
             try
             {
                 _logger.LogInformation("開始更新個人資料，使用者 ID: {UserId}", id);
-                
+
                 var result = await _userService.UpdatePersonProfileAsync(id, dto);
-                
+
                 if (result.Success)
                 {
                     _logger.LogInformation("個人資料更新成功，使用者 ID: {UserId}", id);
@@ -44,16 +44,16 @@ namespace Matrix.Controllers.Api
                 {
                     _logger.LogWarning("個人資料更新失敗，使用者 ID: {UserId}，錯誤訊息: {Message}", id, result.Message);
                 }
-                
+
                 return result;
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "更新個人資料時發生例外，使用者 ID: {UserId}", id);
-                return new ReturnType<object> 
-                { 
-                    Success = false, 
-                    Message = "更新過程中發生錯誤，請稍後再試" 
+                return new ReturnType<object>
+                {
+                    Success = false,
+                    Message = "更新過程中發生錯誤，請稍後再試"
                 };
             }
         }
