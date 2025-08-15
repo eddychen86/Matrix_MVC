@@ -1,5 +1,9 @@
-const createPost = () => {
+window.createPost = function () {
     const { ref, onMounted } = Vue
+
+    const URL_API = (typeof window !== 'undefined')
+        ? (window.URL || window.webkitURL || null)
+        : null
 
     const postContent = ref('')
     const showPostModal = ref(false)
@@ -14,6 +18,54 @@ const createPost = () => {
     const fileInput = ref(null)
     const fileInputMode = ref('file')
 
+    const ClassicEditor = window.ClassicEditor
+
+    const editorConfig = {
+        placeholder: 'Write your post here...',
+        toolbar: {
+            items: [
+                'heading', '|',
+                'bold', 'italic', 'underline', 'link', '|',
+                'bulletedList', 'numberedList', 'blockQuote', '|',
+                'undo', 'redo'
+            ]
+        },
+
+        removePlugins: [
+            'ImageUpload',
+            'CKFinder', 'CKFinderUploadAdapter',
+            'CKBox', 'EasyImage',
+            'AutoImage', 'ImageInsert',
+            'MediaEmbed', 'MediaEmbedToolbar'
+        ]
+    }
+
+
+    function onEditorReady(editor) {
+
+        editor.editing.view.document.on('clipboardInput', (evt, data) => {
+            const dt = data.dataTransfer
+            if (dt && (dt.files?.length || 0) > 0) {
+                evt.stop()
+            }
+        })
+
+        const editable = editor.ui.getEditableElement()
+        if (!editable) return
+
+        editable.addEventListener('dragover', (e) => {
+            const hasFile = Array.from(e.dataTransfer?.items || []).some(i => i.kind === 'file')
+            if (hasFile) e.preventDefault()
+        })
+
+        editable.addEventListener('drop', (e) => {
+            if ((e.dataTransfer?.files?.length || 0) > 0) {
+                e.preventDefault()
+            }
+        })
+    }
+
+
     function truncateFilename(name) {
         const hasChinese = /[^\x00-\x7F]/.test(name)
         return hasChinese
@@ -22,16 +74,21 @@ const createPost = () => {
     }
 
     function safeURL(file) {
-        if (!file.__previewURL) {
-            try { file.__previewURL = URL.createObjectURL(file) } catch { file.__previewURL = '' }
+        if (!file || !(file instanceof File)) return ''
+        if (file.__previewURL) return file.__previewURL
+        if (!URL_API || typeof URL_API.createObjectURL !== 'function') return ''
+        try {
+            file.__previewURL = URL_API.createObjectURL(file)
+            return file.__previewURL
+        } catch {
+            return ''
         }
-        return file.__previewURL
     }
 
     function revokeAllPreviews() {
-        [...selectedImages.value, ...selectedFiles.value].forEach(f => {
-            if (f && f.__previewURL) {
-                try { URL.revokeObjectURL(f.__previewURL) } catch { }
+        ;[...selectedImages.value, ...selectedFiles.value].forEach(f => {
+            if (f && f.__previewURL && URL_API?.revokeObjectURL) {
+                try { URL_API.revokeObjectURL(f.__previewURL) } catch { }
                 f.__previewURL = null
             }
         })
@@ -42,23 +99,23 @@ const createPost = () => {
         postContent.value = ''
         selectedFiles.value = []
         selectedImages.value = []
+        selectedHashtags.value = []
         tempSelectedIds.value = new Set()
         if (fileInput.value) fileInput.value.value = ''
     }
 
-    const openModal = () => {
-        showPostModal.value = true
-    }
-    const closeModal = () => {
-        resetPostModal()
-        showPostModal.value = false
-    }
+    const openModal = () => { showPostModal.value = true }
+    const closeModal = () => { resetPostModal(); showPostModal.value = false }
 
     async function fetchHashtags() {
         if (allHashtags.value.length > 0) return
         try {
             const res = await fetch('/Post/GetHashtags')
-            allHashtags.value = await res.json()
+            const raw = await res.json()
+            allHashtags.value = (raw || []).map(x => ({
+                tagId: String(x.tagId ?? x.TagId ?? x.id ?? x.ID),
+                content: String(x.content ?? x.Content ?? x.name ?? x.Name ?? '')
+            }))
         } catch (err) {
             console.error('標籤載入失敗', err)
         }
@@ -69,9 +126,7 @@ const createPost = () => {
         tempSelectedIds.value = new Set(selectedHashtags.value.map(t => String(t.tagId)))
         showHashtagModal.value = true
     }
-    const cancelHashtagModal = () => {
-        showHashtagModal.value = false
-    }
+    const cancelHashtagModal = () => { showHashtagModal.value = false }
     const confirmHashtagModal = () => {
         const set = tempSelectedIds.value
         selectedHashtags.value = allHashtags.value.filter(t => set.has(String(t.tagId)))
@@ -130,13 +185,8 @@ const createPost = () => {
 
         try {
             const res = await fetch('/Post/Create', { method: 'POST', body: formData })
-            if (res.ok) {
-                alert('送出成功！')
-                closeModal()
-            } else {
-                const error = await res.text()
-                alert('送出失敗: ' + error)
-            }
+            if (res.ok) { alert('送出成功！'); closeModal() }
+            else { const error = await res.text(); alert('送出失敗: ' + error) }
         } catch (err) {
             alert('網路錯誤：' + err.message)
         }
@@ -148,17 +198,14 @@ const createPost = () => {
     })
 
     return {
-        // state
         postContent, showPostModal, showHashtagModal,
         allHashtags, selectedHashtags, tempSelectedIds,
         selectedImages, selectedFiles, fileInput, fileInputMode,
-        // actions
         openModal, closeModal,
         openHashtagModal, cancelHashtagModal, confirmHashtagModal,
         toggleTempTag,
         setFileInput, handleFileChange, submitPost,
-        // utils
-        truncateFilename, safeURL
+        truncateFilename, safeURL,
+        ClassicEditor, editorConfig, onEditorReady
     }
 }
- 

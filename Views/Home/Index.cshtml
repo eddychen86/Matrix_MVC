@@ -1,4 +1,4 @@
-@model List<Matrix.ViewModels.ArticleViewModel>
+﻿@model List<Matrix.ViewModels.ArticleViewModel>
 @using Matrix.Services
 @inject ICustomLocalizer Localizer
 <section class="flex min-h-screen">
@@ -69,11 +69,14 @@
             
             <div id="postEditorApp">
                 <h3 class="title">News</h3>
-                <!--發文編輯-->
-                <button id="openPostBtn">
-                    <i data-lucide="plus" class="size-6 text-black"></i>
-                    <span class="subTitle">Post</span>
-                </button>
+                @if (ViewBag.IsAuthenticated == true)
+                {
+                    <!-- 只有登入才渲染 -->
+                    <button id="openPostBtn">
+                        <i data-lucide="plus" class="size-6 text-black"></i>
+                        <span class="subTitle">Post</span>
+                    </button>
+                }
             </div>
 
             <ul class="post-content">
@@ -87,7 +90,7 @@
                             <article class="bg-accent" data-article-index="@i">
                                 @* 文章標題區 *@
                                 <div class="post-content_header">
-                                    <div class="author-info flex gap-4 items-center">
+                                    <div class="author-info flex items-center gap-4">
                                         <div class="author-avatar">
                                             @if (item.Author != null && !string.IsNullOrEmpty(item.Author.AvatarPath)){
                                                 <img src="@item.Author.AvatarPath" alt="@item.Author.DisplayName" />
@@ -96,20 +99,20 @@
                                             }
                                         </div>
                                         <div>
-                                            <h3 class="text-white font-medium">@(item.Author?.DisplayName ?? Localizer["GuestAccount"])</h3>
-                                            <p class="text-gray-400 text-sm">@item.Article?.CreateTime.ToString("yyyy-MM-dd HH:mm")</p>
+                                            <h3 class="font-medium text-white">@(item.Author?.DisplayName ?? Localizer["GuestAccount"])</h3>
+                                            <p class="text-sm text-gray-400">@item.Article?.CreateTime.ToString("yyyy-MM-dd HH:mm")</p>
                                         </div>
                                     </div>
-                                    <div class="flex items-center gap-2 text-gray-400 text-sm">
-                                        <i data-lucide="heart" class="w-4 h-4"></i>
+                                    <div class="flex items-center gap-2 text-sm text-gray-400">
+                                        <i data-lucide="heart" class="h-4 w-4"></i>
                                         <span>@item.Article?.PraiseCount</span>
-                                        <i data-lucide="bookmark" class="w-4 h-4 ml-2"></i>
+                                        <i data-lucide="bookmark" class="ml-2 h-4 w-4"></i>
                                         <span>@item.Article?.CollectCount</span>
                                     </div>
                                 </div>
 
                                 @* 文章內容 *@
-                                <div class="text-gray-300 mb-4 leading-relaxed">
+                                <div class="mb-4 leading-relaxed text-gray-300">
                                     @Html.Raw(item.Article?.Content != null && item.Article.Content.Length > 300 
                                         ? item.Article.Content.Substring(0, 300) + "..." 
                                         : item.Article?.Content)
@@ -118,8 +121,8 @@
                                 @* 文章圖片 *@
                                 @if (item.Image != null && item.Image.FilePath != null)
                                 {
-                                    <div class="rounded-[30px] overflow-hidden flex items-center justify-center">
-                                        <img src="@item.Image.FilePath" alt="" class="object-cover hover:scale-105 transition-transform duration-300" />
+                                    <div class="flex items-center justify-center overflow-hidden rounded-[30px]">
+                                        <img src="@item.Image.FilePath" alt="" class="object-cover transition-transform duration-300 hover:scale-105" />
                                     </div>
                                 }
 
@@ -129,13 +132,13 @@
                                     <div class="grid grid-cols-2 gap-4">
                                         @foreach (var attachment in item.Attachments)
                                         {
-                                            <a href="@attachment.FilePath" class="block p-3 bg-gray-800 rounded-[20px] hover:bg-gray-700 transition-colors duration-300">
+                                            <a href="@attachment.FilePath" class="block rounded-[20px] bg-gray-800 p-3 transition-colors duration-300 hover:bg-gray-700">
                                                 <div class="flex items-center gap-3">
                                                     <div class="flex-shrink-0">
-                                                        <i data-lucide="file" class="w-6 h-6 text-gray-400"></i>
+                                                        <i data-lucide="file" class="h-6 w-6 text-gray-400"></i>
                                                     </div>
-                                                    <div class="flex-1 min-w-0">
-                                                        <p class="text-sm text-white truncate">@attachment.FileName</p>
+                                                    <div class="min-w-0 flex-1">
+                                                        <p class="truncate text-sm text-white">@attachment.FileName</p>
                                                         <p class="text-xs text-gray-400">附件</p>
                                                     </div>
                                                 </div>
@@ -167,8 +170,8 @@
                                     }
                                     else
                                     {
-                                        <span class="flex items-center gap-2 text-gray-500 text-sm">
-                                            <i data-lucide="lock" class="w-4 h-4"></i>
+                                        <span class="flex items-center gap-2 text-sm text-gray-500">
+                                            <i data-lucide="lock" class="h-4 w-4"></i>
                                             <span data-i18n="GuestBrowseMsg">@Localizer["GuestBrowseMsg"]</span>
                                         </span>
                                     }
@@ -179,9 +182,9 @@
                 }
                 else
                 {
-                    <div class="text-center py-12">
-                        <i data-lucide="inbox" class="w-16 h-16 text-gray-400 mx-auto mb-4"></i>
-                        <p class="text-gray-400 text-lg" data-i18n="NoArticlesMsg">@Localizer["NoArticlesMsg"]</p>
+                    <div class="py-12 text-center">
+                        <i data-lucide="inbox" class="mx-auto mb-4 h-16 w-16 text-gray-400"></i>
+                        <p class="text-lg text-gray-400" data-i18n="NoArticlesMsg">@Localizer["NoArticlesMsg"]</p>
                     </div>
                 }
             </ul>
@@ -189,12 +192,12 @@
             @* 訪客限制提示（僅在訪客狀態下顯示） *@
             @* @if (ViewBag.IsGuest == true && ViewBag.IsAuthenticated == false)
             {
-                <div class="text-center py-8 border-t border-accent/20">
-                    <div class="bg-secondary rounded-xl p-6 border border-accent/20">
-                        <h3 class="text-white text-lg font-medium mb-2" data-i18n="AllContentViewedTitle">@Localizer["AllContentViewedTitle"]</h3>
-                        <p class="text-gray-400 mb-4" data-i18n="LoginForMoreContentMsg">@Localizer["LoginForMoreContentMsg"]</p>
-                        <a href="/login" class="inline-flex items-center gap-2 bg-orange text-white px-6 py-2 rounded-full hover:bg-orange-600 transition-colors">
-                            <i data-lucide="log-in" class="w-4 h-4"></i>
+                <div class="border-accent/20 border-t py-8 text-center">
+                    <div class="bg-secondary border-accent/20 rounded-xl border p-6">
+                        <h3 class="mb-2 text-lg font-medium text-white" data-i18n="AllContentViewedTitle">@Localizer["AllContentViewedTitle"]</h3>
+                        <p class="mb-4 text-gray-400" data-i18n="LoginForMoreContentMsg">@Localizer["LoginForMoreContentMsg"]</p>
+                        <a href="/login" class="bg-orange inline-flex items-center gap-2 rounded-full px-6 py-2 text-white transition-colors hover:bg-orange-600">
+                            <i data-lucide="log-in" class="h-4 w-4"></i>
                             <span data-i18n="LoginNowBtn">@Localizer["LoginNowBtn"]</span>
                         </a>
                     </div>
@@ -206,7 +209,10 @@
 
 
 @* Create Post Popup Component *@
-@await Component.InvokeAsync("CreatePostPopup")
+@if (ViewBag.IsAuthenticated == true)
+{
+    @await Component.InvokeAsync("CreatePostPopup")
+}
 
 
 

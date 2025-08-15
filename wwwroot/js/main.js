@@ -7,6 +7,11 @@ const globalApp = content => {
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', () => {
                 const app = Vue.createApp(content)
+
+                if (window.CKEditor?.component) {
+                    app.component('ckeditor', window.CKEditor.component)
+                }
+
                 // 配置警告處理器來忽略 script/style 標籤警告
                 app.config.warnHandler = (msg, instance, trace) => {
                     if (msg.includes('Tags with side effect') && msg.includes('are ignored in client component templates')) {
@@ -19,6 +24,14 @@ const globalApp = content => {
         } else {
             // DOM 已經載入完成
             const app = Vue.createApp(content)
+
+            if (window.CKEditor) {
+                app.use(window.CKEditor)
+                console.log('[CKEditor] plugin installed')
+            } else {
+                console.warn('[CKEditor] wrapper not loaded - check script order')
+            }
+
             // 配置警告處理器來忽略 script/style 標籤警告
             app.config.warnHandler = (msg, instance, trace) => {
                 if (msg.includes('Tags with side effect') && msg.includes('are ignored in client component templates')) {
@@ -241,6 +254,10 @@ globalApp({
             popupState.type = ''
         }
 
+        const postFns = (window.createPost && typeof window.createPost === 'function')
+            ? window.createPost()
+            : {}
+
         // Global Methods
         window.toggleFunc = (show, type) => show ? openPopup(type) : closePopup()
 
@@ -289,7 +306,7 @@ globalApp({
             ...profileFunctions,
 
             //發文功能
-            ...createPost(),
+            ...postFns,
         }
     }
 })

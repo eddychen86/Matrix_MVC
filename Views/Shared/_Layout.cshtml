@@ -1,4 +1,4 @@
-@{
+﻿@{
     ViewData["Title"] = "Matrix";
 }
 
@@ -17,7 +17,7 @@
     <div id="app" class="flex">
         <partial name="_Menu" />
 
-        <div class="relative flex w-full flex-col gap-4 p-4 pl-0 h-screen overflow-y-auto">
+        <div class="relative flex h-screen w-full flex-col gap-4 overflow-y-auto p-4 pl-0">
             <main class="text-white">
                 @RenderBody()
             </main>
@@ -49,6 +49,9 @@
     <script src="~/js/auth/login-popup.js" asp-append-version="true"></script>
     <script src="~/js/components/menu.js" asp-append-version="true"></script>
     <script src="~/js/pages/profile.js" asp-append-version="true"></script>
+    <script src="~/js/pages/home/create-post.js" asp-append-version="true"></script>
+    <script src="https://cdn.ckeditor.com/ckeditor5/41.4.2/classic/ckeditor.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@@ckeditor/ckeditor5-vue@5/dist/ckeditor.min.js"></script>
     <script src="~/js/main.js" asp-append-version="true"></script>
 
     <!-- Scripts section rendered outside of Vue app -->
