@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.EntityFrameworkCore;
 using System.Text.RegularExpressions;
 using Matrix.DTOs;
 using Matrix.Models;
@@ -22,6 +23,8 @@ namespace Matrix.Services
         private readonly IPasswordHasher<User> _passwordHasher;
         private readonly IMapper _mapper;
         private readonly IMemoryCache _cache;
+        private readonly IArticleAttachmentRepository _articleAttachmentRepository;
+        private readonly ApplicationDbContext _context;
 
         public UserService(
             IUserRepository userRepository,
@@ -30,7 +33,9 @@ namespace Matrix.Services
             IOptions<UserValidationOptions> validationOptions,
             IPasswordHasher<User> passwordHasher,
             IMapper mapper,
-            IMemoryCache cache)
+            IMemoryCache cache,
+            IArticleAttachmentRepository articleAttachmentRepository,
+            ApplicationDbContext context)
         {
             _userRepository = userRepository;
             _personRepository = personRepository;
@@ -39,6 +44,8 @@ namespace Matrix.Services
             _passwordHasher = passwordHasher;
             _mapper = mapper;
             _cache = cache;
+            _articleAttachmentRepository = articleAttachmentRepository;
+            _context = context;
         }
 
         /// <summary>
@@ -216,6 +223,83 @@ namespace Matrix.Services
         public async Task<bool> UpdateStatusAsync(Guid id, int status)
         {
             return await UpdateUserStatusAsync(id, status);
+        }
+
+        /// <summary>
+        /// 更新個人資料圖片（頭像或橫幅）
+        /// </summary>
+        public async Task<ReturnType<object>> UpdateProfileImageAsync(Guid userId, string type, string filePath)
+        {
+            try
+            {
+                var person = await _personRepository.GetByUserIdAsync(userId);
+                if (person == null)
+                {
+                    return new ReturnType<object> 
+                    { 
+                        Success = false, 
+                        Message = "找不到使用者的個人資料" 
+                    };
+                }
+
+                // 備份舊的檔案路徑，以便在更新失敗時回復
+                string? oldFilePath = null;
+
+                // 根據類型更新對應的欄位
+                switch (type.ToLower())
+                {
+                    case "avatar":
+                        oldFilePath = person.AvatarPath;
+                        person.AvatarPath = filePath;
+                        break;
+                    case "banner":
+                        oldFilePath = person.BannerPath;
+                        person.BannerPath = filePath;
+                        break;
+                    default:
+                        return new ReturnType<object> 
+                        { 
+                            Success = false, 
+                            Message = "無效的檔案類型" 
+                        };
+                }
+
+                // 更新修改時間
+                person.ModifyTime = DateTime.UtcNow;
+
+                // 儲存到資料庫
+                await _personRepository.UpdateAsync(person);
+                await _personRepository.SaveChangesAsync();
+
+                // 如果有舊檔案，刪除它
+                if (!string.IsNullOrEmpty(oldFilePath))
+                {
+                    await _fileService.DeleteFileAsync(oldFilePath);
+                }
+
+                // 清除相關快取
+                var userCacheKey = $"user_{userId}";
+                var profileCacheKey = $"profile_{userId}";
+                _cache.Remove(userCacheKey);
+                _cache.Remove(profileCacheKey);
+
+                return new ReturnType<object> 
+                { 
+                    Success = true, 
+                    Message = $"{(type == "avatar" ? "頭像" : "橫幅")}更新成功" 
+                };
+            }
+            catch (Exception ex)
+            {
+                // 記錄錯誤
+                Console.WriteLine($"更新個人資料圖片時發生錯誤: {ex.Message}");
+                
+                return new ReturnType<object> 
+                { 
+                    Success = false, 
+                    Message = "更新過程中發生錯誤，請稍後再試" 
+                };
+            }
         }
 
         #region 驗證方法
@@ -463,14 +547,12 @@ namespace Matrix.Services
         {
             try
             {
-                if (userId != dto.UserId)
-                {
-                    return new ReturnType<object> { Success = false, Message = "使用者 ID 不符" };
-                }
-
-                var person = await _personRepository.GetByUserIdAsync(userId);
+                // UserId 由 Controller 從認證中安全獲取，無需驗證 DTO 中的 UserId
+                // 使用支援變更追蹤的方法來獲取實體
+                var person = await _personRepository.GetByUserIdForUpdateAsync(userId);
                 if (person == null)
-                {                    return new ReturnType<object> { Success = false, Message = "找不到個人資料" };
+                {
+                    return new ReturnType<object> { Success = false, Message = "找不到個人資料" };
                 }
 
                 var user = await _userRepository.GetByIdAsync(userId);
@@ -497,15 +579,57 @@ namespace Matrix.Services
                     user.Email = dto.Email;
                 }
 
-                await _personRepository.UpdateAsync(person);
-                await _userRepository.UpdateAsync(user);
-                await _personRepository.SaveChangesAsync();
+                // 不需要明確調用 UpdateAsync，EF Core 會自動追蹤變更
+                // 只需要保存變更即可
+                await _context.SaveChangesAsync();
 
                 return new ReturnType<object> { Success = true, Message = "更新成功!" };
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return new ReturnType<object> { Success = false, Message = "更新失敗!" };
+                // 記錄詳細錯誤信息以便調試
+                Console.WriteLine($"UpdatePersonProfileAsync 錯誤: {ex.Message}");
+                Console.WriteLine($"Stack Trace: {ex.StackTrace}");
+                return new ReturnType<object> { Success = false, Message = $"更新失敗: {ex.Message}" };
+            }
+        }
+
+        /// <summary>
+        /// 獲取用戶文章中的前N張圖片
+        /// </summary>
+        /// <param name="userId">使用者 ID</param>
+        /// <param name="count">圖片數量限制，預設為10</param>
+        /// <returns>圖片資訊列表</returns>
+        public async Task<List<UserImageDto>> GetUserImagesAsync(Guid userId, int count = 10)
+        {
+            try
+            {
+                // 查詢用戶的文章
+                var user = await _userRepository.GetByIdAsync(userId);
+                if (user == null) return new List<UserImageDto>();
+
+                // 使用 DbContext 查詢獲取用戶文章的圖片附件
+                var imageAttachments = await _context.ArticleAttachments
+                    .Include(aa => aa.Article)
+                    .Where(aa => aa.Article!.AuthorId == userId && aa.Type.ToLower() == "image")
+                    .OrderByDescending(aa => aa.Article!.CreateTime)
+                    .Take(count)
+                    .ToListAsync();
+
+                return imageAttachments.Select(aa => new UserImageDto
+                {
+                    FileId = aa.FileId,
+                    ArticleId = aa.ArticleId,
+                    FilePath = aa.FilePath,
+                    FileName = aa.FileName,
+                    MimeType = aa.MimeType,
+                    ArticleCreateTime = aa.Article!.CreateTime
+                }).ToList();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"GetUserImagesAsync Error: {ex.Message}");
+                return new List<UserImageDto>();
             }
         }
 

@@ -37,6 +37,13 @@
       "files": [
         "dist/cally.js"
       ]
+    },
+    {
+      "library": "@microsoft/signalr@latest",
+      "destination": "wwwroot/lib/signalr",
+      "files": [
+        "dist/browser/signalr.js"
+      ]
     }
   ]
 }

@@ -1,11 +1,12 @@
-@use 'components/sidebar';
 @use 'components/global';
-@use 'components/home';
 @use 'components/error';
+@use 'components/sidebar';
+@use 'components/friends';
+@use 'components/post';
+@use 'components/popup';
 @use 'components/auth';
+@use 'components/home';
 @use 'components/login-popup';
 @use 'components/profile';
-@use 'components/popup';
 @use 'components/confirm';
-@use 'components/post';
 @use 'components/collect';

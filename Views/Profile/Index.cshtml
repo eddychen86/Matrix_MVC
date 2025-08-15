@@ -1,131 +1,86 @@
 ﻿@inject ICustomLocalizer Localizer
-<div class="text-white grid grid-cols-7 gap-x-4">
 
-    <!-- 頂部橫幅與頭像 -->
-    <header class="profile-header">
-        <img :src="profile.bannerPath" alt="Profile Banner" class="profile-banner" />
-        <div class="profile-avatar">
-            <div class="profile-avatar_body">
-                <img :src="profile.avatarPath" alt="Profile Avatar" />
-                <h3>{{ profile.displayName }}</h3>
-                <i data-lucide="crown" class="size-12 mb-4 text-yellow-500"></i>
-            </div>
-            <button class="subTitle font-semibold" data-i18n="Create">@Localizer["Create"]</button>
+<!-- 頂部橫幅與頭像 -->
+<header class="profile-header">
+    <div class="profile-banner_layout">
+        <button v-on:click="updateFile('banner')">
+            <i data-lucide="pen" class="icon-bg text-white"></i>
+        </button>
+        <input type="file" accept="image/*" class="hidden" id="banner-file-input">
+        <img v-if="profile.bannerPath" :src="profile.bannerPath" alt="Profile Banner" />
+        <div v-else class="no-banner bg-accent">
+            <i data-lucide="image" class="size-10 text-stone-200"></i>
         </div>
-    </header>
+    </div>
+    <div class="profile-avatar">
+        <div class="profile-avatar_body">
+            <div class="profile-avatar_img_layout">
+                <button class="edit" v-on:click="updateFile('avatar')">
+                    <i data-lucide="pen" class="icon-bg text-white"></i>
+                </button>
+                <input type="file" accept="image/*" class="hidden" id="avatar-file-input">
+                <img v-if="profile.avatarPath" :src="profile.avatarPath" alt="Profile Avatar" />
+                <div v-else class="no-avatar bg-accent">
+                    <i data-lucide="user-round" class="size-10 text-stone-200"></i>
+                </div>
+            </div>
+            <h3>{{ profile.displayName }}</h3>
+            <i data-lucide="globe" v-if="!profile.isPrivate" class="size-4 sm:size-8 2xl:size-12 mb-0 2xl:mb-4 text-blue-500"></i>
+            <i data-lucide="globe-lock" v-else class="size-4 sm:size-8 2xl:size-12 mb-0 2xl:mb-4 text-blue-500"></i>
+            <i data-lucide="crown" v-show="profile.walletAddress" class="size-4 sm:size-8 2xl:size-12 mb-0 2xl:mb-4 text-yellow-500"></i>
+        </div>
+        <button class="subTitle font-semibold" data-i18n="Create">@Localizer["Create"]</button>
+    </div>
+</header>
 
-    <!-- 左側：個人資訊 -->
+<!-- 左側：個人資訊 -->
+<section class="col-span-7 2xl:col-span-2">
     <ul class="profile-info bg-accent">
         <button @@click="startEdit" class="editPen">
             <i data-lucide="pen" class="size-6"></i>
         </button>
         <li>
-            <h4 class="subTitle" data-i18n="ProfileBio">@Localizer["ProfileBio"]</h4>
-            <p class="para">{{ profile.bio }}</p>
-        </li>
-        <li>
-            <h4 class="subTitle" data-i18n="ProfileContact">@Localizer["ProfileContact"]</h4>
-            <p>{{ profile.email }}</p>
-        </li>
-        <li>
-            <h4 class="subTitle" data-i18n="ProfileLinks">@Localizer["ProfileLinks"]</h4>
-            <ul v-for="url in [profile.website1, profile.website2, profile.website3]" class="flex flex-col gap-2">
-                <li><a class="para" :href="url" target="_blank" rel="noopener noreferrer">{{ url }}</a></li>
-            </ul>
-        </li>
-        <li>
-            <h4 class="subTitle" data-i18n="ProfileImgs">@Localizer["ProfileImgs"]</h4>
-            <div class="flex gap-4 items-center">
-                @* <img v-for="(article, idx) in profile.articles.slice(0, 2)" :key="article.articleId"
-                    :src="'/api/Profile/GetPicture/' + article.articleId + '?v=' + rand"
-                    class="mt-4 h-[108px] w-full rounded-lg object-cover" alt="" /> *@
+            <div class="flex flex-col gap-4">
+                <h4 class="subTitle" data-i18n="ProfileBio">@Localizer["ProfileBio"]</h4>
+                <p class="para">{{ profile.bio }}</p>
             </div>
-        </li>
-    </ul>
-    
-    <!-- 中間：動態貼文 -->
-    <ul class="post-content col-span-3">
-        <li v-for="(item, index) in posts" :key="item.articleId">
-            <article class="bg-accent">
-                @* 文章標題區 *@
-                <div class="post-content_header">
-                    <div class="author-info flex gap-4 items-center">
-                        <div class="author-avatar">
-                            <img v-if="item?.authorAvator != null" :src="item?.authorAvator" alt="item?.authorName">
-                            <span v-else class="bg-secondary">{{ item?.authorName?.slice(0,1).toUpperCase() }}</span>
-                        </div>
+            <div class="flex flex-col gap-4">
+                <h4 class="subTitle" data-i18n="ProfileContact">@Localizer["ProfileContact"]</h4>
+                <p>{{ profile.email }}</p>
+            </div>
+            <div class="flex flex-col gap-4">
+                <h4 class="subTitle" data-i18n="ProfileLinks">@Localizer["ProfileLinks"]</h4>
+                <ul class="flex flex-col gap-2">
+                    <li v-for="url in [profile.website1, profile.website2, profile.website3]">
                         <div>
-                            <h3 class="text-white font-medium">{{ item.authorName || @Localizer["GuestAccount"] }}</h3>
-                            <p class="text-gray-400 text-sm">{{ item.createTime }}</p>
+                            <a class="para" :href="url" target="_blank" rel="noopener noreferrer">{{ url }}</a>
                         </div>
-                    </div>
-                    <div class="flex items-center gap-2 text-gray-400 text-sm">
-                        <i data-lucide="heart" class="w-4 h-4"></i>
-                        <span>{{ item.praiseCount }}</span>
-                        <i data-lucide="bookmark" class="w-4 h-4 ml-2"></i>
-                        <span>{{ item.collectCount }}</span>
-                    </div>
-                </div>
-
-                @* 文章內容 *@
-                <div class="text-gray-300 mb-4 leading-relaxed">
-                    {{ item.content }}
-                </div>
-
-                <div v-if="item.attachments && item.attachments.length > 0">
-                    <div class="flex gap-4 items-center" v-for="img in item.attachments.filter(f => f.type.toLowerCase() === 'image')" :key="img.fileId">
-                        <img :src="img.filePath" :alt="img.fileName" class="mt-4 h-auto w-1/4 rounded-lg" />
-                    </div>
-
-                    <div class="flex gap-4 items-center" v-for="file in item.attachments.filter(f => f.type.toLowerCase() === 'file')" :key="file.fileId">
-                        <a :href="file.filePath" :download="file.fileName" class="mt-4 h-auto w-1/4 rounded-lg">{{ file.fileName }}</a>
-                    </div>
-                </div>
-
-                @* 文章操作列 *@
-                <div class="post-content_state">
-                    <button v-on:click="stateFunc(praize, item.articleId)">
-                        <i data-lucide="heart" class="size-4"></i>
-                        <span data-i18n="Praise">@Localizer["Praise"]</span>
-                    </button>
-                    <button v-on:click="stateFunc(comment, item.articleId)">
-                        <i data-lucide="message-circle" class="size-4"></i>
-                        <span data-i18n="Comment">@Localizer["Comment"]</span>
-                    </button>
-                    @* <button v-on:click="stateFunc(share, item.articleId)">
-                        <i data-lucide="share" class="size-4"></i>
-                        <span data-i18n="Share">@Localizer["Share"]</span>
-                    </button> *@
-                    <button v-on:click="stateFunc(collect, item.articleId)">
-                        <i data-lucide="bookmark" class="size-4"></i>
-                        <span data-i18n="Collect">@Localizer["Collect"]</span>
-                    </button>
-                </div>
-            </article>
-        </li>
-        
-        <!-- 載入狀態指示器 -->
-        <li v-if="isLoading" class="text-center py-8">
-            <div class="flex items-center justify-center gap-2 text-gray-400">
-                <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
-                <span>載入中...</span>
+                    </li>
+                </ul>
             </div>
         </li>
-        
-        <!-- 沒有更多文章的提示 -->
-        <li v-if="!hasMorePosts && posts.length > 0" class="text-center py-8">
-            <span class="text-gray-400">已顯示所有文章</span>
-        </li>
-        
-        <!-- 空狀態 -->
-        <li v-if="!isLoading && posts.length === 0" class="text-center py-8">
-            <span class="text-gray-400">還沒有發布任何文章</span>
+        <li>
+            <h4 class="subTitle" data-i18n="ProfileNFTs">@Localizer["ProfileNFTs"]</h4>
+            <div class="flex gap-2 flex-wrap items-center">
+                <img v-for="(image, idx) in userImages.slice(0, 10)" :key="image.fileId"
+                    :src="image.filePath"
+                    :alt="image.fileName"
+                    class="h-[100px] w-[100px] rounded-lg object-cover cursor-pointer hover:opacity-80 transition-opacity" 
+                />
+            </div>
         </li>
     </ul>
+</section>
 
-    <ul class="col-span-3"></ul>
- 
-    <!-- Edit Profile View -->
-    @await Component.InvokeAsync("EditProfilePopup")
-</div>
+<!-- 中間：動態貼文 -->
+<ul class="post-content col-span-5 2xl:col-span-3" id="profilePostsList">
+    @await Component.InvokeAsync("PostList")
+</ul>
 
+<!-- 好友列表 -->
+<aside class="friends-list col-span-2">
+    @await Component.InvokeAsync("FriendsList")
+</aside>
+
+<!-- Edit Profile View -->
+@await Component.InvokeAsync("EditProfilePopup")

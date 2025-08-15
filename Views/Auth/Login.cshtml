@@ -1,30 +1,32 @@
 @model Matrix.ViewModels.LoginViewModel
 @inject ICustomLocalizer Localizer
 @{
-    ViewData["Title"] = "登入";
+    ViewData["Title"] = Localizer["LoginTitle"];
     Layout = "~/Views/Shared/_AuthLayout.cshtml";
 }
 
 <div id="auth-body">
     <div id="auth-form">
         <div id="mock"></div>
-        <form method="POST" class="w-4/5 md:w-3/4 lg:w-1/2" v-on:submit="submitForm">
+        <form method="POST" class="w-4/5 2xl:w-3/4 lg:w-1/2" v-on:submit="submitForm">
             @Html.AntiForgeryToken()
             <h1>@ViewData["Title"]</h1>
             <p class="text-center subTitle" data-i18n="WelcomeMsg">@Localizer["WelcomeMsg"]</p>
-            
+
             @* 用戶名 *@
             <div class="input-item">
                 <label for="UserName" class="subTitle" data-i18n="UserNameLabel">@Localizer["UserNameLabel"]</label>
-                <input type="text" asp-for="UserName" placeholder="@Localizer["UserNamePlaceholder"]" data-i18n-placeholder="UserNamePlaceholder">
+                <input type="text" asp-for="UserName" placeholder="@Localizer["UserNamePlaceholder"]"
+                    data-i18n-placeholder="UserNamePlaceholder">
                 <p data-valmsg-for="UserName" class="text-red-400 para"></p>
             </div>
-            
+
             @* 密碼 *@
             <div class="input-item">
                 <label for="Password" class="subTitle" data-i18n="PasswordLabel">@Localizer["PasswordLabel"]</label>
                 <div class="input-item_pwd">
-                    <input :type="showPassword ? 'text' : 'password'" asp-for="Password" placeholder="@Localizer["PasswordPlaceholder"]" data-i18n-placeholder="PasswordPlaceholder">
+                    <input :type="showPassword ? 'text' : 'password'" asp-for="Password"
+                        placeholder="@Localizer["PasswordPlaceholder"]" data-i18n-placeholder="PasswordPlaceholder">
                     <button v-if="!showPassword" type="button" v-on:click="togglePasswordVisibility">
                         <i data-lucide="eye-closed" class="text-secondary subTitle"></i>
                     </button>
@@ -38,14 +40,15 @@
             <div>
                 <p data-valmsg-for="AccountLoginError" class="text-red-400 para"></p>
             </div>
-            
+
             @* 記住密碼／忘記密碼 *@
             <div class="flex items-center justify-between">
                 <label class="label flex gap-4 items-center">
                     <input type="checkbox" asp-for="RememberMe" class="auth-checkbox order-indigo-600" />
                     <span class="subTitle text-white" data-i18n="RememberMeLabel">@Localizer["RememberMeLabel"]</span>
                 </label>
-                <button type="button" class="cursor-pointer subTitle" v-on:click="toggleOpen" data-i18n="ForgotPasswordLabel">@Localizer["ForgotPasswordLabel"]</button>
+                <button type="button" class="cursor-pointer subTitle" v-on:click="toggleOpen"
+                    data-i18n="ForgotPasswordLabel">@Localizer["ForgotPasswordLabel"]</button>
             </div>
 
             @* 登入按鈕 *@
@@ -55,7 +58,8 @@
             </button>
 
             @* 註冊 *@
-            <p class="para text-center"><span data-i18n="NewHereMsg">@Localizer["NewHereMsg"]</span><a href="/register" class="font-semibold" data-i18n="RegisterTitle">@Localizer["RegisterTitle"]</a></p>
+            <p class="para text-center"><span data-i18n="NewHereMsg">@Localizer["NewHereMsg"]</span><a href="/register"
+                    class="font-semibold" data-i18n="RegisterTitle">@Localizer["RegisterTitle"]</a></p>
         </form>
     </div>
 
@@ -69,7 +73,8 @@
                 </button>
                 <p class="para" data-i18n="ForgotPasswordMsg">@Localizer["ForgotPasswordMsg"]</p>
                 <div class="ctn-input">
-                    <input type="email" class="text-secondary" placeholder="@Localizer["EmailPlaceholder"]" data-i18n-placeholder="EmailPlaceholder" />
+                    <input type="email" class="text-secondary" placeholder="@Localizer["EmailPlaceholder"]"
+                        data-i18n-placeholder="EmailPlaceholder" />
                     <button type="button" class="subTitle" data-i18n="SubmitBtn">@Localizer[""]</button>
                 </div>
             </form>

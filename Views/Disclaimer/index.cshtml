@@ -1,0 +1,110 @@
+@inject ICustomLocalizer Localizer
+@{
+    ViewData["Title"] = Localizer["Disclaimer"];
+}
+
+<div class="max-w-4xl mx-auto px-6 py-12 col-span-7 text-white">
+    <!-- 主標題區域 -->
+    <div class="text-center mb-12">
+        <h1 class="text-4xl font-bold mb-4" data-i18n="Disclaimer">
+            @Localizer["Disclaimer"]
+        </h1>
+        <div class="w-24 h-1 bg-gradient-to-r from-[#304357] to-stone-500 mx-auto mb-6"></div>
+        <h2 class="title font-medium">
+            使用者上傳數位作品（NFTs 戰略品）條款
+        </h2>
+    </div>
+
+    <!-- 條款內容 -->
+    <div class="space-y-10">
+        <article class="border-l-4 border-[#304357] pl-6 py-4 rounded-r-lg">
+            <h3 class="subTitle font-bold mb-4 flex items-center">
+                <span class="inline-flex items-center justify-center w-8 h-8 bg-[#304357] rounded-full text-sm font-bold mr-3">1</span>
+                上傳與展示的性質
+            </h3>
+            <div class="prose prose-gray max-w-none para">
+                <p class="leading-relaxed mb-3">
+                    本平台提供的「NFTs 戰略品」功能，僅作為使用者於個人檔案頁面中展示其數位作品之用途。
+                </p>
+                <p class="leading-relaxed mb-3">
+                    所有展示的作品資料均由使用者自行上傳，本平台不主動從區塊鏈或其他來源收集、同步或驗證該內容。
+                </p>
+                <p class="leading-relaxed">
+                    使用者可自行聲明其上傳作品為 NFT 或其他形式的數位收藏，但本平台不保證該聲明之真實性與準確性。
+                </p>
+            </div>
+        </article>
+
+        <article class="border-l-4 border-[#304357] pl-6 py-4 rounded-r-lg">
+            <h3 class="subTitle font-bold mb-4 flex items-center">
+                <span class="inline-flex items-center justify-center w-8 h-8 bg-[#304357] rounded-full text-sm font-bold mr-3">2</span>
+                內容責任歸屬
+            </h3>
+            <div class="prose prose-gray max-w-none para">
+                <p class="leading-relaxed mb-3">
+                    使用者應確保其上傳的數位作品擁有合法權利（包括著作權、肖像權及其他智慧財產權），不得侵犯第三方權益。
+                </p>
+                <p class="leading-relaxed mb-3">
+                    使用者不得上傳包含違法、侵權、色情、暴力、仇恨言論、詐騙或其他不當內容的作品。
+                </p>
+                <p class="leading-relaxed">
+                    因使用者上傳或展示之內容引起的任何法律糾紛，由該使用者自行承擔全部責任，本平台概不負責。
+                </p>
+            </div>
+        </article>
+
+        <article class="border-l-4 border-[#304357] pl-6 py-4 rounded-r-lg">
+            <h3 class="subTitle font-bold mb-4 flex items-center">
+                <span class="inline-flex items-center justify-center w-8 h-8 bg-[#304357] rounded-full text-sm font-bold mr-3">3</span>
+                平台權限
+            </h3>
+            <div class="prose prose-gray max-w-none para">
+                <p class="leading-relaxed mb-3">
+                    本平台有權針對涉嫌違反法律法規或本條款的內容進行審查、限制展示、下架或刪除，並可限制相關使用者的帳號功能。
+                </p>
+                <p class="leading-relaxed mb-3">
+                    本平台有權（但無義務）對使用者上傳的作品進行真實性驗證，例如比對區塊鏈資料或進行第三方驗證，並在驗證結果中標記「已驗證」或「未驗證」。
+                </p>
+                <p class="leading-relaxed">
+                    本平台有權基於營運、安全、法律等理由，調整「NFTs 戰略品」的功能範圍、展示形式或存取權限。
+                </p>
+            </div>
+        </article>
+
+        <article class="border-l-4 border-[#304357] pl-6 py-4 rounded-r-lg">
+            <h3 class="subTitle font-bold mb-4 flex items-center">
+                <span class="inline-flex items-center justify-center w-8 h-8 bg-[#304357] rounded-full text-sm font-bold mr-3">4</span>
+                資料保存與刪除
+            </h3>
+            <div class="prose prose-gray max-w-none para">
+                <p class="leading-relaxed mb-3">
+                    使用者可隨時刪除其上傳的數位作品，本平台將在合理時間內完成刪除。
+                </p>
+                <p class="leading-relaxed mb-3">
+                    因法律規定或爭議解決需要，本平台可在刪除請求後保留必要的紀錄副本。
+                </p>
+                <p class="leading-relaxed">
+                    當使用者帳號被刪除或停用時，其上傳的所有數位作品也將一併被刪除或失效。
+                </p>
+            </div>
+        </article>
+
+        <article class="border-l-4 border-red-500/60 pl-6 py-4 bg-red-500/10 rounded-r-lg">
+            <h3 class="subTitle font-bold mb-4 flex items-center">
+                <span class="inline-flex items-center justify-center w-8 h-8 bg-red-500/60 rounded-full text-sm font-bold mr-3">5</span>
+                免責聲明
+            </h3>
+            <div class="prose prose-gray max-w-none para">
+                <p class="leading-relaxed mb-3">
+                    本平台僅提供技術架構與存放服務，對於使用者上傳作品的真實性、完整性、合法性不做任何擔保。
+                </p>
+                <p class="leading-relaxed mb-3">
+                    本平台不參與任何基於上傳內容的交易、投資或其他商業活動，且不承擔因此產生的任何風險與損失。
+                </p>
+                <p class="leading-relaxed">
+                    使用者應自行評估並承擔因上傳、展示或與第三方互動所可能產生的法律及經濟風險。
+                </p>
+            </div>
+        </article>
+    </div>
+</div>

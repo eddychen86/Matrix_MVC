@@ -1,0 +1,97 @@
+@inject ICustomLocalizer Localizer
+<div v-if="editMode" class="profile-edit">
+  <div class="mock" v-on:click="cancel"></div>
+
+  <form method="post" class="profile-edit_layout bg-accent">
+    <h3 class="title text-center font-bold" data-i18n="EditProfile">@Localizer["EditProfile"]</h3>
+    <ul>
+      @* Bio *@
+      <li>
+        <h4 class="title" data-i18n="ProfileBio">@Localizer["ProfileBio"]</h4>
+        <textarea v-model="updatProfile.bio" rows="4" class="subTitle"></textarea>
+      </li>
+
+      @* DisplayName *@
+      <li>
+        <h4 class="title" data-i18n="UserNameLabel">@Localizer["UserNameLabel"]</h4>
+        <input class="subTitle" type="text" v-model="updatProfile.displayName" />
+      </li>
+
+      @* Email *@
+      <li>
+        <h4 class="title" data-i18n="EmailLabel">@Localizer["EmailLabel"]</h4>
+        <input class="subTitle" type="text" v-model="updatProfile.email" />
+      </li>
+
+      @* Password *@
+      <li>
+        <h4 class="title" data-i18n="ProfilePwd">@Localizer["ProfilePwd"]</h4>
+        <div class="row-span-2 flex flex-col gap-4 col-span-3">
+          <div class="input-item_pwd">
+            <input 
+              :type="showPassword ? 'text' : 'password'" 
+              v-model="updatProfile.password" 
+              v-on:input="validatePasswordWithDebounce($event.target.value)"
+              placeholder="留空表示不更改密碼"
+              class="subTitle"
+            />
+            <button v-if="!showPassword" type="button" v-on:click="togglePasswordVisibility">
+              <i data-lucide="eye-closed" class="text-white subTitle"></i>
+            </button>
+            <button v-else type="button" v-on:click="togglePasswordVisibility">
+              <i data-lucide="eye" class="text-white subTitle"></i>
+            </button>
+          </div>
+          
+          <div class="flex flex-col gap-2">
+            <small class="text-gray-400">留空表示不更改目前密碼</small>
+            
+            <!-- 密碼驗證狀態和錯誤訊息 -->
+            <div v-if="passwordValidation.isValidating" class="flex items-center gap-2 text-gray-400">
+              <div class="animate-spin rounded-full h-3 w-3 border-b border-gray-400"></div>
+              <span class="text-sm">驗證中...</span>
+            </div>
+            
+            <p v-if="!passwordValidation.isValid && !passwordValidation.isValidating && passwordValidation.message" 
+               class="text-red-400 para">
+              {{ passwordValidation.message }}
+            </p>
+          </div>
+        </div>
+      </li>
+
+      @* Websites *@
+      <li>
+        <h4 class="title" data-i18n="ProfileLinks">@Localizer["ProfileLinks"]</h4>
+        <div class="row-span-3 flex flex-col gap-4 col-span-3">
+          <input class="subTitle" type="text" v-model="updatProfile.website1" />
+          <input class="subTitle" type="text" v-model="updatProfile.website2" />
+          <input class="subTitle" type="text" v-model="updatProfile.website3" />
+        </div>
+      </li>
+
+      @* Wallet *@
+      <li>
+        <h4 class="title" data-i18n="ProfileWellat">@Localizer["ProfileWellat"]</h4>
+        <input class="subTitle" type="password" v-model="updatProfile.walletAddress" />
+      </li>
+
+      @* IsPrivate *@
+      <li>
+        <h4 class="title" data-i18n="ProfileState">@Localizer["ProfileState"]</h4>
+        <input type="checkbox" :checked="!updatProfile.isPrivate" class="toggle toggle-xl toggle-success my-1" v-model="updatProfile.isPrivate" />
+      </li>
+    </ul>
+
+    <div class="btnGroup">
+      <button class="cts-btn bg-orange-500 rounded-full" v-on:click="cancel">
+        <i data-lucide="eraser"></i>
+        <span class="subTitle" data-i18n="Cancel">@Localizer["Cancel"]</span>
+      </button>
+      <button type="button" class="cts-btn bg-blue-500 rounded-full" v-on:click.prevent="update">
+        <i data-lucide="save"></i>
+        <span class="subTitle" data-i18n="Save">@Localizer["Save"]</span>
+      </button>
+    </div>
+  </form>
+</div>

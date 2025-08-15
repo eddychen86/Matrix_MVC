@@ -38,3 +38,7 @@
 }
 
 @import "./components.css";
+
+[v-cloak] {
+  display: none;
+}

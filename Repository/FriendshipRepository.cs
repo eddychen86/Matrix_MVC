@@ -82,5 +82,22 @@ namespace Matrix.Repository
                 await _context.SaveChangesAsync();
             }
         }
+
+        public async Task<IEnumerable<Friendship>> GetFriendsByStatusAsync(Guid userId, FriendshipStatus? status = null)
+        {
+            var query = _dbSet
+                .Include(f => f.Requester)
+                .Include(f => f.Recipient)
+                .Where(f => f.UserId == userId || f.FriendId == userId);
+
+            if (status.HasValue)
+            {
+                query = query.Where(f => f.Status == status.Value);
+            }
+
+            return await query
+                .OrderByDescending(f => f.RequestDate)
+                .ToListAsync();
+        }
     }
 }

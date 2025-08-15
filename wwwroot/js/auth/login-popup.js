@@ -1,15 +1,16 @@
 /**
- * Login Popup Manager
+ * Login Popup Manager (ESM)
  * 管理登入彈窗的顯示和訪客權限控制
  */
+import { authService } from '/js/services/AuthService.js'
 
-class LoginPopupManager {
+export class LoginPopupManager {
     constructor() {
         this.maxVisibleArticles = 10; // 訪客最多能看的文章數量
         this.articleCount = 0;
         this.isGuest = true;
         this.popupShown = false;
-        
+
         this.init();
     }
 
@@ -19,7 +20,7 @@ class LoginPopupManager {
     init() {
         // 檢查用戶認證狀態
         this.checkAuthStatus();
-        
+
         // 監聽認證狀態變更
         window.addEventListener('authStatusChanged', (event) => {
             this.isGuest = !event.detail.isAuthenticated;
@@ -37,8 +38,8 @@ class LoginPopupManager {
      */
     async checkAuthStatus() {
         try {
-            if (window.authService) {
-                const authStatus = await window.authService.getAuthStatus();
+            if (authService) {
+                const authStatus = await authService.getAuthStatus();
                 this.isGuest = !(authStatus.success && authStatus.data.authenticated);
             } else {
                 console.warn('AuthService not available in login-popup');
@@ -58,7 +59,7 @@ class LoginPopupManager {
 
         // 監控文章元素
         const articles = document.querySelectorAll('[data-article-index]');
-        
+
         if (articles.length === 0) return;
 
         // 使用 Intersection Observer 監控可見性
@@ -66,7 +67,7 @@ class LoginPopupManager {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
                     const articleIndex = parseInt(entry.target.dataset.articleIndex);
-                    
+
                     if (articleIndex >= this.maxVisibleArticles && !this.popupShown) {
                         this.showLoginPopup();
                         this.popupShown = true;
@@ -163,12 +164,6 @@ class LoginPopupManager {
     }
 }
 
-// 全域登入彈窗管理器實例
-window.loginPopupManager = new LoginPopupManager();
-
-// DOM 載入完成後初始化
-document.addEventListener('DOMContentLoaded', function() {
-    if (!window.loginPopupManager) {
-        window.loginPopupManager = new LoginPopupManager();
-    }
-});
+// 導出單例
+export const loginPopupManager = new LoginPopupManager();
+export default loginPopupManager;

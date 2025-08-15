@@ -2,6 +2,9 @@
     ViewData["Title"] = "管理儀表板";
 }
 
+<header class="relative">
+    <img src="~/static/img/image-top.png" alt="" class="h-56 w-full rounded-[30px] object-cover object-center" >
+</header>
 <div class="container mx-auto px-4 py-8">
     <div class="mb-6">
         <h1 class="text-3xl font-bold text-gray-800">管理儀表板</h1>
@@ -9,7 +12,7 @@
     </div>
 
     <!-- 統計卡片 -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <div class="grid grid-cols-1 2xl:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <div class="bg-white rounded-lg shadow-md p-6">
             <div class="flex items-center">
                 <div class="p-3 rounded-full bg-blue-500 bg-opacity-10">
@@ -64,20 +67,20 @@
         <div class="bg-white rounded-lg shadow-md p-6">
             <h3 class="text-lg font-semibold text-gray-800 mb-4">快速操作</h3>
             <div class="space-y-3">
-                <a href="@Url.Action("Index", "Users", new { area = "Dashboard" })" 
-                   class="flex items-center p-3 rounded-lg hover:bg-gray-50 transition-colors">
+                <a href="@Url.Action("Index", "Users", new { area = "Dashboard" })"
+                    class="flex items-center p-3 rounded-lg hover:bg-gray-50 transition-colors">
                     <i class="fas fa-users text-gray-400 mr-3"></i>
                     <span class="text-gray-700">用戶管理</span>
                 </a>
-                
-                <a href="@Url.Action("Index", "Posts", new { area = "Dashboard" })" 
-                   class="flex items-center p-3 rounded-lg hover:bg-gray-50 transition-colors">
+
+                <a href="@Url.Action("Index", "Posts", new { area = "Dashboard" })"
+                    class="flex items-center p-3 rounded-lg hover:bg-gray-50 transition-colors">
                     <i class="fas fa-file-alt text-gray-400 mr-3"></i>
                     <span class="text-gray-700">文章管理</span>
                 </a>
-                
-                <a href="@Url.Action("Index", "Reports", new { area = "Dashboard" })" 
-                   class="flex items-center p-3 rounded-lg hover:bg-gray-50 transition-colors">
+
+                <a href="@Url.Action("Index", "Reports", new { area = "Dashboard" })"
+                    class="flex items-center p-3 rounded-lg hover:bg-gray-50 transition-colors">
                     <i class="fas fa-flag text-gray-400 mr-3"></i>
                     <span class="text-gray-700">檢舉管理</span>
                 </a>

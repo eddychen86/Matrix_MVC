@@ -22,8 +22,8 @@ namespace Matrix.DTOs
         /// <summary>
         /// 文章的內容文字
         /// </summary>
-        [Required(ErrorMessage = "文章內容為必填欄位")]
-        [StringLength(4000, ErrorMessage = "文章內容長度不能超過 4000 個字元")]
+        [Required(ErrorMessage = "Article_ContentRequired")]
+        [StringLength(4000, ErrorMessage = "Article_ContentMaxLength4000")]
         public string Content { get; set; } = string.Empty;
 
         /// <summary>
@@ -212,8 +212,8 @@ namespace Matrix.DTOs
         /// 用途：使用者輸入的文章內容
         /// 驗證：必填，長度限制 1-4000 個字元
         /// </summary>
-        [Required(ErrorMessage = "文章內容為必填欄位")]
-        [StringLength(4000, MinimumLength = 1, ErrorMessage = "文章內容長度必須介於 1 到 4000 個字元之間")]
+        [Required(ErrorMessage = "Article_ContentRequired")]
+        [StringLength(4000, MinimumLength = 1, ErrorMessage = "Article_ContentLength1To4000")]
         public string Content { get; set; } = string.Empty;
 
         /// <summary>
@@ -222,7 +222,7 @@ namespace Matrix.DTOs
         /// 值說明：0=公開, 1=私人
         /// 驗證：必須是 0 或 1
         /// </summary>
-        [Range(0, 1, ErrorMessage = "文章狀態必須是 0（公開）或 1（私人）")]
+        [Range(0, 1, ErrorMessage = "Article_IsPublicRange0Or1")]
         public int IsPublic { get; set; } = 0;
 
         /// <summary>

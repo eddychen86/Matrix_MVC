@@ -5,6 +5,17 @@ using System.Text;
 using Matrix.Middleware;
 using Matrix.Services;
 using Matrix.Controllers;
+using Matrix.Data;
+using Matrix.Repository;
+using Matrix.Repository.Interfaces;
+using Matrix.Services.Interfaces;
+using Matrix.Models;
+using Matrix.DTOs;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.DataProtection;
+using System.IO;
+using System.Net.NetworkInformation;
+using System.Net;
 // using Microsoft.AspNetCore.Identity;
 
 namespace Matrix;
@@ -14,12 +25,6 @@ public class Program
     public static void Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
-        
-        // 開發環境提示
-        if (builder.Environment.IsDevelopment())
-        {
-            Console.WriteLine("💡 如遇 403 錯誤，通常是 port 衝突 - 使用 port 5002 避免 AirTunes");
-        }
 
         // 配置 Console Logging Provider
         builder.Logging.ClearProviders();
@@ -42,6 +47,13 @@ public class Program
                 sqlOptions.EnableRetryOnFailure(3, TimeSpan.FromSeconds(5), null); // 啟用重試機制
             }));
         builder.Services.AddDatabaseDeveloperPageExceptionFilter();
+
+        // DataProtection 金鑰持久化，避免重啟後 Cookie/Antiforgery 失效
+        var keysPath = System.IO.Path.Combine(builder.Environment.ContentRootPath, "DataProtectionKeys");
+        System.IO.Directory.CreateDirectory(keysPath);
+        builder.Services.AddDataProtection()
+            .PersistKeysToFileSystem(new System.IO.DirectoryInfo(keysPath))
+            .SetApplicationName("Matrix");
 
         #region 註冊 Repository
 
@@ -170,23 +182,24 @@ public class Program
 
         #endregion
 
-        // 添加響應壓縮以加速數據傳輸
+        // 響應壓縮：排除 HTML 避免解碼錯誤
         builder.Services.AddResponseCompression(options =>
         {
             options.EnableForHttps = true;
             options.Providers.Add<Microsoft.AspNetCore.ResponseCompression.BrotliCompressionProvider>();
             options.Providers.Add<Microsoft.AspNetCore.ResponseCompression.GzipCompressionProvider>();
-            options.MimeTypes = Microsoft.AspNetCore.ResponseCompression.ResponseCompressionDefaults.MimeTypes.Concat(new[]
+            // 明確排除 text/html，只壓縮 API 和靜態資源
+            options.MimeTypes = new[]
             {
                 "application/json",
-                "text/plain",
-                "text/css",
                 "application/javascript",
-                "text/html",
+                "text/javascript",
+                "text/css",
+                "text/plain",
                 "application/xml",
                 "text/xml",
-                "application/json; charset=utf-8"
-            });
+                "image/svg+xml"
+            };
         });
         
         builder.Services.AddControllersWithViews(options =>
@@ -209,6 +222,27 @@ public class Program
         });
 
         #endregion
+
+        // 動態端口配置
+        var originalUrls = builder.Configuration["Urls"];
+        if (!string.IsNullOrEmpty(originalUrls))
+        {
+            var uri = new Uri(originalUrls);
+            var originalPort = uri.Port;
+            var availablePort = FindAvailablePort(originalPort);
+            
+            if (availablePort != originalPort)
+            {
+                var newUrl = $"{uri.Scheme}://{uri.Host}:{availablePort}";
+                builder.WebHost.UseUrls(newUrl);
+                Console.WriteLine($"原始端口 {originalPort} 已被占用，改用端口 {availablePort}");
+                Console.WriteLine($"應用程式將在 {newUrl} 上執行");
+            }
+            else
+            {
+                Console.WriteLine($"應用程式將在 {originalUrls} 上執行");
+            }
+        }
 
         var app = builder.Build();
 
@@ -257,5 +291,32 @@ public class Program
         app.MapRazorPages();
 
         app.Run();
+    }
+
+    private static int FindAvailablePort(int startPort)
+    {
+        int port = startPort;
+        while (port <= 65535)
+        {
+            if (IsPortAvailable(port))
+            {
+                return port;
+            }
+            port++;
+        }
+        throw new InvalidOperationException($"No available port found starting from {startPort}");
+    }
+
+    private static bool IsPortAvailable(int port)
+    {
+        try
+        {
+            var tcpListeners = IPGlobalProperties.GetIPGlobalProperties().GetActiveTcpListeners();
+            return !tcpListeners.Any(listener => listener.Port == port);
+        }
+        catch
+        {
+            return false;
+        }
     }
 }

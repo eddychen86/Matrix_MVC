@@ -1,9 +1,10 @@
 /**
- * Authentication Manager
+ * Authentication Manager (ESM)
  * 處理用戶認證狀態檢查和自動登入
  */
+import { authService } from '/js/services/AuthService.js'
 
-class AuthManager {
+export class AuthManager {
     constructor() {
         this.checkAuthOnLoad();
     }
@@ -13,9 +14,9 @@ class AuthManager {
      */
     async checkAuthOnLoad() {
         try {
-            if (window.authService) {
-                const authStatus = await window.authService.getAuthStatus();
-                
+            if (authService) {
+                const authStatus = await authService.getAuthStatus();
+
                 if (authStatus.success && authStatus.data.authenticated) {
                     // console.log('User is authenticated:', authStatus.data.user);
                     this.handleAuthenticatedUser(authStatus.data.user);
@@ -39,7 +40,7 @@ class AuthManager {
     handleAuthenticatedUser(user) {
         // 可以在這裡更新 UI，顯示用戶資訊等
         document.body.classList.add('authenticated');
-        
+
         // 觸發認證狀態變更事件
         window.dispatchEvent(new CustomEvent('authStatusChanged', {
             detail: { isAuthenticated: true, user: user }
@@ -51,7 +52,7 @@ class AuthManager {
      */
     handleUnauthenticatedUser() {
         document.body.classList.add('unauthenticated');
-        
+
         // 觸發認證狀態變更事件
         window.dispatchEvent(new CustomEvent('authStatusChanged', {
             detail: { isAuthenticated: false, user: null }
@@ -73,12 +74,10 @@ class AuthManager {
 
             if (response.ok) {
                 console.log('Logout successful');
-                
+
                 // 清除 AuthService 緩存
-                if (window.authService) {
-                    window.authService.clearAuthStatus();
-                }
-                
+                authService?.clearAuthStatus?.();
+
                 // 重新導向到首頁
                 window.location.href = '/';
             } else {
@@ -90,10 +89,7 @@ class AuthManager {
     }
 }
 
-// 全域認證管理器實例
-window.authManager = new AuthManager();
-
-// 全域登出函數
-window.logout = () => {
-    window.authManager.logout();
-};
+// 導出單例與便捷函數
+export const authManager = new AuthManager();
+export const logout = () => authManager.logout();
+export default authManager;

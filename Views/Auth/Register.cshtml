@@ -13,7 +13,7 @@
 <div id="auth-body">
     <div id="auth-form">
         <div id="mock"></div>
-        <form method="POST" class="w-4/5 md:w-3/4 lg:w-1/2" v-on:submit="submitForm">
+        <form method="POST" class="w-4/5 2xl:w-3/4 lg:w-1/2" v-on:submit="submitForm">
             @Html.AntiForgeryToken()
             <h1>@ViewData["Title"]</h1>
             <p class="text-center subTitle">@Localizer["WelcomeMsg"]</p>
@@ -31,12 +31,13 @@
                 <input type="text" asp-for="Email" placeholder="@emailPlaceholder">
                 <p data-valmsg-for="Email" class="text-red-400 para"></p>
             </div>
-            
+
             @* 密碼 *@
             <div class="input-item">
                 <label for="Password" class="subTitle">@Localizer["PasswordLabel"]</label>
                 <div class="input-item_pwd">
-                    <input :type="showPassword ? 'text' : 'password'" asp-for="Password" placeholder="@passwordPlaceholder">
+                    <input :type="showPassword ? 'text' : 'password'" asp-for="Password"
+                        placeholder="@passwordPlaceholder">
                     <button v-if="!showPassword" type="button" v-on:click="togglePasswordVisibility">
                         <i data-lucide="eye-closed" class="text-secondary subTitle"></i>
                     </button>
@@ -51,7 +52,8 @@
             <div class="input-item">
                 <label for="ConfirmPassword" class="subTitle">@Localizer["ConfirmPasswordLabel"]</label>
                 <div class="input-item_pwd">
-                    <input :type="showConfirmPassword ? 'text' : 'password'" asp-for="PasswordConfirm" placeholder="@confirmPasswordPlaceholder">
+                    <input :type="showConfirmPassword ? 'text' : 'password'" asp-for="PasswordConfirm"
+                        placeholder="@confirmPasswordPlaceholder">
                     <button v-if="!showConfirmPassword" type="button" v-on:click="toggleConfirmPasswordVisibility">
                         <i data-lucide="eye-closed" class="text-secondary subTitle"></i>
                     </button>
@@ -67,9 +69,10 @@
                 @* <span class="loading loading-dots loading-lg"></span> *@
                 @Localizer["SubmitBtn"]
             </button>
-            
+
             @* 已有帳號 *@
-            <p class="para text-center">@Localizer["hasAccountMsg"] <a href="/login" class="font-semibold">@Localizer["LoginTitle"]</a></p>
+            <p class="para text-center">@Localizer["hasAccountMsg"] <a href="/login"
+                    class="font-semibold">@Localizer["LoginTitle"]</a></p>
         </form>
     </div>
 </div>

@@ -1,35 +1,29 @@
 @font-face {
   font-family: SourceSans3;
   font-style: normal;
-  src: url("/static/fonts/SourceSans3-Regular.ttf") format("truetype");
+  src: url('/static/fonts/SourceSans3-Regular.ttf') format('truetype');
 }
 
 @layer components {
   #auth-body {
-    @apply
-      flex h-full w-full text-white
-      p-2 sm:p-4 md:p-8 relative
-    ;
+    @apply flex h-full w-full text-white
+      p-2 sm:p-4 2xl:p-8 relative;
 
     #auth-form {
-      @apply
-        rounded-[30px] overflow-x-hidden overflow-y-auto relative shadow-xl shadow-black/30
+      @apply rounded-[30px] overflow-x-hidden overflow-y-auto relative shadow-xl shadow-black/30
         w-full lg:w-1/2
-        min-h-[600px] sm:min-h-[800px] md:min-h-[1000px] h-full
-      ;
+        min-h-[300px] sm:min-h-[600px] 2xl:min-h-[1000px] h-full;
 
       #mock {
         @apply w-full h-full bg-secondary opacity-80;
       }
 
       form {
-        @apply absolute top-1/2 left-1/2 -translate-1/2 flex flex-col gap-8;
+        @apply absolute top-1/2 left-1/2 -translate-1/2 flex flex-col gap-4;
 
         h1 {
-          @apply
-            text-3xl md:text-6xl
-            text-center font-[SourceSans3] font-bold
-          ;
+          @apply text-3xl 2xl:text-6xl
+            text-center font-[SourceSans3] font-bold;
         }
 
         .input-item {
@@ -40,24 +34,20 @@
           }
 
           input {
-            @apply
-              rounded-full bg-white overflow-hidden w-full text-black outline-none
-              p-1 sm:p-2 md:p-4
-            ;
+            @apply rounded-full bg-white overflow-hidden w-full text-black outline-none
+              p-1 sm:p-2 2xl:p-4;
           }
 
           &_pwd {
             @apply bg-white rounded-full justify-between items-center relative;
 
             input {
-              @apply pr-1 sm:pr-7 md:pr-14;
+              @apply pr-1 sm:pr-7 2xl:pr-14;
             }
 
             button {
-              @apply
-                cursor-pointer absolute top-1/2 -translate-y-1/2
-                right-1 sm:right-2 md:right-4
-              ;
+              @apply cursor-pointer absolute top-1/2 -translate-y-1/2
+                right-1 sm:right-2 2xl:right-4;
             }
           }
         }
@@ -76,10 +66,8 @@
       @apply absolute top-0 left-0 z-10 w-screen h-screen bg-white/30 text-white transition-all duration-300 ease-in-out;
 
       form {
-        @apply
-          bg-secondary absolute top-1/2 left-1/2 -translate-1/2 p-8 rounded-[30px] shadow-xl flex flex-col gap-4
-          w-4/5 md:w-1/2 lg:w-1/3
-        ;
+        @apply bg-secondary absolute top-1/2 left-1/2 -translate-1/2 p-8 rounded-[30px] shadow-xl flex flex-col gap-4
+          w-4/5 2xl:w-1/2 lg:w-1/3;
 
         .close-btn {
           @apply cursor-pointer absolute top-8 right-8;
@@ -89,10 +77,8 @@
           @apply flex items-center justify-between rounded-full p-1 bg-white;
 
           input {
-            @apply
-              bg-white outline-none w-full rounded-full text-black
-              py-1 lg:p-3
-            ;
+            @apply bg-white outline-none w-full rounded-full text-black
+              py-1 lg:p-3;
           }
 
           button {
@@ -100,7 +86,6 @@
           }
         }
       }
-
     }
 
     .fade-enter-active,
@@ -110,7 +95,7 @@
 
     .fade-enter-from,
     .fade-leave-to {
-      @apply  opacity-0;
+      @apply opacity-0;
     }
 
     .fade-enter-to,
@@ -128,8 +113,7 @@
   }
 
   .auth-checkbox {
-    @apply
-    checkbox bg-[#ff7f3e] text-white
+    @apply checkbox bg-[#ff7f3e] text-white
     checked:bg-[#ff7f3e];
   }
 

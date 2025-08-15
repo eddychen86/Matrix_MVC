@@ -41,7 +41,7 @@ namespace Matrix.Repository
         public async Task<bool> ValidateUserAsync(string username, string password)
         {
             var user = await _dbSet
-                .AsNoTracking()
+                // .AsNoTracking()      <== 驗證屬更新，不該加上禁止追蹤的功能
                 .FirstOrDefaultAsync(u => u.UserName == username || u.Email == username);
 
             if (user == null || string.IsNullOrEmpty(user.Password)) return false;
@@ -64,7 +64,13 @@ namespace Matrix.Repository
                 {
                     // 驗證成功，但延後密碼升級到背景處理，避免阻塞認證
                     // 使用 Task.Run 在背景線程升級密碼，不阻塞當前請求
-                    _ = Task.Run(async () => await UpgradePasswordAsync(user.UserId, password));
+                    // _ = Task.Run(async () => await UpgradePasswordAsync(user.UserId, password));
+                    // return true;
+
+                    // 直接在當前請求中更新
+                    user.Password = _passwordHasher.HashPassword(user, password);
+                    await UpdateAsync(user);
+                    await SaveChangesAsync();
                     return true;
                 }
             }

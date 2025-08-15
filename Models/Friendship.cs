@@ -9,10 +9,10 @@ namespace Matrix.Models
     /// </summary>
     public enum FriendshipStatus
     {
-        Pending,    // 待確認
-        Accepted,   // 已接受
-        Declined,   // 已拒絕
-        Blocked     // 已封鎖
+        Pending,    // 0 = 待確認
+        Accepted,   // 1 = 已接受
+        Declined,   // 2 = 已拒絕
+        Blocked     // 3 = 已封鎖
     }
 
     /// <summary>
@@ -22,7 +22,6 @@ namespace Matrix.Models
     {
         /// <summary>
         /// 好友關係的唯一識別碼
-        /// 改用 UUID 以確保唯一性和安全性，並以 ArrayExtension.GenerateOrdered(1)[0] 方法生成一個劇時間排序的唯一的值
         /// </summary>
         [Key]
         public Guid FriendshipId { get; set; } = Guid.NewGuid();

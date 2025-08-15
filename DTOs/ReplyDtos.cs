@@ -30,8 +30,8 @@ namespace Matrix.DTOs
         /// <summary>
         /// 回覆的內容文字
         /// </summary>
-        [Required(ErrorMessage = "回覆內容為必填欄位")]
-        [StringLength(1000, ErrorMessage = "回覆內容長度不能超過 1000 個字元")]
+        [Required(ErrorMessage = "Reply_ContentRequired")]
+        [StringLength(1000, ErrorMessage = "Reply_ContentMaxLength1000")]
         public string Content { get; set; } = string.Empty;
 
         /// <summary>
@@ -217,7 +217,7 @@ namespace Matrix.DTOs
         /// <summary>
         /// 回覆所屬文章的唯一識別碼
         /// </summary>
-        [Required(ErrorMessage = "文章 ID 為必填欄位")]
+        [Required(ErrorMessage = "Reply_ArticleIdRequired")]
         public Guid ArticleId { get; set; }
 
         /// <summary>
@@ -228,8 +228,8 @@ namespace Matrix.DTOs
         /// <summary>
         /// 回覆的內容文字
         /// </summary>
-        [Required(ErrorMessage = "回覆內容為必填欄位")]
-        [StringLength(1000, MinimumLength = 1, ErrorMessage = "回覆內容長度必須介於 1 到 1000 個字元之間")]
+        [Required(ErrorMessage = "Reply_ContentRequired")]
+        [StringLength(1000, MinimumLength = 1, ErrorMessage = "Reply_ContentLength1To1000")]
         public string Content { get; set; } = string.Empty;
 
         /// <summary>

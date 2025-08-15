@@ -1,40 +1,95 @@
 ﻿@layer components {
-    #posts_list, #news_list {
-        @apply max-w-3xl mx-auto flex flex-col gap-4;
-    }
+    .home-hots_list {
+        @apply
+            flex flex-col gap-4
+            h-28 sm:h-48 2xl:h-80
+        ;
 
-    #postEditorApp {
-        @apply flex justify-between items-center;
-
-        #openPostBtn {
-            @apply px-3 py-1 flex gap-2 items-center bg-white rounded-full text-black transition-colors duration-300 hover:bg-gray-300;
+        .title {
+            @apply font-bold;
         }
-    }
 
-    .posts-item {
-        @apply rounded-[30px] p-6 hover:border-accent/40 transition-colors flex flex-col gap-4;
+        .hots_list_carousel {
+            @apply relative w-full h-full;
 
-        &_header {
-            @apply flex items-center justify-between;
+            button {
+                @apply
+                    absolute top-1/2 z-50 flex -translate-y-1/2 transform items-center justify-center rounded-full bg-white text-black shadow transition cursor-pointer
+                    hover:bg-gray-200 focus:outline-none
+                    w-6 sm:w-8 2xl:w-10
+                    h-6 sm:h-8 2xl:h-10
+                ;
 
-            &_avatar {
-                @apply flex items-center gap-3;
+                &:first-of-type {
+                    @apply left-0;
+                }
 
-                &_img {
-                    @apply size-10 rounded-full flex items-center justify-center overflow-hidden;
-
-                    & img {
-                        @apply w-full h-full object-cover object-center;
-                    }
-                    
-                    & span {
-                        @apply text-white font-bold;
-                    }
+                &:last-of-type {
+                    @apply right-0;
                 }
             }
 
-            &_counter {
-                @apply flex items-center gap-2 text-gray-400;
+            .carousel {
+                &_layout {
+                    @apply
+                        gap-8 text-center h-full
+                        mx-1 sm:mx-4 2xl:mx-8
+                    ;
+                }
+
+                &-item_cts {
+                    @apply
+                        h-full overflow-hidden rounded-[30px]
+                        w-[10%] sm:w-[15%] 2xl:w-[19%]
+                    ;
+
+                    figure {
+                        @apply h-full w-full;
+
+                        img {
+                            @apply h-full w-full object-cover;
+                        }
+
+                        .no-img {
+                            @apply text-gray-400 flex h-full w-full items-center justify-center;
+                        }
+                    }
+                }
+
+                &-item_body {
+                    .userInfo {
+                        @apply flex items-center gap-2;
+
+                        img {
+                            @apply h-8 w-8 rounded-full object-cover;
+                        }
+
+                        .no-img {
+                            @apply text-gray-400 flex h-8 w-8 items-center justify-center rounded-full;
+
+                            span {
+                                @apply text-sm font-bold;
+                            }
+                        }
+                    }
+                }
+            }
+            
+        }
+
+        .no-data {
+            @apply text-gray-400 flex flex-col gap-4 items-center justify-center ;
+        }
+    }
+
+    .home-posts_list {
+        @apply flex flex-col gap-4;
+
+        .post_editor_app {
+            @apply flex items-center justify-between;
+
+            button {
+                @apply cursor-pointer flex gap-2 items-center bg-white text-black rounded-full px-4 py-2;
             }
         }
     }

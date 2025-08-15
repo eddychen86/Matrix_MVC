@@ -141,5 +141,29 @@ namespace Matrix.Services.Interfaces
         /// <param name="status">新的狀態值</param>
         /// <returns>更新是否成功</returns>
         Task<bool> UpdateUserStatusAsync(Guid userId, int status);
+
+        /// <summary>
+        /// 更新個人資料圖片（頭像或橫幅）
+        /// </summary>
+        /// <param name="userId">使用者 ID</param>
+        /// <param name="type">圖片類型：avatar 或 banner</param>
+        /// <param name="filePath">檔案相對路徑</param>
+        /// <returns>更新結果</returns>
+        Task<ReturnType<object>> UpdateProfileImageAsync(Guid userId, string type, string filePath);
+
+        /// <summary>
+        /// 驗證密碼是否符合規則
+        /// </summary>
+        /// <param name="password">要驗證的密碼</param>
+        /// <returns>驗證結果</returns>
+        (bool IsValid, string ErrorMessage) ValidatePassword(string password);
+
+        /// <summary>
+        /// 獲取用戶文章中的前N張圖片
+        /// </summary>
+        /// <param name="userId">使用者 ID</param>
+        /// <param name="count">圖片數量限制，預設為10</param>
+        /// <returns>圖片資訊列表</returns>
+        Task<List<UserImageDto>> GetUserImagesAsync(Guid userId, int count = 10);
     }
 }

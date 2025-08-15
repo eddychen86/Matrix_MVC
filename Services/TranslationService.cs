@@ -9,6 +9,14 @@ namespace Matrix.Services
         {
             ["zh-TW"] = new Dictionary<string, string>
             {
+                #region footer 模組
+
+                ["About"] = "關於我們",
+                ["ContactUs"] = "聯繫我們",
+                ["Disclaimer"] = "免責聲明",
+
+                #endregion
+
                 #region Auth 模組
 
                 // 標題
@@ -81,7 +89,7 @@ namespace Matrix.Services
                 ["Follow"] = "追蹤",
                 ["Collect"] = "收藏",
                 ["Share"] = "分享",
-                ["GuestBrowseMsg"] = "登入後可操作",
+                ["GuestBrowseMsg"] = "請先登入以進行互動",
                 ["GuestAccount"] = "訪客",
 
                 // 狀態
@@ -107,7 +115,7 @@ namespace Matrix.Services
                 ["Users"] = "用戶管理",
                 ["Posts"] = "貼文管理",
                 ["Reports"] = "檢舉管理",
-                ["Logs"] = "網站日誌",
+                ["Config"] = "網站設置",
 
                 #endregion
 
@@ -130,17 +138,30 @@ namespace Matrix.Services
                 #endregion
 
                 #region Profile 模組
-                
+
                 ["ProfileBio"] = "自我介紹",
                 ["ProfileContact"] = "聯絡方式",
                 ["ProfileLinks"] = "其他連結",
-                ["ProfileImgs"] = "圖片",
+                ["ProfileNFTs"] = "NFTs 戰略品",
                 ["ProfileName"] = "個人資料名稱",
                 ["ProfileDescription"] = "個人資料描述",
                 ["EditProfile"] = "編輯個人資料",
                 ["SaveProfile"] = "儲存個人資料",
                 ["ProfileWellat"] = "錢包地址",
                 ["ProfileState"] = "是否公開",
+                ["ProfilePwd"] = "重設密碼",
+
+                #endregion
+
+                #region Friends 模組
+
+                ["FriendsTitle"] = "好友列表",
+                ["FriendsAccepted"] = "已接受",
+                ["FriendsPending"] = "待處裡",
+                ["FriendsDeclined"] = "已拒絕",
+                ["FriendsBlocked"] = "封鎖",
+                ["FriendsAll"] = "全部",
+                ["FriendsNone"] = "尚無好友",
 
                 #endregion
 
@@ -165,7 +186,7 @@ namespace Matrix.Services
                 ["ReportName"] = "報告名稱",
                 ["ReportDate"] = "報告日期",
                 ["ReportType"] = "報告類型",
-                
+
                 // === 確認模組 ===
                 ["InvalidConfirmLink"] = "無效的確認連結",
                 ["UserNotExistOrExpired"] = "用戶不存在或確認連結已失效",
@@ -176,7 +197,7 @@ namespace Matrix.Services
                 ["WelcomeRegisterConfirmEmail"] = "歡迎註冊！請確認您的電子郵件地址",
                 ["ConfirmEmailSent"] = "確認信已發送，請檢查您的電子郵件。",
                 ["SendConfirmEmailError"] = "發送確認信時發生錯誤，請稍後再試。",
-                
+
                 // === 確認信內容 ===
                 ["EmailWelcomeTitle"] = "歡迎加入 Matrix",
                 ["EmailWelcomeSubtitle"] = "Welcome to the Matrix.",
@@ -186,7 +207,7 @@ namespace Matrix.Services
                 ["EmailAlternativeText"] = "如果按鈕無法點擊，請複製以下連結到瀏覽器：",
                 ["EmailFooterText"] = "此連結將在 24 小時後失效。",
                 ["EmailBrandMotto"] = "The world is a fog, filled with out-of-focus noise. We choose to become an eternal lighthouse.",
-                
+
                 // === 確認頁面 ===
                 ["ConfirmPageTitle"] = "郵件確認",
                 ["PleaseWait"] = "請稍候...",
@@ -207,19 +228,95 @@ namespace Matrix.Services
                 ["ProcessingResultError"] = "處理確認結果時發生錯誤。",
                 ["CannotGetResult"] = "無法獲取確認結果，請重新嘗試。",
                 ["UseConfirmLink"] = "請透過郵件中的確認連結來訪問此頁面。",
-                
+
                 // 其他常用
                 ["Title"] = "Matrix",
                 ["Email"] = "電子郵件",
                 ["Password"] = "密碼",
                 ["ConfirmPassword"] = "確認密碼",
-                ["Register"] = "註冊"
-                
+                ["Register"] = "註冊",
+
+                #endregion
+
+                // 驗證錯誤訊息（來自 DTOs）
+                #region User
+                ["User_UserNameRequired"] = "使用者名稱為必填欄位",
+                ["User_UserNameLength1To50"] = "使用者名稱長度必須介於 1 到 50 個字元之間",
+                ["User_EmailRequired"] = "電子郵件為必填欄位",
+                ["User_EmailInvalid"] = "請輸入有效的電子郵件地址",
+                ["User_EmailMaxLength100"] = "電子郵件長度不能超過 100 個字元",
+                ["User_CountryMaxLength100"] = "國家名稱長度不能超過 100 個字元",
+                ["User_UserNameLength3To20"] = "使用者名稱長度必須介於 3 到 20 個字元之間",
+                ["User_UserNameAllowedChars"] = "使用者名稱只能包含英文字母、數字和底線",
+                ["User_EmailMaxLength30"] = "電子郵件長度不能超過 30 個字元",
+                ["User_PasswordRequired"] = "密碼為必填欄位",
+                ["User_PasswordLength8To20"] = "密碼長度必須介於 8 到 20 個字元之間",
+                ["User_PasswordComplexity"] = "密碼必須包含至少一個大寫字母、一個小寫字母、一個數字、一個特殊符號",
+                ["User_PasswordConfirmRequired"] = "確認密碼為必填欄位",
+                ["User_PasswordsMustMatch"] = "確認密碼必須與密碼相符",
+                ["User_GenderRange0To3"] = "性別值必須在 0 到 3 之間",
+                ["User_RoleRange0To2"] = "權限等級必須在 0 到 2 之間",
+                ["User_DisplayNameMaxLength50"] = "顯示名稱長度不能超過 50 個字元",
+                ["User_DisplayNameLength1To50"] = "顯示名稱長度必須介於 1 到 50 個字元之間",
+                ["User_BioMaxLength300"] = "個人簡介長度不能超過 300 個字元",
+                ["User_PrivacyRange0Or1"] = "隱私設定必須是 0（公開）或 1（私人）",
+                ["User_UserNameAllowedCharsWithChinese"] = "使用者名稱只能包含字母、數字、底線和中文字元",
+                #endregion
+
+                #region Person
+                ["Person_DisplayNameLength1To50"] = "顯示名稱長度必須介於 1 到 50 個字元之間",
+                ["Person_BioMaxLength300"] = "個人簡介長度不能超過 300 個字元",
+                ["Person_PrivacyRange0To1"] = "隱私設定值必須在 0 到 1 之間",
+                ["Person_WalletAddressMaxLength100"] = "錢包地址長度不能超過 100 個字元",
+                #endregion
+
+                #region Notification
+                ["Notification_TitleRequired"] = "通知標題為必填欄位",
+                ["Notification_TitleMaxLength100"] = "通知標題長度不能超過 100 個字元",
+                ["Notification_ContentMaxLength500"] = "通知內容長度不能超過 500 個字元",
+                #endregion
+
+                #region Article
+                ["Article_ContentRequired"] = "文章內容為必填欄位",
+                ["Article_ContentMaxLength4000"] = "文章內容長度不能超過 4000 個字元",
+                ["Article_ContentLength1To4000"] = "文章內容長度必須介於 1 到 4000 個字元之間",
+                ["Article_IsPublicRange0Or1"] = "文章狀態必須是 0（公開）或 1（私人）",
+                #endregion
+
+                #region Reply
+                ["Reply_ArticleIdRequired"] = "文章 ID 為必填欄位",
+                ["Reply_ContentRequired"] = "回覆內容為必填欄位",
+                ["Reply_ContentMaxLength1000"] = "回覆內容長度不能超過 1000 個字元",
+                ["Reply_ContentLength1To1000"] = "回覆內容長度必須介於 1 到 1000 個字元之間",
+                #endregion
+
+                #region NFT
+                ["NFT_OwnerIdRequired"] = "擁有者 ID 為必填",
+                ["NFT_FileNameRequired"] = "NFT 名稱為必填",
+                ["NFT_FileNameMaxLength255"] = "NFT 名稱長度不能超過 255 個字元",
+                ["NFT_FilePathRequired"] = "檔案路徑為必填",
+                ["NFT_FilePathMaxLength2048"] = "檔案路徑長度不能超過 2048 個字元",
+                ["NFT_CollectTimeRequired"] = "收藏時間為必填",
+                ["NFT_CurrencyRequired"] = "幣別為必填",
+                ["NFT_CurrencyMaxLength10"] = "幣別長度不能超過 10 個字元",
+                ["NFT_PriceMin0"] = "價格必須大於等於 0",
+                ["NFT_MinPriceMin0"] = "最低價格必須大於等於 0",
+                ["NFT_MaxPriceMin0"] = "最高價格必須大於等於 0",
+                ["NFT_PageMin1"] = "頁數必須大於 0",
+                ["NFT_PageSizeRange1To100"] = "每頁筆數必須在 1-100 之間",
                 #endregion
             },
-            
+
             ["en-US"] = new Dictionary<string, string>
             {
+                #region footer 模組
+
+                ["About"] = "About",
+                ["ContactUs"] = "Contact Us",
+                ["Disclaimer"] = "Disclaimer",
+
+                #endregion
+
                 #region Auth 模組
                 // 標題
                 ["LoginTitle"] = "Login",
@@ -316,7 +413,7 @@ namespace Matrix.Services
                 ["Users"] = "Users",
                 ["Posts"] = "Posts",
                 ["Reports"] = "Reports",
-                ["Logs"] = "Logs",
+                ["Config"] = "Settings",
 
                 #endregion
 
@@ -343,13 +440,26 @@ namespace Matrix.Services
                 ["ProfileBio"] = "Bio",
                 ["ProfileContact"] = "Contact",
                 ["ProfileLinks"] = "Links",
-                ["ProfileImgs"] = "Pictures",
+                ["ProfileNFTs"] = "NFT Collects",
                 ["ProfileName"] = "Profile Name",
                 ["ProfileDescription"] = "Profile Description",
                 ["EditProfile"] = "Edit Profile",
                 ["SaveProfile"] = "Save Profile",
                 ["ProfileWellat"] = "Wallet Address",
                 ["ProfileState"] = "Profile State",
+                ["ProfilePwd"] = "Reset Password",
+
+                #endregion
+
+                #region Friends 模組
+
+                ["FriendsTitle"] = "Friends",
+                ["FriendsAccepted"] = "Accepted",
+                ["FriendsPending"] = "Pending",
+                ["FriendsDeclined"] = "Declined",
+                ["FriendsBlocked"] = "Blocked",
+                ["FriendsAll"] = "All",
+                ["FriendsNone"] = "No friends yet",
 
                 #endregion
 
@@ -374,7 +484,7 @@ namespace Matrix.Services
                 ["ReportName"] = "Report Name",
                 ["ReportDate"] = "Report Date",
                 ["ReportType"] = "Report Type",
-                
+
                 // === 確認模組 ===
                 ["InvalidConfirmLink"] = "Invalid confirmation link",
                 ["UserNotExistOrExpired"] = "User does not exist or confirmation link has expired",
@@ -385,7 +495,7 @@ namespace Matrix.Services
                 ["WelcomeRegisterConfirmEmail"] = "Welcome to register! Please confirm your email address",
                 ["ConfirmEmailSent"] = "Confirmation email has been sent, please check your email.",
                 ["SendConfirmEmailError"] = "An error occurred while sending confirmation email, please try again later.",
-                
+
                 // === 確認信內容 ===
                 ["EmailWelcomeTitle"] = "Welcome to Matrix",
                 ["EmailWelcomeSubtitle"] = "Welcome to the Matrix.",
@@ -395,7 +505,7 @@ namespace Matrix.Services
                 ["EmailAlternativeText"] = "If the button doesn't work, please copy the following link to your browser:",
                 ["EmailFooterText"] = "This link will expire in 24 hours.",
                 ["EmailBrandMotto"] = "The world is a fog, filled with out-of-focus noise. We choose to become an eternal lighthouse.",
-                
+
                 // === 確認頁面 ===
                 ["ConfirmPageTitle"] = "Email Confirmation",
                 ["PleaseWait"] = "Please wait...",
@@ -416,15 +526,84 @@ namespace Matrix.Services
                 ["ProcessingResultError"] = "An error occurred while processing the confirmation result.",
                 ["CannotGetResult"] = "Unable to get confirmation result, please try again.",
                 ["UseConfirmLink"] = "Please access this page through the confirmation link in your email.",
-                
+
                 // 其他常用
                 ["Title"] = "Matrix",
                 ["Email"] = "Email",
                 ["Password"] = "Password",
                 ["ConfirmPassword"] = "Confirm Password",
-                ["Register"] = "Register"
-                
+                ["Register"] = "Register",
+
                 #endregion
+
+                // Validation error messages (from DTOs)
+                #region User
+                ["User_UserNameRequired"] = "User name is required.",
+                ["User_UserNameLength1To50"] = "User name length must be between 1 and 50 characters.",
+                ["User_EmailRequired"] = "Email is required.",
+                ["User_EmailInvalid"] = "Please enter a valid email address.",
+                ["User_EmailMaxLength100"] = "Email length must not exceed 100 characters.",
+                ["User_CountryMaxLength100"] = "Country name length must not exceed 100 characters.",
+                ["User_UserNameLength3To20"] = "User name length must be between 3 and 20 characters.",
+                ["User_UserNameAllowedChars"] = "User name may only contain letters, numbers, and underscores.",
+                ["User_EmailMaxLength30"] = "Email length must not exceed 30 characters.",
+                ["User_PasswordRequired"] = "Password is required.",
+                ["User_PasswordLength8To20"] = "Password length must be between 8 and 20 characters.",
+                ["User_PasswordComplexity"] = "Password must contain at least one uppercase letter, one lowercase letter, one digit, and one special character.",
+                ["User_PasswordConfirmRequired"] = "Password confirmation is required.",
+                ["User_PasswordsMustMatch"] = "Password confirmation must match the password.",
+                ["User_GenderRange0To3"] = "Gender must be between 0 and 3.",
+                ["User_RoleRange0To2"] = "Role level must be between 0 and 2.",
+                ["User_DisplayNameMaxLength50"] = "Display name length must not exceed 50 characters.",
+                ["User_DisplayNameLength1To50"] = "Display name length must be between 1 and 50 characters.",
+                ["User_BioMaxLength300"] = "Bio length must not exceed 300 characters.",
+                ["User_PrivacyRange0Or1"] = "Privacy must be 0 (public) or 1 (private).",
+                ["User_UserNameAllowedCharsWithChinese"] = "User name may only contain letters, numbers, underscores, and Chinese characters.",
+                #endregion
+
+                #region Person
+                ["Person_DisplayNameLength1To50"] = "Display name length must be between 1 and 50 characters.",
+                ["Person_BioMaxLength300"] = "Bio length must not exceed 300 characters.",
+                ["Person_PrivacyRange0To1"] = "Privacy value must be between 0 and 1.",
+                ["Person_WalletAddressMaxLength100"] = "Wallet address length must not exceed 100 characters.",
+                #endregion
+
+                #region Notification
+                ["Notification_TitleRequired"] = "Notification title is required.",
+                ["Notification_TitleMaxLength100"] = "Notification title length must not exceed 100 characters.",
+                ["Notification_ContentMaxLength500"] = "Notification content length must not exceed 500 characters.",
+                #endregion
+
+                #region Article
+                ["Article_ContentRequired"] = "Article content is required.",
+                ["Article_ContentMaxLength4000"] = "Article content length must not exceed 4000 characters.",
+                ["Article_ContentLength1To4000"] = "Article content length must be between 1 and 4000 characters.",
+                ["Article_IsPublicRange0Or1"] = "Article visibility must be 0 (public) or 1 (private).",
+                #endregion
+
+                #region Reply
+                ["Reply_ArticleIdRequired"] = "Article ID is required.",
+                ["Reply_ContentRequired"] = "Reply content is required.",
+                ["Reply_ContentMaxLength1000"] = "Reply content length must not exceed 1000 characters.",
+                ["Reply_ContentLength1To1000"] = "Reply content length must be between 1 and 1000 characters.",
+                #endregion
+
+                #region NFT
+                ["NFT_OwnerIdRequired"] = "Owner ID is required.",
+                ["NFT_FileNameRequired"] = "NFT name is required.",
+                ["NFT_FileNameMaxLength255"] = "NFT name length must not exceed 255 characters.",
+                ["NFT_FilePathRequired"] = "File path is required.",
+                ["NFT_FilePathMaxLength2048"] = "File path length must not exceed 2048 characters.",
+                ["NFT_CollectTimeRequired"] = "Collection time is required.",
+                ["NFT_CurrencyRequired"] = "Currency is required.",
+                ["NFT_CurrencyMaxLength10"] = "Currency length must not exceed 10 characters.",
+                ["NFT_PriceMin0"] = "Price must be greater than or equal to 0.",
+                ["NFT_MinPriceMin0"] = "Minimum price must be greater than or equal to 0.",
+                ["NFT_MaxPriceMin0"] = "Maximum price must be greater than or equal to 0.",
+                ["NFT_PageMin1"] = "Page must be greater than 0.",
+                ["NFT_PageSizeRange1To100"] = "Page size must be between 1 and 100.",
+                #endregion
+
             }
         };
 
@@ -439,7 +618,7 @@ namespace Matrix.Services
             {
                 return AllTranslations[culture];
             }
-            
+
             // 回退到繁體中文
             return AllTranslations["zh-TW"];
         }
@@ -453,18 +632,18 @@ namespace Matrix.Services
         public static string GetTranslation(string culture, string key)
         {
             var translations = GetTranslations(culture);
-            
+
             if (translations.ContainsKey(key))
             {
                 return translations[key];
             }
-            
+
             // 如果當前語言找不到，嘗試從中文字典找
             if (culture != "zh-TW" && AllTranslations["zh-TW"].ContainsKey(key))
             {
                 return AllTranslations["zh-TW"][key];
             }
-            
+
             // 都找不到則返回鍵值本身
             return key;
         }
@@ -487,5 +666,6 @@ namespace Matrix.Services
         {
             return AllTranslations.Keys;
         }
+
     }
 }
