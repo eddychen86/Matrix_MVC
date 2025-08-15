@@ -122,7 +122,7 @@ namespace Matrix.Middleware
                             {
                                 try
                                 {
-                                    var person = await personRepository.GetByUserIdAsync(userId);
+                                    var personFromDb = await personRepository.GetByUserIdAsync(userId);
                                     avatarFromClaim = person?.AvatarPath ?? "";
                                 }
                                 catch { /* 最小影響，失敗時保持空字串 */ }
