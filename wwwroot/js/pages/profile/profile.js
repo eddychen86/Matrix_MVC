@@ -229,6 +229,214 @@ export const useProfile = () => {
     }
     //#endregion
 
+    //#region NFT Management
+    const uploadNFT = () => {
+        // Create file input for NFT upload
+        const input = document.createElement('input')
+        input.type = 'file'
+        input.accept = 'image/*,video/*'
+        input.multiple = true
+        input.style.display = 'none'
+        
+        input.addEventListener('change', async (event) => {
+            const files = Array.from(event.target.files)
+            if (files.length === 0) return
+            
+            for (const file of files) {
+                await handleNFTUpload(file)
+            }
+            
+            // Refresh user images after upload
+            await loadUserImages()
+        })
+        
+        document.body.appendChild(input)
+        input.click()
+        document.body.removeChild(input)
+    }
+
+    const handleNFTUpload = async (file) => {
+        // Check file type
+        if (!file.type.startsWith('image/') && !file.type.startsWith('video/')) {
+            alert('請選擇圖片或影片檔案')
+            return
+        }
+
+        // Check file size (limit 10MB for NFTs)
+        const maxSize = 10 * 1024 * 1024 // 10MB
+        if (file.size > maxSize) {
+            alert('檔案大小不可超過 10MB')
+            return
+        }
+
+        try {
+            // Create FormData
+            const formData = new FormData()
+            formData.append('file', file)
+            formData.append('type', 'nft')
+            formData.append('category', 'artwork')
+
+            // Send upload request
+            const response = await fetch('/api/Profile/upload-nft', {
+                method: 'POST',
+                credentials: 'include',
+                body: formData
+            })
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`)
+            }
+
+            const result = await response.json()
+
+            if (result.success) {
+                console.log('NFT uploaded successfully:', result.data.filePath)
+                alert('NFT 上傳成功！')
+            } else {
+                throw new Error(result.message || '上傳失敗')
+            }
+        } catch (error) {
+            console.error('NFT upload failed:', error)
+            alert('上傳失敗，請稍後再試')
+        }
+    }
+
+    const viewAllNFTs = () => {
+        // Open NFT gallery modal or navigate to full NFT collection page
+        showNFTGallery()
+    }
+
+    const viewNFTDetail = (image) => {
+        // Show individual NFT detail modal
+        showNFTDetailModal(image)
+    }
+
+    const showNFTGallery = () => {
+        // Create and show NFT gallery modal
+        const modal = document.createElement('div')
+        modal.className = 'fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4'
+        modal.innerHTML = `
+            <div class="bg-white dark:bg-gray-800 rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+                <div class="p-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-2xl font-bold" data-i18n="AllNFTs">所有 NFT 作品</h2>
+                        <button class="btn btn-sm btn-ghost" onclick="this.closest('.fixed').remove()">
+                            <i data-lucide="x" class="size-4"></i>
+                        </button>
+                    </div>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4" id="nft-gallery-grid">
+                        <!-- NFTs will be loaded here -->
+                    </div>
+                </div>
+            </div>
+        `
+        
+        document.body.appendChild(modal)
+        
+        // Load all NFTs into the gallery
+        loadAllNFTs(modal.querySelector('#nft-gallery-grid'))
+        
+        // Initialize Lucide icons
+        if (window.lucide) {
+            window.lucide.createIcons()
+        }
+        
+        // Close on backdrop click
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.remove()
+            }
+        })
+    }
+
+    const showNFTDetailModal = (image) => {
+        // Create and show NFT detail modal
+        const modal = document.createElement('div')
+        modal.className = 'fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4'
+        modal.innerHTML = `
+            <div class="bg-white dark:bg-gray-800 rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+                <div class="p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-xl font-bold">${image.fileName || 'NFT Detail'}</h2>
+                        <button class="btn btn-sm btn-ghost" onclick="this.closest('.fixed').remove()">
+                            <i data-lucide="x" class="size-4"></i>
+                        </button>
+                    </div>
+                    <div class="aspect-square mb-4">
+                        <img src="${image.filePath}" alt="${image.fileName}" class="w-full h-full object-contain rounded-lg">
+                    </div>
+                    <div class="space-y-2">
+                        <p><strong>檔名:</strong> ${image.fileName}</p>
+                        <p><strong>上傳時間:</strong> ${new Date(image.createTime).toLocaleDateString()}</p>
+                        <p><strong>檔案大小:</strong> ${formatFileSize(image.fileSize)}</p>
+                    </div>
+                </div>
+            </div>
+        `
+        
+        document.body.appendChild(modal)
+        
+        // Initialize Lucide icons
+        if (window.lucide) {
+            window.lucide.createIcons()
+        }
+        
+        // Close on backdrop click
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.remove()
+            }
+        })
+    }
+
+    const loadAllNFTs = async (container) => {
+        try {
+            const response = await fetch('/api/Profile/images?count=100', {
+                method: 'GET',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include'
+            })
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`)
+            }
+
+            const images = await response.json()
+            
+            if (images.length === 0) {
+                container.innerHTML = '<p class="text-center text-gray-500 col-span-full py-8">尚無 NFT 作品</p>'
+                return
+            }
+
+            container.innerHTML = images.map(image => `
+                <div class="aspect-square cursor-pointer hover:opacity-80 transition-opacity" onclick="viewNFTDetailFromGallery('${image.fileId}')">
+                    <img src="${image.filePath}" alt="${image.fileName}" class="w-full h-full object-cover rounded-lg shadow-md">
+                </div>
+            `).join('')
+            
+        } catch (error) {
+            console.error('Failed to load all NFTs:', error)
+            container.innerHTML = '<p class="text-center text-red-500 col-span-full py-8">載入失敗</p>'
+        }
+    }
+
+    const formatFileSize = (bytes) => {
+        if (bytes === 0) return '0 Bytes'
+        const k = 1024
+        const sizes = ['Bytes', 'KB', 'MB', 'GB']
+        const i = Math.floor(Math.log(bytes) / Math.log(k))
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
+    }
+
+    // Make viewNFTDetailFromGallery available globally for onclick events
+    window.viewNFTDetailFromGallery = (fileId) => {
+        const image = userImages.value.find(img => img.fileId === fileId)
+        if (image) {
+            showNFTDetailModal(image)
+        }
+    }
+    //#endregion
+
     //#region File Handling
 
     const updateFile = type => {
@@ -579,6 +787,11 @@ export const useProfile = () => {
         validatePassword,
         validatePasswordWithDebounce,
         togglePasswordVisibility,
+        
+        // NFT Methods
+        uploadNFT,
+        viewAllNFTs,
+        viewNFTDetail,
 
         // Manual load functions
         showLoadMoreButton: manualLoadFunctions?.showLoadMoreButton || Vue.ref(false),

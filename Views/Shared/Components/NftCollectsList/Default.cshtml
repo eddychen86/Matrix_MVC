@@ -1,1 +1,51 @@
-﻿
+﻿@*
+    NFT Collects List Component
+    This component can be used to display NFT collections across the application
+*@
+
+<div class="nft-collects-container">
+    <div class="flex justify-between items-center mb-4">
+        <h4 class="text-lg font-semibold">NFT Collections</h4>
+        <div class="flex gap-2">
+            <button class="btn btn-sm btn-primary" onclick="uploadNFT()">
+                <i data-lucide="upload" class="size-4 mr-1"></i>
+                Upload
+            </button>
+            <button class="btn btn-sm btn-outline" onclick="viewAllNFTs()">
+                <i data-lucide="grid-3x3" class="size-4 mr-1"></i>
+                More
+            </button>
+        </div>
+    </div>
+    
+    <div class="grid grid-cols-3 gap-3">
+        <!-- This will be populated by JavaScript -->
+        <div class="aspect-square bg-gray-200 dark:bg-gray-700 rounded-lg flex items-center justify-center">
+            <i data-lucide="image" class="size-8 text-gray-400"></i>
+        </div>
+        <div class="aspect-square bg-gray-200 dark:bg-gray-700 rounded-lg flex items-center justify-center">
+            <i data-lucide="image" class="size-8 text-gray-400"></i>
+        </div>
+        <div class="aspect-square bg-gray-200 dark:bg-gray-700 rounded-lg flex items-center justify-center">
+            <i data-lucide="image" class="size-8 text-gray-400"></i>
+        </div>
+        <div class="aspect-square bg-gray-200 dark:bg-gray-700 rounded-lg flex items-center justify-center">
+            <i data-lucide="image" class="size-8 text-gray-400"></i>
+        </div>
+        <div class="aspect-square bg-gray-200 dark:bg-gray-700 rounded-lg flex items-center justify-center">
+            <i data-lucide="image" class="size-8 text-gray-400"></i>
+        </div>
+        <div class="aspect-square bg-gray-200 dark:bg-gray-700 rounded-lg flex items-center justify-center">
+            <i data-lucide="image" class="size-8 text-gray-400"></i>
+        </div>
+        <div class="aspect-square bg-gray-200 dark:bg-gray-700 rounded-lg flex items-center justify-center">
+            <i data-lucide="image" class="size-8 text-gray-400"></i>
+        </div>
+        <div class="aspect-square bg-gray-200 dark:bg-gray-700 rounded-lg flex items-center justify-center">
+            <i data-lucide="image" class="size-8 text-gray-400"></i>
+        </div>
+        <div class="aspect-square bg-gray-200 dark:bg-gray-700 rounded-lg flex items-center justify-center">
+            <i data-lucide="image" class="size-8 text-gray-400"></i>
+        </div>
+    </div>
+</div>
