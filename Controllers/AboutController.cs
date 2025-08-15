@@ -19,28 +19,27 @@ namespace Matrix.Controllers
                     skill = new string[] {
                         "SCSS", "JS", "Tailwindcss", "Vue", "ASP.NET Core", "SQL"
                     },
-                    works = new string[] {
-                        "專案主題構想",
-                        "資料庫架構構思",
-                        "UI 設計 (無設計 UX)",
-                        "建置專案環境",
-                        "設置多層式架構",
-                        "設定多國語系",
-                        "協助合併分支衝突除錯",
-                        "協助組員開發期間除錯",
-                        "提供前端技術支援",
-                        "負責資料庫的建置與管理",
-                        "協助修正頁面 CSS 設定",
-                        "SMTP 設置",
-                        "後臺環境建置",
-                        "專案打包與部屬",
-
-                        "「登入」頁面製作",
-                        "「註冊」頁面製作",
-                        "「關於我們」頁面製作",
-                        "「後臺儀錶板」頁面製作",
-                        "「網站設置」頁面製作",
-                        "「免責聲明」頁面製作",
+                    works = new {
+                        envs = new string[] {
+                            "專案主題構想",
+                            "資料庫架構構思",
+                            "UI 設計 (無設計 UX)",
+                            "建置專案環境",
+                            "設定多國語系",
+                            "協助衝突除錯",
+                            "提供前端技術支援",
+                            "負責資料庫的建置與管理",
+                            "SMTP 設置",
+                            "專案打包與部屬",
+                        },
+                        pages = new string[] {
+                            "「登入」頁面製作",
+                            "「註冊」頁面製作",
+                            "「關於我們」頁面製作",
+                            "「後臺儀錶板」頁面製作",
+                            "「網站設置」頁面製作",
+                            "「免責聲明」頁面製作",
+                        }
                     }
                 },
                 new {
@@ -54,14 +53,18 @@ namespace Matrix.Controllers
                     skill = new string[] {
                         "SCSS", "JS", "Tailwindcss", "Vue", "ASP.NET Core", "SQL"
                     },
-                    works = new string[] {
-                        "專案主題構想",
-                        "資料庫架構構思",
-                        "「搜尋」浮動視窗製作",
-                        "「收藏」浮動視窗製作",
-                        "「追蹤」浮動視窗製作",
-                        "「通知」浮動視窗製作",
-                        "「檢舉管理」頁面製作",
+                    works = new {
+                        envs = new string[] {
+                            "專案主題構想",
+                            "資料庫架構構思",
+                        },
+                        pages = new string[] {
+                            "「搜尋」浮動視窗製作",
+                            "「收藏」浮動視窗製作",
+                            "「追蹤」浮動視窗製作",
+                            "「通知」浮動視窗製作",
+                            "「檢舉管理」頁面製作",
+                        }
                     }
                 },
                 new {
@@ -75,13 +78,17 @@ namespace Matrix.Controllers
                     skill = new string[] {
                         "SCSS", "JS", "Tailwindcss", "Vue", "ASP.NET Core", "SQL"
                     },
-                    works = new string[] {
-                        "專案主題構想",
-                        "資料庫架構構思",
-                        "「個人檔案」頁面製作",
-                        "「編輯個人檔案」浮動視窗製作",
-                        "「帳號管理」頁面製作",
-                        "「NFT 展示」頁面製作",
+                    works = new {
+                        envs = new string[] {
+                            "專案主題構想",
+                            "資料庫架構構思",
+                        },
+                        pages = new string[] {
+                            "「個人檔案」頁面製作",
+                            "「編輯個人檔案」浮動視窗製作",
+                            "「帳號管理」頁面製作",
+                            "「NFT 展示」頁面製作",
+                        }
                     }
                 },
                 new {
@@ -95,12 +102,16 @@ namespace Matrix.Controllers
                     skill = new string[] {
                         "SCSS", "JS", "Tailwindcss", "Vue", "ASP.NET Core", "SQL"
                     },
-                    works = new string[] {
-                        "專案主題構想",
-                        "資料庫架構構思",
-                        "「動態消息」頁面製作",
-                        "「貼文管理」頁面製作",
-                        "「好友列表」製作",
+                    works = new {
+                        envs = new string[] {
+                            "專案主題構想",
+                            "資料庫架構構思",
+                        },
+                        pages = new string[] {
+                            "「動態消息」頁面製作",
+                            "「貼文管理」頁面製作",
+                            "「好友列表」製作",
+                        }
                     }
                 },
             };

@@ -19,7 +19,7 @@
 
   .team {
     &-list {
-      @apply mx-auto max-w-[80vw] 2xl:max-w-[60vw] w-full flex gap-0 justify-center;
+      @apply mx-20 w-full flex gap-0 justify-center;
     }
   
     &-card {
@@ -39,11 +39,8 @@
     }
   
     &-section {
-      @apply p-8 flex flex-col gap-4 h-[70vh] overflow-hidden opacity-0 text-white;
+      @apply p-8 flex flex-col gap-4 h-[70vh] overflow-hidden opacity-0 text-white min-w-[500px] w-[500px];
       flex: 0 0 0%; /* 未hover時寬度為0 */
-      min-width: 500px; /* 確保有足夠的固定寬度 */
-      width: 500px; /* 固定寬度防止變形 */
-      flex-shrink: 0; /* 防止內容被壓縮 */
       transition: flex 0.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease-in-out 0.2s, padding 0.5s;
     }
     
@@ -83,35 +80,26 @@
     }
   
     &-skills {
-      @apply grid grid-cols-3 gap-4;
-      width: 100%; /* 確保技能區域有固定寬度 */
-      flex-shrink: 0; /* 防止被壓縮 */
+      @apply grid grid-cols-3 gap-4 w-full flex-shrink-0;
     }
   
     &-skill {
-      @apply col-span-1 rounded-full px-3 py-2 bg-stone-500 text-white flex items-center justify-center;
+      @apply col-span-1 rounded-full px-3 py-2 bg-stone-500 text-white flex items-center justify-center min-w-max;
       white-space: nowrap; /* 防止文字換行 */
-      min-width: max-content; /* 確保有足夠空間顯示文字 */
       
       &-text {
-        @apply m-0 p-0;
-        font-size: 0.875rem; /* 固定字體大小 */
+        @apply m-0 p-0 text-sm;
       }
     }
   
     &-works {
-      @apply grid grid-cols-2 gap-2 gap-x-8;
-      width: 100%; /* 確保工作區域有固定寬度 */
-      flex-shrink: 0; /* 防止被壓縮 */
+      @apply grid grid-cols-2 gap-2 gap-x-8 w-full flex-shrink-0;
 
       &_layout {
         @apply flex gap-4 border border-stone-400 p-4 rounded-[20px] shadow-md shadow-black/70;
-        width: 100%; /* 確保布局容器有固定寬度 */
-        flex-shrink: 0; /* 防止被壓縮 */
         
         .green-dot {
-          @apply border-2 border-green-600 bg-green-400 shadow-green-500 size-4 rounded-full m-1;
-          flex-shrink: 0; /* 確保圓點不會被壓縮 */
+          @apply border-4 border-green-600 bg-green-400 shadow-green-500 size-4 rounded-full my-1 flex-shrink-0;
         }
       }
 
@@ -119,9 +107,8 @@
   
     &-work {
       &-item {
-        @apply col-span-1 flex gap-2 items-center;
+        @apply col-span-1 flex gap-2 items-center min-w-max;
         white-space: nowrap; /* 防止文字換行 */
-        min-width: max-content; /* 確保有足夠空間顯示文字 */
         
         p {
           font-size: 0.875rem; /* 固定字體大小 */
