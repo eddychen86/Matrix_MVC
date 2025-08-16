@@ -174,8 +174,6 @@ window.mountPostsPage = function () {
         editingId.value = null
       }
 
-      Vue.onMounted(loadArticles)
-
       // 管理表格換頁功能
       const goPage = async (p) => {
         const newPage = Math.max(1, Math.min(totalPages.value, p))
