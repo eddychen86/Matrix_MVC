@@ -180,6 +180,24 @@ namespace Matrix.DTOs
         /// 用途：顯示文章作者的頭像
         /// </summary>
         public string AuthorAvatar => !string.IsNullOrEmpty(Author?.AvatarPath) ? Author.AvatarPath : "/static/images/default_avatar.png";
+
+        ///<summary>
+        ///單純修改文章內文
+        ///用途：後臺管理員編輯文章內文
+        /// </summary>
+        public class UpdateArticleDto
+        {
+            public string Content { get; set; } = string.Empty;
+        }
+
+        /// <summary>
+        /// 後臺管理員更改文章顯示狀態
+        /// </summary>
+        public class UpdateStatusDto
+        {
+            public int Status { get; set; }
+        }
+        
     }
 
     public class ArticleAttachmentDto
@@ -391,5 +409,6 @@ namespace Matrix.DTOs
                 ["CollectCount"] = 0
             };
         }
+
     }
 }

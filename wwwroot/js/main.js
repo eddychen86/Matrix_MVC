@@ -460,7 +460,7 @@ globalApp({
             getPopupTitle,
             openPopup,
             closePopup,
-            // 為新版 popup 提供向後兼容
+            // 向後相容
             isOpen: computed(() => popupState.isVisible),
             closeCollectModal: closePopup,
 
