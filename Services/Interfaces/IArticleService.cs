@@ -85,6 +85,13 @@ namespace Matrix.Services.Interfaces
         ///後臺管理員刪除文章
         /// </summary>
         Task<bool> AdminDeleteArticleAsync(Guid id);
+
+        /// <summary>
+        /// 獲取文章總數
+        /// </summary>
+        /// <param name="onlyPublic">是否只計算公開文章</param>
+        /// <returns>文章總數</returns>
+        Task<int> GetTotalArticlesCountAsync(bool onlyPublic = true);
     }
 
 }

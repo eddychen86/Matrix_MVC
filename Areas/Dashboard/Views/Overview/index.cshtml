@@ -25,7 +25,7 @@
                         <h2 v-if="t.id === 0" class="text-sm font-medium text-gray-600" data-i18n="Overview_TotalUsers">@Localizer["Overview_TotalUsers"]</h2>
                         <h2 v-else-if="t.id === 1" class="text-sm font-medium text-gray-600" data-i18n="Overview_TotalPosts">@Localizer["Overview_TotalPosts"]</h2>
                         <h2 v-else-if="t.id === 2" class="text-sm font-medium text-gray-600" data-i18n="Overview_PendingReports">@Localizer["Overview_PendingReports"]</h2>
-                        <h2 v-else class="text-sm font-medium text-gray-600" data-i18n="Overview_TodayActiveUsers">@Localizer["Overview_TodayActiveUsers"]</h2>
+                        <h2 v-else class="text-sm font-medium text-gray-600" data-i18n="Overview_TodayActive">@Localizer["Overview_TodayActive"]</h2>
                         <p class="text-2xl font-semibold text-gray-900">{{ t.result }}</p>
                     </div>
                 </div>
@@ -38,19 +38,25 @@
             <div class="space-y-4">
                 <div class="flex justify-between items-center">
                     <span class="text-gray-600">系統運行時間</span>
-                    <span class="text-green-600 font-medium">正常</span>
+                    <span class="text-blue-600 font-medium">{{ systemStatus.totelRunTime }}</span>
                 </div>
                 <div class="flex justify-between items-center">
                     <span class="text-gray-600">資料庫連線</span>
-                    <span class="text-green-600 font-medium">正常</span>
+                    <span :class="systemStatus.DBConnectStatus ? 'text-green-600' : 'text-red-600'" class="font-medium">
+                        {{ systemStatus.DBConnectStatus ? '正常' : '異常' }}
+                    </span>
                 </div>
                 <div class="flex justify-between items-center">
                     <span class="text-gray-600">郵件服務</span>
-                    <span class="text-green-600 font-medium">正常</span>
+                    <span :class="systemStatus.SMTPStatus ? 'text-green-600' : 'text-red-600'" class="font-medium">
+                        {{ systemStatus.SMTPStatus ? '正常' : '異常' }}
+                    </span>
                 </div>
                 <div class="flex justify-between items-center">
                     <span class="text-gray-600">儲存空間</span>
-                    <span class="text-yellow-600 font-medium">75% 使用中</span>
+                    <span class="font-medium" :class="getStorageStatusColor(systemStatus.Storage)">
+                        {{ systemStatus.Storage }}
+                    </span>
                 </div>
             </div>
         </div>

@@ -91,7 +91,10 @@ public class Program
         builder.Services.AddScoped<ICollectService, CollectService>();
         builder.Services.AddScoped<IPraiseService, PraiseService>();
         builder.Services.AddScoped<IReplyService, ReplyService>();
+        builder.Services.AddScoped<IReportService, ReportService>();
+        builder.Services.AddScoped<IHashtagService, HashtagService>();
         builder.Services.AddScoped<IArticleService, ArticleService>();
+        builder.Services.AddScoped<ISystemStatusService, SystemStatusService>();
         builder.Services.AddScoped<NotificationService>();
         builder.Services.AddScoped<Matrix.Controllers.AuthController>();
         builder.Services.AddHttpContextAccessor(); // 為 CustomLocalizer 提供 HttpContext 訪問

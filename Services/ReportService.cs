@@ -1,12 +1,20 @@
+using Matrix.Models;
+using Matrix.Repository.Interfaces;
+using Matrix.Services.Interfaces;
+
 namespace Matrix.Services
 {
     /// <summary>
     /// 舉報服務
     /// </summary>
-    #pragma warning disable CS9113 // Parameter is unread
-    public class ReportService(ApplicationDbContext _context) : IReportService
-    #pragma warning disable CS9113
+    public class ReportService : IReportService
     {
+        private readonly IReportRepository _reportRepository;
+
+        public ReportService(IReportRepository reportRepository)
+        {
+            _reportRepository = reportRepository;
+        }
 
         public Task<bool> CreateReportAsync(Guid reporterId, Guid reportedUserId, Guid? articleId, string reason, string? description = null)
         {
@@ -51,6 +59,11 @@ namespace Matrix.Services
         public Task<List<Report>> GetReportsByUserAsync(Guid userId, int limit = 10)
         {
             return Task.FromException<List<Report>>(new NotImplementedException());
+        }
+
+        public async Task<int> GetPendingReportsCountAsync()
+        {
+            return await _reportRepository.CountPendingReportsAsync();
         }
     }
 }

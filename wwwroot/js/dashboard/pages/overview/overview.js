@@ -33,10 +33,15 @@ window.mountOverviewPage = function() {
         },
       ])
       const systemStatus = reactive({
-        /* 系統運行時間   */ totelRunTime: 0,
+        /* 系統運行時間   */ totelRunTime: '載入中...',
         /* 資料庫連線狀態 */ DBConnectStatus: false,
         /* SMTP 服務狀態  */ SMTPStatus: false,
-        /* 剩餘儲存空間   */ Storage: 0,
+        /* 剩餘儲存空間   */ Storage: '載入中...',
+      })
+
+      const hashtagsData = reactive({
+        totalHashtags: 0,
+        hashtags: []
       })
 
       //#endregion
@@ -81,13 +86,22 @@ window.mountOverviewPage = function() {
       }
 
       const getTotalPosts = async () => {
-        let result = 0
-
         try {
-
-          total.post = result
+          const response = await fetch('/api/Overview/GetPostsState')
+          
+          if (response.ok) {
+            const data = await response.json()
+            
+            // 更新 total 陣列中文章總數的項目
+            const postsItem = total.find(item => item.title === 'post')
+            if (postsItem) {
+              postsItem.result = data.totalPosts || 0
+            }
+          } else {
+            console.error('Failed to fetch posts state:', response.status)
+          }
         } catch (err) {
-          console.log('', err)
+          console.error('Failed to fetch posts:', err)
         }
       }
 
@@ -111,52 +125,152 @@ window.mountOverviewPage = function() {
         }
       }
 
+      const getHashtagsState = async () => {
+        try {
+          const response = await fetch('/api/Overview/GetHashtagsState')
+          
+          if (response.ok) {
+            const data = await response.json()
+            
+            // 更新標籤資料
+            hashtagsData.totalHashtags = data.totalHashtags || 0
+            hashtagsData.hashtags = data.hashtags || []
+            
+            console.log('Hashtags loaded:', hashtagsData.totalHashtags, 'tags')
+          } else {
+            console.error('Failed to fetch hashtags state:', response.status)
+          }
+        } catch (err) {
+          console.error('Failed to fetch hashtags:', err)
+        }
+      }
+
       //#endregion
 
       //#region System
 
-      const getSystemRunTime = async () => {
-        let result = 0
+      const UPTIME_INTERVAL = 30 * 60 * 1000 // 30分鐘（毫秒）
+      const DAILY_INTERVAL = 24 * 60 * 60 * 1000 // 24小時（毫秒）
+      
+      // 各別 API 的 localStorage key
+      const UPTIME_KEY = 'matrix_uptime_last_update'
+      const DB_STATUS_KEY = 'matrix_db_status_last_update'
+      const SMTP_STATUS_KEY = 'matrix_smtp_status_last_update'
+      const STORAGE_KEY = 'matrix_storage_last_update'
 
+      const shouldUpdate = (storageKey, interval = DAILY_INTERVAL) => {
+        const lastUpdate = localStorage.getItem(storageKey)
+        if (!lastUpdate) return true
+        
+        const lastUpdateTime = parseInt(lastUpdate)
+        const currentTime = Date.now()
+        const timeDiff = currentTime - lastUpdateTime
+        
+        return timeDiff >= interval
+      }
+
+      const getSystemUptime = async (forceUpdate = false) => {
         try {
+          if (!forceUpdate && !shouldUpdate(UPTIME_KEY, UPTIME_INTERVAL)) {
+            console.log('System uptime: 尚未到更新時間，跳過API呼叫')
+            return
+          }
 
-          systemStatus.totelRunTime = result
+          const response = await fetch('/api/Overview/GetSystemUptime')
+          
+          if (response.ok) {
+            const data = await response.json()
+            systemStatus.totelRunTime = data.uptimeFormatted || '無法取得'
+            localStorage.setItem(UPTIME_KEY, Date.now().toString())
+            console.log('System uptime loaded:', data)
+          } else {
+            console.error('Failed to fetch system uptime:', response.status)
+            systemStatus.totelRunTime = '載入失敗'
+          }
         } catch (err) {
-          console.log('', err)
+          console.error('Failed to fetch system uptime:', err)
+          systemStatus.totelRunTime = '載入失敗'
         }
       }
 
-      const getDBConnectStatus = async () => {
-        let result = 0
-
+      const getDatabaseStatus = async (forceUpdate = false) => {
         try {
+          if (!forceUpdate && !shouldUpdate(DB_STATUS_KEY)) {
+            console.log('Database status: 尚未到更新時間，跳過API呼叫')
+            return
+          }
 
-          systemStatus.DBConnectStatus = result
+          const response = await fetch('/api/Overview/GetDatabaseStatus')
+          
+          if (response.ok) {
+            const data = await response.json()
+            systemStatus.DBConnectStatus = data.databaseConnected || false
+            localStorage.setItem(DB_STATUS_KEY, Date.now().toString())
+            console.log('Database status loaded:', data)
+          } else {
+            console.error('Failed to fetch database status:', response.status)
+            systemStatus.DBConnectStatus = false
+          }
         } catch (err) {
-          console.log('', err)
+          console.error('Failed to fetch database status:', err)
+          systemStatus.DBConnectStatus = false
         }
       }
 
-      const getSMTPStatus = async () => {
-        let result = 0
-
+      const getSmtpStatus = async (forceUpdate = false) => {
         try {
+          if (!forceUpdate && !shouldUpdate(SMTP_STATUS_KEY)) {
+            console.log('SMTP status: 尚未到更新時間，跳過API呼叫')
+            return
+          }
 
-          systemStatus.SMTPStatus = result
+          const response = await fetch('/api/Overview/GetSmtpStatus')
+          
+          if (response.ok) {
+            const data = await response.json()
+            systemStatus.SMTPStatus = data.smtpServiceActive || false
+            localStorage.setItem(SMTP_STATUS_KEY, Date.now().toString())
+            console.log('SMTP status loaded:', data)
+          } else {
+            console.error('Failed to fetch SMTP status:', response.status)
+            systemStatus.SMTPStatus = false
+          }
         } catch (err) {
-          console.log('', err)
+          console.error('Failed to fetch SMTP status:', err)
+          systemStatus.SMTPStatus = false
         }
       }
 
-      const getStorage = async () => {
-        let result = 0
-
+      const getStorageStatus = async (forceUpdate = false) => {
         try {
+          if (!forceUpdate && !shouldUpdate(STORAGE_KEY)) {
+            console.log('Storage status: 尚未到更新時間，跳過API呼叫')
+            return
+          }
 
-          systemStatus.Storage = result
+          const response = await fetch('/api/Overview/GetStorageStatus')
+          
+          if (response.ok) {
+            const data = await response.json()
+            systemStatus.Storage = data.storageStatusText || '無法取得'
+            localStorage.setItem(STORAGE_KEY, Date.now().toString())
+            console.log('Storage status loaded:', data)
+          } else {
+            console.error('Failed to fetch storage status:', response.status)
+            systemStatus.Storage = '載入失敗'
+          }
         } catch (err) {
-          console.log('', err)
+          console.error('Failed to fetch storage status:', err)
+          systemStatus.Storage = '載入失敗'
         }
+      }
+
+      const setupSystemStatusTimers = () => {
+        // 設定各別的定時器
+        setInterval(() => getSystemUptime(), UPTIME_INTERVAL) // 30分鐘檢查一次
+        setInterval(() => getDatabaseStatus(), DAILY_INTERVAL) // 一天檢查一次
+        setInterval(() => getSmtpStatus(), DAILY_INTERVAL) // 一天檢查一次
+        setInterval(() => getStorageStatus(), DAILY_INTERVAL) // 一天檢查一次
       }
 
       //#endregion
@@ -169,10 +283,16 @@ window.mountOverviewPage = function() {
           await getTotalUsers()
           await getTotalPosts()
           await getTotalNoProcessReposts()
-          await getSystemRunTime()
-          await getDBConnectStatus()
-          await getSMTPStatus()
-          await getStorage()
+          await getHashtagsState()
+          
+          // 各別系統狀態根據 localStorage 判斷是否需要更新
+          await getSystemUptime()
+          await getDatabaseStatus()
+          await getSmtpStatus()
+          await getStorageStatus()
+          
+          // 啟動系統狀態定時器
+          setupSystemStatusTimers()
         } finally {
           isLoading.value = false
         }
@@ -182,12 +302,47 @@ window.mountOverviewPage = function() {
 
       //#endregion
 
+      //#region Helper Functions
+      
+      const getStorageStatusColor = (storageText) => {
+        if (typeof storageText !== 'string') return 'text-gray-600'
+        
+        // 提取百分比數字
+        const match = storageText.match(/(\d+(?:\.\d+)?)%/)
+        if (!match) return 'text-gray-600'
+        
+        const percentage = parseFloat(match[1])
+        
+        if (percentage < 70) return 'text-green-600'
+        if (percentage < 85) return 'text-yellow-600'
+        if (percentage < 95) return 'text-orange-600'
+        return 'text-red-600'
+      }
+
+      //#endregion
+
       return {
         isLoading,
 
         // Data
         total,
         systemStatus,
+        hashtagsData,
+        
+        // Helper Functions
+        getStorageStatusColor,
+        
+        // System Status Functions
+        forceUpdateUptime: () => getSystemUptime(true),
+        forceUpdateDatabaseStatus: () => getDatabaseStatus(true),
+        forceUpdateSmtpStatus: () => getSmtpStatus(true),
+        forceUpdateStorageStatus: () => getStorageStatus(true),
+        forceUpdateAllSystemStatus: () => {
+          getSystemUptime(true)
+          getDatabaseStatus(true)
+          getSmtpStatus(true)
+          getStorageStatus(true)
+        },
       }
     }
   })
