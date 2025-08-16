@@ -8,6 +8,7 @@ using Matrix.Models;
 using Matrix.Services.Interfaces;
 using Matrix.Repository.Interfaces;
 using AutoMapper;
+using NuGet.Packaging.Signing;
 
 namespace Matrix.Services
 {
@@ -49,13 +50,43 @@ namespace Matrix.Services
         }
 
         /// <summary>
+        /// 獲取基本使用者資訊（UserId, UserName, LastLoginTime）含快取
+        /// </summary>
+        public async Task<List<UserBasicDto>> GetUserBasicsAsync()
+        {
+            // 快取鍵
+            var cacheKey = "user_basics";
+
+            // 嘗試從快取讀取
+            if (_cache.TryGetValue(cacheKey, out List<UserBasicDto>? cachedUsers))
+            {
+                return cachedUsers ?? new List<UserBasicDto>();
+            }
+
+            // 快取未命中，從資料庫查詢
+            var users = await _userRepository.GetAllWithUserAsync();
+
+            // 存入快取，8分鐘過期（基本資訊更新頻率較高）
+            var cacheEntryOptions = new MemoryCacheEntryOptions
+            {
+                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(8),
+                SlidingExpiration = TimeSpan.FromMinutes(2),
+                Priority = CacheItemPriority.High // 儀表板常用資料
+            };
+
+            _cache.Set(cacheKey, users, cacheEntryOptions);
+
+            return users;
+        }
+
+        /// <summary>
         /// 根據ID獲取使用者（含快取機制）
         /// </summary>
         public async Task<UserDto?> GetUserAsync(Guid id)
         {
             // 快取鍵
             var cacheKey = $"user_{id}";
-            
+
             // 嘗試從快取讀取
             if (_cache.TryGetValue(cacheKey, out UserDto? cachedUser))
             {
@@ -68,7 +99,7 @@ namespace Matrix.Services
             if (user?.Person == null) return null;
 
             var userDto = _mapper.Map<UserDto>(user);
-            
+
             // 存入快取，15分鐘過期
             var cacheEntryOptions = new MemoryCacheEntryOptions
             {
@@ -76,9 +107,9 @@ namespace Matrix.Services
                 SlidingExpiration = TimeSpan.FromMinutes(5), // 5分鐘內有存取就延長
                 Priority = CacheItemPriority.Normal
             };
-            
+
             _cache.Set(cacheKey, userDto, cacheEntryOptions);
-            
+
             return userDto;
         }
 
@@ -629,6 +660,33 @@ namespace Matrix.Services
             }
         }
 
+        /// <summary>
+        /// 更新使用者的最後登入時間
+        /// </summary>
+        /// <param name="userId">使用者 ID</param>
+        /// <returns>更新是否成功</returns>
+        public async Task<bool> UpdateLastLoginTimeAsync(Guid userId)
+        {
+            try
+            {
+                var user = await _userRepository.GetByIdAsync(userId);
+                if (user == null)
+                {
+                    return false;
+                }
+
+                user.LastLoginTime = DateTime.UtcNow;
+                await _userRepository.UpdateAsync(user);
+                await _userRepository.SaveChangesAsync();
+                
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"UpdateLastLoginTimeAsync Error: {ex.Message}");
+                return false;
+            }
+        }
 
         #endregion
     }

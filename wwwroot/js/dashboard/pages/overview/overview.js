@@ -6,12 +6,32 @@ window.mountOverviewPage = function() {
       //#region 變數
 
       const isLoading = ref(true)
-      const total = reactive({
-        /* 總用戶數       */ user: 0,
-        /* 文章總數       */ post: 0,
-        /* 待處理檢舉     */ reports: 0,
-        /* 今日活躍使用者 */ todayLoginUsers: 0,
-      })
+      const total = reactive([
+        /* 總用戶數       */{ 
+          id: 0, 
+          title: 'user', 
+          result: 0, 
+          color: 'blue',
+        },
+        /* 文章總數       */{ 
+          id: 1, 
+          title: 'post', 
+          result: 0, 
+          color: 'green',
+        },
+        /* 待處理檢舉     */{ 
+          id: 2, 
+          title: 'reports', 
+          result: 0, 
+          color: 'yellow',
+        },
+        /* 今日活躍使用者 */{ 
+          id: 3, 
+          title: 'todayLoginUsers', 
+          result: 0, 
+          color: 'purple',
+        },
+      ])
       const systemStatus = reactive({
         /* 系統運行時間   */ totelRunTime: 0,
         /* 資料庫連線狀態 */ DBConnectStatus: false,
@@ -24,19 +44,39 @@ window.mountOverviewPage = function() {
       //#region Total
 
       const getTotalUsers = async () => {
-        let result = 0
-
         try {
-          const response = await fetch(
-            '',
-            {
-              
-            }
-          )
+          const response = await fetch('/api/Overview/GetUserState')
 
-          total.user = result
+          if (response.ok) {
+            const data = await response.json()
+            
+            // 計算總用戶數
+            const totalUsersCount = data.totalUsers || 0
+            
+            // 計算今日登入用戶數
+            const today = new Date()
+            const todayDateString = today.toLocaleDateString() // 格式: "Fri Aug 16 2025"
+            
+            const todayLoginUsersCount = data.users.filter(user => {
+              if (!user.lastLoginTime) return false
+              
+              const loginDate = new Date(user.lastLoginTime)
+              // 修正時區問題：為登入日期加1天
+              loginDate.setDate(loginDate.getDate() + 1)
+              return loginDate.toLocaleDateString() === todayDateString
+            }).length
+
+            // 更新 total 陣列中對應的項目
+            const userItem = total.find(item => item.title === 'user')
+            const todayLoginItem = total.find(item => item.title === 'todayLoginUsers')
+            
+            if (userItem) userItem.result = totalUsersCount
+            if (todayLoginItem) todayLoginItem.result = todayLoginUsersCount
+          } else {
+            console.error('API request failed:', response.status)
+          }
         } catch (err) {
-          console.log('', err)
+          console.error('Failed to fetch users:', err)
         }
       }
 
@@ -52,24 +92,22 @@ window.mountOverviewPage = function() {
       }
 
       const getTotalNoProcessReposts = async () => {
-        let result = 0
-
         try {
-
-          total.reports = result
+          const response = await fetch('/api/Overview/GetReportsState')
+          
+          if (response.ok) {
+            const data = await response.json()
+            
+            // 更新 total 陣列中待處理報告的項目
+            const reportsItem = total.find(item => item.title === 'reports')
+            if (reportsItem) {
+              reportsItem.result = data.pendingReports || 0
+            }
+          } else {
+            console.error('Failed to fetch reports state:', response.status)
+          }
         } catch (err) {
-          console.log('', err)
-        }
-      }
-
-      const getTotaltodaysLoginUsers = async () => {
-        let result = 0
-
-        try {
-
-          total.todayLoginUsers = result
-        } catch (err) {
-          console.log('', err)
+          console.error('Failed to fetch reports:', err)
         }
       }
 
@@ -131,7 +169,6 @@ window.mountOverviewPage = function() {
           await getTotalUsers()
           await getTotalPosts()
           await getTotalNoProcessReposts()
-          await getTotaltodaysLoginUsers()
           await getSystemRunTime()
           await getDBConnectStatus()
           await getSMTPStatus()
@@ -162,7 +199,11 @@ window.mountOverviewPage = function() {
   if (el) window.OverviewApp = app.mount(el)
 }
 
-if (document.querySelector('#adminOverview')) {
+const overviewElement = document.querySelector('#adminOverview')
+
+if (overviewElement) {
   window.mountOverviewPage()
+} else {
+  console.log('❌ 找不到 #adminOverview 元素')
 }
 

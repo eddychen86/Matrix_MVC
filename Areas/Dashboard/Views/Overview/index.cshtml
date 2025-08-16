@@ -1,87 +1,62 @@
+@inject ICustomLocalizer Localizer
 @{
-    ViewData["Title"] = "管理儀表板";
+    ViewData["Title"] = Localizer["Overview_Title"];
 }
 
-<header class="relative">
-    <img src="~/static/img/image-top.png" alt="" class="h-56 w-full rounded-[30px] object-cover object-center" >
-</header>
-<div class="container mx-auto px-4 py-8">
-    <div class="mb-6">
-        <h1 class="text-3xl font-bold text-gray-800">管理儀表板</h1>
-        <p class="text-gray-600 mt-2">歡迎使用 Matrix 後台管理系統</p>
-    </div>
+<div id="adminOverview">
 
-    <!-- 統計卡片 -->
-    <div class="grid grid-cols-1 2xl:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <div class="bg-white rounded-lg shadow-md p-6">
-            <div class="flex items-center">
-                <div class="p-3 rounded-full bg-blue-500 bg-opacity-10">
-                    <i class="fas fa-users text-blue-500 text-2xl"></i>
-                </div>
-                <div class="ml-4">
-                    <h2 class="text-sm font-medium text-gray-600">總用戶數</h2>
-                    <p class="text-2xl font-semibold text-gray-900">1,234</p>
+    <header class="relative">
+        <img src="~/static/img/image-top.png" alt="" class="h-56 w-full rounded-[30px] object-cover object-center" >
+    </header>
+    <div class="container mx-auto px-4 py-8">
+        <div class="mb-6">
+            <h1 class="text-3xl font-bold text-gray-800">管理儀表板</h1>
+            <p class="text-gray-600 mt-2">歡迎使用 Matrix 後台管理系統</p>
+        </div>
+
+        <!-- 統計卡片 -->
+        <div class="grid grid-cols-1 2xl:grid-cols-4 gap-6 mb-8">
+            <div v-for="t in total" :key="t.id" class="bg-white rounded-lg shadow-md p-6">
+                <div class="flex items-center">
+                    <div :class="`p-3 rounded-full bg-${t.color}-500 bg-opacity-10`">
+                        <i :class="`text-${t.color}-500 text-2xl`"></i>
+                    </div>
+                    <div class="ml-4">
+                        <h2 v-if="t.id === 0" class="text-sm font-medium text-gray-600" data-i18n="Overview_TotalUsers">@Localizer["Overview_TotalUsers"]</h2>
+                        <h2 v-else-if="t.id === 1" class="text-sm font-medium text-gray-600" data-i18n="Overview_TotalPosts">@Localizer["Overview_TotalPosts"]</h2>
+                        <h2 v-else-if="t.id === 2" class="text-sm font-medium text-gray-600" data-i18n="Overview_PendingReports">@Localizer["Overview_PendingReports"]</h2>
+                        <h2 v-else class="text-sm font-medium text-gray-600" data-i18n="Overview_TodayActiveUsers">@Localizer["Overview_TodayActiveUsers"]</h2>
+                        <p class="text-2xl font-semibold text-gray-900">{{ t.result }}</p>
+                    </div>
                 </div>
             </div>
         </div>
 
+        <!-- 系統狀態 -->
         <div class="bg-white rounded-lg shadow-md p-6">
-            <div class="flex items-center">
-                <div class="p-3 rounded-full bg-green-500 bg-opacity-10">
-                    <i class="fas fa-file-alt text-green-500 text-2xl"></i>
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">系統狀態</h3>
+            <div class="space-y-4">
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-600">系統運行時間</span>
+                    <span class="text-green-600 font-medium">正常</span>
                 </div>
-                <div class="ml-4">
-                    <h2 class="text-sm font-medium text-gray-600">文章總數</h2>
-                    <p class="text-2xl font-semibold text-gray-900">567</p>
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-600">資料庫連線</span>
+                    <span class="text-green-600 font-medium">正常</span>
                 </div>
-            </div>
-        </div>
-
-        <div class="bg-white rounded-lg shadow-md p-6">
-            <div class="flex items-center">
-                <div class="p-3 rounded-full bg-yellow-500 bg-opacity-10">
-                    <i class="fas fa-exclamation-triangle text-yellow-500 text-2xl"></i>
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-600">郵件服務</span>
+                    <span class="text-green-600 font-medium">正常</span>
                 </div>
-                <div class="ml-4">
-                    <h2 class="text-sm font-medium text-gray-600">待處理報告</h2>
-                    <p class="text-2xl font-semibold text-gray-900">12</p>
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-600">儲存空間</span>
+                    <span class="text-yellow-600 font-medium">75% 使用中</span>
                 </div>
-            </div>
-        </div>
-
-        <div class="bg-white rounded-lg shadow-md p-6">
-            <div class="flex items-center">
-                <div class="p-3 rounded-full bg-purple-500 bg-opacity-10">
-                    <i class="fas fa-bolt text-purple-500 text-2xl"></i>
-                </div>
-                <div class="ml-4">
-                    <h2 class="text-sm font-medium text-gray-600">今日活躍</h2>
-                    <p class="text-2xl font-semibold text-gray-900">89</p>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- 系統狀態 -->
-    <div class="bg-white rounded-lg shadow-md p-6">
-        <h3 class="text-lg font-semibold text-gray-800 mb-4">系統狀態</h3>
-        <div class="space-y-4">
-            <div class="flex justify-between items-center">
-                <span class="text-gray-600">系統運行時間</span>
-                <span class="text-green-600 font-medium">正常</span>
-            </div>
-            <div class="flex justify-between items-center">
-                <span class="text-gray-600">資料庫連線</span>
-                <span class="text-green-600 font-medium">正常</span>
-            </div>
-            <div class="flex justify-between items-center">
-                <span class="text-gray-600">郵件服務</span>
-                <span class="text-green-600 font-medium">正常</span>
-            </div>
-            <div class="flex justify-between items-center">
-                <span class="text-gray-600">儲存空間</span>
-                <span class="text-yellow-600 font-medium">75% 使用中</span>
             </div>
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script src="~/js/dashboard/pages/overview/overview.js" asp-append-version="true"></script>
+}

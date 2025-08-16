@@ -179,6 +179,12 @@ namespace Matrix.Services
                 ["ReportDate"] = "報告日期",
                 ["ReportType"] = "報告類型",
                 
+                // Overview 統計卡片
+                ["Overview_TotalUsers"] = "總用戶數",
+                ["Overview_TotalPosts"] = "文章總數",
+                ["Overview_PendingReports"] = "待處理報告",
+                ["Overview_TodayActiveUsers"] = "今日活躍",
+                
                 // === 確認模組 ===
                 ["InvalidConfirmLink"] = "無效的確認連結",
                 ["UserNotExistOrExpired"] = "用戶不存在或確認連結已失效",
@@ -468,6 +474,12 @@ namespace Matrix.Services
                 ["ReportName"] = "Report Name",
                 ["ReportDate"] = "Report Date",
                 ["ReportType"] = "Report Type",
+                
+                // Overview 統計卡片
+                ["Overview_TotalUsers"] = "Total Users",
+                ["Overview_TotalPosts"] = "Total Posts", 
+                ["Overview_PendingReports"] = "Pending Reports",
+                ["Overview_TodayActiveUsers"] = "Today Active",
                 
                 // === 確認模組 ===
                 ["InvalidConfirmLink"] = "Invalid confirmation link",

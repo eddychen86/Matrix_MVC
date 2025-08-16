@@ -494,7 +494,7 @@
                             lucide.createIcons()
                         }
 
-                        console.log('Dashboard Menu App 已載入')
+                        // console.log('Dashboard Menu App 已載入')
                     })
 
                     return {
@@ -563,7 +563,7 @@
 
     // 初始化全域狀態並啟動應用
     window.initGlobalState().then(() => {
-        console.log('全域狀態初始化完成')
+        // console.log('全域狀態初始化完成')
         DashboardMenuApp()
     })
 
