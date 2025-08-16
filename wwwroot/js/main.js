@@ -17,7 +17,6 @@ const globalApp = content => {
 
 globalApp({
     setup() {
-        const DatePicker = window.VueDatePicker
         const { ref, reactive, computed, watch, onMounted, onUnmounted } = Vue
         const { formatDate, timeAgo } = useFormatting()
         const isLoading = ref(false)
@@ -25,7 +24,22 @@ globalApp({
 
 
         //---------------------------Report----------------------------
+        const adminNameCache = reactive({})  // { [id]: 'Eason' }
 
+        async function resolveAdminName(personId) {
+            if (!personId) return null
+            if (adminNameCache[personId]) return adminNameCache[personId]
+            try {
+                const res = await fetch(`/api/persons/${personId}`)   // ← 這裡改成 persons + personId
+                if (!res.ok) return null
+                const data = await res.json()
+                const name = data.displayName || data.name || data.username || null
+                if (name) adminNameCache[personId] = name
+                return name
+            } catch {
+                return null
+            }
+        }
 
         function formatDateValue(date) {
             const d = new Date(date)
@@ -123,6 +137,7 @@ globalApp({
         const page = ref(1)
         const pageSize = ref(10)
         const total = ref(0)
+        const rowBusy = reactive({})   // key = reportId, value = true/false
 
         const totalPages = computed(() => Math.max(0, Math.ceil(total.value / pageSize.value)))
 
@@ -135,6 +150,9 @@ globalApp({
                 loadReports()
             }
         })
+
+        //Report狀態判斷
+        const isNotYet = s => s === 0 || s === '0' || s === undefined || s === null || s === '';
 
         // 分頁顯示陣列（和你組員頁面一致的「…」風格）
         const showPage = computed(() => {
@@ -170,13 +188,114 @@ globalApp({
                 console.log('GET', url, '→', res.status)   // 👈 看看是 200/401/404
                 if (!res.ok) return
                 const data = await res.json()
-                reports.value = data.items ?? []
+
+                // ⬇⬇【新增】把每筆資料的狀態、處理者、時間正規化
+                reports.value = (data.items ?? []).map(r => {
+                    const raw = (r.status ?? r.statusCode ?? r.Status ?? r.StatusCode);
+                    const s = String(raw ?? '').toLowerCase()
+                    const processed =
+                        raw === 1 || raw === '1' || s === 'processed' || s === 'done' || s === 'success'
+
+                    return {
+                        ...r,
+                        // 統一用 statusCode / statusText 供前端判斷/顯示
+                        statusCode: processed ? 1 : 0,                 // 0 = Not yet, 1 = Processed
+                        statusText: processed ? 'Processed' : 'Not yet',
+
+                        // 後端欄位可能叫 resolver / resolverName / admin，統一成 resolverName
+                        resolverName: r.resolverName || r.resolver || r.admin || null,
+
+                        resolverId: r.resolverId || r.adminId || r.managerId || null,
+
+                        // 處理時間可能回在 processTime 或 modifyTime，統一成 processTime
+                        processTime: r.processTime || r.modifyTime || null,
+                    }
+                })
+                // ⬆⬆【新增】— 之後模板請改用 item.statusCode / item.statusText / item.resolverName / item.processTime
+                // 補 resolverName（非同步補齊，不擋畫面）
+                for (const it of reports.value) {
+                    if (!it.resolverName && it.resolverId) {
+                        resolveAdminName(it.resolverId).then(name => {
+                            if (name) it.resolverName = name
+                        })
+                    }
+                }
+
                 total.value = data.totalCount ?? 0
                 if (window.lucide) setTimeout(() => window.lucide.createIcons(), 0)
             } catch (e) {
                 console.error('loadReports error', e)
             }
         }
+
+
+        async function takeReportAction(item, action) {
+            const id = item.reportId
+            if (!id) return
+
+            if (action !== 'process' && action !== 'reject') {
+                console.error('Invalid action:', action)
+                return
+            }
+
+            if (rowBusy[id]) return
+            rowBusy[id] = true
+
+            try {
+                const url = `/api/dashboard/reports/${id}/${action}`
+
+                const res = await fetch(url, {
+                    method: 'POST',
+                    // 2) 一律帶 Cookie（.NET 會用 Cookie 驗身分）
+                    credentials: 'include', 
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    // 4) 若後端需要額外資料（常見：備註、原因、resolverId），可放在 body
+                    //    沒需要就送 {} 即可
+                    body: JSON.stringify({})
+                })
+
+                if (!res.ok) {
+                    const text = await res.text().catch(() => '')
+                    console.warn('Action failed:', { url, id, action, status: res.status, text })
+                    return
+                }
+
+                const result = await res.json().catch(() => ({}))
+
+                // ✅ 前端立即更新畫面
+                item.statusCode = 1
+                item.statusText = 'Processed'
+
+                // ✅ 管理員名字：優先用後端回傳；其次用 resolverId 去查；最後用預設字樣
+                if (result.resolverName) {
+                    item.resolverName = result.resolverName
+                } else if (result.resolverId) {
+                    item.resolverId = result.resolverId
+                    const name = await resolveAdminName(result.resolverId)
+                    if (name) item.resolverName = name
+                } else if (item.resolverId) {
+                    const name = await resolveAdminName(item.resolverId)
+                    if (name) item.resolverName = name
+                } else {
+                    item.resolverName = item.resolverName || 'Admin'
+                }
+
+                if (result.processTime) item.processTime = result.processTime
+
+                // （可選）再拉一次列表，確保與後端一致
+                // await loadReports()
+
+                if (window.lucide) setTimeout(() => window.lucide.createIcons(), 0)
+            } catch (err) {
+                console.error('takeReportAction error', err)
+            } finally {
+                rowBusy[id] = false
+            }
+        }
+
+
 
         function search() {
             page.value = 1
@@ -281,6 +400,7 @@ globalApp({
 
 
                 popupData.Search.Users = users.data.map(user => ({
+                    personId: user.personId,
                     displayName: user.displayName,
                     avatarUrl: user.avatarPath,
                     bio: user.bio || '這位使用者尚未填寫個人簡介。'
@@ -374,13 +494,18 @@ globalApp({
             isOpen: computed(() => popupState.isVisible),
             closeCollectModal: closePopup,
 
+            rowBusy,
+            isNotYet,
+            takeReportAction,
+
             reports, keyword, status, type, from, to,
             page, pageSize, totalPages, showPage,
             loadReports, search, goPage,
             processReport, rejectReport,
 
             isAppReady,
-
+            rowBusy,
+            takeReportAction,
 
             setStatus, setType, isStatusActive, isTypeActive,
             applyFilters,

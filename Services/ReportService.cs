@@ -155,12 +155,12 @@ namespace Matrix.Services
             return (list, total);
         }
 
-        public async Task<bool> ProcessReportAsync(Guid reportId, Guid adminId, string? adminNote = null)
+        public async Task<bool> ProcessReportAsync(Guid reportId, Guid adminId, string? adminNote = null)  //真正寫入 DB
         {
             var r = await _context.Reports.FirstOrDefaultAsync(x => x.ReportId == reportId);
             if (r is null) return false;
 
-            r.Status = (int)ReportStatus.Processed;
+            r.Status = (int)ReportStatus.Processed; // = 1
             r.ResolverId = adminId;
             r.ProcessTime = DateTime.UtcNow;
             // 若要存 adminNote 需新增欄位，這裡先略

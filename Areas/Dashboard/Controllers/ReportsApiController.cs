@@ -1,9 +1,11 @@
 ﻿using Matrix.Attributes;
+using Matrix.Data;                 // ApplicationDbContext
+using Matrix.DTOs;
+using Matrix.Services.Interfaces;  // IReportService
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Matrix.Data;                 // ApplicationDbContext
-using Matrix.Services.Interfaces;  // IReportService
-using System.Linq;                 // Where/Select/Distinct (視專案需要)
+using System.Linq;
+using System.Security.Claims;                 // Where/Select/Distinct (視專案需要)
 
 namespace Matrix.Areas.Dashboard.Controllers
 {
@@ -47,6 +49,12 @@ namespace Matrix.Areas.Dashboard.Controllers
                 // 批次查 Target 顯示字串（避免 N+1）
                 var userIds = reports.Where(r => r.Type == 0).Select(r => r.TargetId).Distinct().ToList();
                 var articleIds = reports.Where(r => r.Type == 1).Select(r => r.TargetId).Distinct().ToList();
+                // ▶ 取得所有已經有處理者的 ResolverId（PersonId）
+                var resolverIds = reports
+                    .Where(r => r.ResolverId.HasValue)
+                    .Select(r => r.ResolverId!.Value)
+                    .Distinct()
+                    .ToList();
 
                 var userNames = await _db.Persons
                     .Where(p => userIds.Contains(p.PersonId))
@@ -58,6 +66,11 @@ namespace Matrix.Areas.Dashboard.Controllers
                     .Where(a => articleIds.Contains(a.ArticleId))
                     .Select(a => new { a.ArticleId, a.Content })
                     .ToDictionaryAsync(x => x.ArticleId, x => x.Content);
+
+                var resolverNames = await _db.Persons                                     // ★
+                    .Where(p => resolverIds.Contains(p.PersonId))
+                    .Select(p => new { p.PersonId, p.DisplayName })
+                    .ToDictionaryAsync(x => x.PersonId, x => x.DisplayName);
 
                 // 映射成前端需要的欄位（CreateTime 先回 null；ModifyTime 用 ProcessTime）
                 var items = reports.Select(r => new ReportListItemDto
@@ -71,7 +84,13 @@ namespace Matrix.Areas.Dashboard.Controllers
                                     : (articleContents.TryGetValue(r.TargetId, out var content) ? content : "-"),
                     CreateTime = null,              // 沒有欄位 → 回 null，前端會顯示 "-"
                     ModifyTime = r.ProcessTime,     // 用處理/駁回時間當 ModifyTime
-                    Status = r.Status switch { 0 => "Pending", 1 => "Processed", 2 => "Rejected", _ => r.Status.ToString() }
+
+
+                    Status = r.Status,
+
+                    ResolverId = r.ResolverId,
+                    ResolverName = (r.ResolverId.HasValue && resolverNames.TryGetValue(r.ResolverId.Value, out var rn))
+                            ? rn : null
                 }).ToList();
 
                 return Ok(new PagedResult<ReportListItemDto>
@@ -87,37 +106,69 @@ namespace Matrix.Areas.Dashboard.Controllers
                 return Problem(ex.ToString());
             }
         }
+        private async Task<(Guid personId, string? displayName)?> GetCurrentAdminPersonAsync()
+        {
+            // 1) 取登入者 UserId（Identity 預設是 NameIdentifier）
+            var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userIdStr)) return null;
+
+            // 2) 你專案的 Persons.UserId 是 Guid
+            if (!Guid.TryParse(userIdStr, out var userId)) return null;
+
+            // 3) 查對應的 Person（拿 PersonId 當作 ResolverId 寫回 Reports）
+            var p = await _db.Persons
+                .Where(x => x.UserId == userId)
+                .Select(x => new { x.PersonId, x.DisplayName })
+                .FirstOrDefaultAsync();
+
+            if (p == null) return null;
+            return (p.PersonId, p.DisplayName);
+        }
 
         // POST /api/dashboard/reports/{id}/process
         [HttpPost("{id:guid}/process")]
         public async Task<IActionResult> Process(Guid id)
         {
-            var ok = await _reportService.ProcessReportAsync(id, Guid.Empty /* TODO: 換成實際 AdminId */);
-            return ok ? Ok() : NotFound();
-        }
+            var me = await GetCurrentAdminPersonAsync();
+            if (me is null) return Unauthorized(); // 找不到登入者或沒對應 Person
 
+            var (adminPid, adminName) = me.Value;
+
+            var ok = await _reportService.ProcessReportAsync(id, adminPid);
+            if (!ok) return NotFound();
+
+            // 回前端：讓它即時把「處理者」與「處理時間」補上
+            return Ok(new
+            {
+                resolverId = adminPid,
+                resolverName = adminName,
+                processTime = DateTime.UtcNow   // 和 service 寫入一致（service 也用 UtcNow）
+            });
+        }
         // POST /api/dashboard/reports/{id}/reject
         [HttpPost("{id:guid}/reject")]
         public async Task<IActionResult> Reject(Guid id)
         {
-            var ok = await _reportService.RejectReportAsync(id, Guid.Empty /* TODO: 換成實際 AdminId */);
-            return ok ? Ok() : NotFound();
+            var me = await GetCurrentAdminPersonAsync();
+            if (me is null) return Unauthorized();
+
+            var (adminPid, adminName) = me.Value;
+
+            var ok = await _reportService.RejectReportAsync(id, adminPid);
+            if (!ok) return NotFound();
+
+            return Ok(new
+            {
+                resolverId = adminPid,
+                resolverName = adminName,
+                processTime = DateTime.UtcNow
+            });
         }
 
 
 
         // DTO 與分頁模型（你也可以抽到共用檔案）
-        public class ReportListItemDto
-        {
-            public Guid ReportId { get; set; }
-            public string Reason { get; set; } = "";
-            public string Reporter { get; set; } = "";
-            public string Type { get; set; } = "";
-            public string Target { get; set; } = "";
-            public DateTime? CreateTime { get; set; }
-            public DateTime? ModifyTime { get; set; }
-            public string Status { get; set; } = "";
-        }
+
         public class PagedResult<T>
         {
             public List<T> Items { get; set; } = new();
