@@ -17,6 +17,7 @@ export function useCreatePost() {
     const selectedFiles = ref([])
     const fileInput = ref(null)
     const fileInputMode = ref('file')
+    const maxSize = 5 * 1024 * 1024;
 
     const ClassicEditor = window.ClassicEditor
 
@@ -169,29 +170,47 @@ export function useCreatePost() {
 
     function handleFileChange(e) {
 
+        const files = Array.from(e.target?.files || []).filter(f => f instanceof File);
+        if (!files.length) return;
+
         for (const f of files) {
-            if (f.size > MAX_FILE_SIZE) {
+            if (f.size > maxSize) {
                 alert(`檔案 ${f.name} 超過 5MB，請重新選擇`);
                 if (fileInput.value) fileInput.value.value = '';
                 return;
             }
         }
-        const files = Array.from(e.target.files).filter(f => f instanceof File)
         const images = files.filter(f => f.type.startsWith('image/'))
         const nonImages = files.filter(f => !f.type.startsWith('image/'))
 
 
         if (fileInputMode.value === 'image') {
             if (nonImages.length) { alert('僅限選擇圖片'); return }
+            if (selectedImages.value.length + images.length > 6) {
+                alert('圖片最多只能上傳 6 張');
+                if (fileInput.value) fileInput.value.value = '';
+                return;
+            }
             selectedImages.value = dedupe([...selectedImages.value, ...images])
+
         } else {
             if (images.length) { alert('僅限選擇檔案'); return }
+            if (selectedFiles.value.length + nonImages.length > 6) {
+                alert('檔案最多只能上傳 6 個');
+                if (fileInput.value) fileInput.value.value = '';
+                return;
+            }
             selectedFiles.value = dedupe([...selectedFiles.value, ...nonImages])
         }
         if (fileInput.value) fileInput.value.value = '';
+    }
 
+    function removeImage(index) {
+        selectedImages.value.splice(index, 1);
+    }
 
-
+    function removeFile(index) {
+        selectedFiles.value.splice(index, 1);
     }
 
     async function submitPost() {
@@ -207,9 +226,16 @@ export function useCreatePost() {
         selectedHashtags.value.forEach(tag => formData.append('SelectedHashtags', tag.tagId))
 
         try {
-            const res = await fetch('/Post/Create', { method: 'POST', body: formData })
-            if (res.ok) { alert('送出成功！'); closeModal() }
-            else { const error = await res.text(); alert('送出失敗: ' + error) }
+            const res = await fetch('/Post/Create', {
+                method: 'POST',
+                body: formData
+            })
+            if (res.ok) {
+                alert('送出成功！'); closeModal()
+            }
+            else {
+                const error = await res.text(); alert('送出失敗: ' + error)
+            }
         } catch (err) {
             alert('網路錯誤：' + err.message)
         }
@@ -230,6 +256,6 @@ export function useCreatePost() {
         setFileInput, handleFileChange, submitPost,
         truncateFilename, safeURL,
         ClassicEditor, editorConfig, onEditorReady,
-        htmlToText
+        htmlToText, removeImage, removeFile,
     }
 }
