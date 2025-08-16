@@ -96,16 +96,16 @@ window.mountUsersPage = function () {
             })
             //多語系
             const statusText = computed(() => {
-                const isEn = (culture.value || '').toLowerCase().startsWith('en')
-                const d = dictRef.value || {}
-                const fb = isEn
-                    ? { 0: 'Disabled', 1: 'Enabled', 2: 'Banned' }
-                    : { 0: '未啟用', 1: '已啟用', 2: '被封禁' }
+                // const isEn = (culture.value || '').toLowerCase().startsWith('en')
+                // const d = dictRef.value || {}
+                // const fb = isEn
+                //     ? { 0: 'Disabled', 1: 'Enabled', 2: 'Banned' }
+                //     : { 0: '未啟用', 1: '已啟用', 2: '被封禁' }
 
                 return (value) => ({
-                    0: d['Status_Disabled'] || fb[0],
-                    1: d['Status_Enabled'] || fb[1],
-                    2: d['Status_Banned'] || fb[2],
+                    0: 'Users_Status_Disabled',
+                    1: 'Users_Status_Enabled',
+                    2: 'Users_Status_Banned',
                 }[value] ?? value)
             })
             //以上多語系
@@ -277,7 +277,7 @@ window.mountUsersPage = function () {
                     if (!key) return raw // 沒對到就顯示原字
 
                     // 先用後端字典，沒有就用保底
-                    return d[key] || FB_ROLE[key]
+                    return d[key]
                 }
             })
 

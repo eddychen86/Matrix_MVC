@@ -130,7 +130,7 @@ namespace Matrix.Services
                 #endregion
 
                 #region Profile 模組
-                
+
                 ["ProfileBio"] = "自我介紹",
                 ["ProfileContact"] = "聯絡方式",
                 ["ProfileLinks"] = "其他連結",
@@ -178,7 +178,7 @@ namespace Matrix.Services
                 ["ReportName"] = "報告名稱",
                 ["ReportDate"] = "報告日期",
                 ["ReportType"] = "報告類型",
-                
+
                 // === 確認模組 ===
                 ["InvalidConfirmLink"] = "無效的確認連結",
                 ["UserNotExistOrExpired"] = "用戶不存在或確認連結已失效",
@@ -189,7 +189,7 @@ namespace Matrix.Services
                 ["WelcomeRegisterConfirmEmail"] = "歡迎註冊！請確認您的電子郵件地址",
                 ["ConfirmEmailSent"] = "確認信已發送，請檢查您的電子郵件。",
                 ["SendConfirmEmailError"] = "發送確認信時發生錯誤，請稍後再試。",
-                
+
                 // === 確認信內容 ===
                 ["EmailWelcomeTitle"] = "歡迎加入 Matrix",
                 ["EmailWelcomeSubtitle"] = "Welcome to the Matrix.",
@@ -199,7 +199,7 @@ namespace Matrix.Services
                 ["EmailAlternativeText"] = "如果按鈕無法點擊，請複製以下連結到瀏覽器：",
                 ["EmailFooterText"] = "此連結將在 24 小時後失效。",
                 ["EmailBrandMotto"] = "The world is a fog, filled with out-of-focus noise. We choose to become an eternal lighthouse.",
-                
+
                 // === 確認頁面 ===
                 ["ConfirmPageTitle"] = "郵件確認",
                 ["PleaseWait"] = "請稍候...",
@@ -220,7 +220,7 @@ namespace Matrix.Services
                 ["ProcessingResultError"] = "處理確認結果時發生錯誤。",
                 ["CannotGetResult"] = "無法獲取確認結果，請重新嘗試。",
                 ["UseConfirmLink"] = "請透過郵件中的確認連結來訪問此頁面。",
-                
+
                 // 其他常用
                 ["Title"] = "Matrix",
                 ["Email"] = "電子郵件",
@@ -300,32 +300,90 @@ namespace Matrix.Services
 
                 #endregion
 
-                #region UsersManagement 模組
+                #region Users Management 模組
 
-                ["UsersManagement"] = "使用者管理",
-                ["Status"] = "狀態",
-                ["Ban"] = "被封禁",
-                ["CreateTime"] = "建立時間",
-                ["Enable"] = "已啟用",
-                ["Disable"] = "未啟用",
-                ["Yes"] = "是",
-                ["No"] = "否",
-                ["Name"] = "名稱",
-                ["RoleText"] = "角色",
-                ["Email"] = "電子郵件",
-                ["LastLoginTime"] = "最後登入",
-                ["Edit"] = "編輯",
-                ["Delete"] = "刪除",
-                ["Update"] = "更新",
-                ["Cancel"] = "取消",
-                ["SearchUserPlaceholder"] = "請輸入使用者名稱",
-                ["SearchDatePlaceholder"] = "請輸入日期YYYY-MM-DD",
-                ["Status_Disabled"] = "未啟用",
-                ["Status_Enabled"] = "已啟用",
-                ["Status_Banned"] = "被封禁",
-                ["Role_Admin"] = "管理員",
-                ["Role_User"] = "一般使用者",
+                ["Users_Title"] = "使用者管理",
+                ["Users_Status"] = "狀態",
+                ["Users_Ban"] = "被封禁",
+                ["Users_CreateTime"] = "建立時間",
+                ["Users_Enable"] = "已啟用",
+                ["Users_Disable"] = "未啟用",
+                ["Users_Yes"] = "是",
+                ["Users_No"] = "否",
+                ["Users_Name"] = "名稱",
+                ["Users_RoleText"] = "角色",
+                ["Users_Email"] = "電子郵件",
+                ["Users_LastLoginTime"] = "最後登入",
+                ["Users_Edit"] = "編輯",
+                ["Users_Delete"] = "刪除",
+                ["Users_Update"] = "更新",
+                ["Users_Cancel"] = "取消",
+                ["Users_SearchUserPlaceholder"] = "請輸入使用者名稱",
+                ["Users_SearchDatePlaceholder"] = "請輸入日期YYYY-MM-DD",
+                ["Users_Status_Disabled"] = "未啟用",
+                ["Users_Status_Enabled"] = "已啟用",
+                ["Users_Status_Banned"] = "被封禁",
+                ["Users_Role_Admin"] = "管理員",
+                ["Users_Role_User"] = "一般使用者",
 
+                #endregion
+
+                #region Posts Management 模組
+
+                ["Posts_Title"] = "貼文管理",
+                ["Posts_Keyword"] = "關鍵字",
+                ["Posts_SearchKeywordPlaceholder"] = "請輸入關鍵字",
+                ["Posts_Status"] = "狀態",
+                ["Posts_All"] = "全部",
+                ["Posts_Enable"] = "啟用",
+                ["Posts_Disable"] = "停用",
+                ["Posts_CreateTime"] = "建立時間",
+                ["Posts_Content"] = "內容",
+                ["Posts_UserName"] = "使用者名稱",
+                ["Posts_ModifyTime"] = "修改時間",
+                ["Posts_Edit"] = "編輯",
+                ["Posts_Delete"] = "刪除",
+                ["Posts_Status_Normal"] = "正常",
+                ["Posts_Status_Hidden"] = "隱藏",
+                ["Posts_Save"] = "儲存",
+                ["Posts_Cancel"] = "取消",
+                
+                #endregion
+
+                #region Reports Management 模組
+
+                ["Reports_Title"] = "檢舉管理",
+                ["Reports_ApiNotConnected"] = "尚未串接 API，待補。",
+                
+                #endregion
+
+                #region Overview 模組
+
+                ["Overview_Title"] = "管理儀表板",
+                ["Overview_WelcomeMsg"] = "歡迎使用 Matrix 後台管理系統",
+                ["Overview_TotalUsers"] = "總用戶數",
+                ["Overview_TotalPosts"] = "文章總數",
+                ["Overview_PendingReports"] = "待處理報告",
+                ["Overview_TodayActive"] = "今日活躍",
+                ["Overview_QuickActions"] = "快速操作",
+                ["Overview_UserManagement"] = "用戶管理",
+                ["Overview_PostManagement"] = "文章管理",
+                ["Overview_ReportManagement"] = "檢舉管理",
+                ["Overview_SystemStatus"] = "系統狀態",
+                ["Overview_SystemUptime"] = "系統運行時間",
+                ["Overview_DatabaseConnection"] = "資料庫連線",
+                ["Overview_EmailService"] = "郵件服務",
+                ["Overview_Storage"] = "儲存空間",
+                ["Overview_Status_Normal"] = "正常",
+                ["Overview_Status_InUse"] = "使用中",
+                
+                #endregion
+
+                #region Config 模組
+
+                ["Config_Title"] = "系統設定",
+                ["Config_ApiNotConnected"] = "尚未串接 API，待補。",
+                
                 #endregion
             },
             
@@ -553,31 +611,89 @@ namespace Matrix.Services
 
                 #region UsersManagement 模組
 
-                ["UsersManagement"] = "UsersManagement",
-                ["Status"] = "Status",
-                ["Ban"] = "Ban",
-                ["CreateTime"] = "Createtime",
-                ["Enable"] = "Enable",
-                ["Disable"] = "Disable",
-                ["Yes"] = "Yes",
-                ["No"] = "No",
-                ["Name"] = "Name",
-                ["RoleText"] = "Role",
-                ["Email"] = "Email",
-                ["LastLoginTime"] = "Lastlogin",
-                ["Edit"] = "Edit",
-                ["Delete"] = "Delete",
-                ["Update"] = "Update",
-                ["Cancel"] = "Cancel",
-                ["SearchUserPlaceholder"] = "Please enter user name",
-                ["SearchDatePlaceholder"] = "Please enter YYYY-MM-DD",
-                ["Status_Disabled"] = "Disabled",
-                ["Status_Enabled"] = "Enabled",
-                ["Status_Banned"] = "Banned",
-                ["Role_Admin"] = "Admin",
-                ["Role_User"] = "User",
+                ["Users_Title"] = "Users Management",
+                ["Users_Status"] = "Status",
+                ["Users_Ban"] = "Ban",
+                ["Users_CreateTime"] = "Createtime",
+                ["Users_Enable"] = "Enable",
+                ["Users_Disable"] = "Disable",
+                ["Users_Yes"] = "Yes",
+                ["Users_No"] = "No",
+                ["Users_Name"] = "Name",
+                ["Users_RoleText"] = "Role",
+                ["Users_Email"] = "Email",
+                ["Users_LastLoginTime"] = "Lastlogin",
+                ["Users_Edit"] = "Edit",
+                ["Users_Delete"] = "Delete",
+                ["Users_Update"] = "Update",
+                ["Users_Cancel"] = "Cancel",
+                ["Users_SearchUserPlaceholder"] = "Please enter user name",
+                ["Users_SearchDatePlaceholder"] = "Please enter YYYY-MM-DD",
+                ["Users_Status_Disabled"] = "Disabled",
+                ["Users_Status_Enabled"] = "Enabled",
+                ["Users_Status_Banned"] = "Banned",
+                ["Users_Role_Admin"] = "Admin",
+                ["Users_Role_User"] = "User",
 
 
+                #endregion
+
+                #region Posts Management 模組
+
+                ["Posts_Title"] = "Posts Management",
+                ["Posts_Keyword"] = "Keyword",
+                ["Posts_SearchKeywordPlaceholder"] = "Please enter keyword",
+                ["Posts_Status"] = "Status",
+                ["Posts_All"] = "All",
+                ["Posts_Enable"] = "Enable",
+                ["Posts_Disable"] = "Disable",
+                ["Posts_CreateTime"] = "Create Time",
+                ["Posts_Content"] = "Content",
+                ["Posts_UserName"] = "User Name",
+                ["Posts_ModifyTime"] = "Modify Time",
+                ["Posts_Edit"] = "Edit",
+                ["Posts_Delete"] = "Delete",
+                ["Posts_Status_Normal"] = "Normal",
+                ["Posts_Status_Hidden"] = "Hidden",
+                ["Posts_Save"] = "Save",
+                ["Posts_Cancel"] = "Cancel",
+                
+                #endregion
+
+                #region Reports Management 模組
+
+                ["Reports_Title"] = "Reports Management",
+                ["Reports_ApiNotConnected"] = "API not connected yet, to be implemented.",
+                
+                #endregion
+
+                #region Overview 模組
+
+                ["Overview_Title"] = "Admin Dashboard",
+                ["Overview_WelcomeMsg"] = "Welcome to Matrix Admin Management System",
+                ["Overview_TotalUsers"] = "Total Users",
+                ["Overview_TotalPosts"] = "Total Posts",
+                ["Overview_PendingReports"] = "Pending Reports",
+                ["Overview_TodayActive"] = "Today Active",
+                ["Overview_QuickActions"] = "Quick Actions",
+                ["Overview_UserManagement"] = "User Management",
+                ["Overview_PostManagement"] = "Post Management",
+                ["Overview_ReportManagement"] = "Report Management",
+                ["Overview_SystemStatus"] = "System Status",
+                ["Overview_SystemUptime"] = "System Uptime",
+                ["Overview_DatabaseConnection"] = "Database Connection",
+                ["Overview_EmailService"] = "Email Service",
+                ["Overview_Storage"] = "Storage",
+                ["Overview_Status_Normal"] = "Normal",
+                ["Overview_Status_InUse"] = "In Use",
+                
+                #endregion
+
+                #region Config 模組
+
+                ["Config_Title"] = "System Config",
+                ["Config_ApiNotConnected"] = "API not connected yet, to be implemented.",
+                
                 #endregion
 
                 // Validation error messages (from DTOs)
