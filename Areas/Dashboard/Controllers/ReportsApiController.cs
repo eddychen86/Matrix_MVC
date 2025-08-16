@@ -108,41 +108,41 @@ namespace Matrix.Areas.Dashboard.Controllers
         }
         private async Task<(Guid personId, string? displayName)?> GetCurrentAdminPersonAsync()
         {
-            // 1) 取登入者 UserId（Identity 預設是 NameIdentifier）
+            // 從登入票找 ASP.NET Identity 的 UserId
             var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (string.IsNullOrEmpty(userIdStr)) return null;
-
-            // 2) 你專案的 Persons.UserId 是 Guid
             if (!Guid.TryParse(userIdStr, out var userId)) return null;
 
-            // 3) 查對應的 Person（拿 PersonId 當作 ResolverId 寫回 Reports）
+            // 用 Users.UserId 對應到 Persons.UserId，取出 PersonId（就是要寫進 Reports.ResolverId 的值）
             var p = await _db.Persons
                 .Where(x => x.UserId == userId)
                 .Select(x => new { x.PersonId, x.DisplayName })
                 .FirstOrDefaultAsync();
 
-            if (p == null) return null;
-            return (p.PersonId, p.DisplayName);
+            return p is null ? null : (p.PersonId, p.DisplayName);
         }
 
         // POST /api/dashboard/reports/{id}/process
         [HttpPost("{id:guid}/process")]
         public async Task<IActionResult> Process(Guid id)
         {
+            Console.WriteLine("IsAuthenticated: " + User.Identity?.IsAuthenticated);
+            foreach (var c in User.Claims)
+                Console.WriteLine($"{c.Type} = {c.Value}");
+
+
             var me = await GetCurrentAdminPersonAsync();
-            if (me is null) return Unauthorized(); // 找不到登入者或沒對應 Person
+            if (me is null) return Unauthorized();
 
             var (adminPid, adminName) = me.Value;
 
-            var ok = await _reportService.ProcessReportAsync(id, adminPid);
+            var ok = await _reportService.ProcessReportAsync(id, adminPid); // ← 傳 PersonId
             if (!ok) return NotFound();
 
-            // 回前端：讓它即時把「處理者」與「處理時間」補上
             return Ok(new
             {
                 resolverId = adminPid,
                 resolverName = adminName,
-                processTime = DateTime.UtcNow   // 和 service 寫入一致（service 也用 UtcNow）
+                processTime = DateTime.UtcNow
             });
         }
         // POST /api/dashboard/reports/{id}/reject
