@@ -345,8 +345,13 @@ namespace Matrix.Services
                 ["Posts_Delete"] = "刪除",
                 ["Posts_Status_Normal"] = "正常",
                 ["Posts_Status_Hidden"] = "隱藏",
+                ["Posts_Status_Deleted"] = "已刪除",
                 ["Posts_Save"] = "儲存",
                 ["Posts_Cancel"] = "取消",
+                ["Posts_ConfirmDelete"] = "確定要刪除這篇文章嗎?",
+                ["Posts_DeleteError"] = "刪除失敗",
+                ["Posts_UpdateError"] = "狀態更新失敗",
+                ["Posts_LoadError"] = "讀取清單失敗",
                 
                 #endregion
 
@@ -655,8 +660,13 @@ namespace Matrix.Services
                 ["Posts_Delete"] = "Delete",
                 ["Posts_Status_Normal"] = "Normal",
                 ["Posts_Status_Hidden"] = "Hidden",
+                ["Posts_Status_Deleted"] = "Deleted",
                 ["Posts_Save"] = "Save",
                 ["Posts_Cancel"] = "Cancel",
+                ["Posts_ConfirmDelete"] = "Are you sure you want to delete this post?",
+                ["Posts_DeleteError"] = "Delete failed",
+                ["Posts_UpdateError"] = "Status update failed",
+                ["Posts_LoadError"] = "Failed to load list",
                 
                 #endregion
 
