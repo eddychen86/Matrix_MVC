@@ -44,6 +44,13 @@
       "files": [
         "dist/browser/signalr.js"
       ]
+    },
+    {
+      "library": "chart.js@4.5.0",
+      "destination": "wwwroot/lib/ChartJS",
+      "files": [
+        "dist/chart.js"
+      ]
     }
   ]
 }

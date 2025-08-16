@@ -62,50 +62,25 @@
         </div>
     </div>
 
-    <!-- 快速操作 -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div class="bg-white rounded-lg shadow-md p-6">
-            <h3 class="text-lg font-semibold text-gray-800 mb-4">快速操作</h3>
-            <div class="space-y-3">
-                <a href="@Url.Action("Index", "Users", new { area = "Dashboard" })"
-                    class="flex items-center p-3 rounded-lg hover:bg-gray-50 transition-colors">
-                    <i class="fas fa-users text-gray-400 mr-3"></i>
-                    <span class="text-gray-700">用戶管理</span>
-                </a>
-
-                <a href="@Url.Action("Index", "Posts", new { area = "Dashboard" })"
-                    class="flex items-center p-3 rounded-lg hover:bg-gray-50 transition-colors">
-                    <i class="fas fa-file-alt text-gray-400 mr-3"></i>
-                    <span class="text-gray-700">文章管理</span>
-                </a>
-
-                <a href="@Url.Action("Index", "Reports", new { area = "Dashboard" })"
-                    class="flex items-center p-3 rounded-lg hover:bg-gray-50 transition-colors">
-                    <i class="fas fa-flag text-gray-400 mr-3"></i>
-                    <span class="text-gray-700">檢舉管理</span>
-                </a>
+    <!-- 系統狀態 -->
+    <div class="bg-white rounded-lg shadow-md p-6">
+        <h3 class="text-lg font-semibold text-gray-800 mb-4">系統狀態</h3>
+        <div class="space-y-4">
+            <div class="flex justify-between items-center">
+                <span class="text-gray-600">系統運行時間</span>
+                <span class="text-green-600 font-medium">正常</span>
             </div>
-        </div>
-
-        <div class="bg-white rounded-lg shadow-md p-6">
-            <h3 class="text-lg font-semibold text-gray-800 mb-4">系統狀態</h3>
-            <div class="space-y-4">
-                <div class="flex justify-between items-center">
-                    <span class="text-gray-600">系統運行時間</span>
-                    <span class="text-green-600 font-medium">正常</span>
-                </div>
-                <div class="flex justify-between items-center">
-                    <span class="text-gray-600">資料庫連線</span>
-                    <span class="text-green-600 font-medium">正常</span>
-                </div>
-                <div class="flex justify-between items-center">
-                    <span class="text-gray-600">郵件服務</span>
-                    <span class="text-green-600 font-medium">正常</span>
-                </div>
-                <div class="flex justify-between items-center">
-                    <span class="text-gray-600">儲存空間</span>
-                    <span class="text-yellow-600 font-medium">75% 使用中</span>
-                </div>
+            <div class="flex justify-between items-center">
+                <span class="text-gray-600">資料庫連線</span>
+                <span class="text-green-600 font-medium">正常</span>
+            </div>
+            <div class="flex justify-between items-center">
+                <span class="text-gray-600">郵件服務</span>
+                <span class="text-green-600 font-medium">正常</span>
+            </div>
+            <div class="flex justify-between items-center">
+                <span class="text-gray-600">儲存空間</span>
+                <span class="text-yellow-600 font-medium">75% 使用中</span>
             </div>
         </div>
     </div>
