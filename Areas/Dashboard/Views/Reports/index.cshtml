@@ -1,7 +1,7 @@
 ﻿<div id="reports-app" class="grid h-full w-full grid-cols-4 gap-4">
     <h2 class="col-span-4 text-5xl font-bold text-gray-700">Reports Management</h2>
 
-    <!-- ������ -->
+    <!--  -->
     <aside class="col-span-1 flex flex-col gap-8 border-r border-gray-200 bg-white p-8">
         <!-- Keyword -->
         <div>
@@ -13,7 +13,7 @@
                        class="w-full rounded border bg-gray-50 px-3 py-2 focus:ring-2 focus:ring-blue-200 focus:outline-none"
                        placeholder="Please enter keyword">
                 <button type="button"
-                        @@click="() => {page = 1; loadReports()}"
+                        @@click="search"
                         class="absolute top-1/2 right-4 -translate-y-1/2 cursor-pointer">
                     <i data-lucide="search" class="icon-base"></i>
                 </button>
@@ -23,32 +23,43 @@
         <!-- Status -->
         <div class="flex items-center justify-between gap-3">
             <span class="text-base font-semibold text-[20px] text-gray-700">Status</span>
+            <!--   Vue 點擊切換按鈕  -->
             <div class="flex rounded-full border border-blue-400 bg-white p-0.5 shadow-inner">
-                <input type="radio" id="st-pending" class="peer/p hidden" value="0" v-model.number="status">
-                <label for="st-pending"
-                       class="cursor-pointer rounded-full px-3 py-1 text-sm font-semibold text-blue-600 transition
-                      peer-checked/p:bg-blue-700 peer-checked/p:text-white peer-checked/p:shadow">Not yet</label>
-
-                <input type="radio" id="st-processed" class="peer/a hidden" value="1" v-model.number="status">
-                <label for="st-processed"
-                       class="cursor-pointer rounded-full px-3 py-1 text-sm font-semibold text-blue-600 transition
-                      peer-checked/a:bg-blue-700 peer-checked/a:text-white peer-checked/a:shadow">Processed</label>
+                <button class="rounded-full px-3 py-1 text-sm font-semibold text-blue-600 transition"
+                        :class="{ 'bg-blue-700 text-white shadow': status === '' }"
+                        @@click ="setStatus('')">
+                    All
+                </button>
+                <button class="rounded-full p-1 px-3 text-sm font-semibold text-blue-600 transition"
+                :class="{ 'bg-blue-700 text-white shadow': isStatusActive(0) }"
+                @@click="setStatus(0)">Not yet</button>
+                <button class="rounded-full px-3 py-1 text-sm font-semibold text-blue-600 transition"
+                        :class="{ 'bg-blue-700 text-white shadow': isStatusActive(1) }"
+                        @@click ="setStatus(1)">
+                    Processed
+                </button>
             </div>
         </div>
 
-        <!-- Type -->
+        <!-- Type -->           
         <div class="flex items-center justify-between gap-3">
             <span class="text-base font-semibold text-[20px] text-gray-700">Type</span>
             <div class="flex rounded-full border border-blue-400 bg-white p-0.5 shadow-inner">
-                <input type="radio" id="tp-user" class="peer/u hidden" value="0" v-model.number="type">
-                <label for="tp-user"
-                       class="cursor-pointer rounded-full px-3 py-1 text-sm font-semibold text-blue-600 transition
-                      peer-checked/u:bg-blue-700 peer-checked/u:text-white peer-checked/u:shadow">Users</label>
-
-                <input type="radio" id="tp-article" class="peer/t hidden" value="1" v-model.number="type">
-                <label for="tp-article"
-                       class="cursor-pointer rounded-full px-3 py-1 text-sm font-semibold text-blue-600 transition
-                      peer-checked/t:bg-blue-700 peer-checked/t:text-white peer-checked/t:shadow">Article</label>
+                <button class="rounded-full px-3 py-1 text-sm font-semibold text-blue-600 transition"
+                        :class="{ 'bg-blue-700 text-white shadow': type === '' }"
+                        @@click="setType('')">
+                    All
+                </button>
+                <button class="rounded-full px-3 py-1 text-sm font-semibold text-blue-600 transition"
+                        :class="{ 'bg-blue-700 text-white shadow': isTypeActive(0) }"
+                        @@click ="setType(0)">
+                    Users
+                </button>
+                <button class="rounded-full px-3 py-1 text-sm font-semibold text-blue-600 transition"
+                        :class="{ 'bg-blue-700 text-white shadow': isTypeActive(1) }"
+                        @@click ="setType(1)">
+                    Article
+                </button>
             </div>
         </div>
         <!-- Modify time（常駐日曆） -->

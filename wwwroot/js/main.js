@@ -23,6 +23,10 @@ globalApp({
         const isLoading = ref(false)
         const isAppReady = ref(false)
 
+
+        //---------------------------Report----------------------------
+
+
         function formatDateValue(date) {
             const d = new Date(date)
             return d.toISOString().split('T')[0]  // yyyy-MM-dd 格式
@@ -33,7 +37,29 @@ globalApp({
             loadReports()
         }
 
+        // ✅ 點按狀態按鈕：再點一次同一顆=清除
+        function setStatus(v) {
+            const newVal = String(v);                 // 後端用 '0','1','2'
+            status.value = (status.value === newVal) ? '' : newVal;
+            page.value = 1;
+            loadReports();
+        }
 
+        // ✅ 點按類型按鈕：再點一次同一顆=清除
+        function setType(v) {
+            const newVal = String(v);                 // 後端用 '0','1'
+            type.value = (type.value === newVal) ? '' : newVal;
+            page.value = 1;
+            loadReports();
+        }
+
+        // ✅ 幫按鈕決定是否「被選中」
+        const isStatusActive = v => status.value === String(v);
+        const isTypeActive = v => type.value === String(v);
+
+        
+
+        //---------------------------Report----------------------------
 
         onMounted(() => {
             isAppReady.value = true
@@ -99,6 +125,16 @@ globalApp({
         const total = ref(0)
 
         const totalPages = computed(() => Math.max(0, Math.ceil(total.value / pageSize.value)))
+
+
+        // 🔽 新增：當 keyword 清空時，自動回復到未搜尋狀態
+        watch(keyword, (val, oldVal) => {
+            // 只有在「從有字 → 變成空」時才 reload，避免初始化時觸發
+            if (oldVal !== undefined && oldVal.trim() !== '' && val.trim() === '') {
+                page.value = 1
+                loadReports()
+            }
+        })
 
         // 分頁顯示陣列（和你組員頁面一致的「…」風格）
         const showPage = computed(() => {
@@ -346,6 +382,7 @@ globalApp({
             isAppReady,
 
 
+            setStatus, setType, isStatusActive, isTypeActive,
             applyFilters,
 
             // hooks
