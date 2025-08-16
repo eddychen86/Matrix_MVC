@@ -28,11 +28,15 @@
 
             <!-- 圖片預覽區域 -->
             <div class="flex flex-wrap items-end gap-2">
-                <div v-for="(img, index) in selectedImages" :key="index" class="preview-item relative inline-block">
-                    <img :src="safeURL(img)" :alt="img.name" class="h-20 w-20 rounded object-cover" />
-                    <button type="button" v-on:click ="removeImage(index)"
-                            class="absolute top-0 right-0 rounded-full bg-black/50 p-1 text-white hover:bg-black">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                <div v-for="(img, index) in selectedImages"
+                     :key="index"
+                     class="relative h-20 w-20 shrink-0 overflow-hidden rounded">
+                    <img :src="safeURL(img)" :alt="img.name" class="h-full w-full object-cover" />
+                    <button type="button"
+                            v-on:click="removeImage(index)"
+                            class="absolute top-0 right-0 z-10 rounded-full bg-black/60 p-1 text-white hover:bg-black/80 focus:ring-2"
+                            style="position:absolute; top:0; right:0;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14"
                              viewBox="0 0 24 24" fill="none" stroke="currentColor"
                              stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
                              class="lucide lucide-x">
@@ -45,36 +49,38 @@
 
             <!-- 檔案預覽區域 -->
             <div class="flex flex-wrap items-end gap-2">
-                <div v-for="(file, index) in selectedFiles" :key="index"
-                     class="relative flex flex-col items-center gap-1 rounded-[20px] p-1"
-                     style="width:60px" :title="file.name">
-
-                    <!-- X 刪除按鈕 -->
-                    <button type="button" v-on:click ="removeFile(index)"
-                            class="absolute -top-1 -right-1 rounded-full bg-black/50 p-[2px] hover:bg-black">
+                <div v-for="(file, index) in selectedFiles"
+                     :key="index"
+                     class="relative w-[60px] shrink-0 rounded-[12px] bg-white/5 p-1"
+                     :title="file.name">
+                    <button type="button"
+                            v-on:click="removeFile(index)"
+                            class="absolute top-0 right-0 z-10 rounded-full bg-black/60 p-[2px] text-white hover:bg-black/80 focus:ring-2"
+                            style="position:absolute; top:0; right:0;">
                         <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12"
-                             viewBox="0 0 24 24" fill="none" stroke="white"
+                             viewBox="0 0 24 24" fill="none" stroke="currentColor"
                              stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
                              class="lucide lucide-x">
                             <path d="M18 6 6 18" />
                             <path d="m6 6 12 12" />
                         </svg>
                     </button>
-
-                    <!-- 檔案 icon -->
-                    <div class="flex h-[40px] w-[60px] items-center justify-center rounded-[20px] bg-[#ffffff]">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" style="fill: rgb(51, 51, 51);" viewBox="0 0 24 24">
+                    <div class="flex h-[40px] w-full items-center justify-center rounded-[10px] bg-white">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 24 24">
                             <path fill="none" d="M0 0h24v24H0z"></path>
-                            <path d="m20.41 8.41-4.83-4.83c-.37-.37-.88-.58-1.41-.58H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V9.83c0-.53-.21-1.04-.59-1.42zM7 7h7v2H7V7zm10 10H7v-2h10v2zm0-4H7v-2h10v2z"></path>
+                            <path fill="currentColor"
+                                  d="m20.41 8.41-4.83-4.83c-.37-.37-.88-.58-1.41-.58H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V9.83c0-.53-.21-1.04-.59-1.42zM7 7h7v2H7V7zm10 10H7v-2h10v2zm0-4H7v-2h10v2z">
+                            </path>
                         </svg>
                     </div>
-
-                    <!-- 檔名 -->
-                    <span class="max-w-[60px] text-center break-words text-[11px]">
+                    <span class="mt-1 block max-w-full text-center break-words text-[11px]">
                         {{ truncateFilename(file.name) }}
                     </span>
                 </div>
             </div>
+
+
+
 
         </div>
 
