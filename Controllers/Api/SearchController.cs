@@ -10,11 +10,11 @@ namespace Matrix.Controllers.Api
         private readonly ISearchUserService _searchUserService;
         private readonly ISearchHashtagService _searchHashtagService;
         private readonly IFollowService _followService;
-        public FollowsController(IFollowService followService) => _followService = followService;
-        public SearchController(ISearchUserService searchUserService, ISearchHashtagService searchHashtagService)
+        public SearchController(ISearchUserService searchUserService, ISearchHashtagService searchHashtagService, IFollowService followService)
         {
             _searchUserService = searchUserService;
             _searchHashtagService = searchHashtagService;
+            _followService = followService;
         }
 
         [HttpGet("users")]

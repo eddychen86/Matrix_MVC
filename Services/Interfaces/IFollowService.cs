@@ -54,6 +54,5 @@ namespace Matrix.Services.Interfaces
         // ✅ 新增：一次回傳兩個數字，給前端滑過展開用
         Task<FollowStatsDto> GetFollowStatsAsync(Guid userId);
     }
-    // 小型 DTO（放一起或另外建檔都可）
-    public record FollowStatsDto(int Followers, int Following);
+    
 }

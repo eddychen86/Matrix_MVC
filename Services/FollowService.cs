@@ -1,4 +1,5 @@
-namespace Matrix.Services;
+namespace Matrix.Services
+{ 
 using Matrix.Services.Interfaces;
 
     /// <summary>
@@ -40,17 +41,45 @@ using Matrix.Services.Interfaces;
             return Task.FromException<(List<FollowDto>, int)>(new NotImplementedException());
         }
 
-        public Task<int> GetFollowerCountAsync(Guid userId)
-        {
-            return Task.FromException<int>(new NotImplementedException());
-        }
+    /// <summary>
+    /// 被追蹤數：有多少人追這個 userId（依你的模型：Type == 1 = 使用者追蹤）
+    /// </summary>
+    public async Task<int> GetFollowerCountAsync(Guid userId)
+    {
+        if (userId == Guid.Empty) return 0;
 
-        public Task<int> GetFollowingCountAsync(Guid userId)
-        {
-            return Task.FromException<int>(new NotImplementedException());
-        }
+        return await _context.Follows
+            .AsNoTracking()
+            .CountAsync(f => f.Type == 1 && f.FollowedId == userId);
+    }
 
-        public Task<List<Guid>> GetMutualFollowsAsync(Guid userId1, Guid userId2)
+    /// <summary>
+    /// 追蹤數：這個 userId 追了多少人（Type == 1）
+    /// </summary>
+    public async Task<int> GetFollowingCountAsync(Guid userId)
+    {
+        if (userId == Guid.Empty) return 0;
+
+        return await _context.Follows
+            .AsNoTracking()
+            .CountAsync(f => f.Type == 1 && f.UserId == userId);
+    }
+    /// <summary>
+    /// 追蹤統計（Followers=被追蹤數、Following=追蹤數）
+    /// 供前端 Search 滑過展開使用
+    /// </summary>
+    public async Task<FollowStatsDto> GetFollowStatsAsync(Guid userId)
+    {
+        if (userId == Guid.Empty) return new FollowStatsDto(0, 0);
+
+        // 直接重用上面兩個方法，邏輯一致
+        var followers = await GetFollowerCountAsync(userId);
+        var following = await GetFollowingCountAsync(userId);
+
+        return new FollowStatsDto(followers, following);
+    }
+
+    public Task<List<Guid>> GetMutualFollowsAsync(Guid userId1, Guid userId2)
         {
             return Task.FromException<List<Guid>>(new NotImplementedException());
         }

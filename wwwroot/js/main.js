@@ -51,7 +51,35 @@ globalApp({
             Follows: [],
             Collects: []
         })
+        // === 追蹤統計（滑過使用） ===
+        // personId -> { followers, following } 的快取
+        const statsCache = Object.create(null)
 
+        const fetchUserStats = async (personId) => {
+            if (!personId) return { followers: 0, following: 0 }
+            if (statsCache[personId]) return statsCache[personId]
+
+            const res = await fetch(`/api/search/stats/${personId}`, { credentials: 'include' })
+            const json = await res.json()
+            const stats = (json && json.data) ? json.data : { followers: 0, following: 0 }  // ✅ 不用 ?.
+
+            statsCache[personId] = stats
+            return stats
+        }
+
+        // 滑過使用者列時呼叫：設定 hover、載入統計（含快取）
+        const onHoverUser = async (user) => {
+            user._hover = true
+            if (user.stats || user._loadingStats || !user.personId) return
+            user._loadingStats = true
+            try {
+                user.stats = await fetchUserStats(user.personId)
+            } catch (e) {
+                console.warn('load stats failed', e)
+            } finally {
+                user._loadingStats = false
+            }
+        }
 
         watch(searchQuery, (newVal) => {
             console.log('👀 searchQuery 改變：', newVal)
@@ -87,10 +115,14 @@ globalApp({
                 const tags = await tagRes.json()
 
 
-                popupData.Search.Users = users.data.map(user => ({
-                    displayName: user.displayName,
-                    avatarUrl: user.avatarPath,
-                    bio: user.bio || '這位使用者尚未填寫個人簡介。'
+                popupData.Search.Users = users.data.map(u => ({
+                    personId: u.personId,                      // ✅ 必須有，拿來打 /stats
+                    displayName: u.displayName,
+                    avatarUrl: u.avatarPath,
+                    bio: '這位使用者尚未填寫個人簡介。',
+                    _hover: false,                             // hover 展開用
+                    _loadingStats: false,                      // 載入中指示
+                    stats: null                                // { followers, following }
                 }))
 
                 popupData.Search.Hashtags = tags.data
@@ -183,6 +215,7 @@ globalApp({
 
             isAppReady,
 
+            onHoverUser,
             // hooks
             formatDate,
             timeAgo,
