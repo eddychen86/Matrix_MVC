@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Matrix.DTOs;
+using Matrix.Attributes;
 using Matrix.Data;
 using System;
 
@@ -9,7 +10,7 @@ namespace Matrix.Areas.Dashboard.Controllers.Api
 {
     [Route("api/[controller]")]
     [ApiController]
-
+    [AdminAuthorization] // 跟頁面一樣，只有管理員可用
     public class DB_UsersController : ControllerBase
     {
         private readonly ApplicationDbContext _context;

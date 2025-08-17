@@ -9,12 +9,11 @@ using System.Security.Claims;                 // Where/Select/Distinct (視專�
 
 namespace Matrix.Areas.Dashboard.Controllers
 {
-    [Area("Dashboard")]
+    [Route("api/dashboard/reports")]
     [ApiController]
     [AdminAuthorization] // 跟頁面一樣，只有管理員可用
-    [Route("api/dashboard/reports")]
     public class Db_ReportsApiController : ControllerBase
-   {
+    {
         private readonly IReportService _reportService;
         private readonly ApplicationDbContext _db;
 
@@ -33,6 +32,7 @@ namespace Matrix.Areas.Dashboard.Controllers
         {
             try
             {
+                Console.WriteLine($"[API] Reports List called with: page={page}, pageSize={pageSize}, status={status}, type={type}, keyword={keyword}");
                 // ✅ 把所有條件傳給 Service（新多載）
                 var (reports, total) = await _reportService.GetReportsAsync(
                     page: page,
@@ -103,6 +103,8 @@ namespace Matrix.Areas.Dashboard.Controllers
             }
             catch (Exception ex)
             {
+                Console.WriteLine($"[API ERROR] Reports List failed: {ex.Message}");
+                Console.WriteLine($"[API ERROR] Stack trace: {ex.StackTrace}");
                 return Problem(ex.ToString());
             }
         }
