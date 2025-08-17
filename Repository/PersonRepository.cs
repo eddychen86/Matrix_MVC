@@ -52,5 +52,12 @@ namespace Matrix.Repository
                 .Include(p => p.User)
                 .FirstOrDefaultAsync(p => p.UserId == userId);
         }
+
+        public async Task<Person?> GetByUserIdForUpdateAsync(Guid userId)
+        {
+            return await _dbSet
+                .Include(p => p.User)
+                .FirstOrDefaultAsync(p => p.UserId == userId);
+        }
     }
 }

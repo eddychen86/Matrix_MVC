@@ -34,42 +34,43 @@
 </header>
 
 <!-- 左側：個人資訊 -->
-<ul class="profile-info bg-accent">
-    <button @@click="startEdit" class="editPen">
-        <i data-lucide="pen" class="size-6"></i>
-    </button>
-    <li class="sm:!col-span-2">
-        <h4 class="subTitle" data-i18n="ProfileBio">@Localizer["ProfileBio"]</h4>
-        <p class="para">{{ profile.bio }}</p>
-    </li>
-    <li>
-        <h4 class="subTitle" data-i18n="ProfileContact">@Localizer["ProfileContact"]</h4>
-        <p>{{ profile.email }}</p>
-    </li>
-    <li>
-        <h4 class="subTitle" data-i18n="ProfileLinks">@Localizer["ProfileLinks"]</h4>
-        <ul class="flex flex-col gap-2">
-            <li v-for="url in [profile.website1, profile.website2, profile.website3]">
-                <div>
-                    <a class="para" :href="url" target="_blank" rel="noopener noreferrer">{{ url }}</a>
-                </div>
-            </li>
-        </ul>
-    </li>
-    <li class="sm:row-span-2 sm:!row-start-2 sm:!row-end-3 sm:!col-start-2">
-        <h4 class="subTitle" data-i18n="ProfileImgs">@Localizer["ProfileImgs"]</h4>
-        <div class="flex gap-2 flex-wrap items-center">
-            <img v-for="(image, idx) in userImages.slice(0, 10)" :key="image.fileId"
-                :src="image.filePath"
-                :alt="image.fileName"
-                class="h-[100px] w-[100px] rounded-lg object-cover cursor-pointer hover:opacity-80 transition-opacity" 
-            />
-            <div v-if="userImages.length === 0" class="text-gray-400 text-sm">
-                @* 還沒有圖片 *@
+<section class="col-span-7 2xl:col-span-2">
+    <ul class="profile-info bg-accent">
+        <button @@click="startEdit" class="editPen">
+            <i data-lucide="pen" class="size-6"></i>
+        </button>
+        <li>
+            <div class="flex flex-col gap-4">
+                <h4 class="subTitle" data-i18n="ProfileBio">@Localizer["ProfileBio"]</h4>
+                <p class="para">{{ profile.bio }}</p>
             </div>
-        </div>
-    </li>
-</ul>
+            <div class="flex flex-col gap-4">
+                <h4 class="subTitle" data-i18n="ProfileContact">@Localizer["ProfileContact"]</h4>
+                <p>{{ profile.email }}</p>
+            </div>
+            <div class="flex flex-col gap-4">
+                <h4 class="subTitle" data-i18n="ProfileLinks">@Localizer["ProfileLinks"]</h4>
+                <ul class="flex flex-col gap-2">
+                    <li v-for="url in [profile.website1, profile.website2, profile.website3]">
+                        <div>
+                            <a class="para" :href="url" target="_blank" rel="noopener noreferrer">{{ url }}</a>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </li>
+        <li>
+            <h4 class="subTitle" data-i18n="ProfileNFTs">@Localizer["ProfileNFTs"]</h4>
+            <div class="flex gap-2 flex-wrap items-center">
+                <img v-for="(image, idx) in userImages.slice(0, 10)" :key="image.fileId"
+                    :src="image.filePath"
+                    :alt="image.fileName"
+                    class="h-[100px] w-[100px] rounded-lg object-cover cursor-pointer hover:opacity-80 transition-opacity" 
+                />
+            </div>
+        </li>
+    </ul>
+</section>
 
 <!-- 中間：動態貼文 -->
 <ul class="post-content col-span-5 2xl:col-span-3" id="profilePostsList">

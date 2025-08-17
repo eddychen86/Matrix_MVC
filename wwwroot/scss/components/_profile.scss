@@ -76,10 +76,8 @@
 
     &-info {
       @apply
-        gap-4 p-8 rounded-[30px] relative overflow-hidden grid grid-flow-col
-        grid-cols-1 sm:grid-cols-2 2xl:grid-cols-1
-        sm:grid-rows-3
-        col-span-7 2xl:col-span-2
+        gap-4 p-8 rounded-[30px] relative overflow-hidden flex
+        flex-col sm:flex-row 2xl:flex-col
       ;
 
       .editPen {
@@ -98,7 +96,8 @@
       & > li {
         @apply
           flex flex-col gap-4
-          col-span-2 sm:col-span-1 2xl:col-span-2;
+          flex-0 sm:flex-1 2xl:flex-0
+          flex-shrink sm:flex-shrink-0 2xl:flex-shrink
         ;
 
         & h4 {

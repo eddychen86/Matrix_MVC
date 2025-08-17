@@ -579,10 +579,11 @@ namespace Matrix.Services
             try
             {
                 // UserId 由 Controller 從認證中安全獲取，無需驗證 DTO 中的 UserId
-
-                var person = await _personRepository.GetByUserIdAsync(userId);
+                // 使用支援變更追蹤的方法來獲取實體
+                var person = await _personRepository.GetByUserIdForUpdateAsync(userId);
                 if (person == null)
-                {                    return new ReturnType<object> { Success = false, Message = "找不到個人資料" };
+                {
+                    return new ReturnType<object> { Success = false, Message = "找不到個人資料" };
                 }
 
                 var user = await _userRepository.GetByIdAsync(userId);
@@ -609,15 +610,18 @@ namespace Matrix.Services
                     user.Email = dto.Email;
                 }
 
-                await _personRepository.UpdateAsync(person);
-                await _userRepository.UpdateAsync(user);
-                await _personRepository.SaveChangesAsync();
+                // 不需要明確調用 UpdateAsync，EF Core 會自動追蹤變更
+                // 只需要保存變更即可
+                await _context.SaveChangesAsync();
 
                 return new ReturnType<object> { Success = true, Message = "更新成功!" };
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return new ReturnType<object> { Success = false, Message = "更新失敗!" };
+                // 記錄詳細錯誤信息以便調試
+                Console.WriteLine($"UpdatePersonProfileAsync 錯誤: {ex.Message}");
+                Console.WriteLine($"Stack Trace: {ex.StackTrace}");
+                return new ReturnType<object> { Success = false, Message = $"更新失敗: {ex.Message}" };
             }
         }
 

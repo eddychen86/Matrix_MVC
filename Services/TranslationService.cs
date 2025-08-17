@@ -9,6 +9,14 @@ namespace Matrix.Services
         {
             ["zh-TW"] = new Dictionary<string, string>
             {
+                #region footer 模組
+
+                ["About"] = "關於我們",
+                ["ContactUs"] = "聯繫我們",
+                ["Disclaimer"] = "免責聲明",
+
+                #endregion
+
                 #region Auth 模組
 
                 // 標題
@@ -134,7 +142,7 @@ namespace Matrix.Services
                 ["ProfileBio"] = "自我介紹",
                 ["ProfileContact"] = "聯絡方式",
                 ["ProfileLinks"] = "其他連結",
-                ["ProfileImgs"] = "圖片",
+                ["ProfileNFTs"] = "NFTs 戰略品",
                 ["ProfileName"] = "個人資料名稱",
                 ["ProfileDescription"] = "個人資料描述",
                 ["EditProfile"] = "編輯個人資料",
@@ -390,9 +398,17 @@ namespace Matrix.Services
                 
                 #endregion
             },
-            
+
             ["en-US"] = new Dictionary<string, string>
             {
+                #region footer 模組
+
+                ["About"] = "About",
+                ["ContactUs"] = "Contact Us",
+                ["Disclaimer"] = "Disclaimer",
+
+                #endregion
+
                 #region Auth 模組
                 // 標題
                 ["LoginTitle"] = "Login",
@@ -516,7 +532,7 @@ namespace Matrix.Services
                 ["ProfileBio"] = "Bio",
                 ["ProfileContact"] = "Contact",
                 ["ProfileLinks"] = "Links",
-                ["ProfileImgs"] = "Pictures",
+                ["ProfileNFTs"] = "NFT Collects",
                 ["ProfileName"] = "Profile Name",
                 ["ProfileDescription"] = "Profile Description",
                 ["EditProfile"] = "Edit Profile",
@@ -560,7 +576,7 @@ namespace Matrix.Services
                 ["ReportName"] = "Report Name",
                 ["ReportDate"] = "Report Date",
                 ["ReportType"] = "Report Type",
-                
+
                 // === 確認模組 ===
                 ["InvalidConfirmLink"] = "Invalid confirmation link",
                 ["UserNotExistOrExpired"] = "User does not exist or confirmation link has expired",
@@ -571,7 +587,7 @@ namespace Matrix.Services
                 ["WelcomeRegisterConfirmEmail"] = "Welcome to register! Please confirm your email address",
                 ["ConfirmEmailSent"] = "Confirmation email has been sent, please check your email.",
                 ["SendConfirmEmailError"] = "An error occurred while sending confirmation email, please try again later.",
-                
+
                 // === 確認信內容 ===
                 ["EmailWelcomeTitle"] = "Welcome to Matrix",
                 ["EmailWelcomeSubtitle"] = "Welcome to the Matrix.",
@@ -581,7 +597,7 @@ namespace Matrix.Services
                 ["EmailAlternativeText"] = "If the button doesn't work, please copy the following link to your browser:",
                 ["EmailFooterText"] = "This link will expire in 24 hours.",
                 ["EmailBrandMotto"] = "The world is a fog, filled with out-of-focus noise. We choose to become an eternal lighthouse.",
-                
+
                 // === 確認頁面 ===
                 ["ConfirmPageTitle"] = "Email Confirmation",
                 ["PleaseWait"] = "Please wait...",
@@ -602,7 +618,7 @@ namespace Matrix.Services
                 ["ProcessingResultError"] = "An error occurred while processing the confirmation result.",
                 ["CannotGetResult"] = "Unable to get confirmation result, please try again.",
                 ["UseConfirmLink"] = "Please access this page through the confirmation link in your email.",
-                
+
                 // 其他常用
                 ["Title"] = "Matrix",
                 ["Email"] = "Email",
@@ -772,7 +788,7 @@ namespace Matrix.Services
                 ["NFT_PageMin1"] = "Page must be greater than 0.",
                 ["NFT_PageSizeRange1To100"] = "Page size must be between 1 and 100.",
                 #endregion
-                
+
             }
         };
 
@@ -787,7 +803,7 @@ namespace Matrix.Services
             {
                 return AllTranslations[culture];
             }
-            
+
             // 回退到繁體中文
             return AllTranslations["zh-TW"];
         }
@@ -801,18 +817,18 @@ namespace Matrix.Services
         public static string GetTranslation(string culture, string key)
         {
             var translations = GetTranslations(culture);
-            
+
             if (translations.ContainsKey(key))
             {
                 return translations[key];
             }
-            
+
             // 如果當前語言找不到，嘗試從中文字典找
             if (culture != "zh-TW" && AllTranslations["zh-TW"].ContainsKey(key))
             {
                 return AllTranslations["zh-TW"][key];
             }
-            
+
             // 都找不到則返回鍵值本身
             return key;
         }
