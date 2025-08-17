@@ -42,8 +42,12 @@ namespace Matrix.Middleware
                     }
                     else
                     {
-                        context.Response.Redirect("/login");
-                        return;
+                        // 避免重導向迴圈，檢查是否已經在登入頁面
+                        if (!path.Contains("/login"))
+                        {
+                            context.Response.Redirect("/login");
+                            return;
+                        }
                     }
                 }
 
@@ -65,9 +69,12 @@ namespace Matrix.Middleware
                     }
                     else
                     {
-                        // 重導向到首頁
-                        context.Response.Redirect("/home/index");
-                        return;
+                        // 避免重導向迴圈，檢查是否已經在首頁
+                        if (!path.Contains("/home"))
+                        {
+                            context.Response.Redirect("/home/index");
+                            return;
+                        }
                     }
                 }
 

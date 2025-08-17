@@ -11,59 +11,46 @@ namespace Matrix.Controllers
             var isLogin = auth.IsAuthenticated;
             var isAdmin = auth.Role >= 1;
 
-            // 獲取當前語言
-            var currentCulture = GetCurrentCulture(context);
+            // 安全處理 UserName，避免 null 或空字串導致崩潰
+            var safeUserName = string.IsNullOrWhiteSpace(auth.UserName) ? "Guest" : auth.UserName;
+            var displayUserName = safeUserName.Length > 8 ? safeUserName.Substring(0, 8) + "..." : safeUserName;
+
+            // 安全處理 AvatarPath
+            var safeAvatarPath = string.IsNullOrWhiteSpace(auth.AvatarPath) ? "/static/img/default-avatar.png" : auth.AvatarPath;
 
             return new MenuViewModel
             {
                 IsAuthenticated = isLogin,
-                UserName = auth.UserName.Length > 8 ? auth.UserName.Substring(0, 8) + "..." : auth.UserName,
+                UserName = displayUserName,
                 UserRole = auth.Role,
                 UserId = auth.UserId,
                 IsGuest = !isLogin,
-                UserImg = auth.AvatarPath,
+                UserImg = safeAvatarPath,
                 Menus = new[]
                 {
-                    new MenuItemModel { Title = TranslationService.GetTranslation(currentCulture, "Search"), Icon = "search" },
-                    new MenuItemModel { Title = TranslationService.GetTranslation(currentCulture, "Notify"), Icon = "bell" },
-                    new MenuItemModel { Title = TranslationService.GetTranslation(currentCulture, "Follows"), Icon = "share-2" },
-                    new MenuItemModel { Title = TranslationService.GetTranslation(currentCulture, "Collects"), Icon = "bookmark" },
+                    new MenuItemModel { Title = "Search", Icon = "search" },
+                    new MenuItemModel { Title = "Notify", Icon = "bell" },
+                    new MenuItemModel { Title = "Follows", Icon = "share-2" },
+                    new MenuItemModel { Title = "Collects", Icon = "bookmark" },
                 },
                 Dashboards = !isAdmin ? [] : new[] {
-                    new MenuItemModel { Title = TranslationService.GetTranslation(currentCulture, "Overview"), Icon = "layout-dashboard", Key = "Overview"},
-                    new MenuItemModel { Title = TranslationService.GetTranslation(currentCulture, "Users"), Icon = "user", Key = "Users"},
-                    new MenuItemModel { Title = TranslationService.GetTranslation(currentCulture, "Posts"), Icon = "file-text", Key = "Posts"},
-                    new MenuItemModel { Title = TranslationService.GetTranslation(currentCulture, "Reports"), Icon = "flag", Key = "Reports"},
-                    new MenuItemModel { Title = TranslationService.GetTranslation(currentCulture, "Config"), Icon = "bug", Key = "Config"},
+                    new MenuItemModel { Title = "Overview", Icon = "layout-dashboard", Key = "Overview"},
+                    new MenuItemModel { Title = "Users", Icon = "user", Key = "Users"},
+                    new MenuItemModel { Title = "Posts", Icon = "file-text", Key = "Posts"},
+                    new MenuItemModel { Title = "Reports", Icon = "flag", Key = "Reports"},
+                    new MenuItemModel { Title = "Config", Icon = "bug", Key = "Config"},
                 },
                 Bottoms = new[]
                 {
-                    new MenuItemModel { Title = TranslationService.GetTranslation(currentCulture, "Language"), Icon = "languages", Click = "toggleLang" },
-                    new MenuItemModel { Title = TranslationService.GetTranslation(currentCulture, "HideBar"), Icon = "panel-left", Click = "toggleSidebar" },
+                    new MenuItemModel { Title = "Language", Icon = "languages", Click = "toggleLang" },
+                    new MenuItemModel { Title = "HideBar", Icon = "panel-left", Click = "toggleSidebar" },
                     new MenuItemModel {
-                        Title = isLogin ? TranslationService.GetTranslation(currentCulture, "LogOut") : TranslationService.GetTranslation(currentCulture, "Login"),
+                        Title = isLogin ? "LogOut" : "Login",
                         Icon = isLogin ? "log-out" : "log-in",
                         Click = isLogin ? "logout" : "login"
                     },
                 }
             };
-        }
-
-        private static string GetCurrentCulture(HttpContext context)
-        {
-            // 從 Cookie 中獲取語言設定
-            if (context?.Request.Cookies.ContainsKey(".AspNetCore.Culture") == true)
-            {
-                var cultureCookie = context.Request.Cookies[".AspNetCore.Culture"];
-                if (!string.IsNullOrEmpty(cultureCookie) && cultureCookie.Contains("c="))
-                {
-                    var culture = cultureCookie.Split('|')[0].Replace("c=", "");
-                    return culture;
-                }
-            }
-            
-            // 預設返回繁體中文
-            return "zh-TW";
         }
     }
 }

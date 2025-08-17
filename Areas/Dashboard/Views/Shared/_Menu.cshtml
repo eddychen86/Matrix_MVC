@@ -25,7 +25,7 @@
             {
                 <button class="cts-btn hover:bg-gray-900" v-on:click="loadDashboardPage('@item.Key')">
                     <i data-lucide="@item.Icon" class="icon-base text-white"></i>
-                    <span class="title" data-i18n="@item.Key">@item.Title</span>
+                    <span class="title" data-i18n="@item.Key">@Localizer[item.Title]</span>
                 </button>
             }
         </li>
@@ -43,7 +43,7 @@
             {
                 <button v-on:click="handleMenuClick('@item.Click')" :class="isCollapsed ? 'sidebar-btn-none-text' : ''" class="cts-btn">
                     <i data-lucide="@item.Icon" class="icon-base"></i>
-                    <span class="title" data-i18n="@item.Title">@item.Title</span>
+                    <span class="title" data-i18n="@item.Title">@Localizer[item.Title]</span>
                 </button>
             }
         </li>
