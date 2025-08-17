@@ -88,6 +88,29 @@ namespace Matrix.Middleware
 
                             // 6. 認證成功：設定 HttpContext
                             context.User = principal;
+                            // 🔽🔽 新增：把常用標準 Claims 補齊，避免後面 Authorize/自訂授權拿不到
+                            var identity = principal.Identity as ClaimsIdentity;
+                            if (identity != null)
+                            {
+                                // 1) NameIdentifier (sub)：讓 User.FindFirstValue(ClaimTypes.NameIdentifier) 讀得到
+                                if (identity.FindFirst(ClaimTypes.NameIdentifier) == null)
+                                {
+                                    identity.AddClaim(new Claim(ClaimTypes.NameIdentifier, userId.ToString()));
+                                }
+
+                                // 2) Role：讓 [Authorize(Roles="...")] 或判斷 role 的授權可以工作
+                                // 你專案是以 int role 表示（>=1 管理員）
+                                if (identity.FindFirst(ClaimTypes.Role) == null)
+                                {
+                                    identity.AddClaim(new Claim(ClaimTypes.Role, userDto.Role.ToString()));
+                                }
+
+                                // （可選）Name / Email 等
+                                if (identity.FindFirst(ClaimTypes.Name) == null && !string.IsNullOrEmpty(userDto.UserName))
+                                    identity.AddClaim(new Claim(ClaimTypes.Name, userDto.UserName));
+                                if (identity.FindFirst(ClaimTypes.Email) == null && !string.IsNullOrEmpty(userDto.Email))
+                                    identity.AddClaim(new Claim(ClaimTypes.Email, userDto.Email));
+                            }
                             context.Items["UserId"] = userId;
                             context.Items["UserName"] = userDto.UserName;
                             context.Items["UserRole"] = userDto.Role;

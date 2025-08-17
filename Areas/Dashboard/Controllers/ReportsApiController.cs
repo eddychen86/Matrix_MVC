@@ -108,11 +108,21 @@ namespace Matrix.Areas.Dashboard.Controllers
         }
         private async Task<(Guid personId, string? displayName)?> GetCurrentAdminPersonAsync()
         {
-            // 從登入票找 ASP.NET Identity 的 UserId
+            // 1) 優先：標準 NameIdentifier
             var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (!Guid.TryParse(userIdStr, out var userId)) return null;
 
-            // 用 Users.UserId 對應到 Persons.UserId，取出 PersonId（就是要寫進 Reports.ResolverId 的值）
+            // 2) 退而求其次：自訂 "UserId" claim
+            if (string.IsNullOrEmpty(userIdStr))
+                userIdStr = User.FindFirstValue("UserId");
+
+            // 3) 最後 fallback：從 Items 拿（你的 JwtCookieMiddleware 有寫）
+            if (string.IsNullOrEmpty(userIdStr) && HttpContext.Items["UserId"] is Guid uidFromItems && uidFromItems != Guid.Empty)
+                userIdStr = uidFromItems.ToString();
+
+            if (!Guid.TryParse(userIdStr, out var userId) || userId == Guid.Empty)
+                return null;
+
+            // 用 Users.UserId 對應 Persons.UserId，拿 PersonId
             var p = await _db.Persons
                 .Where(x => x.UserId == userId)
                 .Select(x => new { x.PersonId, x.DisplayName })
@@ -120,6 +130,7 @@ namespace Matrix.Areas.Dashboard.Controllers
 
             return p is null ? null : (p.PersonId, p.DisplayName);
         }
+
 
         // POST /api/dashboard/reports/{id}/process
         [HttpPost("{id:guid}/process")]

@@ -181,37 +181,46 @@ globalApp({
             return sp.toString()
         }
 
-        async function loadReports() {
+        async function loadReports() {              //處理檢舉資料以及撈處理人
             try {
                 const url = `/api/dashboard/reports?${buildQuery()}`
                 const res = await fetch(url)
-                console.log('GET', url, '→', res.status)   // 👈 看看是 200/401/404
+                console.log('GET', url, '→', res.status)
                 if (!res.ok) return
                 const data = await res.json()
 
-                // ⬇⬇【新增】把每筆資料的狀態、處理者、時間正規化
+                // ⬇⬇ 正規化
                 reports.value = (data.items ?? []).map(r => {
-                    const raw = (r.status ?? r.statusCode ?? r.Status ?? r.StatusCode);
+                    // 🔧 修改：把狀態改成三態判斷（0=Pending, 1=Processed, 2=Rejected）
+                    const raw = (r.status ?? r.statusCode ?? r.Status ?? r.StatusCode)
                     const s = String(raw ?? '').toLowerCase()
-                    const processed =
-                        raw === 1 || raw === '1' || s === 'processed' || s === 'done' || s === 'success'
+                    const n = typeof raw === 'string' ? parseInt(raw, 10) : raw
+
+                    let statusCode = 0
+                    let statusText = 'Not yet'
+                    if (n === 1 || s === 'processed' || s === 'done' || s === 'success') {
+                        statusCode = 1
+                        statusText = 'Processed'
+                    } else if (n === 2 || s === 'rejected' || s === 'reject' || s === 'denied') { // ✅ 新增：Rejected 分支
+                        statusCode = 2
+                        statusText = 'Processed'
+                    }
 
                     return {
                         ...r,
-                        // 統一用 statusCode / statusText 供前端判斷/顯示
-                        statusCode: processed ? 1 : 0,                 // 0 = Not yet, 1 = Processed
-                        statusText: processed ? 'Processed' : 'Not yet',
+                        // 🔧 修改：改用上面算出的三態
+                        statusCode,                       // 0=Pending, 1=Processed, 2=Rejected
+                        statusText,
 
-                        // 後端欄位可能叫 resolver / resolverName / admin，統一成 resolverName
+                        // 後端欄位可能叫法不同 → 統一命名
                         resolverName: r.resolverName || r.resolver || r.admin || null,
-
                         resolverId: r.resolverId || r.adminId || r.managerId || null,
 
-                        // 處理時間可能回在 processTime 或 modifyTime，統一成 processTime
+                        // 🔧 修改：處理時間欄位統一
                         processTime: r.processTime || r.modifyTime || null,
                     }
                 })
-                // ⬆⬆【新增】— 之後模板請改用 item.statusCode / item.statusText / item.resolverName / item.processTime
+
                 // 補 resolverName（非同步補齊，不擋畫面）
                 for (const it of reports.value) {
                     if (!it.resolverName && it.resolverId) {
@@ -227,6 +236,7 @@ globalApp({
                 console.error('loadReports error', e)
             }
         }
+
 
 
         async function takeReportAction(item, action) {
