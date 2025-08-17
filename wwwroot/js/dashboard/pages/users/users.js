@@ -7,6 +7,9 @@ window.mountUsersPage = function () {
             isCustomElement: (tag) => tag.includes('calendar-')
         },
         setup() {
+            const isLoading = ref(true)
+
+
             // --- i18n：語系來源（一定要在最前面） ---
             // 取語系：優先用 uic=，再用 c=，最後預設 zh-TW
             // 讀取 .AspNetCore.Culture，支援編碼與未編碼兩種格式
@@ -337,25 +340,32 @@ window.mountUsersPage = function () {
             // 6) 如果別處（例如 menu 的 toggleLang）改了語言 cookie，呼叫這個就會重套翻譯
             // window.reloadTranslations = loadTranslationsAndApply;
 
-            onMounted(async () => {
+            const init = async () => {
+                try {
+                    // 先載入翻譯再載入資料，確保初始畫面就有正確文字
+                    await loadTranslationsAndApply();
+                    await fetchUsers(null);
+                    // 監看 cookie 的語系是否改變，有改就重載字典
+                    let last = culture.value;
+                    setInterval(() => {
+                        const cur = getCulture();
+                        if (cur !== last) {
+                            last = cur;
+                            loadTranslationsAndApply(); // 更新 dictRef / culture，表格就會重算
+                        }
+                    }, 500); // 0.5 秒偵測一次
+                } finally {
+                    isLoading.value = false
+                }
+            }
 
-                // 先載入翻譯再載入資料，確保初始畫面就有正確文字
-                await loadTranslationsAndApply();
-                await fetchUsers(null);
-                // 監看 cookie 的語系是否改變，有改就重載字典
-                let last = culture.value;
-                setInterval(() => {
-                    const cur = getCulture();
-                    if (cur !== last) {
-                        last = cur;
-                        loadTranslationsAndApply(); // 更新 dictRef / culture，表格就會重算
-                    }
-                }, 500); // 0.5 秒偵測一次
+            onMounted(() => init())
 
-            });
             //以上多語系
 
             return {
+                isLoading,
+
                 users, pageIndex, pageSize, totalPages, pagedUsers,
                 formatDate, deleteUser, editingId, tempStatus,
                 updating,

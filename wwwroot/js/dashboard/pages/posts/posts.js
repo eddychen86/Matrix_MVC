@@ -55,15 +55,6 @@ window.mountPostsPage = function () {
       const editingStatus = ref(null)
       const savingStatus = ref(false)
 
-      // 預留：若未來有 /api/Db_PostsApi 可在此呼叫
-      const init = async () => {
-        try {
-          // await fetch('/api/Db_PostsApi')
-        } finally {
-          isLoading.value = false
-        }
-      }
-
       // 狀態多語系對照
       const statusText = computed(() => {
         const isEn = (culture.value || '').toLowerCase().startsWith('en')
@@ -74,7 +65,7 @@ window.mountPostsPage = function () {
 
         return (value) => ({
           0: d['Posts_Status_Normal'] || fb[0],
-          1: d['Posts_Status_Hidden'] || fb[1], 
+          1: d['Posts_Status_Hidden'] || fb[1],
           2: d['Posts_Status_Deleted'] || fb[2],
         }[value] ?? (d['Unknown'] || '未知'))
       })
@@ -247,21 +238,29 @@ window.mountPostsPage = function () {
         }
       }
 
-      onMounted(async () => {
-        // 先載入翻譯再載入資料，確保初始畫面就有正確文字
-        await loadTranslationsAndApply();
-        await init();
-        await loadArticles();
-        // 監看 cookie 的語系是否改變，有改就重載字典
-        let last = culture.value;
-        setInterval(() => {
-          const cur = getCulture();
-          if (cur !== last) {
-            last = cur;
-            loadTranslationsAndApply(); // 更新 dictRef / culture，表格就會重算
-          }
-        }, 500); // 0.5 秒偵測一次
-      });
+      const init = async () => {
+        try {
+          // 預留：若未來有 /api/Db_ConfigApi 可在此呼叫
+
+          // 先載入翻譯再載入資料，確保初始畫面就有正確文字
+          await loadTranslationsAndApply();
+          await loadArticles();
+
+          // 監看 cookie 的語系是否改變，有改就重載字典
+          let last = culture.value;
+          setInterval(() => {
+            const cur = getCulture();
+            if (cur !== last) {
+              last = cur;
+              loadTranslationsAndApply(); // 更新 dictRef / culture，表格就會重算
+            }
+          }, 500); // 0.5 秒偵測一次
+        } finally {
+          isLoading.value = false
+        }
+      }
+
+      onMounted(() => init());
 
       return {
         isLoading,
@@ -294,7 +293,7 @@ window.mountPostsPage = function () {
 
         // 刪除
         deleteArticle,
-        
+
         // 多語系
         t,
       }

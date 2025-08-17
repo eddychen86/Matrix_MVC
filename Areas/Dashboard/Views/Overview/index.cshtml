@@ -4,67 +4,73 @@
 }
 
 <div id="adminOverview">
-
-    <header class="relative">
-        <img src="~/static/img/image-top.png" alt="" class="h-56 w-full rounded-[30px] object-cover object-center">
-    </header>
-    <div class="container mx-auto px-4 py-8">
-        <div class="mb-6">
-            <h1 class="text-3xl font-bold text-gray-800" data-i18n="">管理儀表板</h1>
-            <p class="text-gray-600 mt-2">歡迎使用 Matrix 後台管理系統</p>
+    <template v-if="isLoading">
+        <div class="flex h-[50vh] w-full items-center justify-center">
+            <div class="flex flex-col items-center gap-4">
+                <img src="~/static/img/Loading.gif" alt="Loading" class="h-16 w-16" />
+                <span class="text-gray-700">Loading</span>
+            </div>
         </div>
+    </template>
+    <template v-else>
+        <header>
+            <img src="~/static/img/image-top.png" alt="">
+        </header>
+        <div class="ov-content">
+            <div class="ov-content_header">
+                <h1 data-i18n="">管理儀表板</h1>
+                <p class="para">歡迎使用 Matrix 後台管理系統</p>
+            </div>
 
-        <!-- 統計卡片 -->
-        <div class="grid grid-cols-4 gap-6 mb-8">
-            <div v-for="t in total" :key="t.id" class="bg-white rounded-lg shadow-md p-6">
-                <div class="flex items-center">
-                    <div :class="`p-3 rounded-full bg-${t.color}-500 bg-opacity-10`">
-                        <i :class="`text-${t.color}-500 text-2xl`"></i>
+            <!-- 統計卡片 -->
+            <div class="ov-content_body">
+                <div v-for="t in total" :key="t.id" class="ov-content_body_group">
+                    <div class="flex items-center">
+                        <div :class="`bg-opacity-10 bg-${t.color}-500`">
+                            <i :class="`text-${t.color}-500`"></i>
+                        </div>
+                        <div>
+                            <h2 v-if="t.id === 0" class="para" data-i18n="Overview_TotalUsers">@Localizer["Overview_TotalUsers"]</h2>
+                            <h2 v-else-if="t.id === 1" class="para" data-i18n="Overview_TotalPosts">@Localizer["Overview_TotalPosts"]</h2>
+                            <h2 v-else-if="t.id === 2" class="para" data-i18n="Overview_PendingReports">@Localizer["Overview_PendingReports"]</h2>
+                            <h2 v-else class="para" data-i18n="Overview_TodayActive">@Localizer["Overview_TodayActive"]</h2>
+                            <p>{{ t.result }}</p>
+                        </div>
                     </div>
-                    <div class="ml-4">
-                        <h2 v-if="t.id === 0" class="text-sm font-medium text-gray-600" data-i18n="Overview_TotalUsers">
-                            @Localizer["Overview_TotalUsers"]</h2>
-                        <h2 v-else-if="t.id === 1" class="text-sm font-medium text-gray-600"
-                            data-i18n="Overview_TotalPosts">@Localizer["Overview_TotalPosts"]</h2>
-                        <h2 v-else-if="t.id === 2" class="text-sm font-medium text-gray-600"
-                            data-i18n="Overview_PendingReports">@Localizer["Overview_PendingReports"]</h2>
-                        <h2 v-else class="text-sm font-medium text-gray-600" data-i18n="Overview_TodayActive">
-                            @Localizer["Overview_TodayActive"]</h2>
-                        <p class="text-2xl font-semibold text-gray-900">{{ t.result }}</p>
+                </div>
+            </div>
+
+            <!-- 系統狀態 -->
+            <div class="ov-content_status">
+                <h3 class="subTitle">系統狀態</h3>
+                <div>
+                    <div>
+                        <span>系統運行時間</span>
+                        <span class="text-blue-600 font-medium">{{ systemStatus.totelRunTime }}</span>
+                    </div>
+                    <div>
+                        <span>資料庫連線</span>
+                        <span :class="systemStatus.DBConnectStatus ? 'text-green-600' : 'text-red-600'"
+                            class="font-medium">
+                            {{ systemStatus.DBConnectStatus ? '正常' : '異常' }}
+                        </span>
+                    </div>
+                    <div>
+                        <span>郵件服務</span>
+                        <span :class="systemStatus.SMTPStatus ? 'text-green-600' : 'text-red-600'" class="font-medium">
+                            {{ systemStatus.SMTPStatus ? '正常' : '異常' }}
+                        </span>
+                    </div>
+                    <div>
+                        <span>儲存空間</span>
+                        <span class="font-medium" :class="getStorageStatusColor(systemStatus.Storage)">
+                            {{ systemStatus.Storage }}
+                        </span>
                     </div>
                 </div>
             </div>
         </div>
-
-        <!-- 系統狀態 -->
-        <div class="bg-white rounded-lg shadow-md p-6">
-            <h3 class="text-lg font-semibold text-gray-800 mb-4">系統狀態</h3>
-            <div class="space-y-4">
-                <div class="flex justify-between items-center">
-                    <span class="text-gray-600">系統運行時間</span>
-                    <span class="text-blue-600 font-medium">{{ systemStatus.totelRunTime }}</span>
-                </div>
-                <div class="flex justify-between items-center">
-                    <span class="text-gray-600">資料庫連線</span>
-                    <span :class="systemStatus.DBConnectStatus ? 'text-green-600' : 'text-red-600'" class="font-medium">
-                        {{ systemStatus.DBConnectStatus ? '正常' : '異常' }}
-                    </span>
-                </div>
-                <div class="flex justify-between items-center">
-                    <span class="text-gray-600">郵件服務</span>
-                    <span :class="systemStatus.SMTPStatus ? 'text-green-600' : 'text-red-600'" class="font-medium">
-                        {{ systemStatus.SMTPStatus ? '正常' : '異常' }}
-                    </span>
-                </div>
-                <div class="flex justify-between items-center">
-                    <span class="text-gray-600">儲存空間</span>
-                    <span class="font-medium" :class="getStorageStatusColor(systemStatus.Storage)">
-                        {{ systemStatus.Storage }}
-                    </span>
-                </div>
-            </div>
-        </div>
-    </div>
+    </template>
 </div>
 
 @section Scripts {

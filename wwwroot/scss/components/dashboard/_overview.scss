@@ -1,0 +1,85 @@
+@layer components {
+  #adminOverview {
+    @apply w-full h-full p-8;
+
+    header {
+      @apply relative;
+
+      img {
+        @apply h-56 w-full rounded-[30px] object-cover object-center;
+      }
+    }
+
+    .ov {
+      &-content {
+        @apply container mx-auto px-4 py-8 flex flex-col gap-8;
+
+        &_header {
+          @apply flex flex-col gap-2;
+
+          h1 {
+            @apply text-3xl font-bold text-gray-800;
+          }
+
+          p {
+            @apply text-gray-600;
+          }
+        }
+
+        &_body {
+          @apply grid grid-cols-4 gap-8;
+
+          &_group {
+            @apply bg-white rounded-lg shadow-md p-6;
+
+            & > div {
+              @apply flex items-center;
+
+              & > div {
+                &:first-child {
+                  @apply p-3 rounded-full;
+
+                  & > i {
+                    @apply text-2xl;
+                  }
+                }
+
+                &:last-child {
+                  @apply ml-4;
+
+                  & > h2 {
+                    @apply font-medium text-gray-600;
+                  }
+
+                  & > p {
+                    @apply text-2xl font-semibold text-gray-900;
+                  }
+                }
+              }
+            }
+          }
+        }
+
+        &_status {
+          @apply bg-white rounded-lg shadow-md p-6;
+
+          & > h3 {
+            @apply font-semibold text-gray-800 mb-4;
+          }
+
+          & > div {
+            @apply space-y-4;
+
+            & > div {
+              @apply flex justify-between items-center;
+
+              & > span::first-child {
+                @apply text-gray-600;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
