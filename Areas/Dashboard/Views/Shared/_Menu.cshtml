@@ -7,7 +7,7 @@
     <ul :class="isCollapsed ? 'sidebar-close' : 'sidebar-open'" class="sidebar">
         <!-- Sidebar content here -->
         <li>
-            <a asp-controller="Home" asp-action="Index" aria-current="page" class="cts-btn title">
+            <a asp-area="/" asp-controller="Home" asp-action="Index" aria-current="page" class="cts-btn title">
                 <img src="~/static/img/Matrix_logo_white.png" alt="Matrix Logo" class="icon-lg">
                 <span data-i18n="Matrix">@Localizer["Matrix"]</span>
             </a>
