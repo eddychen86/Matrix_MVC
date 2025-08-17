@@ -40,6 +40,19 @@ namespace Matrix.Services.Interfaces
             Guid? reporterId = null,
             Guid? reportedUserId = null);
 
+
+        // ✅ 新增完整參數多載（給後台列表用）
+        Task<(List<Report> Reports, int TotalCount)> GetReportsAsync(
+            int page,
+            int pageSize,
+            int? status,
+            int? type,
+            string? keyword,
+            DateTime? from,
+            DateTime? to,
+            Guid? reporterId = null,
+            Guid? reportedUserId = null);
+
         /// <summary>
         /// 處理舉報（接受舉報）
         /// </summary>

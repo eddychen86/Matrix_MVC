@@ -38,7 +38,8 @@ namespace Matrix.Repository
         {
             return await _dbSet
                 .AsNoTracking() // 只讀查詢
-                .Where(h => h.Content.Contains(keyword))
+                                .Where(h => h.Content.ToLower().Contains(keyword.ToLower()))
+
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();

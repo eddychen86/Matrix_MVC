@@ -79,15 +79,15 @@ namespace Matrix.Middleware
                     // 3. 從 JWT Claims 直接讀取用戶資訊（避免資料庫查詢）
                     var userIdClaim = principal.FindFirst(ClaimTypes.NameIdentifier);
                     var statusClaim = principal.FindFirst("Status");
-                    
-                    _logger.LogInformation("\n\nUserID claim found: {Found}, Value: {Value}\n\n", 
+
+                    _logger.LogInformation("\n\nUserID claim found: {Found}, Value: {Value}\n\n",
                         userIdClaim != null, userIdClaim?.Value ?? "NULL");
-                    
+
                     if (userIdClaim != null && Guid.TryParse(userIdClaim.Value, out var userId))
                     {
                         // 4. 檢查用戶狀態（從 JWT Claims 讀取，無需查詢資料庫）
                         var userStatus = int.TryParse(statusClaim?.Value, out var status) ? status : 0;
-                        
+
                         _logger.LogInformation("\n\nUser status from JWT: {Status} (1=active)\n\n", userStatus);
 
                         // 如果能通過 JWT 驗證，且 token 未過期，則認為用戶是有效的
@@ -96,6 +96,64 @@ namespace Matrix.Middleware
                         {
                             // 5. 直接從 JWT Claims 設定用戶資訊（無需查詢資料庫）
                             context.User = principal;
+                            // 🔽🔽 新增：把常用標準 Claims 補齊，避免後面 Authorize/自訂授權拿不到
+                            var identity = principal.Identity as ClaimsIdentity;
+                            if (identity != null)
+                            {
+                                // NameIdentifier (sub) ─ 若沒有就用剛剛解析出的 userId
+                                if (identity.FindFirst(ClaimTypes.NameIdentifier) == null)
+                                    identity.AddClaim(new Claim(ClaimTypes.NameIdentifier, userId.ToString()));
+
+                                // Role ─ 支援多種鍵名：ClaimTypes.Role / "Role" / "UserRole"
+                                var roleStr = principal.FindFirst(ClaimTypes.Role)?.Value
+                                              ?? principal.FindFirst("Role")?.Value
+                                              ?? principal.FindFirst("UserRole")?.Value;
+                                if (identity.FindFirst(ClaimTypes.Role) == null && !string.IsNullOrWhiteSpace(roleStr))
+                                    identity.AddClaim(new Claim(ClaimTypes.Role, roleStr));
+
+                                // Name ─ 支援：ClaimTypes.Name / "UserName" / "DisplayName"
+                                var nameStr = principal.FindFirst(ClaimTypes.Name)?.Value
+                                              ?? principal.FindFirst("UserName")?.Value
+                                              ?? principal.FindFirst("DisplayName")?.Value;
+                                if (identity.FindFirst(ClaimTypes.Name) == null && !string.IsNullOrWhiteSpace(nameStr))
+                                    identity.AddClaim(new Claim(ClaimTypes.Name, nameStr));
+
+                                // Email ─ 支援：ClaimTypes.Email / "Email"
+                                var emailStr = principal.FindFirst(ClaimTypes.Email)?.Value
+                                               ?? principal.FindFirst("Email")?.Value;
+                                if (identity.FindFirst(ClaimTypes.Email) == null && !string.IsNullOrWhiteSpace(emailStr))
+                                    identity.AddClaim(new Claim(ClaimTypes.Email, emailStr));
+                            }
+
+                            // ==== 同步寫入 HttpContext.Items（給前端/既有擴充方法用） ====
+                            // Role 轉成 int；若無則 0
+                            var roleValue = principal.FindFirst(ClaimTypes.Role)?.Value
+                                            ?? principal.FindFirst("Role")?.Value
+                                            ?? principal.FindFirst("UserRole")?.Value;
+                            int roleInt = 0;
+                            _ = int.TryParse(roleValue, out roleInt);
+
+                            // Name / Email / DisplayName
+                            var userName = principal.FindFirst(ClaimTypes.Name)?.Value
+                                            ?? principal.FindFirst("UserName")?.Value
+                                            ?? "";
+                            var email = principal.FindFirst(ClaimTypes.Email)?.Value
+                                            ?? principal.FindFirst("Email")?.Value
+                                            ?? "";
+                            var display = principal.FindFirst("DisplayName")?.Value
+                                            ?? userName;
+
+                            // AvatarPath：若 JWT 沒帶再查一次 repository（你原本的邏輯）
+                            var avatarFromClaim = principal.FindFirst("AvatarPath")?.Value ?? "";
+                            if (string.IsNullOrWhiteSpace(avatarFromClaim))
+                            {
+                                try
+                                {
+                                    var person = await personRepository.GetByUserIdAsync(userId);
+                                    avatarFromClaim = person?.AvatarPath ?? "";
+                                }
+                                catch { /* ignore */ }
+                            }
                             context.Items["UserId"] = userId;
                             context.Items["UserName"] = principal.FindFirst(ClaimTypes.Name)?.Value ?? "";
                             context.Items["UserEmail"] = principal.FindFirst(ClaimTypes.Email)?.Value ?? "";
@@ -103,7 +161,7 @@ namespace Matrix.Middleware
                             context.Items["UserStatus"] = userStatus;
                             context.Items["IsAuthenticated"] = true;
                             context.Items["DisplayName"] = principal.FindFirst("DisplayName")?.Value ?? context.Items["UserName"];
-                            var avatarFromClaim = principal.FindFirst("AvatarPath")?.Value ?? "";
+
                             // 若 JWT 未帶入 AvatarPath，退回資料庫查詢一次，避免 UI 無頭像
                             if (string.IsNullOrWhiteSpace(avatarFromClaim))
                             {
@@ -115,7 +173,7 @@ namespace Matrix.Middleware
                                 catch { /* 最小影響，失敗時保持空字串 */ }
                             }
                             context.Items["AvatarPath"] = avatarFromClaim;
-                            
+
                             // 解析 LastLoginTime
                             if (DateTime.TryParse(principal.FindFirst("LastLoginTime")?.Value, out var lastLogin))
                             {

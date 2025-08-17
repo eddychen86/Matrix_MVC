@@ -1,9 +1,9 @@
-@using Matrix.Extensions
+﻿@using Matrix.Extensions
 @using Matrix.Services
 @model Matrix.ViewModels.MenuViewModel
 @inject ICustomLocalizer Localizer
 
-<aside id="sidebar-app" class="top-0 left-0 p-4 h-screen">
+<aside id="sidebar-app" class="top-0 left-0 h-screen p-4">
     <ul :class="isCollapsed ? 'sidebar-close' : 'sidebar-open'" class="sidebar">
         <!-- Sidebar content here -->
         <li>
