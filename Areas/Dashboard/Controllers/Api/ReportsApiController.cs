@@ -1,7 +1,9 @@
 ﻿using Matrix.Attributes;
 using Matrix.Data;                 // ApplicationDbContext
 using Matrix.DTOs;
+using Matrix.Extensions;
 using Matrix.Services.Interfaces;  // IReportService
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
@@ -9,21 +11,21 @@ using System.Security.Claims;                 // Where/Select/Distinct (視專�
 
 namespace Matrix.Areas.Dashboard.Controllers
 {
-    [Route("api/dashboard/reports")]
+    [Route("api/[controller]")]
     [ApiController]
     [AdminAuthorization] // 跟頁面一樣，只有管理員可用
-    public class Db_ReportsApiController : ControllerBase
+    public class Db_ReportsController : ControllerBase
     {
         private readonly IReportService _reportService;
         private readonly ApplicationDbContext _db;
 
-        public Db_ReportsApiController(IReportService reportService, ApplicationDbContext db)
+        public Db_ReportsController(IReportService reportService, ApplicationDbContext db)
         {
             _reportService = reportService;
             _db = db;
         }
 
-        // GET /api/dashboard/reports?page=1&pageSize=20&status=...
+        // GET /api/Db_Reports?page=1&pageSize=20&status=...
         [HttpGet]
         public async Task<IActionResult> List(
             int page = 1, int pageSize = 20,
@@ -108,33 +110,103 @@ namespace Matrix.Areas.Dashboard.Controllers
                 return Problem(ex.ToString());
             }
         }
+
+        // 取得當前管理員的 Person 資訊（從 JwtCookieMiddleware 取得 UserId）
         private async Task<(Guid personId, string? displayName)?> GetCurrentAdminPersonAsync()
         {
-            // 1) 優先：標準 NameIdentifier
-            var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            Guid userId;
 
-            // 2) 退而求其次：自訂 "UserId" claim
-            if (string.IsNullOrEmpty(userIdStr))
-                userIdStr = User.FindFirstValue("UserId");
-
-            // 3) 最後 fallback：從 Items 拿（你的 JwtCookieMiddleware 有寫）
-            if (string.IsNullOrEmpty(userIdStr) && HttpContext.Items["UserId"] is Guid uidFromItems && uidFromItems != Guid.Empty)
-                userIdStr = uidFromItems.ToString();
-
-            if (!Guid.TryParse(userIdStr, out var userId) || userId == Guid.Empty)
+            // 1) 優先：從 JwtCookieMiddleware 設定的 HttpContext.Items 取得
+            if (HttpContext.Items["UserId"] is Guid uidFromItems && uidFromItems != Guid.Empty)
+            {
+                userId = uidFromItems;
+            }
+            // 2) 退而求其次：從 JWT Claims 的標準 NameIdentifier
+            else if (Guid.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var uidFromClaim))
+            {
+                userId = uidFromClaim;
+            }
+            // 3) 最後 fallback：從自訂 "UserId" claim
+            else if (Guid.TryParse(User.FindFirstValue("UserId"), out var uidFromCustomClaim))
+            {
+                userId = uidFromCustomClaim;
+            }
+            else
+            {
                 return null;
+            }
 
-            // 用 Users.UserId 對應 Persons.UserId，拿 PersonId
-            var p = await _db.Persons
-                .Where(x => x.UserId == userId)
-                .Select(x => new { x.PersonId, x.DisplayName })
+            // 透過 Users.UserId 對應到 Persons.UserId，取得 PersonId 和 DisplayName
+            var person = await _db.Persons
+                .Where(p => p.UserId == userId)
+                .Select(p => new { p.PersonId, p.DisplayName })
                 .FirstOrDefaultAsync();
 
-            return p is null ? null : (p.PersonId, p.DisplayName);
+            return person is null ? null : (person.PersonId, person.DisplayName);
         }
 
+        // GET /api/Db_Reports/auth-test - 測試當前認證狀態（暫時不檢查權限）
+        [HttpGet("auth-test")]
+        [AllowAnonymous]
+        public IActionResult TestAuth()
+        {
+            var authInfo = HttpContext.GetAuthInfo();
+            
+            return Ok(new
+            {
+                isAuthenticated = authInfo.IsAuthenticated,
+                userId = authInfo.UserId,
+                userName = authInfo.UserName,
+                displayName = authInfo.DisplayName,
+                role = authInfo.Role,
+                avatarPath = authInfo.AvatarPath,
+                httpContextItems = new
+                {
+                    userId = HttpContext.Items["UserId"]?.ToString(),
+                    isAuthenticated = HttpContext.Items["IsAuthenticated"]?.ToString(),
+                    userRole = HttpContext.Items["UserRole"]?.ToString(),
+                    displayName = HttpContext.Items["DisplayName"]?.ToString()
+                },
+                userClaims = User.Claims.Select(c => new { c.Type, c.Value }).ToList(),
+                userIdentity = new
+                {
+                    isAuthenticated = User.Identity?.IsAuthenticated,
+                    name = User.Identity?.Name,
+                    authenticationType = User.Identity?.AuthenticationType
+                }
+            });
+        }
 
-        // POST /api/dashboard/reports/{id}/process
+        // GET /api/Db_Reports/persons/{personId} - 根據 PersonId 取得人員資訊
+        [HttpGet("persons/{personId:guid}")]
+        public async Task<IActionResult> GetPersonInfo(Guid personId)
+        {
+            try
+            {
+                var person = await _db.Persons
+                    .Where(p => p.PersonId == personId)
+                    .Select(p => new { p.PersonId, p.DisplayName })
+                    .FirstOrDefaultAsync();
+
+                if (person == null)
+                    return NotFound();
+
+                return Ok(new
+                {
+                    personId = person.PersonId,
+                    displayName = person.DisplayName,
+                    name = person.DisplayName,
+                    username = person.DisplayName
+                });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[API ERROR] GetPersonInfo failed: {ex.Message}");
+                return Problem("取得人員資訊時發生錯誤");
+            }
+        }
+
+        // POST /api/Db_Reports/{id}/process
         [HttpPost("{id:guid}/process")]
         public async Task<IActionResult> Process(Guid id)
         {
@@ -158,7 +230,8 @@ namespace Matrix.Areas.Dashboard.Controllers
                 processTime = DateTime.UtcNow
             });
         }
-        // POST /api/dashboard/reports/{id}/reject
+
+        // POST /api/Db_Reports/{id}/reject
         [HttpPost("{id:guid}/reject")]
         public async Task<IActionResult> Reject(Guid id)
         {
@@ -177,8 +250,6 @@ namespace Matrix.Areas.Dashboard.Controllers
                 processTime = DateTime.UtcNow
             });
         }
-
-
 
         // DTO 與分頁模型（你也可以抽到共用檔案）
 

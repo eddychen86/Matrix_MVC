@@ -79,15 +79,15 @@ namespace Matrix.Middleware
                     // 3. 從 JWT Claims 直接讀取用戶資訊（避免資料庫查詢）
                     var userIdClaim = principal.FindFirst(ClaimTypes.NameIdentifier);
                     var statusClaim = principal.FindFirst("Status");
-                    
-                    _logger.LogInformation("\n\nUserID claim found: {Found}, Value: {Value}\n\n", 
+
+                    _logger.LogInformation("\n\nUserID claim found: {Found}, Value: {Value}\n\n",
                         userIdClaim != null, userIdClaim?.Value ?? "NULL");
-                    
+
                     if (userIdClaim != null && Guid.TryParse(userIdClaim.Value, out var userId))
                     {
                         // 4. 檢查用戶狀態（從 JWT Claims 讀取，無需查詢資料庫）
                         var userStatus = int.TryParse(statusClaim?.Value, out var status) ? status : 0;
-                        
+
                         _logger.LogInformation("\n\nUser status from JWT: {Status} (1=active)\n\n", userStatus);
 
                         // 如果能通過 JWT 驗證，且 token 未過期，則認為用戶是有效的
@@ -161,7 +161,7 @@ namespace Matrix.Middleware
                             context.Items["UserStatus"] = userStatus;
                             context.Items["IsAuthenticated"] = true;
                             context.Items["DisplayName"] = principal.FindFirst("DisplayName")?.Value ?? context.Items["UserName"];
-                            
+
                             // 若 JWT 未帶入 AvatarPath，退回資料庫查詢一次，避免 UI 無頭像
                             if (string.IsNullOrWhiteSpace(avatarFromClaim))
                             {
@@ -173,7 +173,7 @@ namespace Matrix.Middleware
                                 catch { /* 最小影響，失敗時保持空字串 */ }
                             }
                             context.Items["AvatarPath"] = avatarFromClaim;
-                            
+
                             // 解析 LastLoginTime
                             if (DateTime.TryParse(principal.FindFirst("LastLoginTime")?.Value, out var lastLogin))
                             {

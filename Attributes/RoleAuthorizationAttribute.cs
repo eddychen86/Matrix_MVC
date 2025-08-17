@@ -24,12 +24,30 @@ namespace Matrix.Attributes
         public override async void OnActionExecuting(ActionExecutingContext context)
         {
             var authInfo = context.HttpContext.GetAuthInfo();
+            var isApiRequest = IsApiRequest(context.HttpContext);
+
+            // 調試：輸出認證資訊
+            Console.WriteLine($"[AUTH DEBUG] Path: {context.HttpContext.Request.Path}");
+            Console.WriteLine($"[AUTH DEBUG] IsApiRequest: {isApiRequest}");
+            Console.WriteLine($"[AUTH DEBUG] AuthInfo.IsAuthenticated: {authInfo.IsAuthenticated}");
+            Console.WriteLine($"[AUTH DEBUG] AuthInfo.Role: {authInfo.Role}");
+            Console.WriteLine($"[AUTH DEBUG] AuthInfo.UserId: {authInfo.UserId}");
+            Console.WriteLine($"[AUTH DEBUG] MinimumRole Required: {_minimumRole}");
 
             // 檢查是否已認證
             if (!authInfo.IsAuthenticated)
             {
-                // 未登入：重導向到登入頁面
-                context.Result = new RedirectResult("/login");
+                Console.WriteLine($"[AUTH DEBUG] User not authenticated, returning 401");
+                // 檢查是否為 API 請求
+                if (isApiRequest)
+                {
+                    context.Result = new UnauthorizedObjectResult(new { message = "未授權，請先登入" });
+                }
+                else
+                {
+                    // 未登入：重導向到登入頁面
+                    context.Result = new RedirectResult("/login");
+                }
                 return;
             }
 
@@ -40,29 +58,55 @@ namespace Matrix.Attributes
                 var authResult = await authorizationService.CheckUserAuthorizationAsync(authInfo.UserId, _minimumRole);
                 if (!authResult.IsAuthorized)
                 {
-                    // 根據錯誤類型決定重導向位置
-                    switch (authResult.StatusCode)
+                    // 根據錯誤類型決定響應
+                    if (IsApiRequest(context.HttpContext))
                     {
-                        case UserStatusCode.NotFound:
-                        case UserStatusCode.Unconfirmed:
-                        case UserStatusCode.Banned:
-                            context.Result = new RedirectResult("/login");
-                            break;
-                        case UserStatusCode.InsufficientPermission:
-                            if (_minimumRole >= 1)
-                            {
-                                // 管理員權限不足，重導向到一般用戶頁面
-                                context.Result = new RedirectResult("/home/index");
-                            }
-                            else
-                            {
-                                // 一般權限不足，重導向到登入頁面
+                        // API 請求返回 JSON 錯誤
+                        switch (authResult.StatusCode)
+                        {
+                            case UserStatusCode.NotFound:
+                                context.Result = new NotFoundObjectResult(new { message = "用戶不存在" });
+                                break;
+                            case UserStatusCode.Unconfirmed:
+                                context.Result = new UnauthorizedObjectResult(new { message = "帳戶未啟用" });
+                                break;
+                            case UserStatusCode.Banned:
+                                context.Result = new UnauthorizedObjectResult(new { message = "帳戶已被停用" });
+                                break;
+                            case UserStatusCode.InsufficientPermission:
+                                context.Result = new ObjectResult(new { message = "權限不足" }) { StatusCode = 403 };
+                                break;
+                            default:
+                                context.Result = new UnauthorizedObjectResult(new { message = "授權失敗" });
+                                break;
+                        }
+                    }
+                    else
+                    {
+                        // Web 請求進行重導向
+                        switch (authResult.StatusCode)
+                        {
+                            case UserStatusCode.NotFound:
+                            case UserStatusCode.Unconfirmed:
+                            case UserStatusCode.Banned:
                                 context.Result = new RedirectResult("/login");
-                            }
-                            break;
-                        default:
-                            context.Result = new RedirectResult("/login");
-                            break;
+                                break;
+                            case UserStatusCode.InsufficientPermission:
+                                if (_minimumRole >= 1)
+                                {
+                                    // 管理員權限不足，重導向到一般用戶頁面
+                                    context.Result = new RedirectResult("/home/index");
+                                }
+                                else
+                                {
+                                    // 一般權限不足，重導向到登入頁面
+                                    context.Result = new RedirectResult("/login");
+                                }
+                                break;
+                            default:
+                                context.Result = new RedirectResult("/login");
+                                break;
+                        }
                     }
                     return;
                 }
@@ -70,24 +114,46 @@ namespace Matrix.Attributes
             else
             {
                 // 回退到原來的檢查方式
+                Console.WriteLine($"[AUTH DEBUG] Using fallback role check: {authInfo.Role} >= {_minimumRole}");
                 if (authInfo.Role < _minimumRole)
                 {
-                    // 權限不足：返回 403 Forbidden 或重導向到錯誤頁面
-                    if (_minimumRole >= 1)
+                    Console.WriteLine($"[AUTH DEBUG] Role insufficient, returning 403");
+                    if (isApiRequest)
                     {
-                        // 管理員權限不足，重導向到一般用戶頁面
-                        context.Result = new RedirectResult("/home/index");
+                        // API 請求返回 JSON 錯誤
+                        context.Result = new ObjectResult(new { message = "權限不足" }) { StatusCode = 403 };
                     }
                     else
                     {
-                        // 一般權限不足，重導向到登入頁面
-                        context.Result = new RedirectResult("/login");
+                        // Web 請求進行重導向
+                        if (_minimumRole >= 1)
+                        {
+                            // 管理員權限不足，重導向到一般用戶頁面
+                            context.Result = new RedirectResult("/home/index");
+                        }
+                        else
+                        {
+                            // 一般權限不足，重導向到登入頁面
+                            context.Result = new RedirectResult("/login");
+                        }
                     }
                     return;
                 }
+                Console.WriteLine($"[AUTH DEBUG] Authorization passed");
             }
 
             base.OnActionExecuting(context);
+        }
+
+        /// <summary>
+        /// 檢查是否為 API 請求
+        /// </summary>
+        /// <param name="context">HTTP 上下文</param>
+        /// <returns>是否為 API 請求</returns>
+        private static bool IsApiRequest(HttpContext context)
+        {
+            // 檢查路徑是否以 /api/ 開頭
+            return context.Request.Path.StartsWithSegments("/api");
         }
     }
 

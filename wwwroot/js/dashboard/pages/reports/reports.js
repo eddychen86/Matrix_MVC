@@ -60,7 +60,7 @@ window.mountReportsPage = function() {
         if (!personId) return null
         if (adminNameCache[personId]) return adminNameCache[personId]
         try {
-          const res = await fetch(`/api/persons/${personId}`)   // ← 這裡改成 persons + personId
+          const res = await fetch(`/api/Db_Reports/persons/${personId}`)   // ← 這裡改成 persons + personId
           if (!res.ok) return null
           const data = await res.json()
           const name = data.displayName || data.name || data.username || null
@@ -135,7 +135,7 @@ window.mountReportsPage = function() {
       //#region 資料載入功能
       async function loadReports() {              //處理檢舉資料以及撈處理人
         try {
-          const url = `/api/dashboard/reports?${buildQuery()}`
+          const url = `/api/Db_Reports?${buildQuery()}`
           const res = await fetch(url)
           console.log('GET', url, '→', res.status)
           if (!res.ok) {
@@ -207,7 +207,7 @@ window.mountReportsPage = function() {
         rowBusy[id] = true
 
         try {
-          const url = `/api/dashboard/reports/${id}/${action}`
+          const url = `/api/Db_Reports/${id}/${action}`
 
           const res = await fetch(url, {
             method: 'POST',
@@ -261,12 +261,12 @@ window.mountReportsPage = function() {
       }
 
       async function processReport(id) {
-        const res = await fetch(`/api/dashboard/reports/${id}/process`, { method: 'POST' })
+        const res = await fetch(`/api/Db_Reports/${id}/process`, { method: 'POST' })
         if (res.ok) loadReports()
       }
 
       async function rejectReport(id) {
-        const res = await fetch(`/api/dashboard/reports/${id}/reject`, { method: 'POST' })
+        const res = await fetch(`/api/Db_Reports/${id}/reject`, { method: 'POST' })
         if (res.ok) loadReports()
       }
       //#endregion
