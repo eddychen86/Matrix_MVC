@@ -141,12 +141,13 @@ namespace Matrix.Areas.Dashboard.Controllers.Api
             {
                 var uptimeSeconds = _systemStatusService.GetSystemUptime();
                 var uptimeSpan = TimeSpan.FromSeconds(uptimeSeconds);
-                var uptimeFormatted = FormatUptime(uptimeSpan);
 
                 var result = new
                 {
                     uptimeSeconds = uptimeSeconds,
-                    uptimeFormatted = uptimeFormatted
+                    days = (int)uptimeSpan.TotalDays,
+                    hours = uptimeSpan.Hours,
+                    minutes = uptimeSpan.Minutes
                 };
 
                 return Ok(result);
@@ -206,12 +207,10 @@ namespace Matrix.Areas.Dashboard.Controllers.Api
             try
             {
                 var storageUsagePercentage = _systemStatusService.GetStorageUsagePercentage();
-                var storageStatusText = GetStorageStatusText(storageUsagePercentage);
 
                 var result = new
                 {
-                    storageUsagePercentage = storageUsagePercentage,
-                    storageStatusText = storageStatusText
+                    storageUsagePercentage = storageUsagePercentage
                 };
 
                 return Ok(result);
@@ -223,34 +222,5 @@ namespace Matrix.Areas.Dashboard.Controllers.Api
             }
         }
 
-        // Helper methods for individual status endpoints
-        private static string FormatUptime(TimeSpan uptime)
-        {
-            if (uptime.TotalDays >= 1)
-            {
-                return $"{(int)uptime.TotalDays} 天 {uptime.Hours} 小時 {uptime.Minutes} 分鐘";
-            }
-            else if (uptime.TotalHours >= 1)
-            {
-                return $"{uptime.Hours} 小時 {uptime.Minutes} 分鐘";
-            }
-            else
-            {
-                // 最小單位為分鐘，不顯示秒數
-                var totalMinutes = Math.Max(1, (int)uptime.TotalMinutes);
-                return $"{totalMinutes} 分鐘";
-            }
-        }
-
-        private static string GetStorageStatusText(double usagePercentage)
-        {
-            return usagePercentage switch
-            {
-                < 70 => $"{usagePercentage:F1}% 使用中 (基於 32GB)",
-                < 85 => $"{usagePercentage:F1}% 使用中 (基於 32GB)",
-                < 95 => $"{usagePercentage:F1}% 使用中 (接近滿載，基於 32GB)",
-                _ => $"{usagePercentage:F1}% 使用中 (空間不足，基於 32GB)"
-            };
-        }
     }
 }
