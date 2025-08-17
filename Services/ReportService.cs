@@ -131,7 +131,7 @@ namespace Matrix.Services
 
                 q = q.Where(r =>
                     r.Reason.Contains(k) ||
-                    (r.Reporter != null && r.Reporter.DisplayName.Contains(k)) ||
+                    (r.Reporter != null && r.Reporter.DisplayName != null && r.Reporter.DisplayName.Contains(k)) ||
                     (r.Type == (int)ReportType.Article && articleIdsMatched.Contains(r.TargetId))
                 );
             }

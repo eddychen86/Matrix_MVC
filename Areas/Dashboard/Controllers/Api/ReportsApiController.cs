@@ -82,8 +82,8 @@ namespace Matrix.Areas.Dashboard.Controllers
                     Reporter = r.Reporter?.DisplayName ?? "(unknown)",
                     Type = r.Type == 0 ? "User" : "Article",
                     Target = r.Type == 0
-                                    ? (userNames.TryGetValue(r.TargetId, out var name) ? name : "-")
-                                    : (articleContents.TryGetValue(r.TargetId, out var content) ? content : "-"),
+                                    ? (userNames.TryGetValue(r.TargetId, out var name) ? name ?? "-" : "-")
+                                    : (articleContents.TryGetValue(r.TargetId, out var content) ? content ?? "-" : "-"),
                     CreateTime = null,              // 沒有欄位 → 回 null，前端會顯示 "-"
                     ModifyTime = r.ProcessTime,     // 用處理/駁回時間當 ModifyTime
 
