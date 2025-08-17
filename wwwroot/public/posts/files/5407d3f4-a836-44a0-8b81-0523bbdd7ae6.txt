@@ -1,0 +1,36 @@
+using System.Data;
+using System.Xml.Linq;
+using System.Data.SqlClient;
+
+namespace StoredProcedure2
+{
+    public partial class Form1 : Form
+    {
+        public Form1()
+        {
+            InitializeComponent();
+        }
+
+        public object date { get; private set; }
+
+        private void btnOK_Click(object sender, EventArgs e)
+        {
+            using (SqlConnection cn = new SqlConnection())
+            {
+                cn.ConnectionString = "Server = localhost;" + "database=會員系統;" + "Integrated Security=True";
+                cn.Open();
+                SqlCommand cmd = new SqlCommand();
+                cmd.Connection = cn;
+                cmd.CommandText = "GetPersonBySex";
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.Add(new SqlParameter("@QSex", SqlDbType.NChar));
+                cmd.Parameters["@QSex"].Value = txtSex.Text;
+                SqlDataAdapter da = new SqlDataAdapter();
+                da.SelectCommand = cmd;
+                DataSet ds = new DataSet();
+                da.Fill(ds, "人員資料");
+                dataGridView1.DataSource = ds.Tables["人員資料"];
+            }
+        }
+    }
+}
