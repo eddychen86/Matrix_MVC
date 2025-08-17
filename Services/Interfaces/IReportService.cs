@@ -84,5 +84,11 @@ namespace Matrix.Services.Interfaces
         /// <param name="limit">限制數量</param>
         /// <returns>舉報記錄列表</returns>
         Task<List<Report>> GetReportsByUserAsync(Guid userId, int limit = 10);
+
+        /// <summary>
+        /// 獲取待處理的舉報數量
+        /// </summary>
+        /// <returns>待處理舉報數量</returns>
+        Task<int> GetPendingReportsCountAsync();
     }
 }

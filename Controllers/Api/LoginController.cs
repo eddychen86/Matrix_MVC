@@ -12,13 +12,15 @@ namespace Matrix.Controllers.Api
         private readonly ICustomLocalizer _localizer;
         private readonly ILogger<LoginController> _logger;
         private readonly Matrix.Controllers.AuthController _authController;
+        private readonly IAuthorizationService _authorizationService;
 
         public LoginController(
             IUserService userService,
             IUserRepository userRepository,
             ICustomLocalizer localizer,
             ILogger<LoginController> logger,
-            Matrix.Controllers.AuthController authController
+            Matrix.Controllers.AuthController authController,
+            IAuthorizationService authorizationService
         )
         {
             _userService = userService;
@@ -26,11 +28,12 @@ namespace Matrix.Controllers.Api
             _localizer = localizer;
             _logger = logger;
             _authController = authController;
+            _authorizationService = authorizationService;
         }
-        private static readonly string[] InvalidCredentialsError = ["Invalid user name or password."];
 
         /// <summary>處理登入 API 請求</summary>
         [HttpPost]
+        [IgnoreAntiforgeryToken]
         public async Task<IActionResult> Login([FromBody] LoginViewModel? model)
         {
             _logger.LogInformation("\n\n登入嘗試: {UserName}", model?.UserName);
@@ -77,15 +80,30 @@ namespace Matrix.Controllers.Api
             _logger.LogInformation("尋獲用戶: {0}", userDto);
 
             // 檢查帳號狀態
-            var statusError = CheckUserStatus(userDto);
+            var statusError = await CheckUserStatusAsync(userDto.UserId);
             if (statusError != null)
                 return statusError;
 
             _logger.LogInformation("帳號狀態：{0}", statusError);
 
-            // 產生 JWT 並設定 Cookie (只包含 UserId)
-            var token = _authController.GenerateJwtToken(userDto.UserId);
+            // 更新最後登入時間
+            var updateLoginTimeResult = await _userService.UpdateLastLoginTimeAsync(userDto.UserId);
+            if (!updateLoginTimeResult)
+            {
+                _logger.LogWarning("Failed to update last login time for user {UserName}", userDto.UserName);
+                // 不要因為更新登入時間失敗而阻止登入，只記錄警告
+            }
+            else
+            {
+                _logger.LogInformation("Updated last login time for user {UserName}", userDto.UserName);
+            }
+
+            // 產生 JWT 並設定 Cookie
+            var token = _authController.GenerateJwtToken(userDto);
+            _logger.LogInformation("Generated JWT token for user {UserName}, token length: {TokenLength}", userDto.UserName, token.Length);
+            
             _authController.SetAuthCookie(Response, token, model.RememberMe);
+            _logger.LogInformation("Set auth cookie for user {UserName}, RememberMe: {RememberMe}", userDto.UserName, model.RememberMe);
 
             // 根據用戶角色決定跳轉目標
             var redirectUrl = userDto.Role >= 1 ? "/dashboard/overview/index" : "/home/index";
@@ -93,7 +111,53 @@ namespace Matrix.Controllers.Api
             _logger.LogInformation("Login successful for user {UserName} (Role: {Role}), redirecting to: {RedirectUrl}", 
                 userDto.UserName, userDto.Role, redirectUrl);
 
-            return ApiSuccess(new { redirectUrl = redirectUrl }, _localizer["Success"]);
+            // 確保返回正確的 API 格式
+            var response = new { redirectUrl };
+            _logger.LogInformation("API Response: {Response}", System.Text.Json.JsonSerializer.Serialize(response));
+
+            return ApiSuccess(response, _localizer["Success"]);
+        }
+
+        /// <summary>測試 Cookie 設定</summary>
+        [HttpPost("test-cookie")]
+        [IgnoreAntiforgeryToken]
+        public IActionResult TestCookie()
+        {
+            // 設定一個測試 Cookie
+            Response.Cookies.Append("TestCookie", "TestValue", new CookieOptions
+            {
+                HttpOnly = false, // 允許 JavaScript 存取以方便測試
+                Secure = false,
+                SameSite = SameSiteMode.Lax,
+                Path = "/",
+                Expires = DateTime.UtcNow.AddMinutes(10)
+            });
+
+            _logger.LogInformation("Test cookie set successfully");
+
+            return ApiSuccess(new { message = "Test cookie set", testTime = DateTime.UtcNow });
+        }
+
+        /// <summary>測試認證狀態</summary>
+        [HttpGet("test-auth")]
+        public IActionResult TestAuth()
+        {
+            var authInfo = HttpContext.GetAuthInfo();
+            
+            _logger.LogInformation("=== Auth Test ===");
+            _logger.LogInformation("IsAuthenticated: {IsAuthenticated}", authInfo.IsAuthenticated);
+            _logger.LogInformation("UserId: {UserId}", authInfo.UserId);
+            _logger.LogInformation("UserName: {UserName}", authInfo.UserName);
+            _logger.LogInformation("Role: {Role}", authInfo.Role);
+            
+            return ApiSuccess(new 
+            { 
+                authInfo.IsAuthenticated,
+                authInfo.UserId,
+                authInfo.UserName,
+                authInfo.Role,
+                contextItems = HttpContext.Items.Keys.ToArray()
+            });
         }
 
         /// <summary>忘記密碼功能</summary>
@@ -133,12 +197,14 @@ namespace Matrix.Controllers.Api
         }
 
         /// <summary>檢查用戶狀態是否正常</summary>
-        private IActionResult? CheckUserStatus(UserDto userDto)
+        private async Task<IActionResult?> CheckUserStatusAsync(Guid userId)
         {
-            if (userDto.Status != 1) // 狀態不是正常時，統一使用 AccountLoginError
+            var statusResult = await _authorizationService.CheckUserStatusAsync(userId);
+            if (!statusResult.IsValid)
             {
-                _logger.LogWarning("帳號狀態異常: {UserName}, Status: {Status}", userDto.UserName, userDto.Status);
-                return ApiError(_localizer["AccountLoginError"], new Dictionary<string, string[]> { { "AccountLoginError", [_localizer["AccountLoginError"]] } });
+                _logger.LogWarning("帳號狀態異常: {UserId}, StatusCode: {StatusCode}", userId, statusResult.StatusCode);
+                return ApiError(statusResult.ErrorMessage ?? _localizer["AccountLoginError"], 
+                    new Dictionary<string, string[]> { { "AccountLoginError", [statusResult.ErrorMessage ?? _localizer["AccountLoginError"]] } });
             }
 
             return null;

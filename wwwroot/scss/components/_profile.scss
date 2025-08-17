@@ -1,37 +1,178 @@
 @layer components {
-  #profile-header {
-    @apply relative mb-30;
-
-    #profile-banner {
-      @apply h-40 w-full object-cover rounded-[30px];
+  .profile {
+    
+    &-header {
+      @apply 
+        relative w-full col-span-7
+        h-14 sm:h-28 2xl:h-56
+        mb-6 sm:mb-14 2xl:mb-26
+      ;
     }
-  
-    #profile-avatar {
-      @apply flex items-center gap-4 absolute top-25 left-20 justify-between;
-  
-      #profile-avatar_img {
-        @apply p-4 bg-[#161616] rounded-full;
-  
+
+    &-banner_layout {
+      @apply relative size-full rounded-[30px] object-cover object-right overflow-hidden;
+
+      button {
+        @apply cursor-pointer transition duration-300 hover:opacity-100 opacity-0 bg-black/50 size-full flex items-center justify-center absolute z-10 top-1/2 left-1/2 -translate-1/2;
+      }
+      
+      img {
+        @apply w-full object-cover object-center;
+      }
+
+      .no-banner {
+        @apply flex h-full w-full items-center justify-center;
+      }
+    }
+
+    &-avatar{
+      @apply
+        absolute z-10 top-2/3 left-1/12 flex gap-4 items-end justify-between
+        w-[calc(100%-200px)] sm:w-[calc(100%-400px)] 2xl:w-[calc(100%-600px)]
+      ;
+
+      &_img_layout {
+        @apply
+          relative rounded-full outline-[1em] outline-[#161616] overflow-hidden
+          size-5 sm:size-20 2xl:size-40
+        ;
+
+        .edit {
+          @apply cursor-pointer transition duration-300 hover:opacity-100 opacity-0 bg-black/50 size-full flex items-center justify-center absolute z-10 top-1/2 left-1/2 -translate-1/2;
+        }
+        
         img {
-          @apply h-36 w-36 object-cover object-center rounded-full;
+          @apply size-full object-cover object-center;
+        }
+
+        .no-avatar {
+          @apply flex h-full w-full items-center justify-center;
         }
       }
+
+
+      &_body {
+        @apply flex gap-8 items-end;
+
   
-      #profile-name {
-        @apply mt-10 flex items-center gap-4;
-  
-        h1 {
-          @apply font-bold p-0;
+        h3 {
+          @apply
+            font-semibold
+            mb-0 2xl:mb-4
+            text-xl sm:text-3xl 2xl:text-5xl
+          ;
+        }
+      }
+
+      button {
+        @apply
+        bg-white text-black rounded-full float-end cursor-pointer
+          px-3 2xl:px-6
+          py-1 2xl:py-3
+          mb-0 2xl:mb-4
+        ;
+      }
+    }
+
+    &-info {
+      @apply
+        gap-4 p-8 rounded-[30px] relative overflow-hidden grid grid-flow-col
+        grid-cols-1 sm:grid-cols-2 2xl:grid-cols-1
+        sm:grid-rows-3
+        col-span-7 2xl:col-span-2
+      ;
+
+      .editPen {
+        @apply
+          absolute z-10 rounded-full p-2 cursor-pointer transition-colors duration-300 flex justify-center items-center
+          top-2 sm:top-4 2xl:top-6
+          right-2 sm:right-4 2xl:right-6
+          size-6 sm:size-8 2xl:size-10 
+        ;
+
+        &:hover {
+          @apply bg-stone-800;
+        }
+      }
+
+      & > li {
+        @apply
+          flex flex-col gap-4
+          col-span-2 sm:col-span-1 2xl:col-span-2;
+        ;
+
+        & h4 {
+          @apply font-semibold;
+        }
+
+        & ul, & p {
+          @apply px-3;
+
+          & li {
+            @apply flex;
+          }
         }
       }
     }
-  }
 
-  #profile-body {
-    @apply w-[calc(100%-320px)] flex gap-4;
+    &-edit {
+      @apply fixed top-0 left-0 h-full w-full z-30;
 
-    #profile-user_info {
-      @apply w-1/3 rounded-[30px] bg-accent p-6 flex flex-col gap-4;
+      .mock {
+        @apply bg-white/20 h-full w-full absolute top-0 left-0;
+      }
+
+      &_layout {
+        @apply absolute rounded-[30px] p-8 z-40 top-1/2 left-1/2 transform -translate-1/2 flex flex-col gap-8 w-[60vw] max-h-[80vh] overflow-y-auto;
+
+        ul {
+          @apply flex flex-col gap-8;
+
+          li {
+            @apply grid grid-cols-4 gap-4 items-start border-b-1 border-stone-500 pb-8;
+
+            &:last-child {
+              @apply border-none pb-0;
+            }
+  
+            h4 {
+              @apply font-semibold col-span-1 py-1;
+            }
+  
+            input, textarea {
+              @apply rounded-lg px-3 py-2 w-full bg-stone-600;
+            }
+
+            & input, & ul, & textarea {
+              @apply col-span-3;
+            }
+
+            & ul {
+              @apply flex flex-col gap-4;
+            }
+
+            .input-item_pwd {
+              @apply bg-stone-600 rounded-lg pr-4 flex gap-4 justify-between items-center focus:outline-1;
+
+              input {
+                @apply focus:outline-none;
+              }
+            }
+          }
+        }
+        
+        .btnGroup {
+          @apply flex gap-8 items-center justify-center col-span-4;
+
+          button {
+            @apply px-4;
+          }
+
+          span {
+            @apply font-semibold;
+          }
+        }
+      }
     }
   }
 }

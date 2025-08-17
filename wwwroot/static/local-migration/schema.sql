@@ -41,7 +41,6 @@ CREATE TABLE [Persons] (
     [Bio] nvarchar(300) NULL,
     [AvatarPath] nvarchar(2048) NULL,
     [BannerPath] nvarchar(2048) NULL,
-    [ExternalUrl] nvarchar(2048) NULL,
     [IsPrivate] int NOT NULL,
     [WalletAddress] nvarchar(max) NULL,
     [ModifyTime] datetime2 NULL,

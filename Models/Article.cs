@@ -10,13 +10,12 @@ namespace Matrix.Models
     {
         /// <summary>
         /// 文章的 ID
-        /// 改用 UUID 以確保唯一性和安全性，並以 ArrayExtension.GenerateOrdered(1)[0] 方法生成一個劇時間排序的唯一的值
         /// </summary>
         [Key]
         public Guid ArticleId { get; set; } = Guid.NewGuid();
 
         /// <summary>
-        /// 文章作者的 UserId
+        /// 文章作者的 PersonId
         /// </summary>
         [Required]
         public Guid AuthorId { get; set; }
@@ -54,7 +53,7 @@ namespace Matrix.Models
 
         // Navigation properties
         /// <summary>
-        /// 文章作者的個人資料連結
+        /// 文章作者 (導航屬性)
         /// </summary>
         public virtual Person? Author { get; set; }
 
@@ -77,5 +76,10 @@ namespace Matrix.Models
         /// 文章的附件集合
         /// </summary>
         public virtual ICollection<ArticleAttachment>? Attachments { get; set; }
+
+        /// <summary>
+        /// 擁有者 Navigation Property
+        /// </summary>
+        public virtual Person? Owner { get; set; }
     }
 }

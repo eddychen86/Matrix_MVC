@@ -10,7 +10,6 @@ namespace Matrix.Models
     {
         /// <summary>
         /// 個人資料的 ID
-        /// 改用 UUID 以確保唯一性和安全性，並以 ArrayExtension.GenerateOrdered(1)[0] 方法生成一個劇時間排序的唯一的值
         /// </summary>
         [Key]
         public Guid PersonId { get; set; } = Guid.NewGuid();
@@ -19,6 +18,8 @@ namespace Matrix.Models
         /// 關聯用戶的 UserId，外鍵連接到 User
         /// </summary>
         public Guid UserId { get; set; }
+
+        public virtual User? User { get; set; }
 
         /// <summary>
         /// 用戶的顯示名稱，最大長度為50個字元
@@ -81,61 +82,66 @@ namespace Matrix.Models
         /// <summary>
         /// 關聯的用戶帳號，一對一關聯
         /// </summary>
-        public virtual User? User { get; set; }
 
         /// <summary>
         /// 用戶發布的文章集合
         /// </summary>
-        public virtual ICollection<Article> Articles { get; set; } = [];
+        public ICollection<Article> Articles { get; set; } = [];
 
         /// <summary>
         /// 用戶發布的回覆集合
         /// </summary>
-        public virtual ICollection<Reply> Replies { get; set; } = [];
+        public ICollection<Reply> Replies { get; set; } = [];
 
         /// <summary>
         /// 用戶的讚與收藏記錄集合
         /// </summary>
-        public virtual ICollection<PraiseCollect> PraiseCollects { get; set; } = [];
+        public ICollection<PraiseCollect> PraiseCollects { get; set; } = [];
 
         /// <summary>
         /// 用戶的關注記錄集合
         /// </summary>
-        public virtual ICollection<Follow> Follows { get; set; } = [];
+        public ICollection<Follow> Follows { get; set; } = [];
 
         /// <summary>
         /// 用戶發送的通知集合
         /// </summary>
-        public virtual ICollection<Notification> NotificationsSent { get; set; } = [];
+        public ICollection<Notification> NotificationsSent { get; set; } = [];
 
         /// <summary>
         /// 用戶接收的通知集合
         /// </summary>
-        public virtual ICollection<Notification> NotificationsReceived { get; set; } = [];
+        public ICollection<Notification> NotificationsReceived { get; set; } = [];
 
         /// <summary>
         /// 用戶提交的舉報集合
         /// </summary>
-        public virtual ICollection<Report> ReportsMade { get; set; } = [];
+        public ICollection<Report> ReportsMade { get; set; } = [];
 
         /// <summary>
         /// 用戶處理的舉報集合
         /// </summary>
-        public virtual ICollection<Report> ReportsResolved { get; set; } = [];
+        public ICollection<Report> ReportsResolved { get; set; } = [];
 
         /// <summary>
         /// 用戶的登入記錄集合
         /// </summary>
-        public virtual ICollection<LoginRecord> LoginRecords { get; set; } = [];
+        public ICollection<LoginRecord> LoginRecords { get; set; } = [];
 
         /// <summary>
         /// 用戶發起的好友關係集合（我加別人）
         /// </summary>
-        public virtual ICollection<Friendship> Friends { get; set; } = [];
+        public ICollection<Friendship> Friends { get; set; } = [];
 
         /// <summary>
         /// 用戶接收的好友關係集合（別人加我）
         /// </summary>
-        public virtual ICollection<Friendship> FriendOf { get; set; } = [];
+        public ICollection<Friendship> FriendOf { get; set; } = [];
+
+        /// <summary>
+        /// 用戶擁有的 NFT 集合
+        /// </summary>
+        public ICollection<NFT> NFTs { get; set; } = [];
     }
+
 }

@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Http;
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace Matrix.DTOs
 {
@@ -46,16 +47,38 @@ namespace Matrix.DTOs
         /// </summary>
         public Guid UserId { get; set; }
 
+
+
+        public string? Email { get; set; }
+
+        public string? Website1 { get; set; }
+        public string? Website2 { get; set; }
+        public string? Website3 { get; set; }
+
+        public List<String>? Content { get; set; }
+
+        public List<ArticleDto> Articles { get; set; } = new List<ArticleDto>();
+
+        /// <summary>
+        /// 使用者密碼 - 在公開 API 中會被忽略
+        /// </summary>
+        [JsonIgnore]
+        public string? Password { get; set; }
+
+        public DateTime CreateTime { get; set; }
+
+        
+
         /// <summary>
         /// 使用者的顯示名稱
         /// </summary>
-        [StringLength(50, MinimumLength = 1, ErrorMessage = "顯示名稱長度必須介於 1 到 50 個字元之間")]
+        [StringLength(50, MinimumLength = 1, ErrorMessage = "Person_DisplayNameLength1To50")]
         public string? DisplayName { get; set; }
 
         /// <summary>
         /// 使用者的個人簡介
         /// </summary>
-        [StringLength(300, ErrorMessage = "個人簡介長度不能超過 300 個字元")]
+        [StringLength(300, ErrorMessage = "Person_BioMaxLength300")]
         public string? Bio { get; set; }
 
         /// <summary>
@@ -78,7 +101,7 @@ namespace Matrix.DTOs
         /// <summary>
         /// 使用者的區塊鏈錢包地址
         /// </summary>
-        [StringLength(100, ErrorMessage = "錢包地址長度不能超過 100 個字元")]
+        [StringLength(100, ErrorMessage = "Person_WalletAddressMaxLength100")]
         public string? WalletAddress { get; set; }
 
         /// <summary>
@@ -126,64 +149,13 @@ namespace Matrix.DTOs
         /// </summary>
         public bool IsProfileComplete => !string.IsNullOrEmpty(DisplayName) && !string.IsNullOrEmpty(Bio);
 
-        /// <summary>
-        /// 獲取個人資料完整度百分比
-        /// </summary>
-        public int ProfileCompletionPercentage
-        {
-            get
-            {
-                int totalFields = 4; // DisplayName, Bio, AvatarPath, BannerPath
-                int completedFields = 0;
-
-                if (!string.IsNullOrEmpty(DisplayName)) completedFields++;
-                if (!string.IsNullOrEmpty(Bio)) completedFields++;
-                if (!string.IsNullOrEmpty(AvatarPath)) completedFields++;
-                if (!string.IsNullOrEmpty(BannerPath)) completedFields++;
-
-                return (completedFields * 100) / totalFields;
-            }
-        }
 
         /// <summary>
         /// 判斷是否有錢包地址
         /// </summary>
         public bool HasWallet => !string.IsNullOrEmpty(WalletAddress);
 
-        /// <summary>
-        /// 獲取簡短的個人簡介
-        /// </summary>
-        public string ShortBio
-        {
-            get
-            {
-                if (string.IsNullOrEmpty(Bio)) return "這個使用者還沒有個人簡介。";
-                
-                return Bio.Length > 100 ? Bio.Substring(0, 100) + "..." : Bio;
-            }
-        }
 
-        /// <summary>
-        /// 獲取最後修改時間的友善顯示格式
-        /// </summary>
-        public string LastModifiedText
-        {
-            get
-            {
-                if (ModifyTime == null) return "從未修改";
-                
-                var timeSpan = DateTime.Now - ModifyTime.Value;
-                
-                return timeSpan.TotalDays switch
-                {
-                    > 365 => $"{(int)(timeSpan.TotalDays / 365)} 年前",
-                    > 30 => $"{(int)(timeSpan.TotalDays / 30)} 個月前",
-                    > 7 => $"{(int)(timeSpan.TotalDays / 7)} 週前",
-                    > 1 => $"{(int)timeSpan.TotalDays} 天前",
-                    _ => timeSpan.TotalHours > 1 ? $"{(int)timeSpan.TotalHours} 小時前" : "剛剛"
-                };
-            }
-        }
     }
 
     /// <summary>
@@ -194,13 +166,13 @@ namespace Matrix.DTOs
         /// <summary>
         /// 使用者的顯示名稱
         /// </summary>
-        [StringLength(50, MinimumLength = 1, ErrorMessage = "顯示名稱長度必須介於 1 到 50 個字元之間")]
+        [StringLength(50, MinimumLength = 1, ErrorMessage = "Person_DisplayNameLength1To50")]
         public string? DisplayName { get; set; }
 
         /// <summary>
         /// 使用者的個人簡介
         /// </summary>
-        [StringLength(300, ErrorMessage = "個人簡介長度不能超過 300 個字元")]
+        [StringLength(300, ErrorMessage = "Person_BioMaxLength300")]
         public string? Bio { get; set; }
 
         /// <summary>
@@ -218,13 +190,13 @@ namespace Matrix.DTOs
         /// <summary>
         /// 使用者的隱私設定
         /// </summary>
-        [Range(0, 1, ErrorMessage = "隱私設定值必須在 0 到 1 之間")]
+        [Range(0, 1, ErrorMessage = "Person_PrivacyRange0To1")]
         public int? IsPrivate { get; set; }
 
         /// <summary>
         /// 使用者的區塊鏈錢包地址
         /// </summary>
-        [StringLength(100, ErrorMessage = "錢包地址長度不能超過 100 個字元")]
+        [StringLength(100, ErrorMessage = "Person_WalletAddressMaxLength100")]
         public string? WalletAddress { get; set; }
 
         /// <summary>
@@ -237,6 +209,8 @@ namespace Matrix.DTOs
             null => "未變更",
             _ => "未知"
         };
+
+        
 
         /// <summary>
         /// 判斷是否有任何欄位被設定
@@ -300,5 +274,7 @@ namespace Matrix.DTOs
 
             return false;
         }
+
+        
     }
 }

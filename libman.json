@@ -33,9 +33,23 @@
     },
     {
       "library": "cally@0.8.0",
-      "destination": "wwwroot/lib/cally/",
+      "destination": "wwwroot/lib/cally",
       "files": [
         "dist/cally.js"
+      ]
+    },
+    {
+      "library": "@microsoft/signalr@latest",
+      "destination": "wwwroot/lib/signalr",
+      "files": [
+        "dist/browser/signalr.js"
+      ]
+    },
+    {
+      "library": "chart.js@4.5.0",
+      "destination": "wwwroot/lib/ChartJS",
+      "files": [
+        "dist/chart.js"
       ]
     }
   ]

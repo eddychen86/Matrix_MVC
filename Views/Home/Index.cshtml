@@ -1,176 +1,88 @@
-﻿@model List<Matrix.Models.Article>
+@* Model no longer used; hot list loads via API *@
 @using Matrix.Services
 @inject ICustomLocalizer Localizer
-<section class="flex min-h-screen">
-    <div id="news_list" class="w-full">
-        <!-- 熱門文章輪播 -->
-        <div id="hot_news" class="flauto mb-8 max-w-3xl">
-            <ul class="carousel carousel-center w-[600px] gap-4 text-center">
-                @if (ViewBag.HotList != null)
-                {
-                    @foreach (var item in ViewBag.HotList)
-                    {
-                        <li class="carousel-item h-[250px] w-[190px] overflow-hidden rounded-[30px]">
-                            <div class="card bg-base-100 image-full shadow-sm">
-                                <figure>
-                                    @if (item.image != null)
-                                    {
-                                        <img src="@item.image.FilePath" alt="@item.Article.Content" class="h-full w-full object-cover" />
-                                    }
-                                    else
-                                    {
-                                        <div class="bg-accent flex h-full w-full items-center justify-center">
-                                            <i data-lucide="image" class="h-12 w-12 text-gray-400"></i>
+
+<!-- 文章 -->
+<div class="col-span-5 2xl:col-span-4 2xl:col-start-2 flex flex-col gap-8">
+
+    @* 熱門文章輪播（僅登入可見） *@
+    @if (ViewBag.IsAuthenticated == true)
+    {
+        <section class="home-hots_list overflow-x-hidden">
+            <h1 class="title">Hot</h1>
+            <div class="hots_list_carousel">
+                <button v-on:click="hotPrev">
+                    <i data-lucide="chevron-left" class="size-6"></i>
+                </button>
+                <button v-on:click="hotNext">
+                    <i data-lucide="chevron-right" class="size-6"></i>
+                </button>
+
+                <ul ref="hotCarouselRef" class="carousel carousel-center carousel_layout" v-if="hotlist && hotlist.length">
+                    <li class="carousel-item carousel-item_cts" v-for="item in hotlist" :key="item.articleId">
+                        <div class="card bg-base-100 image-full shadow-sm">
+                            <figure>
+                                <img v-if="item.image && item.image.filePath" :src="item.image.filePath" :alt="item.content" />
+                                <div v-else class="no-img bg-accent">
+                                    <i data-lucide="image" class="size-12"></i>
+                                </div>
+                            </figure>
+                            <div class="card-body carousel-item_body">
+                                <div class="userInfo">
+                                    <a href="/profile">
+                                        <img v-if="item.authorAvatar" :src="item.authorAvatar" :alt="item.authorName" />
+                                        <div v-else class="no-img">
+                                            <span>{{ (item.authorName || '').slice(0, 1).toUpperCase() }}</span>
                                         </div>
-                                    }
-                                </figure>
-                                <div class="card-body">
-                                    <div class="mb-2 flex items-center gap-2">
-                                        <div class="bg-orange flex h-8 w-8 items-center justify-center rounded-full">
-                                            <span class="text-sm font-bold text-white">@item.Author.DisplayName?.Substring(0, 1).ToUpper()</span>
-                                        </div>
-                                        <h2 class="card-title text-sm">@(item.Author?.DisplayName ?? item.Author?.UserId.ToString())</h2>
-                                    </div>
-                                    <div class="card-actions justify-end">
-                                        <p class="line-clamp-3 text-xs">@item.Article.Content</p>
-                                    </div>
+                                    </a>
+                                    <h2 class="card-title text-sm">{{ item.authorName || '' }}</h2>
+                                </div>
+                                <div class="card-actions justify-end">
+                                    <p class="line-clamp-3 text-xs">{{ item.content }}</p>
                                 </div>
                             </div>
-                        </li>
-                    }
-                }
-            </ul>
+                        </div>
+                    </li>
+                </ul>
+
+                <div class="no-data" v-else>
+                    <i data-lucide="file-text" class="size-12"></i>
+                    <p class="subTitle">No data</p>
+                </div>
+            </div>
+        </section>
+    }
+
+    
+    <!-- 文章列表 -->
+    <section class="home-posts_list">
+
+        <div class="post_editor_app">
+            <h3 class="title">News</h3>
+            <!--發文編輯-->
+            @if (ViewBag.IsAuthenticated == true)
+            {
+                <button v-on:click="toggleCreatePost">
+                    <i data-lucide="plus" class="size-6 text-black"></i>
+                    <span class="subTitle">Post</span>
+                </button>
+            }
         </div>
 
-        <!-- 文章列表 -->
-        <div id="article_list" class="mx-auto max-w-3xl px-4">
-            @if (ViewBag.DefaultList != null)
-            {
-                @for (int i = 0; i < ViewBag.DefaultList.Count; i++)
-                {
-                    var item = ViewBag.DefaultList[i];
-                    <article class="bg-accent border-accent/20 mb-6 rounded-xl border p-6 transition-colors hover:border-accent/40" data-article-index="@i">
-                        @* 文章標題區 *@
-                        <div class="mb-4 flex items-center justify-between">
-                            <div class="flex items-center gap-3">
-                                <div class="bg-orange flex h-10 w-10 items-center justify-center overflow-hidden rounded-full">
-                                    @if (item.Author.AvatarPath != null && item.Author.AvatarPath.Length > 0){
-                                        <img src="@item.Author.AvatarPath" alt="@item.Author.DisplayName" class="h-full w-full object-cover object-center" />
-                                    } else {
-                                        <span class="font-bold text-white">@item.Author.DisplayName?.Substring(0, 1).ToUpper()</span>
-                                    }
-                                </div>
-                                <div>
-                                    <h3 class="font-medium text-white">@(item.Author?.DisplayName ?? Localizer["GuestAccount"])</h3>
-                                    <p class="text-sm text-gray-400">@item.Article.CreateTime.ToString("yyyy-MM-dd HH:mm")</p>
-                                </div>
-                            </div>
-                            <div class="flex items-center gap-2 text-sm text-gray-400">
-                                <i data-lucide="heart" class="h-4 w-4"></i>
-                                <span>@item.Article.PraiseCount</span>
-                                <i data-lucide="bookmark" class="ml-2 h-4 w-4"></i>
-                                <span>@item.Article.CollectCount</span>
-                            </div>
-                        </div>
+        <ul class="post-content" id="homePostsList">
+            @await Component.InvokeAsync("PostList")
+        </ul>
+    </section>
+</div>
 
-                        @* 文章內容 *@
-                        <div class="mb-4 leading-relaxed text-gray-300">
-                            @Html.Raw(item.Article.Content?.Length > 300 
-                                ? item.Article.Content.Substring(0, 300) + "..." 
-                                : item.Article.Content)
-                        </div>
+<!-- 好友列表 -->
+<aside class="friends-list">
+    @await Component.InvokeAsync("FriendsList")
+</aside>
 
-                        @* 文章圖片 *@
-                        @if (item.image != null)
-                        {
-                            <div class="mb-4 overflow-hidden rounded-lg">
-                                <img src="@item.image.FilePath" alt="" class="max-h-96 w-full object-cover transition-transform duration-300 hover:scale-105" />
-                            </div>
-                        }
+@* Create Post Popup Component *@
+<div v-if="openCreatePost">
+    @await Component.InvokeAsync("CreatePostPopup")
+</div>
 
-                        @* 文章操作列 *@
-                        <div class="border-accent/20 flex items-center justify-between border-t pt-4">
-                            <div class="flex items-center gap-4">
-                                @if (ViewBag.IsAuthenticated == true)
-                                {
-                                    <button class="flex items-center gap-2 text-gray-400 transition-colors hover:text-orange">
-                                        <i data-lucide="heart" class="h-4 w-4">@Localizer["Praise"]</i>
-                                    </button>
-                                    <button class="flex items-center gap-2 text-gray-400 transition-colors hover:text-orange">
-                                        <i data-lucide="message-circle" class="h-4 w-4"></i>
-                                        <span data-i18n="Comment">@Localizer["Comment"]</span>
-                                    </button>
-                                    <button class="flex items-center gap-2 text-gray-400 transition-colors hover:text-orange">
-                                        <i data-lucide="share" class="h-4 w-4"></i>
-                                        <span data-i18n="Share">@Localizer["Share"]</span>
-                                    </button>
-                                    <button class="flex items-center gap-2 text-gray-400 transition-colors hover:text-orange">
-                                        <i data-lucide="bookmark" class="h-4 w-4"></i>
-                                        <span data-i18n="Collect">@Localizer["Collect"]</span>
-                                    </button>
-                                }
-                                else
-                                {
-                                    <span class="flex items-center gap-2 text-sm text-gray-500">
-                                        <i data-lucide="lock" class="h-4 w-4"></i>
-                                        <span data-i18n="GuestBrowseMsg">@Localizer["GuestBrowseMsg"]</span>
-                                    </span>
-                                }
-                            </div>
-                        </div>
-                    </article>
-                }
-            }
-            else
-            {
-                <div class="py-12 text-center">
-                    <i data-lucide="inbox" class="mx-auto mb-4 h-16 w-16 text-gray-400"></i>
-                    <p class="text-lg text-gray-400" data-i18n="NoArticlesMsg">@Localizer["NoArticlesMsg"]</p>
-                </div>
-            }
-
-            @* 訪客限制提示（僅在訪客狀態下顯示） *@
-            @* @if (ViewBag.IsGuest == true && ViewBag.IsAuthenticated == false)
-            {
-                <div class="border-accent/20 border-t py-8 text-center">
-                    <div class="bg-secondary border-accent/20 rounded-xl border p-6">
-                        <h3 class="mb-2 text-lg font-medium text-white" data-i18n="AllContentViewedTitle">@Localizer["AllContentViewedTitle"]</h3>
-                        <p class="mb-4 text-gray-400" data-i18n="LoginForMoreContentMsg">@Localizer["LoginForMoreContentMsg"]</p>
-                        <a href="/login" class="bg-orange inline-flex items-center gap-2 rounded-full px-6 py-2 text-white transition-colors hover:bg-orange-600">
-                            <i data-lucide="log-in" class="h-4 w-4"></i>
-                            <span data-i18n="LoginNowBtn">@Localizer["LoginNowBtn"]</span>
-                        </a>
-                    </div>
-                </div>
-            } *@
-        </div>
-    </div>
-
-    @* 好友列表 *@
-    <aside id="friends_list" class="border-accent/20 h-screen w-[300px] border-l p-4">
-        
-    </aside>
-</section>
-
-@section Scripts {
-    <script>
-        // 將 ViewBag 資料傳遞給前端 JavaScript
-        window.matrixAuthData = {
-            isAuthenticated: @Html.Raw(ViewBag.IsAuthenticated?.ToString().ToLower() ?? "false"),
-            isGuest: @Html.Raw(ViewBag.IsGuest?.ToString().ToLower() ?? "false"),
-            articleLimit: @(ViewBag.ArticleLimit ?? 10),
-            totalArticles: @(ViewBag.TotalPublicArticles ?? 0)
-        };
-
-        @* console.log('Matrix Auth Data:', window.matrixAuthData); *@
-
-        // 為測試目的，可以手動觸發 Popup
-        window.testLoginPopup = function() {
-            if (window.guestAccessControl) {
-                window.guestAccessControl.forceShowPopup();
-            } else {
-                console.log('訪客控制尚未初始化');
-            }
-        };
-    </script>
-}
+@* Hot list logic moved to /js/pages/home/home.js (Vue setup) *@

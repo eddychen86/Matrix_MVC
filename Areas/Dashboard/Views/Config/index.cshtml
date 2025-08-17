@@ -1,0 +1,22 @@
+@{
+    ViewData["Title"] = "系統設定";
+}
+
+<div id="adminConfig" class="w-full h-full p-8">
+    <template v-if="isLoading">
+        <div class="flex h-[50vh] w-full items-center justify-center">
+            <div class="flex flex-col items-center gap-4">
+                <img src="~/static/img/Loading.gif" alt="Loading" class="h-16 w-16" />
+                <span class="text-gray-700">Loading</span>
+            </div>
+        </div>
+    </template>
+    <template v-else>
+
+
+    </template>
+</div>
+
+@section Scripts {
+    <script src="~/js/dashboard/pages/config/config.js" asp-append-version="true"></script>
+}

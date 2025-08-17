@@ -1,113 +1,85 @@
-﻿@{
-    // Layout = null;
-    ViewData["Title"] = "Profile";
-
-    var fake = ViewBag.FakeProfile;
-}
-@* <script src="https://cdn.tailwindcss.com"></script> *@
+﻿@inject ICustomLocalizer Localizer
 
 <!-- 頂部橫幅與頭像 -->
-<header id="profile-header">
-    <img id="profile-banner" src="@fake.banner" alt="Profile Banner">
-
-    <div id="profile-avatar">
-        <div class="flex items-center justify-between">
-            <div id="profile-avatar_img">
-                <img src="@fake.avatarImg" alt="Avatar Img">
-            </div>
-            <div id="profile-name">
-                <h1 class="title-lg">@fake.name</h1>
-                @if (!fake.isPrivate)
-                {
-                    <i data-lucide="globe" class="icon-base"></i>
-                }
-                else
-                {
-                    <i data-lucide="globe-lock" class="icon-base"></i>
-                }
-            </div>
+<header class="profile-header">
+    <div class="profile-banner_layout">
+        <button v-on:click="updateFile('banner')">
+            <i data-lucide="pen" class="icon-bg text-white"></i>
+        </button>
+        <input type="file" accept="image/*" class="hidden" id="banner-file-input">
+        <img v-if="profile.bannerPath" :src="profile.bannerPath" alt="Profile Banner" />
+        <div v-else class="no-banner bg-accent">
+            <i data-lucide="image" class="size-10 text-stone-200"></i>
         </div>
+    </div>
+    <div class="profile-avatar">
+        <div class="profile-avatar_body">
+            <div class="profile-avatar_img_layout">
+                <button class="edit" v-on:click="updateFile('avatar')">
+                    <i data-lucide="pen" class="icon-bg text-white"></i>
+                </button>
+                <input type="file" accept="image/*" class="hidden" id="avatar-file-input">
+                <img v-if="profile.avatarPath" :src="profile.avatarPath" alt="Profile Avatar" />
+                <div v-else class="no-avatar bg-accent">
+                    <i data-lucide="user-round" class="size-10 text-stone-200"></i>
+                </div>
+            </div>
+            <h3>{{ profile.displayName }}</h3>
+            <i data-lucide="globe" v-if="!profile.isPrivate" class="size-4 sm:size-8 2xl:size-12 mb-0 2xl:mb-4 text-blue-500"></i>
+            <i data-lucide="globe-lock" v-else class="size-4 sm:size-8 2xl:size-12 mb-0 2xl:mb-4 text-blue-500"></i>
+            <i data-lucide="crown" v-show="profile.walletAddress" class="size-4 sm:size-8 2xl:size-12 mb-0 2xl:mb-4 text-yellow-500"></i>
+        </div>
+        <button class="subTitle font-semibold" data-i18n="Create">@Localizer["Create"]</button>
     </div>
 </header>
 
-
-<section id="profile-body">
-    <!-- 左側：個人資訊 -->
-    <div id="profile-user_info">
-        <div class="flex w-full items-center justify-between">
-            <h2 class="title font-bold">Profile Overview</h2>
-            <a asp-controller="EditProfile" asp-action="Index"
-               class="inline-flex items-center rounded p-2 text-white">
-                <i data-lucide="pen" class="icon-base"></i>
-            </a>
-        </div>
-
-        <div>
-            <h2 class="subTitle font-bold">自我介紹</h2>
-            <p class="para">@fake.overview.intro</p>
-        </div>
-
-        <div class="para flex flex-col gap-4 text-gray-400">
-            @foreach (var i in fake.overview.extends)
-            {
-                <p class="para">@i</p>
-            }
-        </div>
-
-        <!-- 圖片區塊 (RWD: 下方顯示) -->
-        <div class="flex flex-col gap-4">
-            @foreach (var i in fake.overview.images)
-            {
-                <img src="@i" class="h-[108px] w-full rounded-lg object-cover" alt="" />
-            }
-        </div>
-    </div>
-
-    <!-- 中間：動態貼文 -->
-    <div class="flex flex-col gap-4">
-        @foreach (var i in fake.articles)
-        {
-            <div class="bg-accent flex flex-col gap-4 rounded-[30px] p-6">
-                <div class="flex items-center gap-4">
-                    <img src="@i.userImg" alt="@i.user" class="h-12 w-12 rounded-full object-cover object-center">
-                    <div class="flex flex-col gap-4">
-                        <h3 class="subTitle font-semibold">@i.user</h3>
-                        <p class="para text-stone-500">@i.createTime</p>
-                    </div>
+<!-- 左側：個人資訊 -->
+<ul class="profile-info bg-accent">
+    <button @@click="startEdit" class="editPen">
+        <i data-lucide="pen" class="size-6"></i>
+    </button>
+    <li class="sm:!col-span-2">
+        <h4 class="subTitle" data-i18n="ProfileBio">@Localizer["ProfileBio"]</h4>
+        <p class="para">{{ profile.bio }}</p>
+    </li>
+    <li>
+        <h4 class="subTitle" data-i18n="ProfileContact">@Localizer["ProfileContact"]</h4>
+        <p>{{ profile.email }}</p>
+    </li>
+    <li>
+        <h4 class="subTitle" data-i18n="ProfileLinks">@Localizer["ProfileLinks"]</h4>
+        <ul class="flex flex-col gap-2">
+            <li v-for="url in [profile.website1, profile.website2, profile.website3]">
+                <div>
+                    <a class="para" :href="url" target="_blank" rel="noopener noreferrer">{{ url }}</a>
                 </div>
-                <p class="para">@i.content</p>
-                <div class="grid grid-cols-5 gap-4">
-                    @foreach (var img in i.images)
-                    {
-                        <img src="@img" class="h-28 rounded-[30px] object-cover object-center" alt="">
-                    }
-                </div>
-                <div class="flex items-center justify-end gap-4">
-                    <div class="flex items-center gap-2 text-orange-400">
-                        <i data-lucide="thumbs-up"></i>
-                        <span>@i.praises</span>
-                    </div>
-                    <div class="flex items-center gap-2 text-blue-400">
-                        <i data-lucide="bookmark"></i>
-                        <span>@i.collects</span>
-                    </div>
-                </div>
+            </li>
+        </ul>
+    </li>
+    <li class="sm:row-span-2 sm:!row-start-2 sm:!row-end-3 sm:!col-start-2">
+        <h4 class="subTitle" data-i18n="ProfileImgs">@Localizer["ProfileImgs"]</h4>
+        <div class="flex gap-2 flex-wrap items-center">
+            <img v-for="(image, idx) in userImages.slice(0, 10)" :key="image.fileId"
+                :src="image.filePath"
+                :alt="image.fileName"
+                class="h-[100px] w-[100px] rounded-lg object-cover cursor-pointer hover:opacity-80 transition-opacity" 
+            />
+            <div v-if="userImages.length === 0" class="text-gray-400 text-sm">
+                @* 還沒有圖片 *@
             </div>
-        }
-    </div>
-</section>
+        </div>
+    </li>
+</ul>
 
-<!-- 右側預留好友列表空間（未來可放內容） -->
-<div class="fixed top-0 right-0 z-10 hidden h-full w-[300px] bg-transparent lg:block">
-    <!-- 好友列表未來放這裡 -->
-</div>
+<!-- 中間：動態貼文 -->
+<ul class="post-content col-span-5 2xl:col-span-3" id="profilePostsList">
+    @await Component.InvokeAsync("PostList")
+</ul>
 
+<!-- 好友列表 -->
+<aside class="friends-list col-span-2">
+    @await Component.InvokeAsync("FriendsList")
+</aside>
 
-
-
-
-
-
-
-
-
+<!-- Edit Profile View -->
+@await Component.InvokeAsync("EditProfilePopup")

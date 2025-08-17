@@ -9,6 +9,11 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <Compile Remove="Controllers\Api\ApiUserController.cs" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="AutoMapper" Version="15.0.1" />
         <PackageReference Include="MailKit" Version="4.13.0" />
         <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.0" />
         <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="8.0.11" />

@@ -6,60 +6,11 @@ namespace Matrix.Controllers
     [MemberAuthorization] // 需要一般會員權限 (Role >= 0)
     public class ProfileController : Controller
     {
-        public IActionResult Index()
+        [HttpGet]
+        [Route("/Profile")]
+        [Route("/Profile/{username}")]
+        public IActionResult Index(string? username = null)
         {
-            var fakeProfile = new
-            {
-                banner = Url.Content("~/static/img/image-top.png"),
-                avatarImg = Url.Content("~/static/img/foodpanda.jpg"),
-                name = "Michael Jordan",
-                isPrivate = false,
-                overview = new
-                {
-                    intro = "xxxxxxxxxxxxxxxxxxxxxxxx",
-                    email = "example@email.com",
-                    extends = new[] {
-                        "https://www.jordan1.com/",
-                        "https://www.jordan2.com/",
-                        "https://www.jordan3.com/"
-                    },
-                    images = new[] {
-                        Url.Content("~/static/img/foodpanda.jpg"),
-                        Url.Content("~/static/img/foodpanda.jpg"),
-                        Url.Content("~/static/img/foodpanda.jpg")
-                    }
-                },
-                articles = new[] {
-                    new {
-                        user = "Michael Jordan",
-                        userImg = Url.Content("~/static/img/foodpanda.jpg"),
-                        content = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-                        images = new[] {
-                            Url.Content("~/static/img/foodpanda.jpg"),
-                            Url.Content("~/static/img/foodpanda.jpg")
-                        },
-                        createTime = "2023-10-01 12:00",
-                        praises = 100,
-                        collects = 50
-                    },
-                    new {
-                        user = "Michael Jordan",
-                        userImg = Url.Content("~/static/img/foodpanda.jpg"),
-                        content = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-                        images = new[] {
-                            Url.Content("~/static/img/foodpanda.jpg"),
-                            Url.Content("~/static/img/foodpanda.jpg")
-                        },
-                        createTime = "2023-10-01 12:00",
-                        praises = 100,
-                        collects = 50
-                    }
-                }
-            };
-
-            ViewBag.FakeProfile = fakeProfile;
-
-
             return View();
         }
     }

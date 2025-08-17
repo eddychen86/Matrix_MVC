@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Matrix.Attributes;
+using Matrix.Controllers;
 
 namespace Matrix.Areas.Dashboard.Controllers
 {
@@ -10,6 +11,8 @@ namespace Matrix.Areas.Dashboard.Controllers
         // GET: PostsController
         public ActionResult Index()
         {
+            // 傳遞 MenuViewModel 給 Layout
+            ViewBag.Menu = CommonController.BuildMenuModel(HttpContext);
             return View();
         }
 
@@ -23,7 +26,7 @@ namespace Matrix.Areas.Dashboard.Controllers
             {
                 return PartialView("Index");
             }
-            
+
             // 否則重導向到完整頁面
             return RedirectToAction("Index");
         }

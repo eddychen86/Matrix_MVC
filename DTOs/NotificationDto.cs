@@ -30,14 +30,14 @@ namespace Matrix.DTOs
         /// <summary>
         /// 通知的標題
         /// </summary>
-        [Required(ErrorMessage = "通知標題為必填欄位")]
-        [StringLength(100, ErrorMessage = "通知標題長度不能超過 100 個字元")]
+        [Required(ErrorMessage = "Notification_TitleRequired")]
+        [StringLength(100, ErrorMessage = "Notification_TitleMaxLength100")]
         public string Title { get; set; } = string.Empty;
 
         /// <summary>
         /// 通知的內容
         /// </summary>
-        [StringLength(500, ErrorMessage = "通知內容長度不能超過 500 個字元")]
+        [StringLength(500, ErrorMessage = "Notification_ContentMaxLength500")]
         public string? Content { get; set; }
 
         /// <summary>
@@ -120,25 +120,6 @@ namespace Matrix.DTOs
         /// </summary>
         public bool IsUserNotification => !IsSystemNotification;
 
-        /// <summary>
-        /// 獲取通知發送時間的友善顯示格式
-        /// </summary>
-        public string TimeAgoText
-        {
-            get
-            {
-                var timeSpan = DateTime.Now - CreateTime;
-                
-                return timeSpan.TotalDays switch
-                {
-                    > 365 => $"{(int)(timeSpan.TotalDays / 365)} 年前",
-                    > 30 => $"{(int)(timeSpan.TotalDays / 30)} 個月前",
-                    > 7 => $"{(int)(timeSpan.TotalDays / 7)} 週前",
-                    > 1 => $"{(int)timeSpan.TotalDays} 天前",
-                    _ => timeSpan.TotalHours > 1 ? $"{(int)timeSpan.TotalHours} 小時前" : "剛剛"
-                };
-            }
-        }
 
         /// <summary>
         /// 獲取通知的簡短內容

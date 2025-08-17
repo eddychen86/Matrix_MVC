@@ -1,14 +1,10 @@
 namespace Matrix.Services
 {
     /// <summary>
-    /// 統一的翻譯服務 - 單一資料來源，避免重複維護
+    /// 多國語系
     /// </summary>
     public static class TranslationService
     {
-        /// <summary>
-        /// 靜態翻譯字典 - 唯一的翻譯資料來源
-        /// 所有翻譯相關功能都應該使用這個字典
-        /// </summary>
         public static readonly Dictionary<string, Dictionary<string, string>> AllTranslations = new()
         {
             ["zh-TW"] = new Dictionary<string, string>
@@ -85,8 +81,12 @@ namespace Matrix.Services
                 ["Follow"] = "追蹤",
                 ["Collect"] = "收藏",
                 ["Share"] = "分享",
-                ["GuestBrowseMsg"] = "登入後可操作",
+                ["GuestBrowseMsg"] = "請先登入以進行互動",
                 ["GuestAccount"] = "訪客",
+
+                // 狀態
+                ["public"] = "公開",
+                ["private"] = "不公開",
 
                 #endregion
 
@@ -107,7 +107,7 @@ namespace Matrix.Services
                 ["Users"] = "用戶管理",
                 ["Posts"] = "貼文管理",
                 ["Reports"] = "檢舉管理",
-                ["Logs"] = "網站日誌",
+                ["Config"] = "網站設置",
 
                 #endregion
 
@@ -130,10 +130,30 @@ namespace Matrix.Services
                 #endregion
 
                 #region Profile 模組
+
+                ["ProfileBio"] = "自我介紹",
+                ["ProfileContact"] = "聯絡方式",
+                ["ProfileLinks"] = "其他連結",
+                ["ProfileImgs"] = "圖片",
                 ["ProfileName"] = "個人資料名稱",
                 ["ProfileDescription"] = "個人資料描述",
                 ["EditProfile"] = "編輯個人資料",
                 ["SaveProfile"] = "儲存個人資料",
+                ["ProfileWellat"] = "錢包地址",
+                ["ProfileState"] = "是否公開",
+                ["ProfilePwd"] = "重設密碼",
+
+                #endregion
+
+                #region Friends 模組
+
+                ["FriendsTitle"] = "好友列表",
+                ["FriendsAccepted"] = "已接受",
+                ["FriendsPending"] = "待處裡",
+                ["FriendsDeclined"] = "已拒絕",
+                ["FriendsBlocked"] = "封鎖",
+                ["FriendsAll"] = "全部",
+                ["FriendsNone"] = "尚無好友",
 
                 #endregion
 
@@ -158,7 +178,6 @@ namespace Matrix.Services
                 ["ReportName"] = "報告名稱",
                 ["ReportDate"] = "報告日期",
                 ["ReportType"] = "報告類型",
-                
                 // === 確認模組 ===
                 ["InvalidConfirmLink"] = "無效的確認連結",
                 ["UserNotExistOrExpired"] = "用戶不存在或確認連結已失效",
@@ -169,7 +188,7 @@ namespace Matrix.Services
                 ["WelcomeRegisterConfirmEmail"] = "歡迎註冊！請確認您的電子郵件地址",
                 ["ConfirmEmailSent"] = "確認信已發送，請檢查您的電子郵件。",
                 ["SendConfirmEmailError"] = "發送確認信時發生錯誤，請稍後再試。",
-                
+
                 // === 確認信內容 ===
                 ["EmailWelcomeTitle"] = "歡迎加入 Matrix",
                 ["EmailWelcomeSubtitle"] = "Welcome to the Matrix.",
@@ -179,7 +198,7 @@ namespace Matrix.Services
                 ["EmailAlternativeText"] = "如果按鈕無法點擊，請複製以下連結到瀏覽器：",
                 ["EmailFooterText"] = "此連結將在 24 小時後失效。",
                 ["EmailBrandMotto"] = "The world is a fog, filled with out-of-focus noise. We choose to become an eternal lighthouse.",
-                
+
                 // === 確認頁面 ===
                 ["ConfirmPageTitle"] = "郵件確認",
                 ["PleaseWait"] = "請稍候...",
@@ -200,13 +219,174 @@ namespace Matrix.Services
                 ["ProcessingResultError"] = "處理確認結果時發生錯誤。",
                 ["CannotGetResult"] = "無法獲取確認結果，請重新嘗試。",
                 ["UseConfirmLink"] = "請透過郵件中的確認連結來訪問此頁面。",
-                
+
                 // 其他常用
                 ["Title"] = "Matrix",
                 ["Email"] = "電子郵件",
                 ["Password"] = "密碼",
                 ["ConfirmPassword"] = "確認密碼",
-                ["Register"] = "註冊"
+                ["Register"] = "註冊",
+
+                #endregion
+
+
+                // 驗證錯誤訊息（來自 DTOs）
+                #region User
+                ["User_UserNameRequired"] = "使用者名稱為必填欄位",
+                ["User_UserNameLength1To50"] = "使用者名稱長度必須介於 1 到 50 個字元之間",
+                ["User_EmailRequired"] = "電子郵件為必填欄位",
+                ["User_EmailInvalid"] = "請輸入有效的電子郵件地址",
+                ["User_EmailMaxLength100"] = "電子郵件長度不能超過 100 個字元",
+                ["User_CountryMaxLength100"] = "國家名稱長度不能超過 100 個字元",
+                ["User_UserNameLength3To20"] = "使用者名稱長度必須介於 3 到 20 個字元之間",
+                ["User_UserNameAllowedChars"] = "使用者名稱只能包含英文字母、數字和底線",
+                ["User_EmailMaxLength30"] = "電子郵件長度不能超過 30 個字元",
+                ["User_PasswordRequired"] = "密碼為必填欄位",
+                ["User_PasswordLength8To20"] = "密碼長度必須介於 8 到 20 個字元之間",
+                ["User_PasswordComplexity"] = "密碼必須包含至少一個大寫字母、一個小寫字母、一個數字、一個特殊符號",
+                ["User_PasswordConfirmRequired"] = "確認密碼為必填欄位",
+                ["User_PasswordsMustMatch"] = "確認密碼必須與密碼相符",
+                ["User_GenderRange0To3"] = "性別值必須在 0 到 3 之間",
+                ["User_RoleRange0To2"] = "權限等級必須在 0 到 2 之間",
+                ["User_DisplayNameMaxLength50"] = "顯示名稱長度不能超過 50 個字元",
+                ["User_DisplayNameLength1To50"] = "顯示名稱長度必須介於 1 到 50 個字元之間",
+                ["User_BioMaxLength300"] = "個人簡介長度不能超過 300 個字元",
+                ["User_PrivacyRange0Or1"] = "隱私設定必須是 0（公開）或 1（私人）",
+                ["User_UserNameAllowedCharsWithChinese"] = "使用者名稱只能包含字母、數字、底線和中文字元",
+                #endregion
+
+                #region Person
+                ["Person_DisplayNameLength1To50"] = "顯示名稱長度必須介於 1 到 50 個字元之間",
+                ["Person_BioMaxLength300"] = "個人簡介長度不能超過 300 個字元",
+                ["Person_PrivacyRange0To1"] = "隱私設定值必須在 0 到 1 之間",
+                ["Person_WalletAddressMaxLength100"] = "錢包地址長度不能超過 100 個字元",
+                #endregion
+
+                #region Notification
+                ["Notification_TitleRequired"] = "通知標題為必填欄位",
+                ["Notification_TitleMaxLength100"] = "通知標題長度不能超過 100 個字元",
+                ["Notification_ContentMaxLength500"] = "通知內容長度不能超過 500 個字元",
+                #endregion
+
+                #region Article
+                ["Article_ContentRequired"] = "文章內容為必填欄位",
+                ["Article_ContentMaxLength4000"] = "文章內容長度不能超過 4000 個字元",
+                ["Article_ContentLength1To4000"] = "文章內容長度必須介於 1 到 4000 個字元之間",
+                ["Article_IsPublicRange0Or1"] = "文章狀態必須是 0（公開）或 1（私人）",
+                #endregion
+
+                #region Reply
+                ["Reply_ArticleIdRequired"] = "文章 ID 為必填欄位",
+                ["Reply_ContentRequired"] = "回覆內容為必填欄位",
+                ["Reply_ContentMaxLength1000"] = "回覆內容長度不能超過 1000 個字元",
+                ["Reply_ContentLength1To1000"] = "回覆內容長度必須介於 1 到 1000 個字元之間",
+                #endregion
+
+                #region NFT
+                ["NFT_OwnerIdRequired"] = "擁有者 ID 為必填",
+                ["NFT_FileNameRequired"] = "NFT 名稱為必填",
+                ["NFT_FileNameMaxLength255"] = "NFT 名稱長度不能超過 255 個字元",
+                ["NFT_FilePathRequired"] = "檔案路徑為必填",
+                ["NFT_FilePathMaxLength2048"] = "檔案路徑長度不能超過 2048 個字元",
+                ["NFT_CollectTimeRequired"] = "收藏時間為必填",
+                ["NFT_CurrencyRequired"] = "幣別為必填",
+                ["NFT_CurrencyMaxLength10"] = "幣別長度不能超過 10 個字元",
+                ["NFT_PriceMin0"] = "價格必須大於等於 0",
+                ["NFT_MinPriceMin0"] = "最低價格必須大於等於 0",
+                ["NFT_MaxPriceMin0"] = "最高價格必須大於等於 0",
+                ["NFT_PageMin1"] = "頁數必須大於 0",
+                ["NFT_PageSizeRange1To100"] = "每頁筆數必須在 1-100 之間",
+
+                #endregion
+
+                #region Users Management 模組
+
+                ["Users_Title"] = "使用者管理",
+                ["Users_Status"] = "狀態",
+                ["Users_Ban"] = "被封禁",
+                ["Users_CreateTime"] = "建立時間",
+                ["Users_Enable"] = "已啟用",
+                ["Users_Disable"] = "未啟用",
+                ["Users_Yes"] = "是",
+                ["Users_No"] = "否",
+                ["Users_Name"] = "名稱",
+                ["Users_RoleText"] = "角色",
+                ["Users_Email"] = "電子郵件",
+                ["Users_LastLoginTime"] = "最後登入",
+                ["Users_Edit"] = "編輯",
+                ["Users_Delete"] = "刪除",
+                ["Users_Update"] = "更新",
+                ["Users_Cancel"] = "取消",
+                ["Users_SearchUserPlaceholder"] = "請輸入使用者名稱",
+                ["Users_SearchDatePlaceholder"] = "請輸入日期YYYY-MM-DD",
+                ["Users_Status_Disabled"] = "未啟用",
+                ["Users_Status_Enabled"] = "已啟用",
+                ["Users_Status_Banned"] = "被封禁",
+                ["Users_Role_Admin"] = "管理員",
+                ["Users_Role_User"] = "一般使用者",
+
+                #endregion
+
+                #region Posts Management 模組
+
+                ["Posts_Title"] = "貼文管理",
+                ["Posts_Keyword"] = "關鍵字",
+                ["Posts_SearchKeywordPlaceholder"] = "請輸入關鍵字",
+                ["Posts_Status"] = "狀態",
+                ["Posts_All"] = "全部",
+                ["Posts_Enable"] = "啟用",
+                ["Posts_Disable"] = "停用",
+                ["Posts_CreateTime"] = "建立時間",
+                ["Posts_Content"] = "內容",
+                ["Posts_UserName"] = "使用者名稱",
+                ["Posts_ModifyTime"] = "修改時間",
+                ["Posts_Edit"] = "編輯",
+                ["Posts_Delete"] = "刪除",
+                ["Posts_Status_Normal"] = "正常",
+                ["Posts_Status_Hidden"] = "隱藏",
+                ["Posts_Status_Deleted"] = "已刪除",
+                ["Posts_Save"] = "儲存",
+                ["Posts_Cancel"] = "取消",
+                ["Posts_ConfirmDelete"] = "確定要刪除這篇文章嗎?",
+                ["Posts_DeleteError"] = "刪除失敗",
+                ["Posts_UpdateError"] = "狀態更新失敗",
+                ["Posts_LoadError"] = "讀取清單失敗",
+                
+                #endregion
+
+                #region Reports Management 模組
+
+                ["Reports_Title"] = "檢舉管理",
+                ["Reports_ApiNotConnected"] = "尚未串接 API，待補。",
+                
+                #endregion
+
+                #region Overview 模組
+
+                ["Overview_Title"] = "管理儀表板",
+                ["Overview_WelcomeMsg"] = "歡迎使用 Matrix 後台管理系統",
+                ["Overview_TotalUsers"] = "總用戶數",
+                ["Overview_TotalPosts"] = "文章總數",
+                ["Overview_PendingReports"] = "待處理報告",
+                ["Overview_TodayActive"] = "今日活躍",
+                ["Overview_QuickActions"] = "快速操作",
+                ["Overview_UserManagement"] = "用戶管理",
+                ["Overview_PostManagement"] = "文章管理",
+                ["Overview_ReportManagement"] = "檢舉管理",
+                ["Overview_SystemStatus"] = "系統狀態",
+                ["Overview_SystemUptime"] = "系統運行時間",
+                ["Overview_DatabaseConnection"] = "資料庫連線",
+                ["Overview_EmailService"] = "郵件服務",
+                ["Overview_Storage"] = "儲存空間",
+                ["Overview_Status_Normal"] = "正常",
+                ["Overview_Status_InUse"] = "使用中",
+                
+                #endregion
+
+                #region Config 模組
+
+                ["Config_Title"] = "系統設定",
+                ["Config_ApiNotConnected"] = "尚未串接 API，待補。",
                 
                 #endregion
             },
@@ -286,6 +466,10 @@ namespace Matrix.Services
                 ["GuestBrowseMsg"] = "Need to login",
                 ["GuestAccount"] = "Guest",
 
+                // 狀態
+                ["public"] = "Public",
+                ["private"] = "Private",
+
                 #endregion
 
                 #region Menu 模組
@@ -305,7 +489,7 @@ namespace Matrix.Services
                 ["Users"] = "Users",
                 ["Posts"] = "Posts",
                 ["Reports"] = "Reports",
-                ["Logs"] = "Logs",
+                ["Config"] = "Settings",
 
                 #endregion
 
@@ -329,10 +513,29 @@ namespace Matrix.Services
 
                 #region Profile 模組
 
+                ["ProfileBio"] = "Bio",
+                ["ProfileContact"] = "Contact",
+                ["ProfileLinks"] = "Links",
+                ["ProfileImgs"] = "Pictures",
                 ["ProfileName"] = "Profile Name",
                 ["ProfileDescription"] = "Profile Description",
                 ["EditProfile"] = "Edit Profile",
                 ["SaveProfile"] = "Save Profile",
+                ["ProfileWellat"] = "Wallet Address",
+                ["ProfileState"] = "Profile State",
+                ["ProfilePwd"] = "Reset Password",
+
+                #endregion
+
+                #region Friends 模組
+
+                ["FriendsTitle"] = "Friends",
+                ["FriendsAccepted"] = "Accepted",
+                ["FriendsPending"] = "Pending",
+                ["FriendsDeclined"] = "Declined",
+                ["FriendsBlocked"] = "Blocked",
+                ["FriendsAll"] = "All",
+                ["FriendsNone"] = "No friends yet",
 
                 #endregion
 
@@ -405,9 +608,171 @@ namespace Matrix.Services
                 ["Email"] = "Email",
                 ["Password"] = "Password",
                 ["ConfirmPassword"] = "Confirm Password",
-                ["Register"] = "Register"
+                ["Register"] = "Register",
+
+
+                #endregion
+
+                #region UsersManagement 模組
+
+                ["Users_Title"] = "Users Management",
+                ["Users_Status"] = "Status",
+                ["Users_Ban"] = "Ban",
+                ["Users_CreateTime"] = "Createtime",
+                ["Users_Enable"] = "Enable",
+                ["Users_Disable"] = "Disable",
+                ["Users_Yes"] = "Yes",
+                ["Users_No"] = "No",
+                ["Users_Name"] = "Name",
+                ["Users_RoleText"] = "Role",
+                ["Users_Email"] = "Email",
+                ["Users_LastLoginTime"] = "Lastlogin",
+                ["Users_Edit"] = "Edit",
+                ["Users_Delete"] = "Delete",
+                ["Users_Update"] = "Update",
+                ["Users_Cancel"] = "Cancel",
+                ["Users_SearchUserPlaceholder"] = "Please enter user name",
+                ["Users_SearchDatePlaceholder"] = "Please enter YYYY-MM-DD",
+                ["Users_Status_Disabled"] = "Disabled",
+                ["Users_Status_Enabled"] = "Enabled",
+                ["Users_Status_Banned"] = "Banned",
+                ["Users_Role_Admin"] = "Admin",
+                ["Users_Role_User"] = "User",
+
+
+                #endregion
+
+                #region Posts Management 模組
+
+                ["Posts_Title"] = "Posts Management",
+                ["Posts_Keyword"] = "Keyword",
+                ["Posts_SearchKeywordPlaceholder"] = "Please enter keyword",
+                ["Posts_Status"] = "Status",
+                ["Posts_All"] = "All",
+                ["Posts_Enable"] = "Enable",
+                ["Posts_Disable"] = "Disable",
+                ["Posts_CreateTime"] = "Create Time",
+                ["Posts_Content"] = "Content",
+                ["Posts_UserName"] = "User Name",
+                ["Posts_ModifyTime"] = "Modify Time",
+                ["Posts_Edit"] = "Edit",
+                ["Posts_Delete"] = "Delete",
+                ["Posts_Status_Normal"] = "Normal",
+                ["Posts_Status_Hidden"] = "Hidden",
+                ["Posts_Status_Deleted"] = "Deleted",
+                ["Posts_Save"] = "Save",
+                ["Posts_Cancel"] = "Cancel",
+                ["Posts_ConfirmDelete"] = "Are you sure you want to delete this post?",
+                ["Posts_DeleteError"] = "Delete failed",
+                ["Posts_UpdateError"] = "Status update failed",
+                ["Posts_LoadError"] = "Failed to load list",
                 
                 #endregion
+
+                #region Reports Management 模組
+
+                ["Reports_Title"] = "Reports Management",
+                ["Reports_ApiNotConnected"] = "API not connected yet, to be implemented.",
+                
+                #endregion
+
+                #region Overview 模組
+
+                ["Overview_Title"] = "Admin Dashboard",
+                ["Overview_WelcomeMsg"] = "Welcome to Matrix Admin Management System",
+                ["Overview_TotalUsers"] = "Total Users",
+                ["Overview_TotalPosts"] = "Total Posts",
+                ["Overview_PendingReports"] = "Pending Reports",
+                ["Overview_TodayActive"] = "Today Active",
+                ["Overview_QuickActions"] = "Quick Actions",
+                ["Overview_UserManagement"] = "User Management",
+                ["Overview_PostManagement"] = "Post Management",
+                ["Overview_ReportManagement"] = "Report Management",
+                ["Overview_SystemStatus"] = "System Status",
+                ["Overview_SystemUptime"] = "System Uptime",
+                ["Overview_DatabaseConnection"] = "Database Connection",
+                ["Overview_EmailService"] = "Email Service",
+                ["Overview_Storage"] = "Storage",
+                ["Overview_Status_Normal"] = "Normal",
+                ["Overview_Status_InUse"] = "In Use",
+                
+                #endregion
+
+                #region Config 模組
+
+                ["Config_Title"] = "System Config",
+                ["Config_ApiNotConnected"] = "API not connected yet, to be implemented.",
+                
+                #endregion
+
+                // Validation error messages (from DTOs)
+                #region User
+                ["User_UserNameRequired"] = "User name is required.",
+                ["User_UserNameLength1To50"] = "User name length must be between 1 and 50 characters.",
+                ["User_EmailRequired"] = "Email is required.",
+                ["User_EmailInvalid"] = "Please enter a valid email address.",
+                ["User_EmailMaxLength100"] = "Email length must not exceed 100 characters.",
+                ["User_CountryMaxLength100"] = "Country name length must not exceed 100 characters.",
+                ["User_UserNameLength3To20"] = "User name length must be between 3 and 20 characters.",
+                ["User_UserNameAllowedChars"] = "User name may only contain letters, numbers, and underscores.",
+                ["User_EmailMaxLength30"] = "Email length must not exceed 30 characters.",
+                ["User_PasswordRequired"] = "Password is required.",
+                ["User_PasswordLength8To20"] = "Password length must be between 8 and 20 characters.",
+                ["User_PasswordComplexity"] = "Password must contain at least one uppercase letter, one lowercase letter, one digit, and one special character.",
+                ["User_PasswordConfirmRequired"] = "Password confirmation is required.",
+                ["User_PasswordsMustMatch"] = "Password confirmation must match the password.",
+                ["User_GenderRange0To3"] = "Gender must be between 0 and 3.",
+                ["User_RoleRange0To2"] = "Role level must be between 0 and 2.",
+                ["User_DisplayNameMaxLength50"] = "Display name length must not exceed 50 characters.",
+                ["User_DisplayNameLength1To50"] = "Display name length must be between 1 and 50 characters.",
+                ["User_BioMaxLength300"] = "Bio length must not exceed 300 characters.",
+                ["User_PrivacyRange0Or1"] = "Privacy must be 0 (public) or 1 (private).",
+                ["User_UserNameAllowedCharsWithChinese"] = "User name may only contain letters, numbers, underscores, and Chinese characters.",
+                #endregion
+
+                #region Person
+                ["Person_DisplayNameLength1To50"] = "Display name length must be between 1 and 50 characters.",
+                ["Person_BioMaxLength300"] = "Bio length must not exceed 300 characters.",
+                ["Person_PrivacyRange0To1"] = "Privacy value must be between 0 and 1.",
+                ["Person_WalletAddressMaxLength100"] = "Wallet address length must not exceed 100 characters.",
+                #endregion
+
+                #region Notification
+                ["Notification_TitleRequired"] = "Notification title is required.",
+                ["Notification_TitleMaxLength100"] = "Notification title length must not exceed 100 characters.",
+                ["Notification_ContentMaxLength500"] = "Notification content length must not exceed 500 characters.",
+                #endregion
+
+                #region Article
+                ["Article_ContentRequired"] = "Article content is required.",
+                ["Article_ContentMaxLength4000"] = "Article content length must not exceed 4000 characters.",
+                ["Article_ContentLength1To4000"] = "Article content length must be between 1 and 4000 characters.",
+                ["Article_IsPublicRange0Or1"] = "Article visibility must be 0 (public) or 1 (private).",
+                #endregion
+
+                #region Reply
+                ["Reply_ArticleIdRequired"] = "Article ID is required.",
+                ["Reply_ContentRequired"] = "Reply content is required.",
+                ["Reply_ContentMaxLength1000"] = "Reply content length must not exceed 1000 characters.",
+                ["Reply_ContentLength1To1000"] = "Reply content length must be between 1 and 1000 characters.",
+                #endregion
+
+                #region NFT
+                ["NFT_OwnerIdRequired"] = "Owner ID is required.",
+                ["NFT_FileNameRequired"] = "NFT name is required.",
+                ["NFT_FileNameMaxLength255"] = "NFT name length must not exceed 255 characters.",
+                ["NFT_FilePathRequired"] = "File path is required.",
+                ["NFT_FilePathMaxLength2048"] = "File path length must not exceed 2048 characters.",
+                ["NFT_CollectTimeRequired"] = "Collection time is required.",
+                ["NFT_CurrencyRequired"] = "Currency is required.",
+                ["NFT_CurrencyMaxLength10"] = "Currency length must not exceed 10 characters.",
+                ["NFT_PriceMin0"] = "Price must be greater than or equal to 0.",
+                ["NFT_MinPriceMin0"] = "Minimum price must be greater than or equal to 0.",
+                ["NFT_MaxPriceMin0"] = "Maximum price must be greater than or equal to 0.",
+                ["NFT_PageMin1"] = "Page must be greater than 0.",
+                ["NFT_PageSizeRange1To100"] = "Page size must be between 1 and 100.",
+                #endregion
+                
             }
         };
 
@@ -470,5 +835,6 @@ namespace Matrix.Services
         {
             return AllTranslations.Keys;
         }
+
     }
 }

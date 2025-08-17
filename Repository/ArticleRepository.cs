@@ -114,5 +114,34 @@ namespace Matrix.Repository
 
             return (0, likeCount, article.Replies?.Count ?? 0); // 修正: 移除 ViewCount
         }
+
+        public async Task<bool> IncreasePraiseCountAsync(Guid articleId)
+        {
+            return await UpdateArticleCountAsync(articleId, a => a.PraiseCount++);
+        }
+
+        public async Task<bool> DecreasePraiseCountAsync(Guid articleId)
+        {
+            return await UpdateArticleCountAsync(articleId, a => { if (a.PraiseCount > 0) a.PraiseCount--; });
+        }
+
+        public async Task<bool> IncreaseCollectCountAsync(Guid articleId)
+        {
+            return await UpdateArticleCountAsync(articleId, a => a.CollectCount++);
+        }
+
+        public async Task<bool> DecreaseCollectCountAsync(Guid articleId)
+        {
+            return await UpdateArticleCountAsync(articleId, a => { if (a.CollectCount > 0) a.CollectCount--; });
+        }
+
+        private async Task<bool> UpdateArticleCountAsync(Guid articleId, Action<Article> updateAction)
+        {
+            var article = await _dbSet.FindAsync(articleId);
+            if (article == null) return false;
+            updateAction(article);
+            await _context.SaveChangesAsync();
+            return true;
+        }
     }
 }

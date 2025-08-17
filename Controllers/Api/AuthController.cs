@@ -7,12 +7,16 @@ namespace Matrix.Controllers.Api
     /// <summary>認證相關的 API - 狀態檢查、登出和確認信</summary>
     [Route("api/auth")]
     public class AuthController(
-        ILogger<AuthController> _logger,
-        IEmailService _emailService,
-        IUserService _userService,
-        ICustomLocalizer _localizer
+        ILogger<AuthController> logger,
+        IEmailService emailService,
+        IUserService userService,
+        ICustomLocalizer localizer
     ) : ApiControllerBase
     {
+        private readonly ILogger<AuthController> _logger = logger;
+        private readonly IEmailService _emailService = emailService;
+        private readonly IUserService _userService = userService;
+        private readonly ICustomLocalizer _localizer = localizer;
         /// <summary>檢查用戶當前的認證狀態</summary>
         [HttpGet("status")]
         public IActionResult GetAuthStatus()
@@ -21,14 +25,27 @@ namespace Matrix.Controllers.Api
 
             if (isAuthenticated)
             {
+                // 直接從 HttpContext.Items 中獲取已解析的用戶信息，避免資料庫查詢
+                var userId = HttpContext.Items["UserId"] as Guid?;
+                var userName = HttpContext.Items["UserName"] as string;
+                var userEmail = HttpContext.Items["UserEmail"] as string;
+                var userRole = HttpContext.Items["UserRole"] as int?;
+                var userStatus = HttpContext.Items["UserStatus"] as int?;
+                var lastLoginTime = HttpContext.Items["LastLoginTime"] as DateTime?;
+
                 return ApiSuccess(new
                 {
                     authenticated = true,
                     user = new
                     {
-                        id = HttpContext.Items["UserId"] as Guid?,
-                        username = HttpContext.Items["UserName"] as string,
-                        role = HttpContext.Items["UserRole"] as string
+                        id = userId,
+                        username = userName,
+                        email = userEmail,
+                        role = userRole ?? 0,
+                        status = userStatus ?? 0,
+                        isAdmin = (userRole ?? 0) >= 2,
+                        isMember = (userStatus ?? 0) == 1,
+                        lastLoginTime = lastLoginTime
                     }
                 });
             }

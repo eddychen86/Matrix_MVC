@@ -30,5 +30,8 @@ namespace Matrix.Repository.Interfaces
 
         /// <summary>清理未使用的標籤</summary>
         Task CleanupUnusedTagsAsync();
+
+        /// <summary>取得所有標籤及其使用次數統計</summary>
+        Task<IEnumerable<(Hashtag Tag, int UsageCount)>> GetAllTagsWithUsageCountAsync();
     }
 }

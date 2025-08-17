@@ -26,6 +26,7 @@ Matrix 是一個為 Web3 先驅和深度技術愛好者打造的庇護所，旨�
     ```
     dotnet add package Microsoft.EntityFrameworkCore.Proxies --version 8.0.11
     dotnet add package MailKit
+    dotnet add package AutoMapper
     ```
 <br />
 因為這個專案使用了 DaisyUI UI 函式庫，所以您需要安裝 tailwindcss CLI 和 DaisyUI.<br>
@@ -48,11 +49,13 @@ Matrix 是一個為 Web3 先驅和深度技術愛好者打造的庇護所，旨�
       當您執行以下命令時，"tailwindcss" 將在背景中被監聽。
       ###### MacOS
       ```
-      ./tw.sh
+      sass "wwwroot/scss/main.scss" "wwwroot/css/components.css" -w --no-source-map
+      ./tailwindcss -i "wwwroot/css/tailwind.css" -o "wwwroot/css/site.css" -w
       ```
       ###### windows
       ```
-      .\tw.bat
+      sass ".\wwwroot\scss\main.scss" ".\wwwroot\css\components.css" -w --no-source-map
+      .\tailwindcss.exe -i ".\wwwroot\css\tailwind.css" -o ".\wwwroot\css\site.css" -w
       ```
 
 ---
@@ -223,3 +226,44 @@ dotnet ef migrations remove
 - **務必將** migration 檔案保存在版本控制中
 
 遵循這些指導原則可確保您的資料庫結構與程式碼保持同步，並防止資料遺失或損壞問題。
+
+---
+
+## 前後端整合（同源 vs 跨域）
+
+- 預設同源：當 Vue 從 `wwwroot/js` 載入並於同一個 ASP.NET 站台渲染 CSHTML 時，屬同源請求，無需 CORS。本專案已移除全域 CORS 設定。
+- 若未來需要跨域：改用具名 CORS 策略並以 `WithOrigins(...) + AllowCredentials()` 指定精確來源（需完全符合 scheme + host + port），前端請設定 Axios/fetch 的 `withCredentials`。
+
+## Data Protection 金鑰持久化
+
+- 目的：避免重啟後 Cookie／Antiforgery 金鑰改變造成的 401／403。
+- 位置：金鑰在執行時寫入 `DataProtectionKeys/`，Git 會忽略（`DataProtectionKeys/*.xml`）。已加入 `.gitkeep` 讓資料夾可見。
+- 可改位置（選擇性）：可改存使用者或機器目錄，例如：
+  - `var keysPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Matrix", "Keys");`
+
+### `DataProtectionKeys/` 資料夾的用途
+
+- 儲存 ASP.NET Core Data Protection 的 XML 金鑰，用於加解密：
+  - 驗證 Cookie（含以 Cookie 攜帶 JWT 等情境）
+  - 反跨站偽造（Antiforgery）Token
+  - TempData（若採用 Cookie 模式）
+- 應用程式啟動時建立資料夾；在第一次需要保護資料時會寫入金鑰檔。
+- 開發環境可刪除，但需注意影響：
+  - 既有的登入 Cookie 與 Antiforgery Token 會失效，使用者需重新登入／重新取得表單 Token。
+  - 正式環境不建議隨意刪除。
+- 正式環境建議：
+  - 持久化保存，確保重啟／部署後仍可解密既有 Cookie／Token。
+  - 多執行個體部署請使用「共用」存放位置（檔案共用／雲端儲存），讓所有節點使用同一組金鑰。
+  - 確保 ApplicationName 一致（本專案已設定 `.SetApplicationName("Matrix")`）。
+- 權限：執行帳號必須具備在該目錄建立與寫入檔案的權限。
+
+## Cookie 模式切換（Auth:CrossSiteCookies）
+
+- 設定路徑：`appsettings.Development.json` → `Auth:CrossSiteCookies`。
+- 同源 HTTP（預設）：`false` → Cookie 使用 `SameSite=Lax; Secure=false`。
+- 跨域（須 HTTPS）：`true` → Cookie 使用 `SameSite=None; Secure=true`，前端請開啟傳送憑證。
+
+## 埠號與 403 提醒
+
+- 只有在跨域情境才需要來源（含埠號）完全匹配；同源不需 CORS 匹配。
+- 持久化金鑰可降低重啟後的驗證/Antiforgery 失敗。若重啟後仍見 403，請重新整理頁面，或改用 `dotnet watch run` 減少完整重啟。

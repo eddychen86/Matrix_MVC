@@ -1,0 +1,9 @@
+@using Matrix.Services
+@inject ICustomLocalizer Localizer
+
+<div class="flex h-full w-full items-center justify-center p-8">
+    <div class="flex flex-col items-center gap-4">
+        <img src="~/static/img/Loading.gif" alt="Loading" class="h-16 w-16" />
+        <span class="text-gray-700" data-i18n="Loading">@Localizer["Loading"]</span>
+    </div>
+</div>

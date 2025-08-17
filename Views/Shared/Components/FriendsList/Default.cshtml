@@ -1,0 +1,25 @@
+@inject ICustomLocalizer Localizer
+
+<h3 class="title" data-i18n="FriendsTitle">@Localizer["FriendsTitle"]</h3>
+
+<div class="join friends-states">
+    <button class="join-item btn btn-xs btn-active btn-small" :class="friendsStatus === 'accepted' ? 'btn-secondary-500' : 'btn-accent'" v-on:click="changeFriendsStatus('accepted')" data-i18n="FriendsAccepted">@Localizer["FriendsAccepted"]</button>
+    <button class="join-item btn btn-xs btn-active btn-small" :class="friendsStatus === 'pending' ? 'btn-secondary-500' : 'btn-accent'" v-on:click="changeFriendsStatus('pending')" data-i18n="FriendsPending">@Localizer["FriendsPending"]</button>
+    <button class="join-item btn btn-xs btn-active btn-small" :class="friendsStatus === 'declined' ? 'btn-secondary-500' : 'btn-accent'" v-on:click="changeFriendsStatus('declined')" data-i18n="FriendsDeclined">@Localizer["FriendsDeclined"]</button>
+    <button class="join-item btn btn-xs btn-active btn-small" :class="friendsStatus === 'blocked' ? 'btn-secondary-500' : 'btn-accent'" v-on:click="changeFriendsStatus('blocked')" data-i18n="FriendsBlocked">@Localizer["FriendsBlocked"]</button>
+    <button class="join-item btn btn-xs btn-active btn-small" :class="friendsStatus === 'all' ? 'btn-secondary-500' : 'btn-accent'" v-on:click="changeFriendsStatus('all')" data-i18n="FriendsAll">@Localizer["FriendsAll"]</button>
+</div>
+
+<ul class="list friends-layout">
+    <li class="list-row !p-2 items-center" v-for="item in friends" :key="item.userId">
+        <div class="size-10 rounded-full overflow-hidden border-2 border-white">
+            <img v-if="item.avatarPath" class="size-full object-cover" :src="item.avatarPath" :alt="item.userName" />
+            <div v-else class="size-full bg-secondary flex items-center justify-center text-white font-bold">
+                {{ (item.userName || '?').slice(0,1).toUpperCase() }}
+            </div>
+        </div>
+        <div class="font-medium text-white">{{ item.userName }}</div>
+    </li>
+    <li v-if="friendsLoading" class="para opacity-60 w-full text-center" data-i18n="Loading">@Localizer["Loading"]</li>
+    <li v-else-if="!friends || friends.length === 0" class="para opacity-60 w-full text-center" data-i18n="FriendsNone">@Localizer["FriendsNone"]</li>
+</ul>

@@ -13,13 +13,18 @@ namespace Matrix.Controllers
 {
     /// <summary>認證相關的 Web 控制器</summary>
     public class AuthController(
-        ILogger<AuthController> _logger,
-        IConfiguration _configuration,
-        IUserService _userService,
-        IPersonRepository _personRepository,
-        ICustomLocalizer _localizer
-    ) : WebControllerBase
+        ILogger<AuthController> logger,
+        IConfiguration configuration,
+        IUserService userService,
+        IPersonRepository personRepository,
+        ICustomLocalizer localizer
+    ) : Controller
     {
+        private readonly ILogger<AuthController> _logger = logger;
+        private readonly IConfiguration _configuration = configuration;
+        private readonly IUserService _userService = userService;
+        private readonly IPersonRepository _personRepository = personRepository;
+        private readonly ICustomLocalizer _localizer = localizer;
         /// <summary>確認用戶郵件</summary>
         [HttpGet, Route("/confirm/{id}")]
         public async Task<IActionResult> ConfirmEmail(string id)
@@ -160,25 +165,36 @@ namespace Matrix.Controllers
             return View("~/Views/Auth/Confirm.cshtml");
         }
 
-        /// <summary>產生 JWT Token (僅儲存 UserId)</summary>
-        public string GenerateJwtToken(Guid userId)
+        /// <summary>產生包含豐富使用者資訊的 JWT Token</summary>
+        public string GenerateJwtToken(UserDto user)
         {
             var jwtKey = _configuration["JWT:Key"] ??
                         throw new InvalidOperationException("JWT Key 沒有設定");
-            var jwtIssuer = _configuration["JWT:Issuer"];
+            var jwtIssuer = _configuration["JWT:Issuer"] ??
+                        throw new InvalidOperationException("JWT Issuer 沒有設定");
 
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.UTF8.GetBytes(jwtKey);
 
             var claims = new List<Claim>
             {
-                new Claim("UserId", userId.ToString())
+                new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
+                new Claim("UserId", user.UserId.ToString()),
+                new Claim(ClaimTypes.Name, user.UserName),
+                new Claim(ClaimTypes.Email, user.Email),
+                new Claim(ClaimTypes.Role, user.Role.ToString()),
+                new Claim("Status", user.Status.ToString()), // 添加用戶狀態
+                new Claim("DisplayName", user.Person?.DisplayName ?? user.UserName),
+                new Claim("AvatarPath", user.Person?.AvatarPath ?? ""),
+                new Claim("LastLoginTime", user.LastLoginTime?.ToString("yyyy-MM-dd HH:mm:ss") ?? ""),
+                new Claim("Country", user.Country ?? ""),
+                new Claim("Gender", user.Gender?.ToString() ?? "")
             };
 
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(claims),
-                Expires = DateTime.UtcNow.AddDays(30),
+                Expires = DateTime.UtcNow.AddDays(30), // 確保設定過期時間
                 Issuer = jwtIssuer,
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
@@ -191,18 +207,43 @@ namespace Matrix.Controllers
         // TODO:設定登入 Cookie
         public void SetAuthCookie(HttpResponse response, string token, bool rememberMe = false)
         {
+            DateTimeOffset? expires = null;
+            
+            if (rememberMe)
+            {
+                // 勾選記住我：設定為 Cookie 能儲存的最久時間（約400天）
+                expires = DateTime.UtcNow.AddDays(400);
+            }
+            else
+            {
+                // 不勾選記住我：設定為當天晚上 11:59 (本地時間)
+                var today = DateTime.Now.Date;
+                var endOfDay = today.AddDays(1).AddMinutes(-1); // 當天 23:59
+                expires = new DateTimeOffset(endOfDay, TimeZoneInfo.Local.GetUtcOffset(endOfDay));
+            }
+
+            // 透過設定檔控制是否在開發跨站情境下攜帶 Cookie（需 https + SameSite=None）
+            var crossSiteCookies = _configuration.GetValue<bool>("Auth:CrossSiteCookies");
+
             var cookieOptions = new CookieOptions
             {
-                HttpOnly = true, // 恢復安全設定
-                Secure = true,
-                SameSite = SameSiteMode.Strict
+                HttpOnly = true,
+                Secure = crossSiteCookies ? true : false,
+                SameSite = crossSiteCookies ? SameSiteMode.None : SameSiteMode.Lax,
+                Path = "/",
+                Expires = expires
             };
 
-            // 記住我就設定 30 天過期
-            if (rememberMe)
-                cookieOptions.Expires = DateTime.UtcNow.AddDays(30);
-
             response.Cookies.Append("AuthToken", token, cookieOptions);
+            
+            // 添加調試日誌
+            Console.WriteLine($"\n\n=== Cookie Set ===");
+            Console.WriteLine($"Token Length: {token.Length}");
+            Console.WriteLine($"Remember Me: {rememberMe}");
+            Console.WriteLine($"Expires: {cookieOptions.Expires}");
+            Console.WriteLine($"Secure: {cookieOptions.Secure}");
+            Console.WriteLine($"SameSite: {cookieOptions.SameSite}");
+            Console.WriteLine($"CrossSiteCookies: {crossSiteCookies}\n\n");
         }
 
     }

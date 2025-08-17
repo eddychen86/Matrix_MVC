@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Matrix.Attributes;
+using Matrix.Controllers;
 
 namespace Matrix.Areas.Dashboard.Controllers
 {
@@ -10,10 +11,12 @@ namespace Matrix.Areas.Dashboard.Controllers
         // GET: OverviewController
         public ActionResult Index()
         {
+            // 傳遞 MenuViewModel 給 Layout
+            ViewBag.Menu = CommonController.BuildMenuModel(HttpContext);
             return View();
         }
 
-        // GET: Dashboard/Overview/Partial - AJAX 載入
+        // GET: Dashboard/Overview/Partial - AJAX 載入  
         [HttpGet]
         [Route("Dashboard/Overview/Partial")]
         public ActionResult Partial()

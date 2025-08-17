@@ -30,5 +30,10 @@ namespace Matrix.Repository.Interfaces
 
         /// <summary>取得文章統計數據</summary>
         Task<(int ViewCount, int LikeCount, int ReplyCount)> GetArticleStatsAsync(Guid articleId);
+
+        Task<bool> IncreasePraiseCountAsync(Guid articleId);
+        Task<bool> DecreasePraiseCountAsync(Guid articleId);
+        Task<bool> IncreaseCollectCountAsync(Guid articleId);
+        Task<bool> DecreaseCollectCountAsync(Guid articleId);
     }
 }

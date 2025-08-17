@@ -18,9 +18,6 @@ namespace Matrix.Migrations
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("ProductVersion", "8.0.11")
-                .HasAnnotation("Proxies:ChangeTracking", false)
-                .HasAnnotation("Proxies:CheckEquality", false)
-                .HasAnnotation("Proxies:LazyLoading", true)
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -48,6 +45,9 @@ namespace Matrix.Migrations
                     b.Property<int>("IsPublic")
                         .HasColumnType("int");
 
+                    b.Property<Guid?>("OwnerPersonId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<int>("PraiseCount")
                         .HasColumnType("int");
 
@@ -57,6 +57,8 @@ namespace Matrix.Migrations
                     b.HasKey("ArticleId");
 
                     b.HasIndex("AuthorId");
+
+                    b.HasIndex("OwnerPersonId");
 
                     b.ToTable("Articles");
                 });
@@ -206,6 +208,51 @@ namespace Matrix.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("LoginRecords");
+                });
+
+            modelBuilder.Entity("Matrix.Models.NFT", b =>
+                {
+                    b.Property<Guid>("NftId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CollectTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Currency")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<string>("FilePath")
+                        .IsRequired()
+                        .HasMaxLength(2048)
+                        .HasColumnType("nvarchar(2048)");
+
+                    b.Property<Guid>("OwnerId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal>("Price")
+                        .HasPrecision(28, 18)
+                        .HasColumnType("decimal(28,18)");
+
+                    b.HasKey("NftId");
+
+                    b.HasIndex("CollectTime")
+                        .HasDatabaseName("IX_NFTs_CollectTime");
+
+                    b.HasIndex("Currency")
+                        .HasDatabaseName("IX_NFTs_Currency");
+
+                    b.HasIndex("OwnerId")
+                        .HasDatabaseName("IX_NFTs_OwnerId");
+
+                    b.ToTable("NFTs", (string)null);
                 });
 
             modelBuilder.Entity("Matrix.Models.Notification", b =>
@@ -437,10 +484,16 @@ namespace Matrix.Migrations
                     b.HasOne("Matrix.Models.Person", "Author")
                         .WithMany("Articles")
                         .HasForeignKey("AuthorId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("Matrix.Models.Person", "Owner")
+                        .WithMany()
+                        .HasForeignKey("OwnerPersonId");
+
                     b.Navigation("Author");
+
+                    b.Navigation("Owner");
                 });
 
             modelBuilder.Entity("Matrix.Models.ArticleAttachment", b =>
@@ -512,6 +565,17 @@ namespace Matrix.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Matrix.Models.NFT", b =>
+                {
+                    b.HasOne("Matrix.Models.Person", "Owner")
+                        .WithMany("NFTs")
+                        .HasForeignKey("OwnerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Owner");
                 });
 
             modelBuilder.Entity("Matrix.Models.Notification", b =>
@@ -627,6 +691,8 @@ namespace Matrix.Migrations
                     b.Navigation("Friends");
 
                     b.Navigation("LoginRecords");
+
+                    b.Navigation("NFTs");
 
                     b.Navigation("NotificationsReceived");
 

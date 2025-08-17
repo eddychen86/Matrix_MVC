@@ -22,8 +22,8 @@ namespace Matrix.DTOs
         /// <summary>
         /// 文章的內容文字
         /// </summary>
-        [Required(ErrorMessage = "文章內容為必填欄位")]
-        [StringLength(4000, ErrorMessage = "文章內容長度不能超過 4000 個字元")]
+        [Required(ErrorMessage = "Article_ContentRequired")]
+        [StringLength(4000, ErrorMessage = "Article_ContentMaxLength4000")]
         public string Content { get; set; } = string.Empty;
 
         /// <summary>
@@ -60,6 +60,11 @@ namespace Matrix.DTOs
         /// 文章的回覆列表
         /// </summary>
         public List<ReplyDto> Replies { get; set; } = new List<ReplyDto>();
+
+        /// <summary>
+        /// 文章的附件列表
+        /// </summary>
+        public List<ArticleAttachmentDto> Attachments { get; set; } = new List<ArticleAttachmentDto>();
 
         /// <summary>
         /// 獲取文章狀態的描述文字
@@ -117,26 +122,6 @@ namespace Matrix.DTOs
             }
         }
 
-        /// <summary>
-        /// 獲取文章發布時間的友善顯示格式
-        /// 用途：在前端顯示人類可讀的時間格式
-        /// </summary>
-        public string TimeAgoText
-        {
-            get
-            {
-                var timeSpan = DateTime.Now - CreateTime;
-
-                return timeSpan.TotalDays switch
-                {
-                    > 365 => $"{(int)(timeSpan.TotalDays / 365)} 年前",
-                    > 30 => $"{(int)(timeSpan.TotalDays / 30)} 個月前",
-                    > 7 => $"{(int)(timeSpan.TotalDays / 7)} 週前",
-                    > 1 => $"{(int)timeSpan.TotalDays} 天前",
-                    _ => timeSpan.TotalHours > 1 ? $"{(int)timeSpan.TotalHours} 小時前" : "剛剛"
-                };
-            }
-        }
 
         /// <summary>
         /// 獲取文章的回覆數量
@@ -195,6 +180,33 @@ namespace Matrix.DTOs
         /// 用途：顯示文章作者的頭像
         /// </summary>
         public string AuthorAvatar => !string.IsNullOrEmpty(Author?.AvatarPath) ? Author.AvatarPath : "/static/images/default_avatar.png";
+
+        ///<summary>
+        ///單純修改文章內文
+        ///用途：後臺管理員編輯文章內文
+        /// </summary>
+        public class UpdateArticleDto
+        {
+            public string Content { get; set; } = string.Empty;
+        }
+
+        /// <summary>
+        /// 後臺管理員更改文章顯示狀態
+        /// </summary>
+        public class UpdateStatusDto
+        {
+            public int Status { get; set; }
+        }
+        
+    }
+
+    public class ArticleAttachmentDto
+    {
+        public Guid FileId { get; set; }
+        public string FilePath { get; set; } = null!;
+        public string? FileName { get; set; }
+        public string Type { get; set; } = null!;
+        public DateTime CreateTime { get; set; }
     }
 
     /// <summary>
@@ -218,8 +230,8 @@ namespace Matrix.DTOs
         /// 用途：使用者輸入的文章內容
         /// 驗證：必填，長度限制 1-4000 個字元
         /// </summary>
-        [Required(ErrorMessage = "文章內容為必填欄位")]
-        [StringLength(4000, MinimumLength = 1, ErrorMessage = "文章內容長度必須介於 1 到 4000 個字元之間")]
+        [Required(ErrorMessage = "Article_ContentRequired")]
+        [StringLength(4000, MinimumLength = 1, ErrorMessage = "Article_ContentLength1To4000")]
         public string Content { get; set; } = string.Empty;
 
         /// <summary>
@@ -228,13 +240,18 @@ namespace Matrix.DTOs
         /// 值說明：0=公開, 1=私人
         /// 驗證：必須是 0 或 1
         /// </summary>
-        [Range(0, 1, ErrorMessage = "文章狀態必須是 0（公開）或 1（私人）")]
+        [Range(0, 1, ErrorMessage = "Article_IsPublicRange0Or1")]
         public int IsPublic { get; set; } = 0;
 
         /// <summary>
         /// 要附加到文章的檔案列表
         /// </summary>
         public List<IFormFile>? Attachments { get; set; }
+
+        /// <summary>
+        /// 選擇的標籤列表
+        /// </summary>
+        public List<string>? SelectedHashtags { get; set; }
 
         /// <summary>
         /// 獲取文章可見性的描述文字
@@ -392,5 +409,6 @@ namespace Matrix.DTOs
                 ["CollectCount"] = 0
             };
         }
+
     }
 }

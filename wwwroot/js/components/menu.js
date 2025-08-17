@@ -1,5 +1,5 @@
-// Menu composable function
-const useMenu = () => {
+// Menu composable function (ESM)
+export const useMenu = () => {
     const { ref, } = Vue
 
     //#region Sidebar State
@@ -19,7 +19,7 @@ const useMenu = () => {
     const translationCache = new Map()
     const requestCache = new Map() // 防止重複請求
     const preconnectedDomains = new Set()
-    
+
     // DNS 預解析和連接預熱
     const preconnectToAPI = () => {
         if (!preconnectedDomains.has(location.origin)) {
@@ -31,7 +31,7 @@ const useMenu = () => {
             preconnectedDomains.add(location.origin)
         }
     }
-    
+
     // 高速 fetch 函數 - 集成多種優化技術
     const fastFetch = async (url, options = {}) => {
         // 1. 檢查是否有相同的請求正在進行（防止重複請求）
@@ -39,7 +39,7 @@ const useMenu = () => {
         if (requestCache.has(requestKey)) {
             return requestCache.get(requestKey)
         }
-        
+
         // 2. 創建優化的請求 Promise
         const requestPromise = (async () => {
             try {
@@ -57,70 +57,95 @@ const useMenu = () => {
                         ...options.headers
                     }
                 }
-                
+
                 // 4. 使用 AbortController 設置合理超時
                 const controller = new AbortController()
-                const timeoutId = setTimeout(() => controller.abort(), 5000) // 5秒超時
-                
+                const timeoutId = setTimeout(() => controller.abort("Request timeout"), 10000) // 10秒超時
+
                 const response = await fetch(url, {
                     ...optimizedOptions,
                     signal: controller.signal
                 })
-                
+
                 clearTimeout(timeoutId)
-                
+
                 if (!response.ok) {
                     throw new Error(`HTTP ${response.status}: ${response.statusText}`)
                 }
-                
-                return response
+
+                // 解析 JSON 並返回數據，而不是 Response 對象
+                const data = await response.json()
+                return data
             } catch (error) {
+                // Handle AbortError specifically
+                if (error.name === 'AbortError') {
+                    console.warn('Request was aborted (likely due to timeout):', url)
+                } else {
+                    console.error('Fetch error:', error)
+                }
                 throw error
             } finally {
                 // 5. 清理請求快取
                 setTimeout(() => requestCache.delete(requestKey), 100)
             }
         })()
-        
+
         // 6. 快取請求 Promise 以防止重複
         requestCache.set(requestKey, requestPromise)
-        
+
         return requestPromise
     }
 
+    // 預載翻譯狀態追蹤
+    let preloadInProgress = false
+
     // 預載翻譯
     const preloadTranslations = async () => {
-        const languages = ['zh-TW', 'en-US']
-        const currentLang = document.documentElement.lang
-        
-        // 標準化當前語言，確定要預載的目標語言
-        let normalizedCurrentLang = currentLang
-        if (currentLang === 'en-TW' || currentLang === 'zh-tw' || currentLang === 'zh') {
-            normalizedCurrentLang = 'zh-TW'
-        } else if (currentLang === 'en' || currentLang === 'en-tw') {
-            normalizedCurrentLang = 'en-US'
+        if (preloadInProgress) {
+            console.log('Translation preload already in progress, skipping...')
+            return
         }
-        
-        // 預載另一種語言
-        const targetLang = (normalizedCurrentLang === 'zh-TW' || normalizedCurrentLang.includes('zh')) ? 'en-US' : 'zh-TW'
-        
-        if (!translationCache.has(targetLang)) {
-            try {
-                // console.log(`Preloading translations for ${targetLang}`)
-                const response = await fastFetch(`/api/translation/${targetLang}`)
-                const translations = await response.json()
-                translationCache.set(targetLang, translations)
-                // console.log(`Successfully preloaded ${Object.keys(translations).length} translations for ${targetLang}`)
-            } catch (error) {
-                console.warn('Failed to preload translations:', error)
+
+        preloadInProgress = true
+        try {
+            const languages = ['zh-TW', 'en-US']
+            const currentLang = document.documentElement.lang
+
+            // 標準化當前語言，確定要預載的目標語言
+            let normalizedCurrentLang = currentLang
+            if (currentLang === 'en-TW' || currentLang === 'zh-tw' || currentLang === 'zh') {
+                normalizedCurrentLang = 'zh-TW'
+            } else if (currentLang === 'en' || currentLang === 'en-tw') {
+                normalizedCurrentLang = 'en-US'
             }
+
+            // 預載另一種語言
+            const targetLang = (normalizedCurrentLang === 'zh-TW' || normalizedCurrentLang.includes('zh')) ? 'en-US' : 'zh-TW'
+
+            if (!translationCache.has(targetLang)) {
+                try {
+                    // console.log(`Preloading translations for ${targetLang}`)
+                    const translations = await fastFetch(`/api/translation/${targetLang}`)
+                    translationCache.set(targetLang, translations)
+                    // console.log(`Successfully preloaded ${Object.keys(translations).length} translations for ${targetLang}`)
+                } catch (error) {
+                    // 預載失敗不應影響應用正常運行，靜默處理
+                    if (error.name === 'AbortError') {
+                        console.debug('Translation preload timed out for:', targetLang, '- will load on demand')
+                    } else {
+                        console.debug('Translation preload failed for:', targetLang, '- will load on demand')
+                    }
+                }
+            }
+        } finally {
+            preloadInProgress = false
         }
     }
 
     const toggleLang = async () => {
         // current language
         const curLang = document.documentElement.lang
-        
+
         // 標準化當前語言代碼，處理可能的錯誤格式
         let normalizedCurLang = curLang
         if (curLang === 'en-TW' || curLang === 'zh-tw' || curLang === 'zh') {
@@ -142,8 +167,7 @@ const useMenu = () => {
                 translations = translationCache.get(changeLang)
             } else {
                 // 2. 從 API 取得新語言的翻譯（使用優化的 fastFetch）
-                const response = await fastFetch(`/api/translation/${changeLang}`)
-                translations = await response.json()
+                translations = await fastFetch(`/api/translation/${changeLang}`)
                 translationCache.set(changeLang, translations)
             }
 
@@ -165,7 +189,7 @@ const useMenu = () => {
 
         } catch (error) {
             console.error('Error switching language:', error)
-            
+
             // 如果 API 失敗，嘗試從快取獲取
             const cachedTranslations = translationCache.get(changeLang)
             if (cachedTranslations) {
@@ -218,8 +242,25 @@ const useMenu = () => {
         // 更新頁面標題（如果有 title 翻譯）
         if (translations['Title']) document.title = translations['Title']
 
+        // 呼叫 Profile 頁面的翻譯回調函數（如果存在）
+        if (window.profileTranslationCallbacks) {
+            window.profileTranslationCallbacks.forEach(callback => {
+                if (typeof callback === 'function') {
+                    try {
+                        callback(translations)
+                    } catch (error) {
+                        console.error('Profile translation callback error:', error)
+                    }
+                }
+            })
+        }
+
         // console.log('Page text updated with new translations')
     }
+
+    // 將翻譯相關函數暴露到全域
+    window.updatePageText = updatePageText
+    window.translationCache = translationCache
 
     //#endregion
 
@@ -289,16 +330,13 @@ const useMenu = () => {
 
             // 設定載入狀態
             const contentArea = document.querySelector('#dashboard-content')
-            if (contentArea) {
-                contentArea.innerHTML = '<div class="flex justify-center items-center h-64"><div class="loading loading-spinner loading-lg"></div></div>'
-            }
 
             // 將第一個字母大寫以匹配路由
             const capitalizedPage = page.charAt(0).toUpperCase() + page.slice(1)
             const fetchUrl = `/Dashboard/${capitalizedPage}/Partial`
             // console.log(`Fetching URL: ${fetchUrl}`)
 
-            // AJAX 請求載入 Partial View
+            // fetch 請求載入 Partial View
             const response = await fetch(fetchUrl, {
                 method: 'GET',
                 headers: {
@@ -350,9 +388,25 @@ const useMenu = () => {
 
     //#endregion
 
-    // 初始化優化
+    // 初始化優化 - 延遲預載以避免與應用啟動衝突
     preconnectToAPI()
-    preloadTranslations()
+
+    // 延遲預載翻譯，讓應用先完全啟動
+    const initPreloading = () => {
+        if (document.readyState === 'complete') {
+            setTimeout(() => {
+                preloadTranslations()
+            }, 1000) // 1秒後開始預載
+        } else {
+            window.addEventListener('load', () => {
+                setTimeout(() => {
+                    preloadTranslations()
+                }, 1000) // 頁面完全載入後1秒開始預載
+            })
+        }
+    }
+
+    initPreloading()
 
     return {
         isCollapsed,
@@ -365,3 +419,5 @@ const useMenu = () => {
         preloadTranslations,
     }
 }
+
+export default useMenu;

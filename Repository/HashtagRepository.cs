@@ -128,5 +128,21 @@ namespace Matrix.Repository
                 await _context.SaveChangesAsync();
             }
         }
+
+        public async Task<IEnumerable<(Hashtag Tag, int UsageCount)>> GetAllTagsWithUsageCountAsync()
+        {
+            var result = await _dbSet
+                .AsNoTracking()
+                .Select(h => new
+                {
+                    Tag = h,
+                    UsageCount = _context.Set<ArticleHashtag>()
+                        .Count(ah => ah.TagId == h.TagId)
+                })
+                .OrderByDescending(x => x.UsageCount)
+                .ToListAsync();
+
+            return result.Select(x => (x.Tag, x.UsageCount));
+        }
     }
 }

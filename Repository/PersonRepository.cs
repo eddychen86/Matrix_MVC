@@ -14,6 +14,7 @@ namespace Matrix.Repository
         public async Task<Person?> GetByUserIdAsync(Guid userId)
         {
             return await _dbSet
+                .AsNoTracking()
                 .Include(p => p.User)
                 .FirstOrDefaultAsync(p => p.UserId == userId);
         }
@@ -42,6 +43,14 @@ namespace Matrix.Repository
             return await _dbSet
                 .Include(p => p.User)
                 .FirstOrDefaultAsync(p => p.WalletAddress == walletAddress);
+        }
+
+        public async Task<Person?> GetByUserIdWithIncludesAsync(Guid userId)
+        {
+            return await _dbSet
+                .AsNoTracking()
+                .Include(p => p.User)
+                .FirstOrDefaultAsync(p => p.UserId == userId);
         }
     }
 }

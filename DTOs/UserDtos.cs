@@ -20,22 +20,22 @@ namespace Matrix.DTOs
         /// <summary>
         /// 使用者的顯示名稱
         /// </summary>
-        [Required(ErrorMessage = "使用者名稱為必填欄位")]
-        [StringLength(50, MinimumLength = 1, ErrorMessage = "使用者名稱長度必須介於 1 到 50 個字元之間")]
+        [Required(ErrorMessage = "User_UserNameRequired")]
+        [StringLength(50, MinimumLength = 1, ErrorMessage = "User_UserNameLength1To50")]
         public string UserName { get; set; } = string.Empty;
 
         /// <summary>
         /// 使用者的電子郵件地址
         /// </summary>
-        [Required(ErrorMessage = "電子郵件為必填欄位")]
-        [EmailAddress(ErrorMessage = "請輸入有效的電子郵件地址")]
-        [StringLength(100, ErrorMessage = "電子郵件長度不能超過 100 個字元")]
+        [Required(ErrorMessage = "User_EmailRequired")]
+        [EmailAddress(ErrorMessage = "User_EmailInvalid")]
+        [StringLength(100, ErrorMessage = "User_EmailMaxLength100")]
         public string Email { get; set; } = string.Empty;
 
         /// <summary>
         /// 使用者所在的國家
         /// </summary>
-        [StringLength(100, ErrorMessage = "國家名稱長度不能超過 100 個字元")]
+        [StringLength(100, ErrorMessage = "User_CountryMaxLength100")]
         public string? Country { get; set; }
 
         /// <summary>
@@ -111,6 +111,29 @@ namespace Matrix.DTOs
     }
 
     /// <summary>
+    /// 分析使用者資料
+    /// </summary>
+    public class UserBasicDto
+    {
+        /// <summary>
+        /// 使用者的唯一識別碼
+        /// </summary>
+        public Guid UserId { get; set; }
+
+        /// <summary>
+        /// 使用者的顯示名稱
+        /// </summary>
+        [Required(ErrorMessage = "User_UserNameRequired")]
+        [StringLength(50, MinimumLength = 1, ErrorMessage = "User_UserNameLength1To50")]
+        public string UserName { get; set; } = string.Empty;
+
+        /// <summary>
+        /// 使用者最後一次登入的時間
+        /// </summary>
+        public DateTime? LastLoginTime { get; set; }
+    }
+
+    /// <summary>
     /// 建立新使用者的資料傳輸物件
     /// </summary>
     public class CreateUserDto
@@ -118,63 +141,63 @@ namespace Matrix.DTOs
         /// <summary>
         /// 使用者的顯示名稱
         /// </summary>
-        [Required(ErrorMessage = "使用者名稱為必填欄位")]
-        [StringLength(20, MinimumLength = 3, ErrorMessage = "使用者名稱長度必須介於 3 到 20 個字元之間")]
-        [RegularExpression(@"^[a-zA-Z0-9_]{3,20}$", ErrorMessage = "使用者名稱只能包含英文字母、數字和底線")]
+        [Required(ErrorMessage = "User_UserNameRequired")]
+        [StringLength(20, MinimumLength = 3, ErrorMessage = "User_UserNameLength3To20")]
+        [RegularExpression(@"^[a-zA-Z0-9_]{3,20}$", ErrorMessage = "User_UserNameAllowedChars")]
         public string UserName { get; set; } = string.Empty;
 
         /// <summary>
         /// 使用者的電子郵件地址
         /// </summary>
-        [Required(ErrorMessage = "電子郵件為必填欄位")]
-        [EmailAddress(ErrorMessage = "請輸入有效的電子郵件地址")]
-        [StringLength(30, ErrorMessage = "電子郵件長度不能超過 30 個字元")]
+        [Required(ErrorMessage = "User_EmailRequired")]
+        [EmailAddress(ErrorMessage = "User_EmailInvalid")]
+        [StringLength(30, ErrorMessage = "User_EmailMaxLength30")]
         public string Email { get; set; } = string.Empty;
 
         /// <summary>
         /// 使用者的密碼
         /// </summary>
-        [Required(ErrorMessage = "密碼為必填欄位")]
-        [StringLength(20, MinimumLength = 8, ErrorMessage = "密碼長度必須介於 8 到 20 個字元之間")]
+        [Required(ErrorMessage = "User_PasswordRequired")]
+        [StringLength(20, MinimumLength = 8, ErrorMessage = "User_PasswordLength8To20")]
         [RegularExpression(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[#@$!%*?&])[A-Za-z\d#@$!%*?&]{8,20}$",
-            ErrorMessage = "密碼必須包含至少一個大寫字母、一個小寫字母、一個數字、一個特殊符號")]
+            ErrorMessage = "User_PasswordComplexity")]
         public string Password { get; set; } = string.Empty;
 
         /// <summary>
         /// 確認密碼
         /// </summary>
-        [Required(ErrorMessage = "確認密碼為必填欄位")]
-        [Compare("Password", ErrorMessage = "確認密碼必須與密碼相符")]
+        [Required(ErrorMessage = "User_PasswordConfirmRequired")]
+        [Compare("Password", ErrorMessage = "User_PasswordsMustMatch")]
         public string PasswordConfirm { get; set; } = string.Empty;
 
         /// <summary>
         /// 使用者所在的國家
         /// </summary>
-        [StringLength(100, ErrorMessage = "國家名稱長度不能超過 100 個字元")]
+        [StringLength(100, ErrorMessage = "User_CountryMaxLength100")]
         public string? Country { get; set; }
 
         /// <summary>
         /// 使用者的性別
         /// </summary>
-        [Range(0, 3, ErrorMessage = "性別值必須在 0 到 3 之間")]
+        [Range(0, 3, ErrorMessage = "User_GenderRange0To3")]
         public int? Gender { get; set; }
 
         /// <summary>
         /// 使用者的權限等級
         /// </summary>
-        [Range(0, 2, ErrorMessage = "權限等級必須在 0 到 2 之間")]
+        [Range(0, 2, ErrorMessage = "User_RoleRange0To2")]
         public int Role { get; set; } = 0;
 
         /// <summary>
         /// 使用者的顯示名稱（用於個人資料）
         /// </summary>
-        [StringLength(50, MinimumLength = 1, ErrorMessage = "顯示名稱長度必須介於 1 到 50 個字元之間")]
+        [StringLength(50, MinimumLength = 1, ErrorMessage = "User_DisplayNameLength1To50")]
         public string? DisplayName { get; set; }
 
         /// <summary>
         /// 使用者的隱私設定
         /// </summary>
-        [Range(0, 1, ErrorMessage = "隱私設定必須是 0（公開）或 1（私人）")]
+        [Range(0, 1, ErrorMessage = "User_PrivacyRange0Or1")]
         public int IsPrivate { get; set; } = 0;
 
         /// <summary>
@@ -207,13 +230,13 @@ namespace Matrix.DTOs
         public bool IsPasswordStrong()
         {
             if (string.IsNullOrEmpty(Password)) return false;
-            
+
             if (Password.Length < 6) return false;
-            
+
             if (!Password.Any(char.IsLetter)) return false;
-            
+
             if (!Password.Any(char.IsDigit)) return false;
-            
+
             return true;
         }
 
@@ -223,7 +246,7 @@ namespace Matrix.DTOs
         public bool IsEmailValid()
         {
             if (string.IsNullOrEmpty(Email)) return false;
-            
+
             try
             {
                 var addr = new System.Net.Mail.MailAddress(Email);
@@ -251,6 +274,7 @@ namespace Matrix.DTOs
         /// 驗證輸入資料的完整性
         /// </summary>
         public bool IsValid
+
         {
             get
             {
@@ -289,39 +313,39 @@ namespace Matrix.DTOs
         /// <summary>
         /// 使用者的顯示名稱
         /// </summary>
-        [StringLength(50, MinimumLength = 1, ErrorMessage = "使用者名稱長度必須介於 1 到 50 個字元之間")]
-        [RegularExpression(@"^[a-zA-Z0-9_\u4e00-\u9fa5]+$", ErrorMessage = "使用者名稱只能包含字母、數字、底線和中文字元")]
+        [StringLength(50, MinimumLength = 1, ErrorMessage = "User_UserNameLength1To50")]
+        [RegularExpression(@"^[a-zA-Z0-9_\u4e00-\u9fa5]+$", ErrorMessage = "User_UserNameAllowedCharsWithChinese")]
         public string? UserName { get; set; }
 
         /// <summary>
         /// 使用者的電子郵件地址
         /// </summary>
-        [EmailAddress(ErrorMessage = "請輸入有效的電子郵件地址")]
-        [StringLength(100, ErrorMessage = "電子郵件長度不能超過 100 個字元")]
+        [EmailAddress(ErrorMessage = "User_EmailInvalid")]
+        [StringLength(100, ErrorMessage = "User_EmailMaxLength100")]
         public string? Email { get; set; }
 
         /// <summary>
         /// 使用者所在的國家
         /// </summary>
-        [StringLength(100, ErrorMessage = "國家名稱長度不能超過 100 個字元")]
+        [StringLength(100, ErrorMessage = "User_CountryMaxLength100")]
         public string? Country { get; set; }
 
         /// <summary>
         /// 使用者的性別
         /// </summary>
-        [Range(0, 3, ErrorMessage = "性別值必須在 0 到 3 之間")]
+        [Range(0, 3, ErrorMessage = "User_GenderRange0To3")]
         public int? Gender { get; set; }
 
         /// <summary>
         /// 使用者的個人顯示名稱
         /// </summary>
-        [StringLength(50, ErrorMessage = "顯示名稱長度不能超過 50 個字元")]
+        [StringLength(50, ErrorMessage = "User_DisplayNameMaxLength50")]
         public string? DisplayName { get; set; }
 
         /// <summary>
         /// 使用者的個人簡介
         /// </summary>
-        [StringLength(300, ErrorMessage = "個人簡介長度不能超過 300 個字元")]
+        [StringLength(300, ErrorMessage = "User_BioMaxLength300")]
         public string? Bio { get; set; }
 
         /// <summary>
@@ -337,7 +361,7 @@ namespace Matrix.DTOs
         /// <summary>
         /// 使用者的隱私設定
         /// </summary>
-        [Range(0, 1, ErrorMessage = "隱私設定必須是 0（公開）或 1（私人）")]
+        [Range(0, 1, ErrorMessage = "User_PrivacyRange0Or1")]
         public int? IsPrivate { get; set; }
 
         /// <summary>
@@ -554,5 +578,41 @@ namespace Matrix.DTOs
             
             return updates.Count > 0 ? string.Join(", ", updates) : "沒有要更新的資料";
         }
+    }
+
+    /// <summary>
+    /// 用戶圖片資料傳輸物件
+    /// </summary>
+    public class UserImageDto
+    {
+        /// <summary>
+        /// 附件檔案的 ID
+        /// </summary>
+        public Guid FileId { get; set; }
+
+        /// <summary>
+        /// 關聯文章的 ArticleId
+        /// </summary>
+        public Guid ArticleId { get; set; }
+
+        /// <summary>
+        /// 附件檔案的儲存路徑
+        /// </summary>
+        public string FilePath { get; set; } = string.Empty;
+
+        /// <summary>
+        /// 附件的原始檔案名稱
+        /// </summary>
+        public string? FileName { get; set; }
+
+        /// <summary>
+        /// 附件的MIME類型
+        /// </summary>
+        public string? MimeType { get; set; }
+
+        /// <summary>
+        /// 文章建立時間（用於排序）
+        /// </summary>
+        public DateTime ArticleCreateTime { get; set; }
     }
 }

@@ -1,3 +1,8 @@
+using Matrix.Models;
+using Matrix.Repository.Interfaces;
+using Matrix.Services.Interfaces;
+using Microsoft.EntityFrameworkCore;
+
 namespace Matrix.Services
 {
     /// <summary>
@@ -210,6 +215,13 @@ namespace Matrix.Services
                 .Take(limit)
                 .AsNoTracking()
                 .ToListAsync();
+        }
+
+        public async Task<int> GetPendingReportsCountAsync()
+        {
+            // 0 = Pending（對應你的 enum ReportStatus.Pending）
+            return await _context.Reports
+                .CountAsync(r => r.Status == (int)ReportStatus.Pending);
         }
     }
 }

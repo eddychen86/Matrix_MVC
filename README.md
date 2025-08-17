@@ -30,6 +30,7 @@ Matrix is a sanctuary for Web3 pioneers and deep-tech enthusiasts, designed to f
     ```
     dotnet add package Microsoft.EntityFrameworkCore.Proxies --version 8.0.11
     dotnet add package MailKit
+    dotnet add package AutoMapper
     ```
 <br />
 Because this project used DaisyUI UI Library, you need to install tailwindcss CLI and DaisyUI.<br>
@@ -52,11 +53,13 @@ Because this project used DaisyUI UI Library, you need to install tailwindcss CL
       When you execute the following command, "tailwindcss" will be listened in the background.
       ###### MacOS
       ```
-      ./tw.sh
+      sass "wwwroot/scss/main.scss" "wwwroot/css/components.css" -w --no-source-map
+      ./tailwindcss -i "wwwroot/css/tailwind.css" -o "wwwroot/css/site.css" -w
       ```
       ###### windows
       ```
-      .\tw.bat
+      sass ".\wwwroot\scss\main.scss" ".\wwwroot\css\components.css" -w --no-source-map
+      .\tailwindcss.exe -i ".\wwwroot\css\tailwind.css" -o ".\wwwroot\css\site.css" -w
       ```
 
 ---
@@ -227,3 +230,44 @@ The project uses Entity Framework Core with SQL Server. Connection string should
 - **Keep** migration files in version control
 
 Following these guidelines ensures that your database schema stays in sync with your code and prevents data loss or corruption issues.
+
+---
+
+## Backend–Frontend Integration (Same-Origin vs CORS)
+
+- Same-origin by default: When Vue runs from `wwwroot/js` and renders CSHTML in the same ASP.NET app, requests are same-origin and do not require CORS. Global CORS has been removed accordingly.
+- Cross-origin (future option): If you later serve the frontend from another origin (e.g., a separate dev server), use a named CORS policy with `WithOrigins(...) + AllowCredentials()`, and make sure the exact origin (scheme + host + port) matches. On the frontend set `withCredentials` for Axios/fetch.
+
+## Data Protection Keys Persistence
+
+- Purpose: Avoid 401/403 after restarts by persisting ASP.NET Data Protection keys used for cookies and antiforgery.
+- Location: Keys are written to `DataProtectionKeys/` at runtime and ignored by Git (`DataProtectionKeys/*.xml`). A placeholder `.gitkeep` is included so the folder is visible.
+- Change location (optional): You can move keys to a user/machine path, e.g.
+  - `var keysPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Matrix", "Keys");`
+
+### What the `DataProtectionKeys/` folder does
+
+- Stores XML key material for ASP.NET Core Data Protection, which encrypts/decrypts:
+  - Authentication cookies (incl. identity/JWT-in-cookie scenarios)
+  - Antiforgery tokens
+  - TempData cookie (when cookie-based)
+- Created at app startup; the first time protection is needed, a key ring file is written.
+- Safe to delete in development, but note the impact:
+  - Existing auth cookies and antiforgery tokens become invalid; users must sign in again.
+  - This is usually fine in dev; avoid deleting in production.
+- Production guidance:
+  - Keep keys persistent across restarts/deployments; back them up if appropriate.
+  - For multi-instance deployments, use a shared location so all instances use the same keys.
+  - Ensure consistent ApplicationName (this repo sets `.SetApplicationName("Matrix")`).
+- Permissions: the app process must be able to create and write files in the chosen directory.
+
+## Cookie Mode Toggle (Auth:CrossSiteCookies)
+
+- Config path: `appsettings.Development.json` → `Auth:CrossSiteCookies`.
+- Same-origin HTTP (default): `false` → Cookies use `SameSite=Lax; Secure=false`.
+- Cross-origin over HTTPS: `true` → Cookies use `SameSite=None; Secure=true` and require HTTPS; set frontend requests to send credentials.
+
+## Notes on Ports and 403
+
+- Port matching only matters for cross-origin scenarios. In same-origin, no CORS matching is needed.
+- Persisted keys reduce auth/antiforgery failures after `dotnet run` restarts. If you still see 403 after a restart, refresh the page or use `dotnet watch run` to avoid full restarts.

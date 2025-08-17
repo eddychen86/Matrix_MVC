@@ -30,5 +30,11 @@ namespace Matrix.Repository.Interfaces
 
         /// <summary>更新好友關係狀態</summary>
         Task UpdateFriendshipStatusAsync(Guid friendshipId, FriendshipStatus status);
+
+        /// <summary>
+        /// 依狀態取得用戶的好友列表（不分頁）
+        /// status 為 null 代表不過濾狀態；否則僅回傳指定狀態。
+        /// </summary>
+        Task<IEnumerable<Friendship>> GetFriendsByStatusAsync(Guid userId, FriendshipStatus? status = null);
     }
 }
