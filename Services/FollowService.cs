@@ -1,5 +1,6 @@
-namespace Matrix.Services
-{
+namespace Matrix.Services;
+using Matrix.Services.Interfaces;
+
     /// <summary>
     /// 追蹤服務
     /// </summary>
@@ -7,6 +8,7 @@ namespace Matrix.Services
     public class FollowService(ApplicationDbContext _context) : IFollowService
     #pragma warning restore CS9113
     {
+        
         public Task<bool> FollowUserAsync(Guid followerId, Guid followedId)
         {
             return Task.FromException<bool>(new NotImplementedException());

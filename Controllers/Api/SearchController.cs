@@ -9,6 +9,8 @@ namespace Matrix.Controllers.Api
     {
         private readonly ISearchUserService _searchUserService;
         private readonly ISearchHashtagService _searchHashtagService;
+        private readonly IFollowService _followService;
+        public FollowsController(IFollowService followService) => _followService = followService;
         public SearchController(ISearchUserService searchUserService, ISearchHashtagService searchHashtagService)
         {
             _searchUserService = searchUserService;
@@ -35,6 +37,16 @@ namespace Matrix.Controllers.Api
             }
             var result = await _searchHashtagService.SearchHashtagsAsync(keyword);
             return ApiSuccess(result);
+        }
+        // GET /api/follows/stats/{personId}
+        [HttpGet("stats/{personId:guid}")]
+        public async Task<IActionResult> GetStats(Guid personId)
+        {
+            if (personId == Guid.Empty)
+                return BadRequest(new { success = false, message = "personId 無效" });
+
+            var stats = await _followService.GetFollowStatsAsync(personId);
+            return Ok(new { success = true, data = stats });
         }
     }
 }
