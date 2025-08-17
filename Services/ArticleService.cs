@@ -106,19 +106,19 @@ namespace Matrix.Services
             try
             {
                 Console.WriteLine($"GetArticlesAsync called - Page: {page}, PageSize: {pageSize}, AuthorId: {authorId}");
-                
+
                 var query = BuildArticleQuery(searchKeyword, authorId);
                 Console.WriteLine($"Query built successfully");
-                
+
                 var totalCount = await query.CountAsync();
                 Console.WriteLine($"Total count: {totalCount}");
-                
+
                 var articles = await query
                     .OrderByDescending(a => a.CreateTime)
                     .Skip((page - 1) * pageSize)
                     .Take(pageSize)
                     .ToListAsync();
-                
+
                 Console.WriteLine($"Articles fetched: {articles.Count}");
 
                 var articleDtos = _mapper.Map<List<ArticleDto>>(articles);
@@ -130,7 +130,7 @@ namespace Matrix.Services
                     var attachments = await _attachmentRepository.GetByArticleIdAsync(articleDto.ArticleId);
                     articleDto.Attachments = _mapper.Map<List<ArticleAttachmentDto>>(attachments);
                 }
-                
+
                 return (articleDtos, totalCount);
             }
             catch (Exception ex)
@@ -210,6 +210,7 @@ namespace Matrix.Services
             var articles = await _context.Articles
                 .AsNoTracking() // 只讀查詢
                 .Include(a => a.Author)
+                .Include(a => a.Attachments!.Where(att => (att.Type ?? "") == "image"))
                 .Where(a => a.Status == 0 && a.IsPublic == 0 && a.CreateTime >= sinceDate)
                 .OrderByDescending(a => a.PraiseCount + a.CollectCount)
                 .Take(limit)
@@ -241,7 +242,7 @@ namespace Matrix.Services
         {
             var query = _context.Articles
                 .AsNoTracking() // 只讀查詢
-                // Status == 0 表示正常，IsPublic == 0 表示公開
+                                // Status == 0 表示正常，IsPublic == 0 表示公開
                 .Where(a => a.Status == 0 && a.IsPublic == 0);
 
             if (authorId.HasValue)

@@ -1,8 +1,10 @@
 export const useHome = () => {
-    const { ref, onMounted, nextTick } = Vue
+    const { ref, onMounted, onBeforeUnmount, nextTick } = Vue
     const openCreatePost = ref(false)
     const hotlist = ref([])
     const hotCarouselRef = ref(null)
+    const canPrev = ref(false)
+    const canNext = ref(false)
 
     const fetchHotList = async () => {
         try {
@@ -12,55 +14,114 @@ export const useHome = () => {
             hotlist.value = Array.isArray(data?.items) ? data.items : []
             await nextTick()
             window.lucide?.createIcons?.()
+            updateEdge() // 取回資料後更新邊界狀態
         } catch (e) {
             console.error('Failed to load hot list:', e)
             hotlist.value = []
+            updateEdge()
         }
+    }
+
+    function getStep(el) {
+        const list = el
+        const item = list.querySelector('.carousel-item_cts')
+        if (!item) return list.clientWidth
+        const itemWidth = item.getBoundingClientRect().width
+        const csList = getComputedStyle(list)
+        const gap = parseFloat(csList.columnGap || csList.gap || '0')
+        return itemWidth + gap
+    }
+
+    function snapToIndex(el, index) {
+        const step = getStep(el)
+        el.scrollTo({ left: index * step, behavior: 'smooth' })
+    }
+
+    function getIndex(el) {
+        const step = getStep(el)
+        return step ? Math.round(el.scrollLeft / step) : 0
+    }
+
+    function getMaxIndex(el) {
+        const step = getStep(el)
+        if (!step) return 0
+        const maxLeft = Math.max(0, el.scrollWidth - el.clientWidth)
+        return Math.max(0, Math.floor(maxLeft / step))
+    }
+
+    function updateEdge() {
+        const el = hotCarouselRef.value
+        if (!el) { canPrev.value = canNext.value = false; return }
+        const idx = getIndex(el)
+        const max = getMaxIndex(el)
+        canPrev.value = idx > 0
+        canNext.value = idx < max
+    }
+
+    function scrollOne(el, dir = 1) {
+        const max = getMaxIndex(el)
+        const idx = getIndex(el)
+        const target = Math.max(0, Math.min(idx + dir, max))
+        snapToIndex(el, target)
+        // scrollTo 是平滑的，先樂觀更新按鈕狀態
+        canPrev.value = target > 0
+        canNext.value = target < max
     }
 
     const hotPrev = () => {
         const el = hotCarouselRef.value
         if (!el) return
-        el.scrollBy({ left: -(el.clientWidth * 0.8), behavior: 'smooth' })
+        scrollOne(el, -1)
     }
 
     const hotNext = () => {
         const el = hotCarouselRef.value
         if (!el) return
-        el.scrollBy({ left: el.clientWidth * 0.8, behavior: 'smooth' })
+        scrollOne(el, 1)
+    }
+
+    const handleScroll = () => updateEdge()
+    const handleResize = () => {
+        const el = hotCarouselRef.value
+        if (!el) return
+        // 寬度改變時，對齊到最近卡片，避免半張
+        const idx = getIndex(el)
+        snapToIndex(el, idx)
+        updateEdge()
     }
 
     const toggleCreatePost = () => (openCreatePost.value = !openCreatePost.value)
 
-    onMounted(() => { fetchHotList() })
+    onMounted(() => {
+        fetchHotList()
+        // 事件：滾動 / 窗口縮放
+        const el = hotCarouselRef.value
+        el?.addEventListener('scroll', handleScroll, { passive: true })
+        window.addEventListener('resize', handleResize)
+    })
+
+    onBeforeUnmount(() => {
+        const el = hotCarouselRef.value
+        el?.removeEventListener('scroll', handleScroll)
+        window.removeEventListener('resize', handleResize)
+    })
 
     const getToken = () => localStorage.getItem('access_token') || ''
 
     async function stateFunc(action, item) {
-        if (!item || !item.articleId) return
-        if (item._busy) return
+        if (!item?.articleId || item._busy) return
         item._busy = true
-
         try {
             if (action === 'praise') {
                 const res = await fetch('/api/PostState/praise', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        ...(getToken() ? { Authorization: `Bearer ${getToken()}` } : {})
-                    },
+                    headers: { 'Content-Type': 'application/json', ...(getToken() ? { Authorization: `Bearer ${getToken()}` } : {}) },
                     body: JSON.stringify({ articleId: item.articleId })
                 })
                 const body = await res.text()
-                if (!res.ok) {
-                    console.error('API /praise error', res.status, body)
-                    if (res.status === 401) throw new Error('unauthorized')
-                    throw new Error('praise failed')
-                }
+                if (!res.ok) { if (res.status === 401) throw new Error('unauthorized'); throw new Error('praise failed: ' + body) }
                 const data = JSON.parse(body || '{}')
                 if (!data?.success) throw new Error(data?.message || 'praise failed')
-
-                //以後端數字為準
                 item.isPraised = !!data.isPraised
                 item.praiseCount = Number(data.praiseCount ?? item.praiseCount)
             }
@@ -68,47 +129,35 @@ export const useHome = () => {
             if (action === 'collect') {
                 const res = await fetch('/api/PostState/collect', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        ...(getToken() ? { Authorization: `Bearer ${getToken()}` } : {})
-                    },
+                    headers: { 'Content-Type': 'application/json', ...(getToken() ? { Authorization: `Bearer ${getToken()}` } : {}) },
                     body: JSON.stringify({ articleId: item.articleId })
                 })
                 const body = await res.text()
-                if (!res.ok) {
-                    console.error('API /collect error', res.status, body)
-                    if (res.status === 401) throw new Error('unauthorized')
-                    throw new Error('collect failed')
-                }
+                if (!res.ok) { if (res.status === 401) throw new Error('unauthorized'); throw new Error('collect failed: ' + body) }
                 const data = JSON.parse(body || '{}')
                 if (!data?.success) throw new Error(data?.message || 'collect failed')
-
-                //以後端數字為準
                 item.isCollected = !!data.isCollected
                 item.collectCount = Number(data.collectCount ?? item.collectCount)
             }
 
             if (action === 'comment') {
                 const content = window.prompt('留下你的留言：')
-                if (!content || !content.trim()) return
+                if (!content?.trim()) return
+                // TODO: 呼叫留言 API
             }
         } catch (e) {
             console.error(e)
-            if (e.message === 'unauthorized') {
-                alert('請先登入')
-            } else {
-                alert('操作失敗')
-            }
+            alert(e.message === 'unauthorized' ? '請先登入' : '操作失敗')
         } finally {
             item._busy = false
             window.lucide?.createIcons?.()
         }
     }
 
-
     return {
         toggleCreatePost, openCreatePost,
         hotlist, hotCarouselRef, hotPrev, hotNext,
+        canPrev, canNext,
         stateFunc
     }
 }

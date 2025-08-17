@@ -35,5 +35,6 @@ namespace Matrix.Repository.Interfaces
         Task<bool> DecreasePraiseCountAsync(Guid articleId);
         Task<bool> IncreaseCollectCountAsync(Guid articleId);
         Task<bool> DecreaseCollectCountAsync(Guid articleId);
+        Task<(List<ArticleDto> Items, int TotalCount)> GetArticlesWithUserStateAsync(int page, int pageSize, Guid? personId);
     }
 }

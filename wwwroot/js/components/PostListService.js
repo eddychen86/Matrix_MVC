@@ -90,7 +90,9 @@ export class PostListService {
                 fileName: att.fileName,
                 filePath: att.filePath,
                 type: att.type.toLowerCase()
-            }))
+            })),
+            isPraised: !!article.isPraised,
+            isCollected: !!article.isCollected
         }));
     }
 

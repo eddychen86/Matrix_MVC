@@ -43,20 +43,21 @@
 
         @* 文章操作列（需登入） *@
         <div class="post-content_state" v-if="currentUser?.isAuthenticated">
-            <button :disabled="item._busy" v-on:click="stateFunc('praise', item)">
-                <svg xmlns="http://www.w3.org/2000/svg"
-                     viewBox="0 0 24 24"
-                     class="size-4"
-                     :class="item.isPraised ? 'text-red-500' : 'text-gray-400'"
-                     stroke="currentColor"
-                     :fill="item.isPraised ? 'currentColor' : 'none'"
-                     stroke-width="2"
-                     stroke-linecap="round"
-                     stroke-linejoin="round">
-                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 1 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z" />
-                </svg>
-                <span data-i18n="Praise">@Localizer["Praise"]</span>
-                <span class="ml-1">{{ item.praiseCount }}</span>
+            <button :disabled="item._busy"
+                    v-on:click="stateFunc('praise', item)">
+                <span class="inline-flex items-center gap-1"
+                      :class="item.isPraised ? 'text-red-500' : 'text-gray-400'">
+                    <svg xmlns="http://www.w3.org/2000/svg"
+                         viewBox="0 0 24 24"
+                         class="size-4"
+                         stroke="currentColor"
+                         :fill="item.isPraised ? 'currentColor' : 'none'"
+                         stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 1 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z" />
+                    </svg>
+                    <span data-i18n="Praise">@Localizer["Praise"]</span>
+                    <span class="ml-1">{{ item.praiseCount }}</span>
+                </span>
             </button>
 
             <button v-on:click="stateFunc('comment', item)">
@@ -64,12 +65,20 @@
                 <span data-i18n="Comment">@Localizer["Comment"]</span>
             </button>
 
-            <button :disabled="item._busy"
-                    :class="item.isCollected ? 'text-yellow-500' : ''"
-                    v-on:click="stateFunc('collect', item)">
-                <i data-lucide="bookmark" class="size-4"></i>
-                <span data-i18n="Collect">@Localizer["Collect"]</span>
-                <span class="ml-1">{{ item.collectCount }}</span>
+            <button :disabled="item._busy" v-on:click="stateFunc('collect', item)">
+                <span class="inline-flex items-center gap-1"
+                      :class="item.isCollected ? 'text-yellow-500' : 'text-gray-400'">
+                    <svg xmlns="http://www.w3.org/2000/svg"
+                         viewBox="0 0 24 24"
+                         class="size-4"
+                         stroke="currentColor"
+                         :fill="item.isCollected ? 'currentColor' : 'none'"
+                         stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M19 21l-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
+                    </svg>
+                    <span data-i18n="Collect">@Localizer["Collect"]</span>
+                    <span class="ml-1">{{ item.collectCount }}</span>
+                </span>
             </button>
         </div>
 

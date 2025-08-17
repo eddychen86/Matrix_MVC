@@ -180,6 +180,16 @@ namespace Matrix.DTOs
         /// 用途：顯示文章作者的頭像
         /// </summary>
         public string AuthorAvatar => !string.IsNullOrEmpty(Author?.AvatarPath) ? Author.AvatarPath : "/static/images/default_avatar.png";
+                
+        /// <summary>
+        /// 當前使用者是否已經點讚
+        /// </summary>
+        public bool IsPraised { get; set; }
+
+        /// <summary>
+        /// 當前使用者是否已經收藏
+        /// </summary>
+        public bool IsCollected { get; set; }
     }
 
     public class ArticleAttachmentDto

@@ -3,6 +3,7 @@ using Matrix.Services.Interfaces;
 using Matrix.DTOs;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
+using Matrix.Repository.Interfaces;
 
 namespace Matrix.Controllers.Api
 {
@@ -14,7 +15,8 @@ namespace Matrix.Controllers.Api
         ICollectService collectService,
         IReplyService replyService,
         IArticleService articleService,
-        IUserService userService
+        IUserService userService,
+        IPraiseCollectRepository praiseCollectRepository
     ) : ControllerBase
     {
         private readonly ILogger<PostController> _logger = logger;
@@ -23,6 +25,16 @@ namespace Matrix.Controllers.Api
         private readonly IReplyService _replyService = replyService;
         private readonly IArticleService _articleService = articleService;
         private readonly IUserService _userService = userService;
+        private readonly IPraiseCollectRepository _praiseCollectRepository = praiseCollectRepository;
+        private async Task<Guid?> GetCurrentPersonIdAsync()
+        {
+            var s = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue("sub");
+            if (!Guid.TryParse(s, out var userId)) return null;
+
+            var profile = await _userService.GetProfileByIdAsync(userId);
+            return profile?.PersonId;
+        }
+
         [HttpGet("hot")]
         public async Task<IActionResult> GetHot([FromQuery] int count = 10)
         {
@@ -141,8 +153,28 @@ namespace Matrix.Controllers.Api
                     authorId
                 );
 
-                var articles = result.Articles;
+                var articles = result.Articles ?? new List<ArticleDto>();
                 var totalCount = isAuthenticated ? result.TotalCount : Math.Min(result.TotalCount, GuestArticleLimit);
+
+                Guid? currentPersonId = isAuthenticated ? await GetCurrentPersonIdAsync() : null;
+
+                var ids = articles.Select(a => a.ArticleId).ToList();
+
+                // 用集合記錄狀態
+                var praisedSet = new HashSet<Guid>();
+                var collectedSet = new HashSet<Guid>();
+
+                if (currentPersonId.HasValue)
+                {
+                    foreach (var id in ids)
+                    {
+                        if (await _praiseCollectRepository.HasUserPraisedAsync(currentPersonId.Value, id))
+                            praisedSet.Add(id);
+
+                        if (await _praiseCollectRepository.HasUserCollectedAsync(currentPersonId.Value, id))
+                            collectedSet.Add(id);
+                    }
+                }
 
                 var response = new
                 {
@@ -155,10 +187,16 @@ namespace Matrix.Controllers.Api
                         collectCount = a.CollectCount,
                         authorName = a.Author?.DisplayName ?? "未知作者",
                         authorAvator = a.Author?.AvatarPath ?? "",
-                        attachments = a.Attachments ?? new List<ArticleAttachmentDto>()
+                        attachments = a.Attachments ?? new List<ArticleAttachmentDto>(),
+
+                        // 直接用集合判斷
+                        isPraised = currentPersonId.HasValue && praisedSet.Contains(a.ArticleId),
+                        isCollected = currentPersonId.HasValue && collectedSet.Contains(a.ArticleId)
                     }).ToList(),
                     totalCount
                 };
+
+                return Ok(response);
 
                 _logger.LogInformation("\nAbout to return OK response\n");
                 return Ok(response);
@@ -180,24 +218,23 @@ namespace Matrix.Controllers.Api
         [HttpPost("{id}/toggle-praise")]
         public async Task<IActionResult> TogglePraise(Guid id)
         {
-            if (!Guid.TryParse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value, out var userId))
-            {
-                return Unauthorized();
-            }
-            var result = await _praiseService.TogglePraiseAsync(id, userId);
+            var personId = await GetCurrentPersonIdAsync();
+            if (!personId.HasValue) return Unauthorized();
+
+            var result = await _praiseService.TogglePraiseAsync(id, personId.Value);
             return Ok(result);
         }
 
         [HttpPost("{id}/toggle-collect")]
         public async Task<IActionResult> ToggleCollect(Guid id)
         {
-            if (!Guid.TryParse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value, out var userId))
-            {
-                return Unauthorized();
-            }
-            var result = await _collectService.ToggleCollectAsync(id, userId);
+            var personId = await GetCurrentPersonIdAsync();
+            if (!personId.HasValue) return Unauthorized();
+
+            var result = await _collectService.ToggleCollectAsync(id, personId.Value);
             return Ok(result);
         }
+
 
         [HttpPost("{id}/reply")]
         public async Task<IActionResult> Reply(Guid id, [FromBody] ReplyDto model)
