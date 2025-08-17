@@ -1,11 +1,10 @@
 ﻿
-<div id="reports-app" class="grid h-full w-full grid-cols-4 gap-4">
+<div id="reports-app" class="flex flex-col 2xl:flex-row 2xl:grid h-full w-full grid-cols-4 gap-4">
     <h2 class="col-span-4 text-5xl font-bold text-gray-700">Reports Management</h2>
     <!--  -->
-    <aside class="col-span-1 flex flex-col gap-8 border-r border-gray-200 bg-white p-8">
+    <aside class="col-span-1 grid grid-cols-3 2xl:flex flex-row 2xl:flex-col gap-8 border-r border-gray-200 bg-white">
         <!-- Keyword -->
-        <div>
-            <h3 class="mb-2 block font-semibold text-[20px] text-gray-700">Keyword</h3>
+        <div class="flex justify-end gap-4 col-span-1">
             <div class="relative w-full">
                 <input name="keyword" type="text"
                        v-model="keyword"
@@ -63,33 +62,17 @@
             </div>
         </div>
         <!-- Modify time（常駐日曆） -->
-        <div>
-            <label class="mb-2 block font-semibold text-[20px] text-gray-700">Modify time</label>
-
-            <!-- 直接顯示日曆，不用 popover / input -->
-            <div>
-                <calendar-date class="cally bg-base-100 border-base-300 rounded-box w-full border shadow-lg" onchange="window.setReportDate && window.setReportDate(this.value)">
-                    >
-                    <svg aria-label="Previous" class="size-4 fill-current text-[#161616]" slot="previous" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="currentColor" d="M15.75 19.5 8.25 12l7.5-7.5"></path></svg>
-                    <svg aria-label="Next" class="size-4 fill-current text-[#161616]" slot="next" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="currentColor" d="m8.25 4.5 7.5 7.5-7.5 7.5"></path></svg>
-                    <calendar-month></calendar-month>
-                </calendar-date>
-            </div>
-
-                <div class="flex justify-end gap-2 p-2">
-                    <button type="button" class="btn btn-sm" id="btn-clear-date">清除</button>
-                </div>
-        </div>
-        
-
-
-        <div>
-            <button class="btn btn-primary w-full" @@click="applyFilters">Apply filters</button>
+        <div class="h-40 w-full hidden 2xl:block">
+            <calendar-date class="cally bg-base-100 border-base-300 rounded-box w-full border shadow-lg" onchange="window.setReportDate && window.setReportDate(this.value)">
+                <svg aria-label="Previous" class="size-4 fill-current text-[#161616]" slot="previous" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="currentColor" d="M15.75 19.5 8.25 12l7.5-7.5"></path></svg>
+                <svg aria-label="Next" class="size-4 fill-current text-[#161616]" slot="next" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="currentColor" d="m8.25 4.5 7.5 7.5-7.5 7.5"></path></svg>
+                <calendar-month></calendar-month>
+            </calendar-date>
         </div>
     </aside>
 
     <!--  -->
-    <main class="col-span-3 h-full p-8">
+    <main class="col-span-3 h-full">
         <div class="h-full w-full rounded-2xl border border-black/10 bg-yellow-50 p-4">
             <table class="table w-full">
                 <thead>
