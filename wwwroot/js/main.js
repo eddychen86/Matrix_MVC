@@ -605,6 +605,23 @@ globalApp({
 
             return titles[type] || '視窗'
         }
+        //--------Notify------
+        const fetchNotify = async () => {
+            isLoading.value = true
+            try {
+                const res = await fetch('/api/notify', { credentials: 'include' })
+                const json = await res.json()
+                if (json.success) {
+                    popupData.Notify = json.data
+                }
+            } catch (err) {
+                console.error('❌ 載入通知失敗', err)
+                popupData.Notify = []
+            } finally {
+                isLoading.value = false
+            }
+        }
+        //--------Notify END------
 
         // Update popup data
         const updatePopupData = (type, data) => {
@@ -622,6 +639,11 @@ globalApp({
             popupState.isVisible = true
 
             console.log('🧠 開啟 popup：', popupState.type)
+            if (type === 'Notify') {
+                popupData.Notify = []
+                await fetchNotify()
+                return
+            }
 
             if (type === 'Search') {
                 searchQuery.value = ''
