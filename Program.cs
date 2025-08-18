@@ -83,7 +83,7 @@ public class Program
         
         // 註冊 AutoMapper
         builder.Services.AddAutoMapper(cfg => {
-            cfg.AddProfile<Matrix.Mappings.AutoMapperProfile>();
+            cfg.AddProfile<Mappings.AutoMapperProfile>();
         });
 
         builder.Services.AddScoped<IFileService, FileService>();
@@ -97,15 +97,15 @@ public class Program
         builder.Services.AddScoped<IArticleService, ArticleService>();
         builder.Services.AddScoped<ISystemStatusService, SystemStatusService>();
         builder.Services.AddScoped<NotificationService>();
-        builder.Services.AddScoped<Matrix.Controllers.AuthController>();
+        builder.Services.AddScoped<Controllers.AuthController>();
         builder.Services.AddHttpContextAccessor(); // 為 CustomLocalizer 提供 HttpContext 訪問
         builder.Services.AddScoped<ICustomLocalizer, CustomLocalizer>();
         builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
         builder.Services.AddScoped<ISearchUserService, SearchUserService>();
-        builder.Services.AddScoped<Matrix.Services.Interfaces.IReportService,
-                           Matrix.Services.ReportService>();
+        builder.Services.AddScoped<IReportService, ReportService>();
 
         builder.Services.AddScoped<IArticleService, ArticleService>();
+        builder.Services.AddScoped<IFollowService, FollowService>();
 
         // 配置本地化選項
         builder.Services.Configure<RequestLocalizationOptions>(options =>
@@ -121,7 +121,7 @@ public class Program
 
         #region 帳號密碼驗證規則配置
 
-        builder.Services.Configure<Matrix.Services.UserValidationOptions>(options =>
+        builder.Services.Configure<UserValidationOptions>(options =>
         {
             // 用戶名規則
             options.UserName.RequiredLength = 3;
@@ -220,6 +220,8 @@ public class Program
         {
             // 防止 JSON 序列化循環引用
             options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
+            // 設定 JSON 屬性名稱為 camelCase (firstName 而非 FirstName)
+            options.JsonSerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase;
         });
         builder.Services.AddRazorPages();
 

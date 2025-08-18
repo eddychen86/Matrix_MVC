@@ -45,7 +45,7 @@ window.loginPopupManager = loginPopupManager
 
 globalApp({
     setup() {
-        const { ref, reactive, computed, watch, onMounted, onUnmounted } = Vue
+        const { ref, reactive, computed, watch, onMounted } = Vue
         const { formatDate, timeAgo } = useFormatting()
         const isLoading = ref(false)
         // 全局用戶狀態
@@ -107,6 +107,88 @@ globalApp({
 
         //#region 獲取用戶信息
 
+        // 小工具：把搜尋使用者轉成 Follows 清單的資料形狀
+        const mapSearchUserToFollowItem = (u) => ({
+            personId: u.personId,
+            senderName: u.displayName,
+            senderAvatarUrl: u.avatarUrl || '/static/img/cute.png',
+            followTime: new Date().toISOString()
+        })
+
+        const toggleFollow = async (targetPersonId, currentStatus) => {
+            if (!currentUser.isAuthenticated) {
+                alert('請先登入才能追蹤')
+                return
+            }
+
+            // ✅ 防呆：targetPersonId 必須存在
+            if (!targetPersonId) {
+                console.warn('toggleFollow: targetPersonId 為空，取消請求')
+                return
+            }
+            try {
+                const method = currentStatus ? 'DELETE' : 'POST'
+                const res = await fetch(`/api/follows/${targetPersonId}`, {
+                    method,
+                    credentials: 'include'
+                })
+
+                // ✅ 500/HTML 錯誤頁防呆
+                const ct = res.headers.get('content-type') || ''
+                let result
+                if (ct.includes('application/json')) {
+                    result = await res.json()
+                } else {
+                    const text = await res.text()
+                    console.error('Follow API raw:', text)
+                    alert('伺服器錯誤：' + text.slice(0, 140))
+                    return
+                }
+
+                if (!res.ok || !result?.success) {
+                    alert(result?.message || '操作失敗，請稍後再試')
+                    return
+                }
+
+                // ✅ 同步更新「搜尋結果」按鈕狀態
+                const u = popupData.Search.Users.find(u => u.personId === targetPersonId)
+                if (u) u.isFollowed = !currentStatus
+
+                if (currentStatus === true) {
+                    // ✅ 取消追蹤：從清單移除
+                    popupData.Follows = popupData.Follows.filter(f => f.personId !== targetPersonId)
+                } else {
+                    // ✅ 追蹤：若清單沒有，樂觀加入一筆
+                    const exists = popupData.Follows.some(f => f.personId === targetPersonId)
+                    if (!exists) {
+                        const item = u
+                            ? {
+                                personId: u.personId,
+                                senderName: u.displayName,
+                                senderAvatarUrl: u.avatarUrl || '/static/img/cute.png',
+                                followTime: new Date().toISOString()
+                            }
+                            : {
+                                personId: targetPersonId,
+                                senderName: '已追蹤使用者',
+                                senderAvatarUrl: '/static/img/cute.png',
+                                followTime: new Date().toISOString()
+                            }
+                        popupData.Follows.unshift(item)
+                    }
+                }
+
+                // ✅ 若此時關鍵字已清空、且身在 Follows 視窗 → 重抓一次清單（確保與後端一致）
+                const kw = (searchQuery.value || '').trim()
+                if (popupState.type === 'Follows' && kw === '' && typeof fetchFollows === 'function') {
+                    await fetchFollows()
+                }
+            } catch (err) {
+                console.error('追蹤操作錯誤：', err)
+            }
+        }
+
+        // 獲取當前用戶信息
         const getCurrentUser = async () => {
             try {
                 const { authService } = await import('/js/services/AuthService.js')
@@ -408,7 +490,9 @@ globalApp({
                     personId: user.personId,
                     displayName: user.displayName,
                     avatarUrl: user.avatarPath,
-                    bio: user.bio || '這位使用者尚未填寫個人簡介。'
+                    bio: user.bio || '這位使用者尚未填寫個人簡介。',
+                    isFollowed: user.isFollowed,     // ✅ 已有
+                    personId: user.personId          // ✅ 需要這個來傳給 API
                 }))
 
                 popupData.Search.Hashtags = tags.data
@@ -422,6 +506,106 @@ globalApp({
             }
         }
 
+        // ✅ 專用於 Follows 浮窗：只抓使用者
+        const manualFollowSearch = async () => {
+            const keyword = (searchQuery.value || '').trim()
+            // 空字串就清空
+            if (!keyword) {
+                popupData.Search.Users = []
+                if(popupState.type==='Follow')fetchFollows() //讓畫面立刻顯示最新清單
+                return
+            }
+
+            isLoading.value = true
+            try {
+                const res = await fetch(`/api/follows/search?keyword=${encodeURIComponent(keyword)}`, {
+                    credentials: 'include'
+                })
+                const json = await res.json()
+                const users = Array.isArray(json?.data) ? json.data : []
+
+                popupData.Search.Users = users.map(u => ({
+                    personId: u.personId,
+                    displayName: u.displayName,
+                    avatarUrl: u.avatarPath,
+                    isFollowed: u.isFollowed,
+                    bio: u.bio || '這位使用者尚未填寫個人簡介。'
+                }))
+
+                // ✅ 不處理/不改動 Hashtags（保持為空）
+                // popupData.Search.Hashtags = []
+            } catch (e) {
+                console.error('Follow popup search error:', e)
+                popupData.Search.Users = []
+            } finally {
+                isLoading.value = false
+            }
+        }
+
+        // 共用搜尋按鈕的 handler：Follows 視窗 → 只搜使用者；其它 → 原本搜尋
+        const onSearchClick = () => {
+            if (popupState.type === 'Follows') {
+                return manualFollowSearch()
+            }
+            return manualSearch()
+        }
+
+        // 取代你 openFollows 裡的抓資料段，抽成可重用方法
+        const fetchFollows = async () => {
+            isLoading.value = true
+            try {
+                const res = await fetch(`/api/follows?page=1&pageSize=10`, { credentials: 'include' })
+                const result = await res.json()
+                const list = Array.isArray(result?.data) ? result.data : (result?.data?.items ?? [])
+                popupData.Follows = list
+            } catch (e) {
+                console.error('❌ 載入 Follows 失敗', e)
+                popupData.Follows = []
+            } finally {
+                isLoading.value = false
+            }
+        }
+
+        const openFollows = async () => {
+            popupState.type = 'Follows'
+            popupState.title = getPopupTitle('Follows')
+            popupState.isVisible = true
+            popupData.Search.Hashtags = []
+            await fetchFollows()
+
+            isLoading.value = true
+
+            try {
+                const res = await fetch(`/api/follows?page=1&pageSize=10`, {
+                    method: 'GET',
+                    credentials: 'include'
+                })
+                const result = await res.json()
+
+                // ✅ 容錯：同時支援 data 是陣列或是物件(items)
+                const list = Array.isArray(result?.data)
+                    ? result.data
+                    : (result?.data?.items ?? [])
+
+                // ✅ 做大小寫兼容 & 預設值
+                popupData.Follows = list
+            } catch (e) {
+                console.error('❌ 載入 Follows 失敗', e)
+                popupData.Follows = []
+            } finally {
+                isLoading.value = false
+            }
+        }
+        watch(searchQuery, (val) => {
+            const kw = (val || '').trim()
+            // 只有在 Follows 視窗時才做自動刷新
+            if (popupState.type === 'Follows' && kw === '') {
+                // 清掉搜尋結果
+                popupData.Search.Users = []
+                // 重新抓追蹤清單
+                fetchFollows()
+            }
+        })
 
         // popup helper
         const getPopupTitle = type => {
@@ -442,6 +626,10 @@ globalApp({
 
         // Popup click
         const openPopup = async type => {
+            if (type === 'Follows') {
+                return openFollows()  // 👈 直接走新流程
+            }
+
             popupState.type = type
             popupState.title = getPopupTitle(type)
             popupState.isVisible = true
@@ -559,8 +747,12 @@ globalApp({
             // 向後相容
             isOpen: computed(() => popupState.isVisible),
             closeCollectModal: closePopup,
-
+            fetchFollows,
             isAppReady,
+            onSearchClick,
+
+            manualFollowSearch,
+            toggleFollow,
 
             // hooks
             formatDate,
