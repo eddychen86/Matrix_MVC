@@ -70,10 +70,14 @@ namespace Matrix.Services
 
         // === 其餘方法暫不實作（佔位） ===
         public Task<bool> FollowUserAsync(Guid followerId, Guid followedId)
-            => throw new NotImplementedException();
+        {
+            return Task.FromException<bool>(new NotImplementedException());
+        }
 
         public Task<bool> UnfollowUserAsync(Guid followerId, Guid followedId)
-            => throw new NotImplementedException();
+        {
+            return Task.FromException<bool>(new NotImplementedException());
+        }
 
         public async Task<bool> IsFollowingAsync(Guid followerId, Guid followedId)
         {
@@ -85,16 +89,49 @@ namespace Matrix.Services
                     f.Type == TypeUser // TypeUser = 1（追蹤使用者）
                 );
         }
-        
+
 
         public Task<(List<FollowDto> Followers, int TotalCount)> GetFollowersAsync(Guid userId, int page = 1, int pageSize = 20)
             => throw new NotImplementedException();
 
-        public Task<int> GetFollowerCountAsync(Guid userId)
-            => throw new NotImplementedException();
+        /// <summary>
+        /// 被追蹤數：有多少人追這個 userId（依你的模型：Type == 1 = 使用者追蹤）
+        /// </summary>
+        public async Task<int> GetFollowerCountAsync(Guid userId)
+        {
+            if (userId == Guid.Empty) return 0;
 
-        public Task<int> GetFollowingCountAsync(Guid userId)
-            => throw new NotImplementedException();
+            return await _context.Follows
+                .AsNoTracking()
+                .CountAsync(f => f.Type == 1 && f.FollowedId == userId);
+        }
+
+        /// <summary>
+        /// 追蹤數：這個 userId 追了多少人（Type == 1）
+        /// </summary>
+        public async Task<int> GetFollowingCountAsync(Guid userId)
+        {
+            if (userId == Guid.Empty) return 0;
+
+            return await _context.Follows
+                .AsNoTracking()
+                .CountAsync(f => f.Type == 1 && f.UserId == userId);
+        }
+
+        /// <summary>
+        /// 追蹤統計（Followers=被追蹤數、Following=追蹤數）
+        /// 供前端 Search 滑過展開使用
+        /// </summary>
+        public async Task<FollowStatsDto> GetFollowStatsAsync(Guid userId)
+        {
+            if (userId == Guid.Empty) return new FollowStatsDto(0, 0);
+
+            // 直接重用上面兩個方法，邏輯一致
+            var followers = await GetFollowerCountAsync(userId);
+            var following = await GetFollowingCountAsync(userId);
+
+            return new FollowStatsDto(followers, following);
+        }
 
         public Task<List<Guid>> GetMutualFollowsAsync(Guid userId1, Guid userId2)
             => throw new NotImplementedException();

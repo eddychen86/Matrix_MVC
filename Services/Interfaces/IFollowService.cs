@@ -55,5 +55,8 @@ namespace Matrix.Services.Interfaces
 
         Task<bool> FollowAsync(Guid userId, Guid targetId);
         Task<bool> UnfollowAsync(Guid userId, Guid targetId);
+        // ✅ 新增：一次回傳兩個數字，給前端滑過展開用
+        Task<FollowStatsDto> GetFollowStatsAsync(Guid userId);
     }
+    
 }
