@@ -2,7 +2,7 @@ import { useFormatting } from '/js/hooks/useFormatting.js'
 import { useMenu } from '/js/components/menu.js'
 import { useHome } from '/js/pages/home/home.js'
 import { useProfile } from '/js/pages/profile/profile.js'
-import authManager from '/js/auth/auth-manager.js'
+import { useReply } from '/js/components/reply.js'
 import loginPopupManager from '/js/auth/login-popup.js'
 
 const globalApp = content => {
@@ -174,8 +174,6 @@ globalApp({
         //#endregion
         const isAppReady = ref(false)
 
-
-
         onMounted(() => {
             isAppReady.value = true
 
@@ -211,6 +209,7 @@ globalApp({
         const Menu = (typeof useMenu === 'function') ? useMenu() : {}
         const Home = LoadingPage(/^\/(?:home(?:\/|$))?$|^\/$/i, useHome)
         const Profile = LoadingPage(/^\/profile(?:\/|$)/i, useProfile)
+        const Reply = LoadingPage(/^\/reply(?:\/|$)/i, useReply)
         // const Friends = LoadingPage(/^\/friends(?:\/|$)/i, useFriends)
 
         //#endregion
@@ -338,15 +337,6 @@ globalApp({
         //#endregion
 
         //#region Pop-Up Events
-
-
-
-
-
-
-
-
-
 
         // Popup State
         const popupState = reactive({
@@ -568,6 +558,7 @@ globalApp({
             ...Menu,
             ...Profile,
             ...Home,
+            ...Reply,
             // friends
             friends,
             friendsLoading,
