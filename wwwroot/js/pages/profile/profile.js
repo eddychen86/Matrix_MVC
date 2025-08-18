@@ -234,31 +234,47 @@ export const useProfile = () => {
         // Create file input for NFT upload
         const input = document.createElement('input')
         input.type = 'file'
-        input.accept = 'image/*,video/*'
+        input.accept = 'image/*'
         input.multiple = true
         input.style.display = 'none'
-        
+
         input.addEventListener('change', async (event) => {
             const files = Array.from(event.target.files)
             if (files.length === 0) return
-            
+
             for (const file of files) {
                 await handleNFTUpload(file)
             }
-            
+
             // Refresh user images after upload
-            await loadUserImages()
+            await GetNTFImages(profile?.personId, 30)
         })
-        
+
         document.body.appendChild(input)
         input.click()
         document.body.removeChild(input)
     }
 
+    const userNFTs = Vue.ref([])
+
+    async function GetNTFImages(personId, count = 30) {
+        const params = new URLSearchParams({ count: String(count) })
+        if (personId) params.append('personId', personId)
+        const response = await fetch(`/api/Nft/images?${params.toString()}`, {
+            method: "GET",
+            credentials: "include",
+            cache: "no-store"
+        })
+        if (!response.ok) throw new Error(`Http${response.status}`)
+        const nfts = await response.json();
+        userNFTs.value = nfts
+        return nfts
+    }
+
     const handleNFTUpload = async (file) => {
         // Check file type
-        if (!file.type.startsWith('image/') && !file.type.startsWith('video/')) {
-            alert('請選擇圖片或影片檔案')
+        if (!file.type.startsWith('image')) {
+            alert('請選擇圖片')
             return
         }
 
@@ -277,7 +293,7 @@ export const useProfile = () => {
             formData.append('category', 'artwork')
 
             // Send upload request
-            const response = await fetch('/api/Profile/upload-nft', {
+            const response = await fetch('/api/Nft/upload', {
                 method: 'POST',
                 credentials: 'include',
                 body: formData
@@ -311,112 +327,154 @@ export const useProfile = () => {
         showNFTDetailModal(image)
     }
 
+    // ====== More 視窗（純 CSS 網格，無任何文字） ======
     const showNFTGallery = () => {
-        // Create and show NFT gallery modal
+        ensureGalleryStyles()
+
         const modal = document.createElement('div')
-        modal.className = 'fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4'
+        modal.className = 'nft-backdrop'
         modal.innerHTML = `
-            <div class="bg-white dark:bg-gray-800 rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-                <div class="p-6">
-                    <div class="flex justify-between items-center mb-6">
-                        <h2 class="text-2xl font-bold" data-i18n="AllNFTs">所有 NFT 作品</h2>
-                        <button class="btn btn-sm btn-ghost" onclick="this.closest('.fixed').remove()">
-                            <i data-lucide="x" class="size-4"></i>
-                        </button>
-                    </div>
-                    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4" id="nft-gallery-grid">
-                        <!-- NFTs will be loaded here -->
-                    </div>
-                </div>
-            </div>
-        `
-        
+    <div class="nft-grid-shell">
+      <div id="nft-gallery-grid" class="nft-grid"></div>
+    </div>
+  `
         document.body.appendChild(modal)
-        
-        // Load all NFTs into the gallery
+
+        // 用下面改好的 loadAllNFTs 來塞縮圖
         loadAllNFTs(modal.querySelector('#nft-gallery-grid'))
-        
-        // Initialize Lucide icons
-        if (window.lucide) {
-            window.lucide.createIcons()
-        }
-        
-        // Close on backdrop click
+
+        // 點背景關閉
         modal.addEventListener('click', (e) => {
-            if (e.target === modal) {
-                modal.remove()
-            }
+            if (e.target === modal) modal.remove()
         })
+    }
+    const ensureGalleryStyles = () => {
+        if (document.getElementById('nft-gallery-inline-css')) return
+        const style = document.createElement('style')
+        style.id = 'nft-gallery-inline-css'
+        style.textContent = `
+    /* Backdrop */
+    .nft-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px;}
+    /* Grid shell */
+    .nft-grid-shell{max-width:1200px;width:100%;max-height:90vh;overflow:auto;background:transparent;border-radius:12px;padding:8px;}
+    /* Responsive grid */
+    .nft-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;}
+    @media (min-width:640px){.nft-grid{grid-template-columns:repeat(3,1fr);}}
+    @media (min-width:900px){.nft-grid{grid-template-columns:repeat(4,1fr);}}
+    @media (min-width:1200px){.nft-grid{grid-template-columns:repeat(5,1fr);}}
+    /* Square cards */
+    .nft-card{position:relative;width:100%;padding-bottom:100%;overflow:hidden;border-radius:10px;background:#111;cursor:pointer;}
+    .nft-card>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+    .nft-empty{color:#bbb;text-align:center;padding:24px;grid-column:1/-1;}
+    /* NFT Gallery Grid (More) */
+    `
+        document.head.appendChild(style)
     }
 
     const showNFTDetailModal = (image) => {
-        // Create and show NFT detail modal
+        // 背景
         const modal = document.createElement('div')
-        modal.className = 'fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4'
-        modal.innerHTML = `
-            <div class="bg-white dark:bg-gray-800 rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-                <div class="p-6">
-                    <div class="flex justify-between items-center mb-4">
-                        <h2 class="text-xl font-bold">${image.fileName || 'NFT Detail'}</h2>
-                        <button class="btn btn-sm btn-ghost" onclick="this.closest('.fixed').remove()">
-                            <i data-lucide="x" class="size-4"></i>
-                        </button>
-                    </div>
-                    <div class="aspect-square mb-4">
-                        <img src="${image.filePath}" alt="${image.fileName}" class="w-full h-full object-contain rounded-lg">
-                    </div>
-                    <div class="space-y-2">
-                        <p><strong>檔名:</strong> ${image.fileName}</p>
-                        <p><strong>上傳時間:</strong> ${new Date(image.createTime).toLocaleDateString()}</p>
-                        <p><strong>檔案大小:</strong> ${formatFileSize(image.fileSize)}</p>
-                    </div>
-                </div>
-            </div>
-        `
-        
+        modal.style.position = 'fixed'
+        modal.style.inset = '0'
+        modal.style.background = 'rgba(0,0,0,0.7)'
+        modal.style.zIndex = '9999'
+        modal.style.display = 'flex'
+        modal.style.alignItems = 'center'
+        modal.style.justifyContent = 'center'
+
+        // 內層容器（讓 X 能以圖片為定位基準）
+        const frame = document.createElement('div')
+        frame.style.position = 'relative'
+        frame.style.maxWidth = '80vw'
+        frame.style.maxHeight = '80vh'
+        frame.style.display = 'flex'
+        frame.style.alignItems = 'center'
+        frame.style.justifyContent = 'center'
+
+        // 圖片
+        const img = document.createElement('img')
+        img.src = image.filePath
+        img.alt = image.fileName || ''
+        img.style.maxWidth = '100%'
+        img.style.maxHeight = '80vh'
+        img.style.objectFit = 'contain'
+        img.style.borderRadius = '12px'
+        img.style.boxShadow = '0 10px 30px rgba(0,0,0,.5)'
+
+        // 關閉按鈕（固定在圖片右上角）
+        const closeBtn = document.createElement('button')
+        closeBtn.textContent = '✕'
+        closeBtn.setAttribute('aria-label', 'Close')
+        closeBtn.style.position = 'absolute'
+        closeBtn.style.top = '8px'
+        closeBtn.style.right = '8px'
+        closeBtn.style.background = 'rgba(0,0,0,0.6)'
+        closeBtn.style.color = '#fff'
+        closeBtn.style.border = 'none'
+        closeBtn.style.borderRadius = '10px'
+        closeBtn.style.padding = '6px 10px'
+        closeBtn.style.fontSize = '16px'
+        closeBtn.style.cursor = 'pointer'
+
+        // 組裝 DOM
+        frame.appendChild(img)
+        frame.appendChild(closeBtn)
+        modal.appendChild(frame)
         document.body.appendChild(modal)
-        
-        // Initialize Lucide icons
-        if (window.lucide) {
-            window.lucide.createIcons()
-        }
-        
-        // Close on backdrop click
+
+        // 關閉事件
+        closeBtn.addEventListener('click', (e) => {
+            e.stopPropagation()
+            modal.remove()
+        })
         modal.addEventListener('click', (e) => {
-            if (e.target === modal) {
-                modal.remove()
-            }
+            // 點背景才關閉；點圖片/按鈕不關閉
+            if (e.target === modal) modal.remove()
         })
     }
 
+    // ====== 載入縮圖（純 CSS 正方形卡片；點了放大，X 在右上角） ======
     const loadAllNFTs = async (container) => {
         try {
-            const response = await fetch('/api/Profile/images?count=100', {
+            const response = await fetch('/api/Nft/images?count=100', {
                 method: 'GET',
-                headers: { 'Content-Type': 'application/json' },
                 credentials: 'include'
             })
-
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`)
-            }
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`)
 
             const images = await response.json()
-            
-            if (images.length === 0) {
-                container.innerHTML = '<p class="text-center text-gray-500 col-span-full py-8">尚無 NFT 作品</p>'
+
+            if (!Array.isArray(images) || images.length === 0) {
+                container.innerHTML = '<div class="nft-empty">尚無 NFT 作品</div>'
                 return
             }
 
-            container.innerHTML = images.map(image => `
-                <div class="aspect-square cursor-pointer hover:opacity-80 transition-opacity" onclick="viewNFTDetailFromGallery('${image.fileId}')">
-                    <img src="${image.filePath}" alt="${image.fileName}" class="w-full h-full object-cover rounded-lg shadow-md">
-                </div>
-            `).join('')
-            
-        } catch (error) {
-            console.error('Failed to load all NFTs:', error)
-            container.innerHTML = '<p class="text-center text-red-500 col-span-full py-8">載入失敗</p>'
+            // 先清空，再逐張建立卡片（不用 inline onclick，避免全域命名/快取問題）
+            container.textContent = ''
+            images.forEach((img) => {
+                const card = document.createElement('button')
+                card.type = 'button'
+                card.className = 'nft-card'
+
+                const im = document.createElement('img')
+                im.src = img.filePath
+                im.alt = img.fileName || ''
+                card.appendChild(im)
+
+                // 點縮圖 → 使用你剛換好的 showNFTDetailModal（只有 X）
+                card.addEventListener('click', (e) => {
+                    e.stopPropagation()
+                    showNFTDetailModal(img)
+                })
+
+                container.appendChild(card)
+            })
+
+            // 若其他地方需要用到清單
+            window._nftGalleryImages = images
+        } catch (err) {
+            console.error('Failed to load all NFTs:', err)
+            container.innerHTML = '<div class="nft-empty" style="color:#f66">載入失敗</div>'
         }
     }
 
@@ -435,6 +493,8 @@ export const useProfile = () => {
             showNFTDetailModal(image)
         }
     }
+
+
     //#endregion
 
     //#region File Handling
@@ -732,6 +792,8 @@ export const useProfile = () => {
         await loadUserImages()
         manualLoadFunctions = setupManualLoad()
 
+        await GetNTFImages(profile?.personId, 30)
+
         // 設置無限滾動（Profile 頁面）
         Vue.nextTick(() => {
             if (window.globalApp && typeof window.globalApp.setupInfiniteScroll === 'function') {
@@ -787,11 +849,13 @@ export const useProfile = () => {
         validatePassword,
         validatePasswordWithDebounce,
         togglePasswordVisibility,
-        
+
         // NFT Methods
         uploadNFT,
         viewAllNFTs,
         viewNFTDetail,
+        GetNTFImages,
+        userNFTs,
 
         // Manual load functions
         showLoadMoreButton: manualLoadFunctions?.showLoadMoreButton || Vue.ref(false),
