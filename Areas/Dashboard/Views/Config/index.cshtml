@@ -13,27 +13,196 @@
         </div>
     </template>
     <template v-else>
-        <div class="flex flex-col gap-8">
-            <h1 class="text-3xl font-bold" data-i18n="Config_Title">@Localizer["Config_Title"]</h1>
+        <div class="grid grid-cols-4 gap-8">
+            <h1 class="col-span-4 text-3xl font-bold" data-i18n="Config_Title">@Localizer["Config_Title"]</h1>
 
             @* 功能狀態欄 *@
-            <div class="flex flex-col gap-4">
+            <div class="col-span-1 flex flex-col gap-4">
                 <h2 class="title font-semibold" data-i18n="Config_ToolsState">@Localizer["Config_ToolsState"]</h2>
 
                 <ul class="flex flex-col gap-2">
                     <li v-for="tool in toolStateList" :key="tool.id" class="flex items-center justify-between py-1">
-                        <h5>{{ tool.name }}</h5>
-                        <input type="checkbox" checked="tools.state" class="toggle toggle-md" />
-                        @* <label class="toggle text-base-content"></label>
+                        <h5 class="subTitle" data-i18n="tool.name">@Localizer["{{ tool.name }}"]</h5>
+                        @* <input type="checkbox" checked="tools.state" class="toggle toggle-md" /> *@
+                        <label class="toggle text-base-content border-secondary">
                             <input type="checkbox" />
-                            <i data-lucide="check" aria-label="enabled" class="rounded-full"></i>
-                            <i data-lucide="x" aria-label="disabled" class="rounded-full"></i>
-                        </label> *@
+                            <i data-lucide="check" aria-label="enabled" class="size-4 rounded-full"></i>
+                            <i data-lucide="x" aria-label="disabled" class="size-4 rounded-full"></i>
+                        </label>
                     </li>
                 </ul>
             </div>
 
             @* 管理「系統管理員」 *@
+            <div class="col-span-3 flex flex-col gap-4">
+                <div class="flex items-center justify-between">
+                    <h2 class="title font-semibold" data-i18n="Config_ToolsState">@Localizer["Config_ToolsState"]</h2>
+                    <button class="btn btn-secondary" data-i18n="Create">@Localizer["Create"]</button>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="table table-pin-rows table-pin-cols">
+                        <!-- head -->
+                        <thead>
+                            <tr>
+                                <th>
+                                    <label>
+                                        <input type="checkbox" class="checkbox" />
+                                    </label>
+                                </th>
+                                <td v-for="head in adminList.header" :key="head.title" :class="head.class" :data-i18n="head.title">
+                                    @Localizer["{{ head.title }}"]
+                                </td>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody class="subTitle">
+                            <tr v-for="item in adminList.data" :key="item.id">
+                                <th>
+                                    <label>
+                                        <input type="checkbox" class="checkbox" :checked="item.checked" />
+                                    </label>
+                                </th>
+                                <td>
+                                    <div class="flex items-center gap-3">
+                                        <div class="avatar">
+                                            <div class="mask mask-squircle h-12 w-12" :class="!item.Avatar ? 'flex items-end justify-center pt-3 px-1 bg-gray-300' : ''">
+                                                <img v-if="item.Avatar" :src="item.Avatar" :alt="item.UserName" :title="item.UserName" />
+                                                <i v-else data-lucide="user-round" class="size-10"></i>
+                                            </div>
+                                        </div>
+                                        <div class="flex gap-2 items-center">
+                                            <div class="rounded-full text-center text-white w-20 shadow-xl/30 border-2" :class="item.status === 0 ? 'bg-green-500 border-green-300 shadow-green-300' : 'bg-red-500 border-red-300 shadow-red-300'">
+                                                {{ item.status === 0 ? 'Enabled' : 'Disabled' }}
+                                            </div>
+                                            <div class="font-bold">{{ item.UserName }}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>{{ item.DisplayName }}</td>
+                                <td>{{ item.SuperAdmin === 0 ? 'SA' : 'NoSA' }}</td>
+                                <th class="flex items-center gap-1">
+                                    <button class="btn btn-ghost btn-xs">
+                                        <i data-lucide="pen" class="size-8 text-blue-500 cursor-pointer"></i>
+                                    </button>
+                                    <button class="btn btn-ghost btn-xs">
+                                        <i data-lucide="trash-2" class="size-8 text-red-500 cursor-pointer"></i>
+                                    </button>
+                                </th>
+                            </tr>
+                            @* 
+                                <!-- row 1 -->
+                                <!-- row 2 -->
+                                <tr>
+                                    <th>
+                                    <label>
+                                        <input type="checkbox" class="checkbox" />
+                                    </label>
+                                    </th>
+                                    <td>
+                                    <div class="flex items-center gap-3">
+                                        <div class="avatar">
+                                            <div class="mask mask-squircle h-12 w-12">
+                                                <img
+                                                src="https://img.daisyui.com/images/profile/demo/3@94.webp"
+                                                alt="Avatar Tailwind CSS Component" />
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <div class="font-bold">Brice Swyre</div>
+                                            <div class="text-sm opacity-50">China</div>
+                                        </div>
+                                    </div>
+                                    </td>
+                                    <td>
+                                        Carroll Group
+                                        <br />
+                                        <span class="badge badge-ghost badge-sm">Tax Accountant</span>
+                                    </td>
+                                    <td>Red</td>
+                                    <th>
+                                    <button class="btn btn-ghost btn-xs">details</button>
+                                    </th>
+                                </tr>
+                                <!-- row 3 -->
+                                <tr>
+                                    <th>
+                                    <label>
+                                        <input type="checkbox" class="checkbox" />
+                                    </label>
+                                    </th>
+                                    <td>
+                                    <div class="flex items-center gap-3">
+                                        <div class="avatar">
+                                        <div class="mask mask-squircle h-12 w-12">
+                                            <img
+                                            src="https://img.daisyui.com/images/profile/demo/4@94.webp"
+                                            alt="Avatar Tailwind CSS Component" />
+                                        </div>
+                                        </div>
+                                        <div>
+                                        <div class="font-bold">Marjy Ferencz</div>
+                                        <div class="text-sm opacity-50">Russia</div>
+                                        </div>
+                                    </div>
+                                    </td>
+                                    <td>
+                                    Rowe-Schoen
+                                    <br />
+                                    <span class="badge badge-ghost badge-sm">Office Assistant I</span>
+                                    </td>
+                                    <td>Crimson</td>
+                                    <th>
+                                    <button class="btn btn-ghost btn-xs">details</button>
+                                    </th>
+                                </tr>
+                                <!-- row 4 -->
+                                <tr>
+                                    <th>
+                                    <label>
+                                        <input type="checkbox" class="checkbox" />
+                                    </label>
+                                    </th>
+                                    <td>
+                                    <div class="flex items-center gap-3">
+                                        <div class="avatar">
+                                        <div class="mask mask-squircle h-12 w-12">
+                                            <img
+                                            src="https://img.daisyui.com/images/profile/demo/5@94.webp"
+                                            alt="Avatar Tailwind CSS Component" />
+                                        </div>
+                                        </div>
+                                        <div>
+                                        <div class="font-bold">Yancy Tear</div>
+                                        <div class="text-sm opacity-50">Brazil</div>
+                                        </div>
+                                    </div>
+                                    </td>
+                                    <td>
+                                    Wyman-Ledner
+                                    <br />
+                                    <span class="badge badge-ghost badge-sm">Community Outreach Specialist</span>
+                                    </td>
+                                    <td>Indigo</td>
+                                    <th>
+                                    <button class="btn btn-ghost btn-xs">details</button>
+                                    </th>
+                                </tr>
+                            *@
+                        </tbody>
+                        <!-- foot -->
+                        <tfoot>
+                            <tr>
+                                <th></th>
+                                <th>Name</th>
+                                <th>Job</th>
+                                <th>Favorite Color</th>
+                                <th></th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
             @*
             
             <table class="table w-full">

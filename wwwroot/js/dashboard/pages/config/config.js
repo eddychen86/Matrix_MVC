@@ -11,7 +11,18 @@ window.mountConfigPage = function() {
         { id: 0, name: 'NFTs_Collect', state: false },
         { id: 0, name: 'Web_Log', state: false },
       ])
-
+      const adminList = reactive({
+        header: [
+          { title: 'UserName', class: '', fixed: false, },
+          { title: 'DisplayName', class: '', fixed: false, },
+          { title: 'SuperAdmin', class: '', fixed: false, },
+        ],
+        data: [
+        { id: 0, UserName: 'eddy', DisplayName: 'eddy86', Avatar: null, SuderAdmin: 0, status: 0, isDelete: 0, checked: true },
+        { id: 1, UserName: 'sally', DisplayName: 'sally88', Avatar: null, SuderAdmin: 1, status: 1, isDelete: 0, checked: false },
+        { id: 2, UserName: 'eason', DisplayName: 'eason87', Avatar: null, SuderAdmin: 1, status: 0, isDelete: 0, checked: false },
+      ]
+      })
       //#endregion
 
       //#region data
@@ -46,6 +57,7 @@ window.mountConfigPage = function() {
 
         // Data
         toolStateList,
+        adminList,
       }
     }
   })
