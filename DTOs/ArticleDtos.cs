@@ -234,6 +234,13 @@ namespace Matrix.DTOs
         /// </summary>
         [Range(0, 1, ErrorMessage = "Article_IsPublicRange0Or1")]
         public int IsPublic { get; set; } = 0;
+        
+        /// <summary>
+        /// 要附加到文章的檔案類型
+        /// </summary>
+        public List<IFormFile>? Images { get; set; }
+        public List<IFormFile>? Files { get; set; }
+    
 
         /// <summary>
         /// 要附加到文章的檔案列表

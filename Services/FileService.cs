@@ -26,18 +26,24 @@ namespace Matrix.Services
 
             try
             {
-                var uniqueFileName = $"{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
-                var uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "public", subfolder);
-                var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+                var webRoot = _webHostEnvironment.WebRootPath
+                              ?? Path.Combine(_webHostEnvironment.ContentRootPath, "wwwroot");
 
+                // 確保 subfolder 是相對路徑
+                subfolder = (subfolder ?? string.Empty).TrimStart('/', '\\');
+
+                var uniqueFileName = $"{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
+                var uploadsFolder = Path.Combine(webRoot, subfolder.Replace('/', Path.DirectorySeparatorChar));
                 Directory.CreateDirectory(uploadsFolder);
 
+                var filePath = Path.Combine(uploadsFolder, uniqueFileName);
                 using (var stream = new FileStream(filePath, FileMode.Create))
-                {
                     await file.CopyToAsync(stream);
-                }
 
-                return $"/public/{subfolder}/{uniqueFileName}";
+                // 回傳可直接當前端 src 用的相對網址
+                var relativeUrl = "/" + Path.Combine(subfolder, uniqueFileName).Replace("\\", "/");
+                _logger.LogInformation("File saved: {Physical} -> {Relative}", filePath, relativeUrl);
+                return relativeUrl;
             }
             catch (Exception ex)
             {
@@ -48,14 +54,16 @@ namespace Matrix.Services
 
         public async Task<bool> DeleteFileAsync(string? relativePath)
         {
-            if (string.IsNullOrEmpty(relativePath)) return false;
+            if (string.IsNullOrWhiteSpace(relativePath)) return false;
 
             try
             {
-                var fullPath = Path.Combine(_webHostEnvironment.WebRootPath, relativePath.TrimStart('/'));
-                if (File.Exists(fullPath))
+                var webRoot = _webHostEnvironment.WebRootPath
+                              ?? Path.Combine(_webHostEnvironment.ContentRootPath, "wwwroot");
+                var fullPath = Path.Combine(webRoot, relativePath.TrimStart('/', '\\'));
+                if (System.IO.File.Exists(fullPath))
                 {
-                    File.Delete(fullPath);
+                    System.IO.File.Delete(fullPath);
                     return await Task.FromResult(true);
                 }
                 return false;
@@ -66,6 +74,7 @@ namespace Matrix.Services
                 return false;
             }
         }
+
 
         public async Task<string?> UpdateFileAsync(IFormFile newFile, string? oldRelativePath, string subfolder)
         {

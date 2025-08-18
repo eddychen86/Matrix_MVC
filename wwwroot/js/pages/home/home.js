@@ -14,7 +14,7 @@ export const useHome = () => {
             hotlist.value = Array.isArray(data?.items) ? data.items : []
             await nextTick()
             window.lucide?.createIcons?.()
-            updateEdge() // 取回資料後更新邊界狀態
+            updateEdge()
         } catch (e) {
             console.error('Failed to load hot list:', e)
             hotlist.value = []
@@ -63,7 +63,6 @@ export const useHome = () => {
         const idx = getIndex(el)
         const target = Math.max(0, Math.min(idx + dir, max))
         snapToIndex(el, target)
-        // scrollTo 是平滑的，先樂觀更新按鈕狀態
         canPrev.value = target > 0
         canNext.value = target < max
     }
@@ -84,7 +83,6 @@ export const useHome = () => {
     const handleResize = () => {
         const el = hotCarouselRef.value
         if (!el) return
-        // 寬度改變時，對齊到最近卡片，避免半張
         const idx = getIndex(el)
         snapToIndex(el, idx)
         updateEdge()
@@ -94,7 +92,6 @@ export const useHome = () => {
 
     onMounted(() => {
         fetchHotList()
-        // 事件：滾動 / 窗口縮放
         const el = hotCarouselRef.value
         el?.addEventListener('scroll', handleScroll, { passive: true })
         window.addEventListener('resize', handleResize)
@@ -138,12 +135,6 @@ export const useHome = () => {
                 if (!data?.success) throw new Error(data?.message || 'collect failed')
                 item.isCollected = !!data.isCollected
                 item.collectCount = Number(data.collectCount ?? item.collectCount)
-            }
-
-            if (action === 'comment') {
-                const content = window.prompt('留下你的留言：')
-                if (!content?.trim()) return
-                // TODO: 呼叫留言 API
             }
         } catch (e) {
             console.error(e)

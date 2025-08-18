@@ -57,17 +57,32 @@ namespace Matrix.Controllers
         public async Task<IActionResult> UploadAttachment(
             [FromForm] List<IFormFile> files,
             [FromForm] Guid articleId,
-            [FromForm] string mode 
+            [FromForm] string mode
         )
         {
-            const long MaxSize = 5 * 1024 * 1024; 
+            const long MaxSize = 5 * 1024 * 1024;
             const int MaxCount = 6;
 
             if (files == null || files.Count == 0)
                 return BadRequest(new { success = false, message = "請選擇檔案" });
 
+            mode = (mode ?? "").Trim().ToLowerInvariant();
+            _logger.LogInformation("UploadAttachment: mode={Mode}, count={Count}", mode, files.Count);
+
             if (mode != "image" && mode != "file")
                 return BadRequest(new { success = false, message = "mode 必須是 image 或 file" });
+
+            static bool IsImageExt(string fileName)
+            {
+                var ext = Path.GetExtension(fileName).ToLowerInvariant();
+                return ext is ".jpg" or ".jpeg" or ".png" or ".gif" or ".webp" or ".bmp";
+            }
+
+            static bool IsImageByContentType(string? contentType)
+                => !string.IsNullOrEmpty(contentType) && contentType.StartsWith("image/", StringComparison.OrdinalIgnoreCase);
+
+            static bool IsImage(IFormFile f)
+                => IsImageByContentType(f.ContentType) || IsImageExt(f.FileName);
 
             var distinct = files
                 .Where(f => f?.Length > 0)
@@ -83,21 +98,22 @@ namespace Matrix.Controllers
                 if (f.Length > MaxSize)
                     return BadRequest(new { success = false, message = $"檔案 {f.FileName} 超過 5MB" });
 
-                var isImage = f.ContentType.StartsWith("image/", StringComparison.OrdinalIgnoreCase);
-                if (mode == "image" && !isImage)
-                    return BadRequest(new { success = false, message = "僅限選擇圖片" });
-                if (mode == "file" && isImage)
-                    return BadRequest(new { success = false, message = "僅限選擇檔案（非圖片）" });
+                var actuallyImage = IsImage(f);
+
+                if (mode == "image" && !actuallyImage)
+                    return BadRequest(new { success = false, message = $"檔案 {f.FileName} 不是圖片" });
+
+                if (mode == "file" && actuallyImage)
+                    return BadRequest(new { success = false, message = $"檔案 {f.FileName} 為圖片，請用圖片上傳區" });
             }
 
-            var saved = new List<string>();
-            var subfolder = mode == "image" ? "profile/imgs" : "profile/files";
+            var subfolder = mode == "image" ? "public/posts/imgs" : "public/posts/files";
 
+            var saved = new List<string>();
             try
             {
                 foreach (var f in distinct)
                 {
-                   
                     var path = await _fileService.CreateFileAsync(f, subfolder);
                     if (string.IsNullOrEmpty(path))
                         throw new InvalidOperationException($"檔案 {f.FileName} 儲存失敗");
@@ -109,6 +125,7 @@ namespace Matrix.Controllers
                         FilePath = path
                     });
 
+                    _logger.LogInformation("Saved attachment: {Path}", path);
                     saved.Add(path);
                 }
 
@@ -121,6 +138,7 @@ namespace Matrix.Controllers
                 return StatusCode(500, new { success = false, message = "上傳過程中發生錯誤" });
             }
         }
+
 
         [HttpGet("GetHashtags")]
         public async Task<IActionResult> GetHashtags()

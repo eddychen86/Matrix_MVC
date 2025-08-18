@@ -9,7 +9,6 @@ import { useCreatePost } from '/js/components/create-post.js'
 const globalApp = content => {
     if (typeof Vue === 'undefined') {
         console.log('Vue not ready, retrying...')
-
         return
     } else {
         lucide.createIcons()
@@ -23,7 +22,7 @@ const globalApp = content => {
                 // 配置警告處理器來忽略 script/style 標籤警告
                 app.config.warnHandler = (msg, instance, trace) => {
                     if (msg.includes('Tags with side effect') && msg.includes('are ignored in client component templates')) {
-                        return // 忽略這類警告
+                        return
                     }
                     console.warn(msg)
                 }
@@ -43,7 +42,7 @@ const globalApp = content => {
             // 配置警告處理器來忽略 script/style 標籤警告
             app.config.warnHandler = (msg, instance, trace) => {
                 if (msg.includes('Tags with side effect') && msg.includes('are ignored in client component templates')) {
-                    return // 忽略這類警告
+                    return
                 }
                 console.warn(msg)
             }
@@ -113,13 +112,11 @@ globalApp({
         }
         const changeFriendsStatus = (status) => {
             friendsStatus.value = status
-            // 預設重新載入列表
             loadFriends(1, 20, null, friendsStatus.value)
         }
         //#endregion
 
         //#region 獲取用戶信息
-
         const getCurrentUser = async () => {
             try {
                 const { authService } = await import('/js/services/AuthService.js')
@@ -140,7 +137,6 @@ globalApp({
                             isMember: user.isMember || true
                         })
                     } else {
-                        // 未認證狀態
                         Object.assign(currentUser, {
                             isAuthenticated: false,
                             userId: null
@@ -148,7 +144,6 @@ globalApp({
                     }
                 } else {
                     console.warn('AuthService not available, using direct API call')
-                    // Fallback 直接 API 呼叫（理論上不會進入）
                     const response = await fetch('/api/auth/status')
                     const data = await response.json()
 
@@ -165,7 +160,6 @@ globalApp({
                             isMember: user.isMember || true
                         })
                     } else {
-                        // 未認證狀態
                         Object.assign(currentUser, {
                             isAuthenticated: false,
                             userId: null
@@ -183,11 +177,9 @@ globalApp({
 
         // 將 currentUser 設為全局可訪問
         window.currentUser = currentUser
-
         //#endregion
 
         //#region 匯入各頁面的 Vue 模組（ESM）
-
         const LoadingPage = (pattern, useFunc) => {
             const path = window.location.pathname.toLowerCase()
             const matched = pattern instanceof RegExp
@@ -212,13 +204,9 @@ globalApp({
         const Menu = (typeof useMenu === 'function') ? useMenu() : {}
         const Home = LoadingPage(/^\/(?:home(?:\/|$))?$|^\/$/i, useHome)
         const Profile = LoadingPage(/^\/profile(?:\/|$)/i, useProfile)
-        // const Friends = LoadingPage(/^\/friends(?:\/|$)/i, useFriends)
-        const postFns = useCreatePost()
         //#endregion
 
-        //#region PostList Data (共用於所有使用 PostList ViewComponent 的頁面)
-
-        // PostList 相關的狀態
+        //#region PostList Data（供 PostList ViewComponent 的頁面共用）
         const posts = ref([])
         const postListLoading = ref(false)
         const hasMorePosts = ref(true)
@@ -228,33 +216,27 @@ globalApp({
         // PostList 相關的方法
         const stateFunc = (action, articleId) => {
             console.log(`Action: ${action?.name || action}, Article ID: ${articleId}`)
-
             if (!currentUser.isAuthenticated) {
                 alert('請先登入才能進行此操作')
                 return
             }
-
-            // Call appropriate action
             if (typeof action === 'function') {
                 action(articleId)
             }
         }
 
         // 載入文章的通用方法
-        const loadPosts = async (page = 1, pageSize = 10, uid = null, isProfilePage = false) => {
+        const loadPosts = async (page = 1, pageSize = 10, uid = null, isProfile = false) => {
             const { postListService } = await import('/js/components/PostListService.js')
             if (!postListService) return { success: false, articles: [] }
 
             postListLoading.value = true
-
             try {
-                const result = await postListService.getPosts(page, pageSize, uid, isProfilePage)
-
+                const result = await postListService.getPosts(page, pageSize, uid, isProfile)
                 if (result.success) {
-                    const formattedArticles = postListService.formatArticles(result.articles)
-                    return { success: true, articles: formattedArticles, totalCount: result.totalCount }
+                    const formatted = postListService.formatArticles(result.articles)
+                    return { success: true, articles: formatted, totalCount: result.totalCount }
                 } else if (result.requireLogin) {
-                    // 將需要登入的訊息往上回傳，由呼叫端處理提示
                     return { success: false, requireLogin: true, message: result.message, articles: [] }
                 } else {
                     console.error('Failed to load posts:', result.error)
@@ -269,21 +251,17 @@ globalApp({
         }
 
         // 載入更多文章（用於無限滾動）
-        const loadMorePosts = async (uid = null, isProfilePage = false) => {
+        const loadMorePosts = async (uid = null, isProfile = false) => {
             if (!hasMorePosts.value || postListLoading.value) return
 
             const nextPage = currentPage.value + 1
-            const result = await loadPosts(nextPage, 10, uid, isProfilePage)
+            const result = await loadPosts(nextPage, 10, uid, isProfile)
 
             if (result.success && result.articles.length > 0) {
-                // 追加新文章到現有列表
                 posts.value = [...posts.value, ...result.articles]
                 currentPage.value = nextPage
-
-                // 檢查是否還有更多文章
                 hasMorePosts.value = result.articles.length === 10
             } else {
-                // 訪客模式：後端在第二次請求返回 403，前端顯示提示
                 if (result.requireLogin || !currentUser.isAuthenticated) {
                     alert(result?.message || '請登入以繼續瀏覽更多內容')
                 }
@@ -292,35 +270,26 @@ globalApp({
         }
 
         // 設置無限滾動
-        const setupInfiniteScroll = (uid = null, isProfilePage = false) => {
-            // 清理之前的 Observer
+        const setupInfiniteScroll = (uid = null, isProfile = false) => {
             if (infiniteScrollObserver) {
                 infiniteScrollObserver.disconnect()
             }
-
-            // 尋找觸發元素（由 PostList ViewComponent 提供）
             const triggerElement = document.querySelector('.infinite-scroll-trigger')
             if (!triggerElement) {
                 console.warn('Infinite scroll trigger element not found')
                 return
             }
-
-            // console.log('Setting up infinite scroll...', { uid, isProfilePage })
-
-            // 設置 Intersection Observer
             infiniteScrollObserver = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
                     if (entry.isIntersecting && hasMorePosts.value && !postListLoading.value) {
-                        // console.log('Loading more posts...', { currentPage: currentPage.value })
-                        loadMorePosts(uid, isProfilePage)
+                        loadMorePosts(uid, isProfile)
                     }
                 })
             }, {
                 root: null,
-                rootMargin: '200px', // 提前 200px 開始載入
+                rootMargin: '200px',
                 threshold: 0.1
             })
-
             infiniteScrollObserver.observe(triggerElement)
         }
 
@@ -330,24 +299,46 @@ globalApp({
                 infiniteScrollObserver.disconnect()
                 infiniteScrollObserver = null
             }
-
-            // 移除觸發元素
             const triggers = document.querySelectorAll('.infinite-scroll-trigger')
             triggers.forEach(trigger => trigger.remove())
         }
+        //#endregion
 
+        //#region 發文功能（初始化在這裡，讓 onCreated 能操作 posts 與 infinite scroll）
+        const postFns = useCreatePost({
+            async onCreated(article) {
+                try {
+                    const { postListService } = await import('/js/components/PostListService.js')
+                    const a = postListService.formatArticles([article])[0]
+                    posts.value = [a, ...posts.value]
+
+                    // 重新校正無限滾動
+                    cleanupInfiniteScroll?.()
+                    Vue.nextTick(() => setupInfiniteScroll(null, isProfilePage))
+                } catch (e) {
+                    // 備援：重抓第一頁；若仍失敗就整頁重載
+                    const result = await loadPosts(1, 10, null, isProfilePage)
+                    if (result.success) {
+                        posts.value = result.articles
+                        currentPage.value = 1
+                        hasMorePosts.value = result.articles.length === 10
+                        cleanupInfiniteScroll?.()
+                        Vue.nextTick(() => setupInfiniteScroll(null, isProfilePage))
+                    } else {
+                        location.reload()
+                    }
+                }
+            }
+        })
         //#endregion
 
         //#region Pop-Up Events
-
-        // Popup State
         const popupState = reactive({
             isVisible: false,
             type: '',
             title: ''
         })
 
-        // Popup Data Storage
         const popupData = reactive({
             Search: [],
             Notify: [],
@@ -355,7 +346,6 @@ globalApp({
             Collects: []
         })
 
-        // popup helper
         const getPopupTitle = type => {
             const titles = {
                 'Search': '搜尋',
@@ -363,32 +353,27 @@ globalApp({
                 'Follows': '追蹤',
                 'Collects': '收藏'
             }
-
             return titles[type] || '視窗'
         }
 
-        // Update popup data
         const updatePopupData = (type, data) => {
             if (popupData[type] !== undefined) popupData[type] = data
         }
 
-        // Popup click
         const openPopup = async type => {
             popupState.type = type
             popupState.title = getPopupTitle(type)
             popupState.isVisible = true
-            isLoading.value = true   // 👈 加上這行：開始 loading
-
+            isLoading.value = true
             try {
                 const res = await fetch('/api/' + type.toLowerCase())
                 const data = await res.json()
-
                 updatePopupData(type, data)
             } catch (err) {
                 console.log('Fetch Error:', err)
             } finally {
                 isLoading.value = false
-            }  // 👈 加上這行：結束 loading
+            }
         }
 
         const closePopup = () => {
@@ -398,12 +383,9 @@ globalApp({
 
         // Global Methods
         window.toggleFunc = (show, type) => show ? openPopup(type) : closePopup()
-
         //#endregion
 
         //#region Global Action Functions
-
-        // 定義全域動作函數供 PostList 使用
         window.praize = (articleId) => {
             console.log('Praise action for article:', articleId)
             // TODO: Implement praise API call
@@ -418,28 +400,22 @@ globalApp({
             console.log('Collect action for article:', articleId)
             // TODO: Implement collect API call
         }
-
         //#endregion
 
         //#region Lifecycle
-
-        // 組件掛載時獲取用戶信息並初始化頁面數據
         onMounted(async () => {
             await getCurrentUser()
 
             // 如果是首頁，初始化文章列表
             if (isHomePage) {
-                // console.log('Initializing Home page posts...')
-
-                const result = await loadPosts(1, 10, null, false) // page=1, pageSize=10, uid=null, isProfilePage=false
+                const result = await loadPosts(1, 10, null, false)
                 if (result.success) {
                     posts.value = result.articles
                     currentPage.value = 1
                     hasMorePosts.value = result.articles.length === 10
 
-                    // 設置無限滾動
                     Vue.nextTick(() => {
-                        setupInfiniteScroll(null, false) // Home 頁面不篩選用戶
+                        setupInfiniteScroll(null, false)
                     })
                 }
             }
@@ -449,7 +425,6 @@ globalApp({
                 loadFriends(1, 20, null, friendsStatus.value)
             }
         })
-
         //#endregion
 
         return {
@@ -470,11 +445,10 @@ globalApp({
             // pop-up
             popupState,
             popupData,
-            isLoading: computed(() => postListLoading.value || isLoading.value), // 合併所有 loading 狀態
+            isLoading: computed(() => postListLoading.value || isLoading.value),
             getPopupTitle,
             openPopup,
             closePopup,
-            // 為新版 popup 提供向後兼容
             isOpen: computed(() => popupState.isVisible),
             closeCollectModal: closePopup,
 
@@ -486,6 +460,7 @@ globalApp({
             ...Menu,
             ...Profile,
             ...Home,
+
             // friends
             friends,
             friendsLoading,
@@ -493,7 +468,8 @@ globalApp({
             friendsStatus,
             loadFriends,
             changeFriendsStatus,
-            //發文功能
+
+            // 發文功能
             ...postFns,
         }
     }

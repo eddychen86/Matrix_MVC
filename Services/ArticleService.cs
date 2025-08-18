@@ -293,34 +293,90 @@ namespace Matrix.Services
                 Content = dto.Content,
                 IsPublic = dto.IsPublic,
                 CreateTime = DateTime.UtcNow,
-                Status = 0
+                Status = 0,
+                PraiseCount = 0,
+                CollectCount = 0
             };
 
             _context.Articles.Add(article);
             await _context.SaveChangesAsync();
 
-            if (dto.Attachments != null && dto.Attachments.Any())
+            static bool IsImageExt(string fileName)
             {
-                foreach (var file in dto.Attachments)
+                var ext = Path.GetExtension(fileName).ToLowerInvariant();
+                return ext is ".jpg" or ".jpeg" or ".png" or ".gif" or ".webp" or ".bmp";
+            }
+
+            static bool IsImageByContentType(string? ct)
+                => !string.IsNullOrEmpty(ct) && ct.StartsWith("image/", StringComparison.OrdinalIgnoreCase);
+
+            static bool LooksLikeImage(IFormFile f)
+                => IsImageByContentType(f.ContentType) || IsImageExt(f.FileName);
+
+            static IEnumerable<IFormFile> Dedupe(IEnumerable<IFormFile> files)
+                => files.Where(f => f != null && f.Length > 0)
+                        .GroupBy(f => new { f.FileName, f.Length })
+                        .Select(g => g.First());
+
+            async Task SaveOneAsync(IFormFile f, string subfolder, string type)
+            {
+                var path = await _fileService.CreateFileAsync(f, subfolder);
+                if (string.IsNullOrEmpty(path))
+                    throw new InvalidOperationException($"儲存失敗: {f.FileName}");
+
+                var att = new ArticleAttachment
                 {
-                    var filePath = await _fileService.CreateFileAsync(file, "posts/files");
-                    if (filePath != null)
+                    FileId = Guid.NewGuid(),
+                    ArticleId = article.ArticleId,
+                    FilePath = path,
+                    FileName = f.FileName,
+                    Type = type,                              // "image" / "file"
+                    MimeType = f.ContentType ?? string.Empty
+                };
+                await _attachmentRepository.AddAsync(att);
+            }
+
+            if (dto.Images?.Any() == true)
+            {
+                foreach (var f in Dedupe(dto.Images))
+                    await SaveOneAsync(f, "public/posts/imgs", "image");
+            }
+
+            if (dto.Files?.Any() == true)
+            {
+                foreach (var f in Dedupe(dto.Files))
+                    await SaveOneAsync(f, "public/posts/files", "file");
+            }
+
+            if (dto.Attachments?.Any() == true)
+            {
+                foreach (var f in Dedupe(dto.Attachments))
+                {
+                    var isImg = LooksLikeImage(f);
+                    await SaveOneAsync(
+                        f,
+                        isImg ? "public/posts/imgs" : "public/posts/files",
+                        isImg ? "image" : "file"
+                    );
+                }
+            }
+
+
+            // （若有標籤關聯，這裡處理）
+            if (dto.SelectedHashtags?.Any() == true)
+            {
+                foreach (var idStr in dto.SelectedHashtags)
+                {
+                    if (Guid.TryParse(idStr, out var tagId))
                     {
-                        var attachment = new ArticleAttachment
-                        {
-                            FileId = Guid.NewGuid(),
-                            ArticleId = article.ArticleId,
-                            FilePath = filePath,
-                            FileName = file.FileName,
-                            Type = file.ContentType.StartsWith("image") ? "image" : "file",
-                            MimeType = file.ContentType
-                        };
-                        await _attachmentRepository.AddAsync(attachment);
+                        // 依你的實作關聯文章與標籤
+                        // await _hashtagRepository.AttachAsync(article.ArticleId, tagId);
                     }
                 }
             }
 
             return await GetArticleAsync(article.ArticleId);
         }
+
     }
 }

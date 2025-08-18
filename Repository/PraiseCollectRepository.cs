@@ -12,6 +12,18 @@ namespace Matrix.Repository
         private const int PraiseType = 0;
         private const int CollectType = 1;
 
+        private static bool IsUniqueViolation(DbUpdateException ex)
+        {
+            // SQL Server：唯一鍵/索引衝突 = 2601 或 2627
+            if (ex.InnerException is Microsoft.Data.SqlClient.SqlException mssql)
+                return mssql.Number == 2601 || mssql.Number == 2627;
+
+            // 保險字串判斷（不同 provider / 本地化訊息）
+            var msg = ex.InnerException?.Message ?? ex.Message;
+            return msg.Contains("duplicate", StringComparison.OrdinalIgnoreCase)
+                || msg.Contains("UNIQUE", StringComparison.OrdinalIgnoreCase);
+        }
+
         public PraiseCollectRepository(ApplicationDbContext context) : base(context) { }
 
         public async Task<PraiseCollect?> GetUserPraiseCollectAsync(Guid userId, Guid articleId)
@@ -84,60 +96,65 @@ namespace Matrix.Repository
         {
             if (isPraised)
             {
-                // 如果已經按過讚，就什麼都不做
-                if (await HasUserPraisedAsync(userId, articleId)) return;
-
-                var praise = new PraiseCollect
+                await _dbSet.AddAsync(new PraiseCollect
                 {
                     UserId = userId,
                     ArticleId = articleId,
                     Type = PraiseType,
-                    CreateTime = DateTime.Now
-                };
-                await _dbSet.AddAsync(praise);
+                    CreateTime = DateTime.UtcNow
+                });
             }
             else
             {
-                // 找到對應的讚並刪除
                 var praise = await _dbSet
                     .FirstOrDefaultAsync(pc => pc.UserId == userId && pc.ArticleId == articleId && pc.Type == PraiseType);
-                
-                if (praise != null)
-                {
-                    _dbSet.Remove(praise);
-                }
+                if (praise != null) _dbSet.Remove(praise);
+                else return; // 原本就沒資料，當作成功
             }
-            await _context.SaveChangesAsync();
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateException ex) when (IsUniqueViolation(ex))
+            {
+                // 競態下別人已先插入，當作成功即可
+                return;
+            }
         }
+
+
 
         public async Task UpdateCollectStatusAsync(Guid userId, Guid articleId, bool isCollected)
         {
             if (isCollected)
             {
-                // 如果已經收藏過，就什麼都不做
-                if (await HasUserCollectedAsync(userId, articleId)) return;
-
-                var collect = new PraiseCollect
+                await _dbSet.AddAsync(new PraiseCollect
                 {
                     UserId = userId,
                     ArticleId = articleId,
                     Type = CollectType,
-                    CreateTime = DateTime.Now
-                };
-                await _dbSet.AddAsync(collect);
+                    CreateTime = DateTime.UtcNow
+                });
             }
             else
             {
-                // 找到對應的收藏並刪除
                 var collect = await _dbSet
                     .FirstOrDefaultAsync(pc => pc.UserId == userId && pc.ArticleId == articleId && pc.Type == CollectType);
-
-                if (collect != null)
-                {
-                    _dbSet.Remove(collect);
-                }
+                if (collect != null) _dbSet.Remove(collect);
+                else return; // 原本就沒有，冪等
             }
-            await _context.SaveChangesAsync();
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateException ex) when (IsUniqueViolation(ex))
+            {
+                // 競態下已有人插入，當成功處理
+                return;
+            }
         }
+
     }
 }
