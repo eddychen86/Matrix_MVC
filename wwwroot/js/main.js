@@ -59,53 +59,6 @@ globalApp({
             isAdmin: false,
             isMember: false
         })
-        //#endregion
-
-        //#region Friends Data
-        const friends = ref([])
-        const friendsLoading = ref(false)
-        const friendsTotal = ref(0)
-        const friendsStatus = ref('accepted')
-
-        const getUsernameFromPath = () => {
-            const parts = window.location.pathname.split('/').filter(Boolean)
-            if (parts[0]?.toLowerCase() === 'profile' && parts[1] && parts[1].toLowerCase() !== 'index') {
-                return parts[1]
-            }
-            return null
-        }
-
-        const loadFriends = async (page = 1, pageSize = 20, username = null, status = friendsStatus.value) => {
-            try {
-                friendsLoading.value = true
-                const { friendsService } = await import('/js/components/friends.js')
-
-                const targetUsername = username || getUsernameFromPath() || currentUser.username || null
-                const result = await friendsService.getFriends(page, pageSize, targetUsername, status)
-
-                if (result.success) {
-                    friends.value = result.friends
-                    friendsTotal.value = result.totalCount
-                } else if (result.unauthorized) {
-                    friends.value = []
-                    friendsTotal.value = 0
-                } else {
-                    console.error('Failed to load friends:', result.error)
-                }
-            } catch (err) {
-                console.error('Error loading friends:', err)
-            } finally {
-                friendsLoading.value = false
-            }
-        }
-        const changeFriendsStatus = (status) => {
-            friendsStatus.value = status
-            // 預設重新載入列表
-            loadFriends(1, 20, null, friendsStatus.value)
-        }
-        //#endregion
-
-        //#region 獲取用戶信息
 
         // 小工具：把搜尋使用者轉成 Follows 清單的資料形狀
         const mapSearchUserToFollowItem = (u) => ({
@@ -189,6 +142,52 @@ globalApp({
         }
 
         // 獲取當前用戶信息
+        //#region Friends Data
+        const friends = ref([])
+        const friendsLoading = ref(false)
+        const friendsTotal = ref(0)
+        const friendsStatus = ref('accepted')
+
+        const getUsernameFromPath = () => {
+            const parts = window.location.pathname.split('/').filter(Boolean)
+            if (parts[0]?.toLowerCase() === 'profile' && parts[1] && parts[1].toLowerCase() !== 'index') {
+                return parts[1]
+            }
+            return null
+        }
+
+        const loadFriends = async (page = 1, pageSize = 20, username = null, status = friendsStatus.value) => {
+            try {
+                friendsLoading.value = true
+                const { friendsService } = await import('/js/components/friends.js')
+
+                const targetUsername = username || getUsernameFromPath() || currentUser.username || null
+                const result = await friendsService.getFriends(page, pageSize, targetUsername, status)
+
+                if (result.success) {
+                    friends.value = result.friends
+                    friendsTotal.value = result.totalCount
+                } else if (result.unauthorized) {
+                    friends.value = []
+                    friendsTotal.value = 0
+                } else {
+                    console.error('Failed to load friends:', result.error)
+                }
+            } catch (err) {
+                console.error('Error loading friends:', err)
+            } finally {
+                friendsLoading.value = false
+            }
+        }
+        const changeFriendsStatus = (status) => {
+            friendsStatus.value = status
+            // 預設重新載入列表
+            loadFriends(1, 20, null, friendsStatus.value)
+        }
+        //#endregion
+
+        //#region 獲取用戶信息
+
         const getCurrentUser = async () => {
             try {
                 const { authService } = await import('/js/services/AuthService.js')
@@ -618,6 +617,23 @@ globalApp({
 
             return titles[type] || '視窗'
         }
+        //--------Notify------
+        const fetchNotify = async () => {
+            isLoading.value = true
+            try {
+                const res = await fetch('/api/notify', { credentials: 'include' })
+                const json = await res.json()
+                if (json.success) {
+                    popupData.Notify = json.data
+                }
+            } catch (err) {
+                console.error('❌ 載入通知失敗', err)
+                popupData.Notify = []
+            } finally {
+                isLoading.value = false
+            }
+        }
+        //--------Notify END------
 
         // Update popup data
         const updatePopupData = (type, data) => {
@@ -635,6 +651,11 @@ globalApp({
             popupState.isVisible = true
 
             console.log('🧠 開啟 popup：', popupState.type)
+            if (type === 'Notify') {
+                popupData.Notify = []
+                await fetchNotify()
+                return
+            }
 
             if (type === 'Search') {
                 searchQuery.value = ''
