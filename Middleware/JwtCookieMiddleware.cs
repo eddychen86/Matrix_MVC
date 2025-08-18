@@ -143,26 +143,8 @@ namespace Matrix.Middleware
                             var display = principal.FindFirst("DisplayName")?.Value
                                             ?? userName;
 
-                            // AvatarPath：若 JWT 沒帶再查一次 repository（你原本的邏輯）
+                            // AvatarPath：優先從 JWT Claims 取得，若無則查詢資料庫
                             var avatarFromClaim = principal.FindFirst("AvatarPath")?.Value ?? "";
-                            if (string.IsNullOrWhiteSpace(avatarFromClaim))
-                            {
-                                try
-                                {
-                                    var person = await personRepository.GetByUserIdAsync(userId);
-                                    avatarFromClaim = person?.AvatarPath ?? "";
-                                }
-                                catch { /* ignore */ }
-                            }
-                            context.Items["UserId"] = userId;
-                            context.Items["UserName"] = principal.FindFirst(ClaimTypes.Name)?.Value ?? "";
-                            context.Items["UserEmail"] = principal.FindFirst(ClaimTypes.Email)?.Value ?? "";
-                            context.Items["UserRole"] = int.TryParse(principal.FindFirst(ClaimTypes.Role)?.Value, out var role) ? role : 0;
-                            context.Items["UserStatus"] = userStatus;
-                            context.Items["IsAuthenticated"] = true;
-                            context.Items["DisplayName"] = principal.FindFirst("DisplayName")?.Value ?? context.Items["UserName"];
-
-                            // 若 JWT 未帶入 AvatarPath，退回資料庫查詢一次，避免 UI 無頭像
                             if (string.IsNullOrWhiteSpace(avatarFromClaim))
                             {
                                 try
@@ -172,6 +154,14 @@ namespace Matrix.Middleware
                                 }
                                 catch { /* 最小影響，失敗時保持空字串 */ }
                             }
+
+                            context.Items["UserId"] = userId;
+                            context.Items["UserName"] = principal.FindFirst(ClaimTypes.Name)?.Value ?? "";
+                            context.Items["UserEmail"] = principal.FindFirst(ClaimTypes.Email)?.Value ?? "";
+                            context.Items["UserRole"] = int.TryParse(principal.FindFirst(ClaimTypes.Role)?.Value, out var role) ? role : 0;
+                            context.Items["UserStatus"] = userStatus;
+                            context.Items["IsAuthenticated"] = true;
+                            context.Items["DisplayName"] = principal.FindFirst("DisplayName")?.Value ?? context.Items["UserName"];
                             context.Items["AvatarPath"] = avatarFromClaim;
 
                             // 解析 LastLoginTime

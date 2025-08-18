@@ -458,7 +458,10 @@ globalApp({
             isLoading.value = true   // 👈 加上這行：開始 loading
 
             try {
-                const res = await fetch('/api/' + type.toLowerCase())
+                const res = await fetch('/api/' + type.toLowerCase(), {
+                    method: 'GET',
+                    credentials: 'include'  // ✅ 加這行就會自動帶 cookie
+                })
                 const data = await res.json()
 
                 updatePopupData(type, data)
