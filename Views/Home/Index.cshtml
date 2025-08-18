@@ -84,3 +84,7 @@
 <div v-if="openCreatePost">
     @await Component.InvokeAsync("CreatePostPopup")
 </div>
+
+<div v-else-if="openReply">
+    @await Component.InvokeAsync("ReplyPopup")
+</div>
