@@ -96,6 +96,8 @@ namespace Matrix.Services
                 ["public"] = "公開",
                 ["private"] = "不公開",
 
+                ["bestResolution"] = "螢幕解析度建議 1920x1080",
+
                 #endregion
 
                 #region Menu 模組
@@ -485,6 +487,8 @@ namespace Matrix.Services
                 // 狀態
                 ["public"] = "Public",
                 ["private"] = "Private",
+
+                ["bestResolution"] = "Suggested resolution: 1920x1080",
 
                 #endregion
 
