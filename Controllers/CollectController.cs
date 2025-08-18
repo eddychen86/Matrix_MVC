@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Matrix.Attributes;
 using Matrix.Services.Interfaces;
+using Matrix.Repository.Interfaces;
+using Matrix.Extensions;
 using Matrix.ViewModels;
 
 namespace Matrix.Controllers
@@ -9,13 +11,16 @@ namespace Matrix.Controllers
     public class CollectController : Controller
     {
         private readonly ICollectService _collectService;
+        private readonly IPersonRepository _personRepository;
         private readonly ILogger<CollectController> _logger;
 
         public CollectController(
             ICollectService collectService,
+            IPersonRepository personRepository,
             ILogger<CollectController> logger)
         {
             _collectService = collectService;
+            _personRepository = personRepository;
             _logger = logger;
         }
 
@@ -32,10 +37,24 @@ namespace Matrix.Controllers
         {
             try
             {
-                // TODO: 未來改為從登入者取得 PersonId，例如 User.Identity.Name → User → Person.Id
-                var currentUserId = Guid.Parse("36a9c596-b298-49b5-8300-7c3479aed145");
+                // 從認證資訊取得 UserId
+                var authInfo = HttpContext.GetAuthInfo();
 
-                var collectDtos = await _collectService.GetUserCollectsAsync(currentUserId, 30);
+                if (authInfo == null || !authInfo.IsAuthenticated || authInfo.UserId == Guid.Empty)
+                {
+                    return Unauthorized(new { error = "未登入或無效的使用者資料" });
+                }
+
+                // 透過 UserId 查詢對應的 PersonId
+                var person = await _personRepository.GetByUserIdAsync(authInfo.UserId);
+                if (person == null)
+                {
+                    return Unauthorized(new { error = "找不到對應的用戶資料" });
+                }
+
+                var personId = person.PersonId;
+
+                var collectDtos = await _collectService.GetUserCollectsAsync(personId, 30);
                 
                 var collectViewModels = collectDtos.Select(dto => new CollectItemViewModel
                 {

@@ -11,6 +11,9 @@
 .DS_Store
 *.suo
 *.exe
+*.rar
+*.zip
+*.7z
 tailwindcss
 # Include dlls if they’re in the NuGet packages directory
 !/packages/*/lib/*.dll

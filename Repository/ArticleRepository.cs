@@ -135,13 +135,79 @@ namespace Matrix.Repository
             return await UpdateArticleCountAsync(articleId, a => { if (a.CollectCount > 0) a.CollectCount--; });
         }
 
+        /// <summary>
+        /// 安全更新文章計數，使用樂觀併發控制
+        /// </summary>
         private async Task<bool> UpdateArticleCountAsync(Guid articleId, Action<Article> updateAction)
         {
-            var article = await _dbSet.FindAsync(articleId);
-            if (article == null) return false;
-            updateAction(article);
-            await _context.SaveChangesAsync();
-            return true;
+            const int maxRetries = 3;
+            
+            for (int attempt = 0; attempt < maxRetries; attempt++)
+            {
+                try
+                {
+                    var article = await _dbSet.FindAsync(articleId);
+                    if (article == null) return false;
+                    
+                    updateAction(article);
+                    await _context.SaveChangesAsync();
+                    return true;
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    // 併發衝突，重試
+                    if (attempt == maxRetries - 1)
+                        throw; // 最後一次重試失敗，拋出異常
+                    
+                    await Task.Delay(100 * (attempt + 1)); // 指數延遲
+                }
+            }
+            
+            return false;
+        }
+        
+        /// <summary>
+        /// 使用原子資料庫操作更新計數（最安全）
+        /// </summary>
+        public async Task<bool> IncreasePraiseCountAtomicAsync(Guid articleId)
+        {
+            var rowsAffected = await _context.Database.ExecuteSqlInterpolatedAsync(
+                $"UPDATE Articles SET PraiseCount = PraiseCount + 1 WHERE ArticleId = {articleId}"
+            );
+            return rowsAffected > 0;
+        }
+        
+        /// <summary>
+        /// 使用原子資料庫操作更新計數（最安全）
+        /// </summary>
+        public async Task<bool> DecreasePraiseCountAtomicAsync(Guid articleId)
+        {
+            var rowsAffected = await _context.Database.ExecuteSqlInterpolatedAsync(
+                $"UPDATE Articles SET PraiseCount = CASE WHEN PraiseCount > 0 THEN PraiseCount - 1 ELSE 0 END WHERE ArticleId = {articleId}"
+            );
+            return rowsAffected > 0;
+        }
+        
+        /// <summary>
+        /// 使用原子資料庫操作更新收藏計數（最安全）
+        /// </summary>
+        public async Task<bool> IncreaseCollectCountAtomicAsync(Guid articleId)
+        {
+            var rowsAffected = await _context.Database.ExecuteSqlInterpolatedAsync(
+                $"UPDATE Articles SET CollectCount = CollectCount + 1 WHERE ArticleId = {articleId}"
+            );
+            return rowsAffected > 0;
+        }
+        
+        /// <summary>
+        /// 使用原子資料庫操作更新收藏計數（最安全）
+        /// </summary>
+        public async Task<bool> DecreaseCollectCountAtomicAsync(Guid articleId)
+        {
+            var rowsAffected = await _context.Database.ExecuteSqlInterpolatedAsync(
+                $"UPDATE Articles SET CollectCount = CASE WHEN CollectCount > 0 THEN CollectCount - 1 ELSE 0 END WHERE ArticleId = {articleId}"
+            );
+            return rowsAffected > 0;
         }
     }
 }
