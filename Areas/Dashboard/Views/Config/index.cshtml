@@ -13,7 +13,7 @@
         </div>
     </template>
     <template v-else>
-        <div class="class="flex flex gap-8">
+        <div class="flex flex-col gap-8">
             <h1 class="text-3xl font-bold" data-i18n="Config_Title">@Localizer["Config_Title"]</h1>
 
             @* 功能狀態欄 *@
@@ -23,6 +23,12 @@
                 <ul class="flex flex-col gap-2">
                     <li v-for="tool in toolStateList" :key="tool.id" class="flex items-center justify-between py-1">
                         <h5>{{ tool.name }}</h5>
+                        <input type="checkbox" checked="tools.state" class="toggle toggle-md" />
+                        @* <label class="toggle text-base-content"></label>
+                            <input type="checkbox" />
+                            <i data-lucide="check" aria-label="enabled" class="rounded-full"></i>
+                            <i data-lucide="x" aria-label="disabled" class="rounded-full"></i>
+                        </label> *@
                     </li>
                 </ul>
             </div>
