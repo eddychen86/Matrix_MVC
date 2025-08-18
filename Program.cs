@@ -106,6 +106,9 @@ public class Program
 
         builder.Services.AddScoped<IArticleService, ArticleService>();
         builder.Services.AddScoped<IFollowService, FollowService>();
+        
+        // SignalR 相關服務（僅註冊 Hub）
+        builder.Services.AddSignalR();
 
         // 配置本地化選項
         builder.Services.Configure<RequestLocalizationOptions>(options =>
@@ -289,6 +292,9 @@ public class Program
         app.UseAuthorization();
 
         app.MapControllers(); // 啟用 API 控制器的屬性路由
+
+        // SignalR Hub 路由
+        app.MapHub<Matrix.Hubs.MatrixHub>("/matrixHub");
 
         // Areas 路由 (優先處理)
         app.MapControllerRoute(

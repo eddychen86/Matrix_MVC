@@ -9,10 +9,12 @@ namespace Matrix.Controllers.Api
     public class NotificationsController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
+        private readonly IPersonRepository _personRepository;
 
-        public NotificationsController(ApplicationDbContext context)
+        public NotificationsController(ApplicationDbContext context, IPersonRepository personRepository)
         {
             _context = context;
+            _personRepository = personRepository;
         }
 
         /// <summary>
@@ -23,9 +25,16 @@ namespace Matrix.Controllers.Api
         public async Task<IActionResult> GetMyNotifications([FromQuery] int take = 10)
         {
             var auth = HttpContext.GetAuthInfo();
-            var currentUserId = auth?.PersonId ?? Guid.Empty;
-            if (currentUserId == Guid.Empty)
+            
+            if (auth == null || !auth.IsAuthenticated || auth.UserId == Guid.Empty)
                 return Unauthorized(new { success = false, message = "尚未登入" });
+
+            // 透過 UserId 查詢對應的 PersonId
+            var person = await _personRepository.GetByUserIdAsync(auth.UserId);
+            if (person == null)
+                return Unauthorized(new { success = false, message = "找不到對應的用戶資料" });
+
+            var currentUserId = person.PersonId;
 
             if (take <= 0) take = 10;
             if (take > 50) take = 50; // 簡單限制，避免一次抓太多
@@ -63,9 +72,16 @@ namespace Matrix.Controllers.Api
         public async Task<IActionResult> MarkAsRead([FromRoute] Guid notifyId)
         {
             var auth = HttpContext.GetAuthInfo();
-            var currentUserId = auth?.PersonId ?? Guid.Empty;
-            if (currentUserId == Guid.Empty)
+            
+            if (auth == null || !auth.IsAuthenticated || auth.UserId == Guid.Empty)
                 return Unauthorized(new { success = false, message = "尚未登入" });
+
+            // 透過 UserId 查詢對應的 PersonId
+            var person = await _personRepository.GetByUserIdAsync(auth.UserId);
+            if (person == null)
+                return Unauthorized(new { success = false, message = "找不到對應的用戶資料" });
+
+            var currentUserId = person.PersonId;
 
             var notification = await _context.Notifications
                 .FirstOrDefaultAsync(n => n.NotifyId == notifyId && n.GetId == currentUserId);
