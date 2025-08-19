@@ -31,6 +31,28 @@ namespace Matrix.Repository
                 .ToListAsync();
         }
 
+        public async Task<List<AdminDto>> GetAllWithAdminAsync(int pages = 1, int pageSize = 5)
+        {
+            return await _dbSet
+                .AsNoTracking()
+                .Include(u => u.Person)
+                .Where(u => u.Status != 0 && u.Role > 0) // 在資料庫層篩選
+                .Skip((pages - 1) * pageSize)
+                .Take(pageSize)
+                .Select(u => new AdminDto
+                {
+                    UserId = u.UserId,
+                    UserName = u.UserName,
+                    DisplayName = u.Person != null ? u.Person.DisplayName : null,
+                    LastLoginTime = u.LastLoginTime,
+                    Role = u.Role,
+                    Email = u.Email,
+                    Status = u.Status,
+                    AvatarPath = u.Person != null ? u.Person.AvatarPath : null
+                })
+                .ToListAsync();
+        }
+
         public async Task<User?> GetByUsernameAsync(string username)
         {
             return await _dbSet

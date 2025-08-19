@@ -9,19 +9,19 @@ namespace Matrix.Controllers.Api
     [Route("api/register")]
     public class RegisterController : ApiControllerBase
     {
-        private readonly IUserService _userService;
+        private readonly IUserRegistrationService _registrationService;
         private readonly ILogger<RegisterController> _logger;
         private readonly IEmailService _emailService;
         private readonly ICustomLocalizer _localizer;
 
         public RegisterController(
-            IUserService userService,
+            IUserRegistrationService registrationService,
             ILogger<RegisterController> logger,
             IEmailService emailService,
             ICustomLocalizer localizer
         )
         {
-            _userService = userService;
+            _registrationService = registrationService;
             _logger = logger;
             _emailService = emailService;
             _localizer = localizer;
@@ -33,107 +33,18 @@ namespace Matrix.Controllers.Api
         [HttpPost]
         public async Task<IActionResult> Register([FromBody] RegisterViewModel? model)
         {
-            _logger.LogInformation("\n\n註冊嘗試: {UserName}\n", model?.UserName);
-
-            // 手動驗證前端基本規則
-            var validationErrors = new Dictionary<string, string[]>();
-            
             if (model == null)
             {
                 return ApiError(_localizer["Error"], new Dictionary<string, string[]> { { "", [_localizer["Error"]] } });
             }
-            
-            // 用戶名驗證
-            if (string.IsNullOrWhiteSpace(model.UserName))
-                validationErrors["UserName"] = [_localizer["UserNameInvalid"]];
-            else if (model.UserName.Length < 3 || model.UserName.Length > 20)
-                validationErrors["UserName"] = [_localizer["UserNameFormatError"]];
-                
-            // 郵件驗證
-            if (string.IsNullOrWhiteSpace(model.Email))
-                validationErrors["Email"] = [_localizer["EmailRequired"]];
-            else if (!model.Email.Contains('@') || !model.Email.Contains('.'))
-                validationErrors["Email"] = [_localizer["EmailInvalid"]];
-            else if (model.Email.Length > 30)
-                validationErrors["Email"] = [_localizer["EmailFormatError"]];
-                
-            // 密碼驗證
-            if (string.IsNullOrWhiteSpace(model.Password))
-                validationErrors["Password"] = [_localizer["PasswordInvalid"]];
-            else if (model.Password.Length < 8 || model.Password.Length > 20)
-                validationErrors["Password"] = [_localizer["PasswordFormatError"]];
-                
-            // 確認密碼驗證
-            if (string.IsNullOrWhiteSpace(model.PasswordConfirm))
-                validationErrors["PasswordConfirm"] = [_localizer["PasswordConfirmRequired"]];
-            else if (model.Password != model.PasswordConfirm)
-                validationErrors["PasswordConfirm"] = [_localizer["PasswordCompareError"]];
-                
-            // 如果有前端驗證錯誤，直接返回
-            if (validationErrors.Count > 0)
-            {
-                return ApiError(_localizer["Error"], validationErrors);
-            }
 
-            var createUserDto = new CreateUserDto
-            {
-                UserName = model.UserName,
-                Email = model.Email ?? string.Empty,
-                Password = model.Password,
-                PasswordConfirm = model.PasswordConfirm
-            };
-
-            var (userId, errors) = await _userService.CreateUserAsync(createUserDto);
-
-            _logger.LogInformation(
-                "\n\nError:\n{errors}\n\n", errors
-            );
+            // 使用註冊服務進行驗證和建立用戶（一般用戶角色 = 0）
+            var (userId, errors) = await _registrationService.RegisterUserAsync(model, role: 0);
 
             if (userId == null)
             {
-                _logger.LogWarning("\n註冊失敗: {Errors}\n", string.Join(", ", errors));
-
-                // 將 UserService 的驗證錯誤映射到對應的 ViewModel 欄位
-                var fieldErrors = new Dictionary<string, string[]>();
-                foreach (var error in errors)
-                {
-                    // 根據錯誤內容映射到正確的欄位，使用多語系訊息
-                    if (error.Contains("用戶名") || error.Contains("UserName") || error.Contains("username"))
-                    {
-                        if (error.Contains("長度") || error.Contains("字"))
-                            fieldErrors["UserName"] = [_localizer["UserNameFormatError"]];
-                        else if (error.Contains("已被使用") || error.Contains("exists"))
-                            fieldErrors["UserName"] = [_localizer["UsernameExists"]];
-                        else
-                            fieldErrors["UserName"] = [_localizer["UserNameInvalid"]];
-                    }
-                    else if (error.Contains("郵件") || error.Contains("Email") || error.Contains("email"))
-                    {
-                        if (error.Contains("格式") || error.Contains("invalid"))
-                            fieldErrors["Email"] = [_localizer["EmailInvalid"]];
-                        else if (error.Contains("已被使用") || error.Contains("exists"))
-                            fieldErrors["Email"] = [_localizer["EmailExists"]];
-                        else if (error.Contains("必填") || error.Contains("required"))
-                            fieldErrors["Email"] = [_localizer["EmailRequired"]];
-                        else
-                            fieldErrors["Email"] = [_localizer["EmailFormatError"]];
-                    }
-                    else if (error.Contains("密碼") || error.Contains("Password") || error.Contains("password"))
-                    {
-                        if (error.Contains("確認") || error.Contains("confirm") || error.Contains("不相符") || error.Contains("match"))
-                            fieldErrors["PasswordConfirm"] = [_localizer["PasswordCompareError"]];
-                        else if (error.Contains("格式") || error.Contains("大寫") || error.Contains("小寫") || error.Contains("數字") || error.Contains("特殊"))
-                            fieldErrors["Password"] = [_localizer["PasswordFormatError"]];
-                        else
-                            fieldErrors["Password"] = [_localizer["PasswordInvalid"]];
-                    }
-                    else
-                    {
-                        // 一般錯誤
-                        fieldErrors[""] = [error];
-                    }
-                }
-
+                // 將錯誤映射到前端欄位
+                var fieldErrors = _registrationService.MapServiceErrorsToFieldErrors(errors);
                 return ApiError(_localizer["Error"], fieldErrors);
             }
 

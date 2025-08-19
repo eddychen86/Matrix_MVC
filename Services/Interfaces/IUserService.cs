@@ -14,6 +14,13 @@ namespace Matrix.Services.Interfaces
         Task<List<UserBasicDto>> GetUserBasicsAsync();
 
         /// <summary>
+        /// 獲取系統管理員資訊
+        /// <param name="pages">目前頁碼</param>
+        /// <param name="pageSize">一頁幾筆</param>
+        /// </summary>
+        Task<List<AdminDto>> GetAdminAsync(int pages, int pageSize);
+
+        /// <summary>
         /// 根據 ID 獲取使用者資料
         /// </summary>
         /// <param name="id">使用者 ID</param>

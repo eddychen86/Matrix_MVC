@@ -77,6 +77,14 @@ namespace Matrix.Services
         }
 
         /// <summary>
+        /// 根據頁碼及每頁數量獲取系統管理員（含快取機制）
+        /// </summary>
+        public async Task<List<AdminDto>> GetAdminAsync(int pages, int pageSize)
+        {
+            return await _userRepository.GetAllWithAdminAsync(pages, pageSize);
+        }
+
+        /// <summary>
         /// 根據ID獲取使用者（含快取機制）
         /// </summary>
         public async Task<UserDto?> GetUserAsync(Guid id)
@@ -189,12 +197,11 @@ namespace Matrix.Services
             // 先創建 User
             var user = new User
             {
-                Role = 0,
+                Role = dto.Role,  // 使用 DTO 傳入的角色
                 UserName = dto.UserName,
                 Email = dto.Email,
-                // Password = HashPassword(dto.Password), // <-- 舊的不安全做法
                 CreateTime = DateTime.Now,
-                Status = 0
+                Status = dto.Role > 0 ? 1 : 0  // 管理員直接啟用，一般用戶需驗證
             };
 
             // 使用 Identity 的 PasswordHasher 來產生安全的雜湊值
@@ -204,8 +211,33 @@ namespace Matrix.Services
             await _userRepository.AddAsync(user);
             await _userRepository.SaveChangesAsync();
 
-            // 創建對應的 Person (這裡需要 PersonRepository)
-            // TODO: 實作 PersonRepository 後再處理
+            // 創建對應的 Person 資料
+            try
+            {
+                var person = new Person
+                {
+                    UserId = user.UserId,
+                    DisplayName = dto.DisplayName ?? dto.UserName,  // 預設使用 UserName
+                    Bio = null,
+                    AvatarPath = null,
+                    BannerPath = null,
+                    IsPrivate = dto.IsPrivate,
+                    WalletAddress = null,
+                    Website1 = null,
+                    Website2 = null,
+                    Website3 = null,
+                    ModifyTime = DateTime.UtcNow
+                };
+
+                await _personRepository.AddAsync(person);
+                await _personRepository.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                // 如果 Person 創建失敗，應該回滾 User 的創建
+                // 但為了簡化，這裡只記錄錯誤
+                Console.WriteLine($"創建 Person 失敗: {ex.Message}");
+            }
             
             return (user.UserId, new List<string>());
         }

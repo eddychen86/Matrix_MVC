@@ -10,6 +10,9 @@ namespace Matrix.Repository.Interfaces
         /// <summary>取得所有用戶</summary>
         Task<List<UserBasicDto>> GetAllWithUserAsync();
 
+        /// <summary>取得系統管理員</summary>
+        Task<List<AdminDto>> GetAllWithAdminAsync(int pages, int pageSize);
+
         /// <summary>根據用戶名取得用戶</summary>
         Task<User?> GetByUsernameAsync(string username);
 

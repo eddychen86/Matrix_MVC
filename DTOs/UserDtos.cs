@@ -111,6 +111,138 @@ namespace Matrix.DTOs
     }
 
     /// <summary>
+    /// 系統管理員資料
+    /// </summary>
+    public class AdminDto
+    {
+        /// <summary>
+        /// 使用者的唯一識別碼
+        /// </summary>
+        public Guid UserId { get; set; }
+
+        /// <summary>
+        /// 使用者的權限等級
+        /// </summary>
+        public int Role { get; set; }
+
+        /// <summary>
+        /// 使用者的顯示名稱
+        /// </summary>
+        [Required(ErrorMessage = "User_UserNameRequired")]
+        [StringLength(50, MinimumLength = 1, ErrorMessage = "User_UserNameLength1To50")]
+        public string UserName { get; set; } = string.Empty;
+
+        /// <summary>
+        /// 關聯的個人暱稱
+        /// </summary>
+        public string? DisplayName { get; set; }
+
+        /// <summary>
+        /// 使用者的電子郵件地址
+        /// </summary>
+        [Required(ErrorMessage = "User_EmailRequired")]
+        [EmailAddress(ErrorMessage = "User_EmailInvalid")]
+        [StringLength(100, ErrorMessage = "User_EmailMaxLength100")]
+        public string Email { get; set; } = string.Empty;
+
+        /// <summary>
+        /// 使用者最後一次登入的時間
+        /// </summary>
+        public DateTime? LastLoginTime { get; set; }
+
+        /// <summary>
+        /// 帳號狀態
+        /// </summary>
+        public int Status { get; set; }
+
+        /// <summary>
+        /// 關聯的個人頭像
+        /// </summary>
+        public string? AvatarPath { get; set; }
+    }
+
+    /// <summary>
+    /// 使用者列表參數
+    /// </summary>
+    public class UserParamDto
+    {
+        public int pages { get; set; } = 1;
+        public int pageSize { get; set; }   
+    }
+
+    /// <summary>
+    /// 建立管理員帳號的資料傳輸物件
+    /// </summary>
+    public class CreateAdminDto
+    {
+        /// <summary>
+        /// 使用者名稱
+        /// </summary>
+        public string UserName { get; set; } = string.Empty;
+
+        /// <summary>
+        /// 顯示名稱
+        /// </summary>
+        public string? DisplayName { get; set; }
+
+        /// <summary>
+        /// 電子郵件
+        /// </summary>
+        public string Email { get; set; } = string.Empty;
+
+        /// <summary>
+        /// 密碼
+        /// </summary>
+        public string Password { get; set; } = string.Empty;
+
+        /// <summary>
+        /// 確認密碼
+        /// </summary>
+        public string PasswordConfirm { get; set; } = string.Empty;
+
+        /// <summary>
+        /// 管理員角色 (1=管理員, 2=超級管理員)，預設為管理員
+        /// </summary>
+        public int Role { get; set; } = 1;
+    }
+
+    /// <summary>
+    /// 更新管理員帳號的資料傳輸物件
+    /// </summary>
+    public class UpdateAdminDto
+    {
+        /// <summary>
+        /// 使用者名稱（可選）
+        /// </summary>
+        public string? UserName { get; set; }
+
+        /// <summary>
+        /// 電子郵件（可選）
+        /// </summary>
+        public string? Email { get; set; }
+
+        /// <summary>
+        /// 新密碼（可選）
+        /// </summary>
+        public string? Password { get; set; }
+
+        /// <summary>
+        /// 確認新密碼（可選）
+        /// </summary>
+        public string? PasswordConfirm { get; set; }
+
+        /// <summary>
+        /// 管理員角色 (1=管理員, 2=超級管理員)
+        /// </summary>
+        public int? Role { get; set; }
+
+        /// <summary>
+        /// 帳號狀態 (0=未驗證, 1=啟用, 2=停用, 3=封禁)
+        /// </summary>
+        public int? Status { get; set; }
+    }
+
+    /// <summary>
     /// 分析使用者資料
     /// </summary>
     public class UserBasicDto

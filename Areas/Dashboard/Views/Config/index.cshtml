@@ -14,15 +14,15 @@
     </template>
     <template v-else>
         <div class="grid grid-cols-4 gap-8">
-            <h1 class="col-span-4 text-3xl font-bold" data-i18n="Config_Title">@Localizer["Config_Title"]</h1>
+            <h1 class="col-span-4 text-3xl font-bold text-gray-700" data-i18n="Config_Title">@Localizer["Config_Title"]</h1>
 
             @* 功能狀態欄 *@
-            <div class="col-span-1 flex flex-col gap-4">
+            <div class="col-span-4 flex flex-col gap-4">
                 <h2 class="title font-semibold" data-i18n="Config_ToolsState">@Localizer["Config_ToolsState"]</h2>
 
                 <ul class="flex flex-col gap-2">
                     <li v-for="tool in toolStateList" :key="tool.id" class="flex items-center justify-between py-1">
-                        <h5 class="subTitle" data-i18n="tool.name">@Localizer["{{ tool.name }}"]</h5>
+                        <h5 class="subTitle" :data-i18n="tool.name">{{ tool.name }}</h5>
                         @* <input type="checkbox" checked="tools.state" class="toggle toggle-md" /> *@
                         <label class="toggle text-base-content border-secondary">
                             <input type="checkbox" />
@@ -33,36 +33,157 @@
                 </ul>
             </div>
 
-            @* 管理「系統管理員」 *@
-            <div class="col-span-3 flex flex-col gap-4">
-                <div class="flex items-center justify-between">
-                    <h2 class="title font-semibold" data-i18n="Config_ToolsState">@Localizer["Config_ToolsState"]</h2>
-                    <button class="btn btn-secondary" data-i18n="Create">@Localizer["Create"]</button>
+            @* 新增「管理員」 *@
+            <div class="col-span-1">
+                <div class="card bg-base-100 shadow-xl">
+                    <div class="card-body">
+                        <h3 class="card-title" data-i18n="Config_CreateAdmin">@Localizer["Create"] @Localizer["Config_AdminList"]</h3>
+                        
+                        <form v-show="showCreateForm" v-on:submit.prevent="submitCreateAdmin" class="space-y-1">
+                                @* 頭像上傳 *@
+                                <fieldset class="fieldset">
+                                    <legend class="fieldset-legend" data-i18n="Avatar">Avatar</legend>
+                                    <div class="flex items-center gap-4">
+                                        <div class="avatar cursor-pointer" @@click="triggerFileUpload">
+                                            <div class="mask mask-squircle h-16 w-16 hover:opacity-80 transition-opacity" :class="!formData.avatarPreview ? 'flex items-end justify-center pt-3 px-1 bg-gray-300' : ''">
+                                                <img v-if="formData.avatarPreview" :src="formData.avatarPreview" alt="Avatar Preview" />
+                                                <i v-else data-lucide="user-round" class="size-10"></i>
+                                            </div>
+                                        </div>
+                                        <div class="text-sm text-gray-600">
+                                            <p class="font-medium" data-i18n="ClickToUploadAvatar">點擊圖片上傳頭像</p>
+                                            <p class="text-xs" data-i18n="SupportedImageFormats">支援 JPG, PNG, GIF (最大5MB)</p>
+                                        </div>
+                                        <input type="file" 
+                                            ref="fileInput" 
+                                            class="hidden" 
+                                            accept="image/*" 
+                                            @@change="handleAvatarUpload" />
+                                    </div>
+                                </fieldset>
+
+                                @* 使用者名稱 *@
+                                <fieldset class="fieldset">
+                                    <legend class="fieldset-legend" data-i18n="UserName">UserName</legend>
+                                    <label class="input validator">
+                                        <i data-lucide="user" class="size-4 opacity-50"></i>
+                                        <input type="text" 
+                                            v-model="formData.userName" 
+                                            placeholder="Enter username" 
+                                            required 
+                                            minlength="3" 
+                                            maxlength="20" 
+                                            pattern="[A-Za-z][A-Za-z0-9\\-]*" 
+                                            title="@Localizer["User_UserNameAllowedChars"]" />
+                                    </label>
+                                    <p class="validator-hint" data-i18n="User_UserNameLength3To20">@Localizer["User_UserNameLength3To20"]</p>
+                                </fieldset>
+
+                                @* 顯示名稱 *@
+                                <fieldset class="fieldset">
+                                    <legend class="fieldset-legend" data-i18n="DisplayName">Display Name</legend>
+                                    <label class="input validator">
+                                        <i data-lucide="tag" class="size-4 opacity-50"></i>
+                                        <input type="text" 
+                                            v-model="formData.displayName" 
+                                            placeholder="Enter display name" 
+                                            maxlength="50" 
+                                            title="@Localizer["User_DisplayNameMaxLength50"]" />
+                                    </label>
+                                    <p class="validator-hint" data-i18n="User_DisplayNameMaxLength50">@Localizer["User_DisplayNameMaxLength50"]</p>
+                                </fieldset>
+
+                                @* Email *@
+                                <fieldset class="fieldset">
+                                    <legend class="fieldset-legend" data-i18n="Email">Email</legend>
+                                    <label class="input validator">
+                                        <i data-lucide="mail" class="size-4 opacity-50"></i>
+                                        <input type="email" 
+                                            v-model="formData.email" 
+                                            placeholder="Enter email address" 
+                                            required 
+                                            maxlength="100" 
+                                            title="@Localizer["User_EmailInvalid"]" />
+                                    </label>
+                                    <p class="validator-hint" data-i18n="User_EmailInvalid">@Localizer["User_EmailInvalid"]</p>
+                                </fieldset>
+
+                                @* 密碼 *@
+                                <fieldset class="fieldset">
+                                    <legend class="fieldset-legend" data-i18n="Password">Password</legend>
+                                    <label class="input validator">
+                                        <i data-lucide="key" class="size-4 opacity-50"></i>
+                                        <input type="password" 
+                                            v-model="formData.password" 
+                                            placeholder="Enter password" 
+                                            required 
+                                            minlength="8" 
+                                            maxlength="20" 
+                                            pattern="(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[#@@$!%*?&amp;]).{8,}" 
+                                            title="@Localizer["User_PasswordComplexity"]" />
+                                    </label>
+                                    <p class="validator-hint" data-i18n="User_PasswordComplexity">@Localizer["User_PasswordComplexity"]</p>
+                                </fieldset>
+
+                                @* 確認密碼 *@
+                                <fieldset class="fieldset">
+                                    <legend class="fieldset-legend" data-i18n="ConfirmPassword">Confirm Password</legend>
+                                    <label class="input validator">
+                                        <i data-lucide="key" class="size-4 opacity-50"></i>
+                                        <input type="password" 
+                                            v-model="formData.passwordConfirm" 
+                                            placeholder="Confirm password" 
+                                            required 
+                                            title="@Localizer["User_PasswordsMustMatch"]" />
+                                    </label>
+                                    <p class="validator-hint" data-i18n="User_PasswordsMustMatch">@Localizer["User_PasswordsMustMatch"]</p>
+                                </fieldset>
+
+                                @* 角色選擇（僅超級管理員可見） *@
+                                <fieldset v-if="userPermissions && userPermissions.canCreateSuperAdmin" class="fieldset">
+                                    <legend class="fieldset-legend" data-i18n="Role">Role</legend>
+                                    <select v-model="formData.role" class="select select-primary">
+                                        <option value="1">管理員</option>
+                                        <option value="2">超級管理員</option>
+                                    </select>
+                                </fieldset>
+
+                                @* 提交按鈕 *@
+                                <div class="card-actions justify-end">
+                                    <button type="button" 
+                                            @@click="cancelCreateAdmin" 
+                                            class="btn btn-ghost">
+                                        <span data-i18n="Cancel">Cancel</span>
+                                    </button>
+                                    <button type="submit" 
+                                            :disabled="isSubmitting" 
+                                            class="btn btn-primary">
+                                        <span v-if="isSubmitting" class="loading loading-spinner loading-sm"></span>
+                                        <span data-i18n="Create">Create</span>
+                                    </button>
+                                </div>
+                            </form>
+
+                            @* 顯示創建按鈕 *@
+                            <div v-show="!showCreateForm" class="text-center">
+                                <button class="btn btn-secondary" @@click="startCreateAdmin" data-i18n="Create">@Localizer["Create"]</button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="overflow-x-auto">
+                <div class="col-span-3 overflow-x-auto bg-yellow-50 rounded-2xl border border-black/10">
                     <table class="table table-pin-rows table-pin-cols">
                         <!-- head -->
                         <thead>
-                            <tr>
-                                <th>
-                                    <label>
-                                        <input type="checkbox" class="checkbox" />
-                                    </label>
-                                </th>
-                                <td v-for="head in adminList.header" :key="head.title" :class="head.class" :data-i18n="head.title">
-                                    @Localizer["{{ head.title }}"]
-                                </td>
-                                <th></th>
+                            <tr class="text-center bg-yellow-50">
+                                <td v-for="head in adminList.header" :key="head.title" :class="head.class" :data-i18n="head.title"></td>
+                                <th class="bg-yellow-50"></th>
                             </tr>
                         </thead>
+
                         <tbody class="subTitle">
-                            <tr v-for="item in adminList.data" :key="item.id">
-                                <th>
-                                    <label>
-                                        <input type="checkbox" class="checkbox" :checked="item.checked" />
-                                    </label>
-                                </th>
+                            <tr v-for="item in adminList.data" :key="item.id" class="hover:bg-yellow-100">
                                 <td>
                                     <div class="flex items-center gap-3">
                                         <div class="avatar">
@@ -71,255 +192,81 @@
                                                 <i v-else data-lucide="user-round" class="size-10"></i>
                                             </div>
                                         </div>
-                                        <div class="flex gap-2 items-center">
-                                            <div class="rounded-full text-center text-white w-20 shadow-xl/30 border-2" :class="item.status === 0 ? 'bg-green-500 border-green-300 shadow-green-300' : 'bg-red-500 border-red-300 shadow-red-300'">
-                                                {{ item.status === 0 ? 'Enabled' : 'Disabled' }}
-                                            </div>
+                                        <div class="flex flex-col gap-1">
                                             <div class="font-bold">{{ item.UserName }}</div>
+                                            <div class="text-sm opacity-50">{{ item.email }}</div>
                                         </div>
                                     </div>
                                 </td>
                                 <td>{{ item.DisplayName }}</td>
-                                <td>{{ item.SuperAdmin === 0 ? 'SA' : 'NoSA' }}</td>
-                                <th class="flex items-center gap-1">
-                                    <button class="btn btn-ghost btn-xs">
-                                        <i data-lucide="pen" class="size-8 text-blue-500 cursor-pointer"></i>
-                                    </button>
-                                    <button class="btn btn-ghost btn-xs">
-                                        <i data-lucide="trash-2" class="size-8 text-red-500 cursor-pointer"></i>
-                                    </button>
+                                <td class="text-center">
+                                    <div :data-i18n="item.SuperAdmin === 2 ? 'Yes' : 'No'"></div>
+                                </td>
+                                <td class="text-center">
+                                    <div class="rounded-full text-center text-white w-20 shadow-xl/30 border-2"
+                                         :class="item.status === 1 ? 'bg-green-500 border-green-300 shadow-green-300' : 'bg-red-500 border-red-300 shadow-red-300'"
+                                         :data-i18n="item.status === 1 ? 'enable' : 'disable'"
+                                         ></div>
+                                </td>
+                                <th class="text-center bg-yellow-50">
+                                    <div class="join">
+                                        <button class="btn btn-ghost rounded-md btn-sm px-2 py-1" @@click="editAdmin(item.id)">
+                                            <i data-lucide="pen" class="size-6 text-blue-500 cursor-pointer"></i>
+                                        </button>
+                                        <button class="btn btn-ghost rounded-md btn-sm px-2 py-1" @@click="delAdmin(item.id)">
+                                            <i data-lucide="trash-2" class="size-6 text-red-500 cursor-pointer"></i>
+                                        </button>
+                                    </div>
                                 </th>
                             </tr>
-                            @* 
-                                <!-- row 1 -->
-                                <!-- row 2 -->
-                                <tr>
-                                    <th>
-                                    <label>
-                                        <input type="checkbox" class="checkbox" />
-                                    </label>
-                                    </th>
-                                    <td>
-                                    <div class="flex items-center gap-3">
-                                        <div class="avatar">
-                                            <div class="mask mask-squircle h-12 w-12">
-                                                <img
-                                                src="https://img.daisyui.com/images/profile/demo/3@94.webp"
-                                                alt="Avatar Tailwind CSS Component" />
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <div class="font-bold">Brice Swyre</div>
-                                            <div class="text-sm opacity-50">China</div>
-                                        </div>
-                                    </div>
-                                    </td>
-                                    <td>
-                                        Carroll Group
-                                        <br />
-                                        <span class="badge badge-ghost badge-sm">Tax Accountant</span>
-                                    </td>
-                                    <td>Red</td>
-                                    <th>
-                                    <button class="btn btn-ghost btn-xs">details</button>
-                                    </th>
-                                </tr>
-                                <!-- row 3 -->
-                                <tr>
-                                    <th>
-                                    <label>
-                                        <input type="checkbox" class="checkbox" />
-                                    </label>
-                                    </th>
-                                    <td>
-                                    <div class="flex items-center gap-3">
-                                        <div class="avatar">
-                                        <div class="mask mask-squircle h-12 w-12">
-                                            <img
-                                            src="https://img.daisyui.com/images/profile/demo/4@94.webp"
-                                            alt="Avatar Tailwind CSS Component" />
-                                        </div>
-                                        </div>
-                                        <div>
-                                        <div class="font-bold">Marjy Ferencz</div>
-                                        <div class="text-sm opacity-50">Russia</div>
-                                        </div>
-                                    </div>
-                                    </td>
-                                    <td>
-                                    Rowe-Schoen
-                                    <br />
-                                    <span class="badge badge-ghost badge-sm">Office Assistant I</span>
-                                    </td>
-                                    <td>Crimson</td>
-                                    <th>
-                                    <button class="btn btn-ghost btn-xs">details</button>
-                                    </th>
-                                </tr>
-                                <!-- row 4 -->
-                                <tr>
-                                    <th>
-                                    <label>
-                                        <input type="checkbox" class="checkbox" />
-                                    </label>
-                                    </th>
-                                    <td>
-                                    <div class="flex items-center gap-3">
-                                        <div class="avatar">
-                                        <div class="mask mask-squircle h-12 w-12">
-                                            <img
-                                            src="https://img.daisyui.com/images/profile/demo/5@94.webp"
-                                            alt="Avatar Tailwind CSS Component" />
-                                        </div>
-                                        </div>
-                                        <div>
-                                        <div class="font-bold">Yancy Tear</div>
-                                        <div class="text-sm opacity-50">Brazil</div>
-                                        </div>
-                                    </div>
-                                    </td>
-                                    <td>
-                                    Wyman-Ledner
-                                    <br />
-                                    <span class="badge badge-ghost badge-sm">Community Outreach Specialist</span>
-                                    </td>
-                                    <td>Indigo</td>
-                                    <th>
-                                    <button class="btn btn-ghost btn-xs">details</button>
-                                    </th>
-                                </tr>
-                            *@
                         </tbody>
+
                         <!-- foot -->
-                        <tfoot>
+                        <tfoot v-if="adminList.data.length > adminList_pageSize">
                             <tr>
-                                <th></th>
-                                <th>Name</th>
-                                <th>Job</th>
-                                <th>Favorite Color</th>
-                                <th></th>
+                                <td colspan="6" class="bg-yellow-50">
+                                    <div class="flex items-center justify-center w-full py-2">
+                                        <div class="join">
+                                            <button class="join-item bg-white btn" @@click="togglePrevPage">
+                                                <i data-lucide="chevron-left" class="size-8 text-black"></i>
+                                            </button>
+                                            <button class="join-item btn"
+                                                    :class="adminList_curPage === 1 ? 'bg-blue-500 text-white' : 'bg-white'"
+                                                    @@click="toggleFirstPage"
+                                                    >1</button>
+
+                                            <button class="join-item bg-white btn btn-disabled"
+                                                    v-if="adminList_curPage >= 3"
+                                                    >...</button>
+                                            <button class="join-item bg-blue-500 text-white btn"
+                                                    v-if="adminList_curPage > 1 && adminList_curPage < adminList_pageSize"
+                                                    >{{ adminList_curPage }}</button>
+                                            <button class="join-item bg-white btn btn-disabled"
+                                                    v-if="adminList_curPage <= adminList_pageSize - 2"
+                                                    >...</button>
+
+                                            <button class="join-item btn"
+                                                    :class="adminList_curPage === adminList_pageSize ? 'bg-blue-500 text-white' : 'bg-white'"
+                                                    @@click="toggleLastPage"
+                                                    >{{ adminList_pageSize }}</button>
+                                            <button class="join-item bg-white btn" @@click="toggleNextPage">
+                                                <i data-lucide="chevron-right" class="size-8 text-black"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </td>
                             </tr>
                         </tfoot>
                     </table>
                 </div>
             </div>
-            @*
-            
-            <table class="table w-full">
-                <thead>
-                    <tr>
-                        <th v-for="" :key="" data-i18n="">@Localizer[""]</th>
-                    </tr>
-                </thead>
-
-                <tbody class="text-[14px]">
-                    <template v-for="item in articles" :key="item.articleId">
-                        <tr class="cursor-pointer hover:bg-blue-100">
-                            <td class="max-w-[200px] truncate">{{ item.content }}</td>
-                            <td>{{ item.authorName }}</td>
-                            <td>
-                                <template v-if="editingId === item.articleId">
-                                    <div class="flex items-center gap-2">
-                                        <select v-model.number="editingStatus" class="rounded border px-2 py-1">
-                                            <option :value="0" data-i18n="Posts_Status_Normal">
-                                                @Localizer["Posts_Status_Normal"]</option>
-                                            <option :value="1" data-i18n="Posts_Status_Hidden">
-                                                @Localizer["Posts_Status_Hidden"]</option>
-                                        </select>
-                                        <button @@click.stop="saveStatus(item)" :disabled="savingStatus"
-                                            class="rounded bg-green-600 px-2 py-1 text-white disabled:opacity-50"
-                                            data-i18n="Posts_Save">
-                                            @Localizer["Posts_Save"]
-                                        </button>
-                                        <button @@click.stop="cancelEdit"
-                                            class="rounded bg-gray-400 px-2 py-1 text-white"
-                                            data-i18n="Posts_Cancel">
-                                            @Localizer["Posts_Cancel"]
-                                        </button>
-                                    </div>
-                                </template>
-                                <template v-else>
-                                    {{ item.statusText || statusText(item.status) }}
-                                </template>
-                            </td>
-                            <td>{{ formatDate(item.createTime) }}</td>
-                            <td>{{ formatDate(item.createTime) }}</td>
-                            <td class="w-12 text-center">
-                                <!-- 編輯 -->
-                                <div v-if="editingId !== item.articleId" class="flex justify-center">
-                                    <button @@click.stop="startEdit(item)"
-                                        class="rounded bg-blue-500 p-1 text-white hover:bg-blue-700"
-                                        title="Edit status">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-                                            viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                            <path
-                                                d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z" />
-                                            <path d="m15 5 4 4" />
-                                        </svg>
-                                    </button>
-                                </div>
-                            </td>
-                            <td class="w-12 text-center">
-                                <!-- 刪除 -->
-                                <button @@click.stop="deleteArticle(item.articleId)"
-                                    class="flex items-center justify-center rounded bg-red-500 p-1 text-white hover:bg-red-700"
-                                    title="Delete">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-                                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                        stroke-linecap="round" stroke-linejoin="round">
-                                        <path d="M4.929 4.929 19.07 19.071" />
-                                        <circle cx="12" cy="12" r="10" />
-                                    </svg>
-                                </button>
-                            </td>
-                        </tr>
-
-                    </template>
-                </tbody>
-
-                <tfoot v-if="totalPages > 0">
-                    <tr>
-                        <td colspan="9">
-                            <div class="bg-yellow-50 px-4 py-2">
-                                <div class="flex justify-center gap-1">
-                                    <!-- 上一頁 -->
-                                    <button :disabled="page === 1" @@click="goPage(page - 1)"
-                                        class="rounded px-2 py-1 text-gray-500 hover:bg-gray-200">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                            viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                                            class="lucide lucide-chevron-left-icon lucide-chevron-left">
-                                            <path d="m15 18-6-6 6-6" />
-                                        </svg>
-                                    </button>
-                                    <!-- 頁碼 -->
-                                    <button v-for="(p, index) in showPage" :key="p" :disabled="p === '...'"
-                                        @@click="typeof p === 'number'&&goPage(p)" class="rounded px-2 py-1"
-                                        :class="p === page ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-gray-200'">
-                                        {{ p }}
-                                    </button>
-                                    <!-- 下一頁 -->
-                                    <button :disabled="page === totalPages" @@click="goPage(page + 1)"
-                                        class="rounded px-2 py-1 text-gray-500 hover:bg-gray-200">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                            viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                                            class="lucide lucide-chevron-right-icon lucide-chevron-right">
-                                            <path d="m9 18 6-6-6-6" />
-                                        </svg>
-                                    </button>
-                                </div>
-                            </div>
-                        </td>
-                    </tr>
-                </tfoot>
-
-            </table>
-            
-            *@
+        </div>
         </div>
 
+        @* Web Log *@
+        <div >
+
+        </div>
     </template>
 
     @*

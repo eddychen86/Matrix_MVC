@@ -50,6 +50,7 @@ namespace Matrix.Areas.Dashboard.Controllers.Api
 
             var users = query
                 .OrderByDescending(u => u.CreateTime)
+                .Where(w => w.Role == 0)    // role 為 1、2 的使用者在 ConfigController 中管理
                 .Select(u => new UserDto
                 {
                     UserId = u.UserId,

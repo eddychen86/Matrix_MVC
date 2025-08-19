@@ -181,4 +181,96 @@
     window.updatePageText = LanguageManager.updatePageText.bind(LanguageManager)
     window.translationCache = translationCache
 
+    // 全域動態國際化處理
+    const initGlobalDynamicTranslation = async () => {
+        try {
+            const currentLang = LanguageManager.getCurrentLanguage()
+            
+            // 獲取或載入當前語言翻譯
+            let translations = translationCache.get(currentLang)
+            if (!translations) {
+                translations = await LanguageManager.preloadTranslation(currentLang)
+            }
+            
+            // 處理所有 data-i18n 元素（包括動態生成的）
+            if (translations) {
+                LanguageManager.updatePageText(translations)
+                // console.log(`✅ 全域動態國際化已應用: ${currentLang}`)
+            }
+        } catch (error) {
+            console.error('❌ 全域動態國際化失敗:', error)
+        }
+    }
+
+    // 確保頁面完全載入後再處理國際化
+    const handlePageLoad = () => {
+        // 使用 setTimeout 確保所有同步和異步資源都完成載入
+        setTimeout(async () => {
+            await initGlobalDynamicTranslation()
+        }, 100)
+    }
+
+    // 監聽頁面載入完成事件
+    if (document.readyState === 'loading') {
+        // 如果文檔還在載入中，監聽 DOMContentLoaded
+        document.addEventListener('DOMContentLoaded', () => {
+            // DOMContentLoaded 後再等待所有資源載入完成
+            if (document.readyState === 'complete') {
+                handlePageLoad()
+            } else {
+                window.addEventListener('load', handlePageLoad, { once: true })
+            }
+        }, { once: true })
+    } else if (document.readyState === 'interactive') {
+        // 如果 DOM 已載入但資源可能還在載入
+        if (document.readyState === 'complete') {
+            handlePageLoad()
+        } else {
+            window.addEventListener('load', handlePageLoad, { once: true })
+        }
+    } else {
+        // 如果頁面已完全載入
+        handlePageLoad()
+    }
+
+    // 監聽動態內容變化（用於處理後續動態載入的內容）
+    const observeDynamicContent = () => {
+        const observer = new MutationObserver((mutations) => {
+            let hasNewI18nElements = false
+            
+            mutations.forEach((mutation) => {
+                if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
+                    mutation.addedNodes.forEach((node) => {
+                        if (node.nodeType === 1) { // Element node
+                            if (node.hasAttribute && node.hasAttribute('data-i18n')) {
+                                hasNewI18nElements = true
+                            } else if (node.querySelector && node.querySelector('[data-i18n]')) {
+                                hasNewI18nElements = true
+                            }
+                        }
+                    })
+                }
+            })
+            
+            // 如果發現新的 data-i18n 元素，延遲處理翻譯
+            if (hasNewI18nElements) {
+                clearTimeout(window._dynamicTranslationTimeout)
+                window._dynamicTranslationTimeout = setTimeout(async () => {
+                    await initGlobalDynamicTranslation()
+                    lucide.createIcons()
+                }, 200)
+            }
+        })
+        
+        observer.observe(document.body, {
+            childList: true,
+            subtree: true
+        })
+    }
+
+    // 當頁面完全載入後啟動動態內容監聽
+    window.addEventListener('load', () => {
+        setTimeout(observeDynamicContent, 500)
+    }, { once: true })
+
 })();

@@ -88,6 +88,8 @@ public class Program
 
         builder.Services.AddScoped<IFileService, FileService>();
         builder.Services.AddScoped<IUserService, UserService>();
+        builder.Services.AddScoped<IUserRegistrationService, UserRegistrationService>();
+        builder.Services.AddScoped<IAdminPermissionService, AdminPermissionService>();
         builder.Services.AddScoped<IAuthorizationService, AuthorizationService>();
         builder.Services.AddScoped<ICollectService, CollectService>();
         builder.Services.AddScoped<IPraiseService, PraiseService>();

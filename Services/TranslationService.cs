@@ -93,6 +93,8 @@ namespace Matrix.Services
                 ["GuestAccount"] = "訪客",
 
                 // 狀態
+                ["enable"] = "啟用",
+                ["disable"] = "停用",
                 ["public"] = "公開",
                 ["private"] = "不公開",
 
@@ -157,6 +159,7 @@ namespace Matrix.Services
 
                 #region Friends 模組
 
+                ["Friends"] = "好友",
                 ["FriendsTitle"] = "好友列表",
                 ["FriendsAccepted"] = "已接受",
                 ["FriendsPending"] = "待處裡",
@@ -239,7 +242,6 @@ namespace Matrix.Services
 
                 #endregion
 
-
                 // 驗證錯誤訊息（來自 DTOs）
                 #region User
                 ["User_UserNameRequired"] = "使用者名稱為必填欄位",
@@ -263,6 +265,10 @@ namespace Matrix.Services
                 ["User_BioMaxLength300"] = "個人簡介長度不能超過 300 個字元",
                 ["User_PrivacyRange0Or1"] = "隱私設定必須是 0（公開）或 1（私人）",
                 ["User_UserNameAllowedCharsWithChinese"] = "使用者名稱只能包含字母、數字、底線和中文字元",
+                
+                // Avatar upload
+                ["ClickToUploadAvatar"] = "點擊圖片上傳頭像",
+                ["SupportedImageFormats"] = "支援 JPG, PNG, GIF (最大5MB)",
                 #endregion
 
                 #region Person
@@ -361,14 +367,20 @@ namespace Matrix.Services
                 ["Posts_DeleteError"] = "刪除失敗",
                 ["Posts_UpdateError"] = "狀態更新失敗",
                 ["Posts_LoadError"] = "讀取清單失敗",
-                
+
                 #endregion
 
                 #region Reports Management 模組
 
                 ["Reports_Title"] = "檢舉管理",
-                ["Reports_ApiNotConnected"] = "尚未串接 API，待補。",
-                
+                ["Reports_Reason"] = "原因",
+                ["Reports_Reporter"] = "檢舉者",
+                ["Reports_Type"] = "類別",
+                ["Reports_Target"] = "被檢舉目標",
+                ["Reports_ModifyTime"] = "更新時間",
+                ["Reports_Status"] = "狀態",
+                ["Reports_Resolver"] = "處理者",
+
                 #endregion
 
                 #region Overview 模組
@@ -390,13 +402,20 @@ namespace Matrix.Services
                 ["Overview_Storage"] = "儲存空間",
                 ["Overview_Status_Normal"] = "正常",
                 ["Overview_Status_InUse"] = "使用中",
-                
+
                 #endregion
 
                 #region Config 模組
 
                 ["Config_Title"] = "系統設定",
-                ["Config_ApiNotConnected"] = "尚未串接 API，待補。",
+                ["Config_ToolsState"] = "功能開關",
+                ["Config_WebLog"] = "網站日誌",
+                ["Config_AdminList"] = "管理員列表",
+                ["Config_AdminList_UserName"] = "帳號",
+                ["Config_AdminList_DisplayName"] = "匿名",
+                ["Config_AdminList_Email"] = "信箱",
+                ["Config_AdminList_SuderAdmin"] = "超級管理員",
+                ["Config_AdminList_Status"] = "狀態",
                 
                 #endregion
             },
@@ -485,6 +504,8 @@ namespace Matrix.Services
                 ["GuestAccount"] = "Guest",
 
                 // 狀態
+                ["enable"] = "Enable",
+                ["disable"] = "Disable",
                 ["public"] = "Public",
                 ["private"] = "Private",
 
@@ -549,6 +570,7 @@ namespace Matrix.Services
 
                 #region Friends 模組
 
+                ["Friends"] = "Friends",
                 ["FriendsTitle"] = "Friends",
                 ["FriendsAccepted"] = "Accepted",
                 ["FriendsPending"] = "Pending",
@@ -692,7 +714,13 @@ namespace Matrix.Services
                 #region Reports Management 模組
 
                 ["Reports_Title"] = "Reports Management",
-                ["Reports_ApiNotConnected"] = "API not connected yet, to be implemented.",
+                ["Reports_Reason"] = "Reason",
+                ["Reports_Reporter"] = "Reporter",
+                ["Reports_Type"] = "Type",
+                ["Reports_Target"] = "Report Target",
+                ["Reports_ModifyTime"] = "Modify Time",
+                ["Reports_Status"] = "Status",
+                ["Reports_Resolver"] = "Resolver",
                 
                 #endregion
 
@@ -720,9 +748,16 @@ namespace Matrix.Services
 
                 #region Config 模組
 
-                ["Config_Title"] = "System Config",
-                ["Config_ApiNotConnected"] = "API not connected yet, to be implemented.",
-                
+                ["Config_Title"] = "Settings",
+                ["Config_ToolsState"] = "Tools",
+                ["Config_WebLog"] = "Web logs",
+                ["Config_AdminList"] = "Admin List",
+                ["Config_AdminList_UserName"] = "Account",
+                ["Config_AdminList_DisplayName"] = "Display Name",
+                ["Config_AdminList_Email"] = "Email",
+                ["Config_AdminList_SuderAdmin"] = "Super Admin",
+                ["Config_AdminList_Status"] = "Account State",
+
                 #endregion
 
                 // Validation error messages (from DTOs)
@@ -748,6 +783,10 @@ namespace Matrix.Services
                 ["User_BioMaxLength300"] = "Bio length must not exceed 300 characters.",
                 ["User_PrivacyRange0Or1"] = "Privacy must be 0 (public) or 1 (private).",
                 ["User_UserNameAllowedCharsWithChinese"] = "User name may only contain letters, numbers, underscores, and Chinese characters.",
+                
+                // Avatar upload
+                ["ClickToUploadAvatar"] = "Click image to upload avatar",
+                ["SupportedImageFormats"] = "Supports JPG, PNG, GIF (max 5MB)",
                 #endregion
 
                 #region Person
