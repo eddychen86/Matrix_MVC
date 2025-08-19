@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Matrix.Attributes;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Matrix.DTOs;
@@ -10,6 +11,7 @@ namespace Matrix.Areas.Dashboard.Controllers.Api
 {
     [Route("api/[controller]")]
     [ApiController]
+    [AdminAuthorization]
     public class PostsController : ControllerBase
     {
         private readonly IArticleService _articleService;
@@ -29,16 +31,16 @@ namespace Matrix.Areas.Dashboard.Controllers.Api
             DateTime? dateTo = null;
             if (!string.IsNullOrWhiteSpace(date))
             {
-                if(DateTime.TryParse(date, out var d))
+                if (DateTime.TryParse(date, out var d))
                 {
                     dateFrom = d.Date;
                     dateTo = d.Date.AddDays(1);
                 }
             }
             var (articles, totalCount) = await _articleService.GetArticlesAsync(
-            page, pagesize, keyword, authorId: null, status: status, onlyPublic: false, dateFrom:dateFrom, dateTo:dateTo);
+            page, pagesize, keyword, authorId: null, status: status, onlyPublic: false, dateFrom: dateFrom, dateTo: dateTo);
             return Ok(new
-            {   
+            {
                 items = articles,
                 totalCount,
                 totalPages = (int)Math.Ceiling(totalCount / (double)pagesize),

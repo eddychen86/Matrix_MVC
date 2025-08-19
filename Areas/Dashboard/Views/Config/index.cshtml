@@ -1,8 +1,9 @@
+@inject ICustomLocalizer Localizer
 @{
-    ViewData["Title"] = "系統設定";
+    ViewData["Title"] = Localizer["Config_Title"];
 }
 
-<div id="adminConfig" class="w-full h-full p-8">
+<div id="adminConfig" class="w-full h-full">
     <template v-if="isLoading">
         <div class="flex h-[50vh] w-full items-center justify-center">
             <div class="flex flex-col items-center gap-4">
@@ -12,9 +13,325 @@
         </div>
     </template>
     <template v-else>
+        <div class="grid grid-cols-4 gap-8">
+            <h1 class="col-span-4 text-3xl font-bold" data-i18n="Config_Title">@Localizer["Config_Title"]</h1>
 
+            @* 功能狀態欄 *@
+            <div class="col-span-1 flex flex-col gap-4">
+                <h2 class="title font-semibold" data-i18n="Config_ToolsState">@Localizer["Config_ToolsState"]</h2>
+
+                <ul class="flex flex-col gap-2">
+                    <li v-for="tool in toolStateList" :key="tool.id" class="flex items-center justify-between py-1">
+                        <h5 class="subTitle" data-i18n="tool.name">@Localizer["{{ tool.name }}"]</h5>
+                        @* <input type="checkbox" checked="tools.state" class="toggle toggle-md" /> *@
+                        <label class="toggle text-base-content border-secondary">
+                            <input type="checkbox" />
+                            <i data-lucide="check" aria-label="enabled" class="size-4 rounded-full"></i>
+                            <i data-lucide="x" aria-label="disabled" class="size-4 rounded-full"></i>
+                        </label>
+                    </li>
+                </ul>
+            </div>
+
+            @* 管理「系統管理員」 *@
+            <div class="col-span-3 flex flex-col gap-4">
+                <div class="flex items-center justify-between">
+                    <h2 class="title font-semibold" data-i18n="Config_ToolsState">@Localizer["Config_ToolsState"]</h2>
+                    <button class="btn btn-secondary" data-i18n="Create">@Localizer["Create"]</button>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="table table-pin-rows table-pin-cols">
+                        <!-- head -->
+                        <thead>
+                            <tr>
+                                <th>
+                                    <label>
+                                        <input type="checkbox" class="checkbox" />
+                                    </label>
+                                </th>
+                                <td v-for="head in adminList.header" :key="head.title" :class="head.class" :data-i18n="head.title">
+                                    @Localizer["{{ head.title }}"]
+                                </td>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody class="subTitle">
+                            <tr v-for="item in adminList.data" :key="item.id">
+                                <th>
+                                    <label>
+                                        <input type="checkbox" class="checkbox" :checked="item.checked" />
+                                    </label>
+                                </th>
+                                <td>
+                                    <div class="flex items-center gap-3">
+                                        <div class="avatar">
+                                            <div class="mask mask-squircle h-12 w-12" :class="!item.Avatar ? 'flex items-end justify-center pt-3 px-1 bg-gray-300' : ''">
+                                                <img v-if="item.Avatar" :src="item.Avatar" :alt="item.UserName" :title="item.UserName" />
+                                                <i v-else data-lucide="user-round" class="size-10"></i>
+                                            </div>
+                                        </div>
+                                        <div class="flex gap-2 items-center">
+                                            <div class="rounded-full text-center text-white w-20 shadow-xl/30 border-2" :class="item.status === 0 ? 'bg-green-500 border-green-300 shadow-green-300' : 'bg-red-500 border-red-300 shadow-red-300'">
+                                                {{ item.status === 0 ? 'Enabled' : 'Disabled' }}
+                                            </div>
+                                            <div class="font-bold">{{ item.UserName }}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>{{ item.DisplayName }}</td>
+                                <td>{{ item.SuperAdmin === 0 ? 'SA' : 'NoSA' }}</td>
+                                <th class="flex items-center gap-1">
+                                    <button class="btn btn-ghost btn-xs">
+                                        <i data-lucide="pen" class="size-8 text-blue-500 cursor-pointer"></i>
+                                    </button>
+                                    <button class="btn btn-ghost btn-xs">
+                                        <i data-lucide="trash-2" class="size-8 text-red-500 cursor-pointer"></i>
+                                    </button>
+                                </th>
+                            </tr>
+                            @* 
+                                <!-- row 1 -->
+                                <!-- row 2 -->
+                                <tr>
+                                    <th>
+                                    <label>
+                                        <input type="checkbox" class="checkbox" />
+                                    </label>
+                                    </th>
+                                    <td>
+                                    <div class="flex items-center gap-3">
+                                        <div class="avatar">
+                                            <div class="mask mask-squircle h-12 w-12">
+                                                <img
+                                                src="https://img.daisyui.com/images/profile/demo/3@94.webp"
+                                                alt="Avatar Tailwind CSS Component" />
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <div class="font-bold">Brice Swyre</div>
+                                            <div class="text-sm opacity-50">China</div>
+                                        </div>
+                                    </div>
+                                    </td>
+                                    <td>
+                                        Carroll Group
+                                        <br />
+                                        <span class="badge badge-ghost badge-sm">Tax Accountant</span>
+                                    </td>
+                                    <td>Red</td>
+                                    <th>
+                                    <button class="btn btn-ghost btn-xs">details</button>
+                                    </th>
+                                </tr>
+                                <!-- row 3 -->
+                                <tr>
+                                    <th>
+                                    <label>
+                                        <input type="checkbox" class="checkbox" />
+                                    </label>
+                                    </th>
+                                    <td>
+                                    <div class="flex items-center gap-3">
+                                        <div class="avatar">
+                                        <div class="mask mask-squircle h-12 w-12">
+                                            <img
+                                            src="https://img.daisyui.com/images/profile/demo/4@94.webp"
+                                            alt="Avatar Tailwind CSS Component" />
+                                        </div>
+                                        </div>
+                                        <div>
+                                        <div class="font-bold">Marjy Ferencz</div>
+                                        <div class="text-sm opacity-50">Russia</div>
+                                        </div>
+                                    </div>
+                                    </td>
+                                    <td>
+                                    Rowe-Schoen
+                                    <br />
+                                    <span class="badge badge-ghost badge-sm">Office Assistant I</span>
+                                    </td>
+                                    <td>Crimson</td>
+                                    <th>
+                                    <button class="btn btn-ghost btn-xs">details</button>
+                                    </th>
+                                </tr>
+                                <!-- row 4 -->
+                                <tr>
+                                    <th>
+                                    <label>
+                                        <input type="checkbox" class="checkbox" />
+                                    </label>
+                                    </th>
+                                    <td>
+                                    <div class="flex items-center gap-3">
+                                        <div class="avatar">
+                                        <div class="mask mask-squircle h-12 w-12">
+                                            <img
+                                            src="https://img.daisyui.com/images/profile/demo/5@94.webp"
+                                            alt="Avatar Tailwind CSS Component" />
+                                        </div>
+                                        </div>
+                                        <div>
+                                        <div class="font-bold">Yancy Tear</div>
+                                        <div class="text-sm opacity-50">Brazil</div>
+                                        </div>
+                                    </div>
+                                    </td>
+                                    <td>
+                                    Wyman-Ledner
+                                    <br />
+                                    <span class="badge badge-ghost badge-sm">Community Outreach Specialist</span>
+                                    </td>
+                                    <td>Indigo</td>
+                                    <th>
+                                    <button class="btn btn-ghost btn-xs">details</button>
+                                    </th>
+                                </tr>
+                            *@
+                        </tbody>
+                        <!-- foot -->
+                        <tfoot>
+                            <tr>
+                                <th></th>
+                                <th>Name</th>
+                                <th>Job</th>
+                                <th>Favorite Color</th>
+                                <th></th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+            @*
+            
+            <table class="table w-full">
+                <thead>
+                    <tr>
+                        <th v-for="" :key="" data-i18n="">@Localizer[""]</th>
+                    </tr>
+                </thead>
+
+                <tbody class="text-[14px]">
+                    <template v-for="item in articles" :key="item.articleId">
+                        <tr class="cursor-pointer hover:bg-blue-100">
+                            <td class="max-w-[200px] truncate">{{ item.content }}</td>
+                            <td>{{ item.authorName }}</td>
+                            <td>
+                                <template v-if="editingId === item.articleId">
+                                    <div class="flex items-center gap-2">
+                                        <select v-model.number="editingStatus" class="rounded border px-2 py-1">
+                                            <option :value="0" data-i18n="Posts_Status_Normal">
+                                                @Localizer["Posts_Status_Normal"]</option>
+                                            <option :value="1" data-i18n="Posts_Status_Hidden">
+                                                @Localizer["Posts_Status_Hidden"]</option>
+                                        </select>
+                                        <button @@click.stop="saveStatus(item)" :disabled="savingStatus"
+                                            class="rounded bg-green-600 px-2 py-1 text-white disabled:opacity-50"
+                                            data-i18n="Posts_Save">
+                                            @Localizer["Posts_Save"]
+                                        </button>
+                                        <button @@click.stop="cancelEdit"
+                                            class="rounded bg-gray-400 px-2 py-1 text-white"
+                                            data-i18n="Posts_Cancel">
+                                            @Localizer["Posts_Cancel"]
+                                        </button>
+                                    </div>
+                                </template>
+                                <template v-else>
+                                    {{ item.statusText || statusText(item.status) }}
+                                </template>
+                            </td>
+                            <td>{{ formatDate(item.createTime) }}</td>
+                            <td>{{ formatDate(item.createTime) }}</td>
+                            <td class="w-12 text-center">
+                                <!-- 編輯 -->
+                                <div v-if="editingId !== item.articleId" class="flex justify-center">
+                                    <button @@click.stop="startEdit(item)"
+                                        class="rounded bg-blue-500 p-1 text-white hover:bg-blue-700"
+                                        title="Edit status">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                                            viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path
+                                                d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z" />
+                                            <path d="m15 5 4 4" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            </td>
+                            <td class="w-12 text-center">
+                                <!-- 刪除 -->
+                                <button @@click.stop="deleteArticle(item.articleId)"
+                                    class="flex items-center justify-center rounded bg-red-500 p-1 text-white hover:bg-red-700"
+                                    title="Delete">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                        stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M4.929 4.929 19.07 19.071" />
+                                        <circle cx="12" cy="12" r="10" />
+                                    </svg>
+                                </button>
+                            </td>
+                        </tr>
+
+                    </template>
+                </tbody>
+
+                <tfoot v-if="totalPages > 0">
+                    <tr>
+                        <td colspan="9">
+                            <div class="bg-yellow-50 px-4 py-2">
+                                <div class="flex justify-center gap-1">
+                                    <!-- 上一頁 -->
+                                    <button :disabled="page === 1" @@click="goPage(page - 1)"
+                                        class="rounded px-2 py-1 text-gray-500 hover:bg-gray-200">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                            viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                            class="lucide lucide-chevron-left-icon lucide-chevron-left">
+                                            <path d="m15 18-6-6 6-6" />
+                                        </svg>
+                                    </button>
+                                    <!-- 頁碼 -->
+                                    <button v-for="(p, index) in showPage" :key="p" :disabled="p === '...'"
+                                        @@click="typeof p === 'number'&&goPage(p)" class="rounded px-2 py-1"
+                                        :class="p === page ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-gray-200'">
+                                        {{ p }}
+                                    </button>
+                                    <!-- 下一頁 -->
+                                    <button :disabled="page === totalPages" @@click="goPage(page + 1)"
+                                        class="rounded px-2 py-1 text-gray-500 hover:bg-gray-200">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                            viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                            class="lucide lucide-chevron-right-icon lucide-chevron-right">
+                                            <path d="m9 18 6-6-6-6" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                </tfoot>
+
+            </table>
+            
+            *@
+        </div>
 
     </template>
+
+    @*
+        所有管理員帳號需經由該頁面 CRUD
+    
+        「NFT 戰略品 (Beta)」開關
+
+        網站 Error Log
+            time   |     api     | state | error message
+        -----------+-------------+-------+--------------
+        2025-08-30 | /api/Users/ |  500  | Error...
+     *@
 </div>
 
 @section Scripts {

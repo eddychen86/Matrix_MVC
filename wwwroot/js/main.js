@@ -2,8 +2,16 @@ import { useFormatting } from '/js/hooks/useFormatting.js'
 import { useMenu } from '/js/components/menu.js'
 import { useHome } from '/js/pages/home/home.js'
 import { useProfile } from '/js/pages/profile/profile.js'
-import authManager from '/js/auth/auth-manager.js'
+import { useAbout } from '/js/pages/about/about.js'
+import { useReply } from '/js/components/reply.js'
 import loginPopupManager from '/js/auth/login-popup.js'
+
+// 導入新的模組化組件
+import { useUserManager } from '/js/components/user-manager.js'
+import { usePopupManager } from '/js/components/popup-manager.js'
+import { useSearchService } from '/js/components/search-service.js'
+import { useFriendsManager } from '/js/components/friends-manager.js'
+import { usePostManager } from '/js/components/post-manager.js'
 
 const globalApp = content => {
     if (typeof Vue === 'undefined') {
@@ -11,6 +19,7 @@ const globalApp = content => {
         return
     } else {
         lucide.createIcons()
+
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', () => {
                 const app = Vue.createApp(content)
@@ -43,134 +52,80 @@ window.loginPopupManager = loginPopupManager
 
 globalApp({
     setup() {
-        //#region 宣告變數
-        const { reactive, ref, computed, onMounted } = Vue
+        const { ref, computed, onMounted, watch } = Vue
         const { formatDate, timeAgo } = useFormatting()
-        const isLoading = ref(false)
-        // 全局用戶狀態
-        const currentUser = reactive({
-            isAuthenticated: false,
-            userId: null,
-            username: '',
-            email: '',
-            role: 0,
-            status: 0,
-            isAdmin: false,
-            isMember: false
+
+        //#region 模組化管理器初始化
+
+        // 初始化用戶管理器
+        const userManager = useUserManager()
+        const { currentUser, getCurrentUser } = userManager
+
+        // 初始化搜尋服務
+        const searchService = useSearchService(null, null) // 先初始化搜尋服務
+        const { 
+            searchQuery, 
+            onSearchClick, 
+            manualFollowSearch,
+            clearSearch,
+            setPopupData,
+            setupSearchWatcher,
+            isLoading: searchLoading
+        } = searchService
+
+        // 初始化彈窗管理器，傳入清空搜尋的回調
+        const popupManager = usePopupManager(clearSearch)
+        const { 
+            popupState, 
+            popupData, 
+            openPopup, 
+            closePopup, 
+            fetchFollows,
+            isLoading: popupLoading 
+        } = popupManager
+
+        // 重新設定搜尋服務的 popupData 和 popupState
+        setPopupData(popupData, popupState)
+
+        // 設置搜尋監聽器
+        setupSearchWatcher(fetchFollows)
+
+        // 初始化好友管理器
+        const friendsManager = useFriendsManager(currentUser)
+        const {
+            friends,
+            friendsLoading,
+            friendsTotal,
+            friendsStatus,
+            loadFriends,
+            changeFriendsStatus,
+            toggleFollow
+        } = friendsManager
+
+        // 初始化文章管理器
+        const postManager = usePostManager(currentUser)
+        const {
+            posts,
+            hasMorePosts,
+            currentPage,
+            stateFunc,
+            loadPosts,
+            setupInfiniteScroll,
+            cleanupInfiniteScroll,
+            initializeHomePosts,
+            postListLoading
+        } = postManager
+
+        //#endregion
+
+        const isAppReady = ref(false)
+
+        onMounted(() => {
+            isAppReady.value = true
+
+            const wrapper = document.getElementById('popup-wrapper')
+            if (wrapper) wrapper.style.display = ''
         })
-        //#endregion
-
-        //#region Friends Data
-        const friends = ref([])
-        const friendsLoading = ref(false)
-        const friendsTotal = ref(0)
-        const friendsStatus = ref('accepted')
-
-        const getUsernameFromPath = () => {
-            const parts = window.location.pathname.split('/').filter(Boolean)
-            if (parts[0]?.toLowerCase() === 'profile' && parts[1] && parts[1].toLowerCase() !== 'index') {
-                return parts[1]
-            }
-            return null
-        }
-
-        const loadFriends = async (page = 1, pageSize = 20, username = null, status = friendsStatus.value) => {
-            try {
-                friendsLoading.value = true
-                const { friendsService } = await import('/js/components/friends.js')
-
-                const targetUsername = username || getUsernameFromPath() || currentUser.username || null
-                const result = await friendsService.getFriends(page, pageSize, targetUsername, status)
-
-                if (result.success) {
-                    friends.value = result.friends
-                    friendsTotal.value = result.totalCount
-                } else if (result.unauthorized) {
-                    friends.value = []
-                    friendsTotal.value = 0
-                } else {
-                    console.error('Failed to load friends:', result.error)
-                }
-            } catch (err) {
-                console.error('Error loading friends:', err)
-            } finally {
-                friendsLoading.value = false
-            }
-        }
-        const changeFriendsStatus = (status) => {
-            friendsStatus.value = status
-            // 預設重新載入列表
-            loadFriends(1, 20, null, friendsStatus.value)
-        }
-        //#endregion
-
-        //#region 獲取用戶信息
-
-        const getCurrentUser = async () => {
-            try {
-                const { authService } = await import('/js/services/AuthService.js')
-                if (authService) {
-                    const authStatus = await authService.getAuthStatus()
-
-                    if (authStatus.success && authStatus.data.authenticated) {
-                        const user = authStatus.data.user
-
-                        Object.assign(currentUser, {
-                            isAuthenticated: true,
-                            userId: user.id,
-                            username: user.username,
-                            email: user.email,
-                            role: user.role || 0,
-                            status: user.status || 0,
-                            isAdmin: user.isAdmin || false,
-                            isMember: user.isMember || true
-                        })
-                    } else {
-                        // 未認證狀態
-                        Object.assign(currentUser, {
-                            isAuthenticated: false,
-                            userId: null
-                        })
-                    }
-                } else {
-                    console.warn('AuthService not available, using direct API call')
-                    // Fallback 直接 API 呼叫（理論上不會進入）
-                    const response = await fetch('/api/auth/status')
-                    const data = await response.json()
-
-                    if (data.success && data.data.authenticated) {
-                        const user = data.data.user
-                        Object.assign(currentUser, {
-                            isAuthenticated: true,
-                            userId: user.id,
-                            username: user.username,
-                            email: user.email,
-                            role: user.role || 0,
-                            status: user.status || 0,
-                            isAdmin: user.isAdmin || false,
-                            isMember: user.isMember || true
-                        })
-                    } else {
-                        // 未認證狀態
-                        Object.assign(currentUser, {
-                            isAuthenticated: false,
-                            userId: null
-                        })
-                    }
-                }
-            } catch (err) {
-                console.error('獲取用戶信息失敗:', err)
-                Object.assign(currentUser, {
-                    isAuthenticated: false,
-                    userId: null
-                })
-            }
-        }
-
-        // 將 currentUser 設為全局可訪問
-        window.currentUser = currentUser
-
-        //#endregion
 
         //#region 匯入各頁面的 Vue 模組（ESM）
 
@@ -193,199 +148,24 @@ globalApp({
         const currentPath = window.location.pathname.toLowerCase()
         const isHomePage = /^\/(?:home(?:\/|$))?$|^\/$/.test(currentPath)
         const isProfilePage = /^\/profile(?:\/|$)/.test(currentPath)
+        const isAboutPage = /^\/about(?:\/|$)/.test(currentPath)
 
         // 組件/頁面模組
         const Menu = (typeof useMenu === 'function') ? useMenu() : {}
         const Home = LoadingPage(/^\/(?:home(?:\/|$))?$|^\/$/i, useHome)
         const Profile = LoadingPage(/^\/profile(?:\/|$)/i, useProfile)
-        // const Friends = LoadingPage(/^\/friends(?:\/|$)/i, useFriends)
+        const Reply = LoadingPage(/^\/reply(?:\/|$)/i, useReply)
+        const About = LoadingPage(/^\/about(?:\/|$)/i, useAbout)
 
         //#endregion
 
-        //#region PostList Data (共用於所有使用 PostList ViewComponent 的頁面)
-
-        // PostList 相關的狀態
-        const posts = ref([])
-        const postListLoading = ref(false)
-        const hasMorePosts = ref(true)
-        const currentPage = ref(1)
-        let infiniteScrollObserver = null
-
-        // PostList 相關的方法
-        const stateFunc = (action, articleId) => {
-            console.log(`Action: ${action?.name || action}, Article ID: ${articleId}`)
-
-            if (!currentUser.isAuthenticated) {
-                alert('請先登入才能進行此操作')
-                return
-            }
-
-            // Call appropriate action
-            if (typeof action === 'function') {
-                action(articleId)
-            }
-        }
-
-        // 載入文章的通用方法
-        const loadPosts = async (page = 1, pageSize = 10, uid = null, isProfilePage = false) => {
-            const { postListService } = await import('/js/components/PostListService.js')
-            if (!postListService) return { success: false, articles: [] }
-
-            postListLoading.value = true
-
-            try {
-                const result = await postListService.getPosts(page, pageSize, uid, isProfilePage)
-
-                if (result.success) {
-                    const formattedArticles = postListService.formatArticles(result.articles)
-                    return { success: true, articles: formattedArticles, totalCount: result.totalCount }
-                } else if (result.requireLogin) {
-                    // 將需要登入的訊息往上回傳，由呼叫端處理提示
-                    return { success: false, requireLogin: true, message: result.message, articles: [] }
-                } else {
-                    console.error('Failed to load posts:', result.error)
-                    return { success: false, articles: [] }
-                }
-            } catch (error) {
-                console.error('Error loading posts:', error)
-                return { success: false, articles: [] }
-            } finally {
-                postListLoading.value = false
-            }
-        }
-
-        // 載入更多文章（用於無限滾動）
-        const loadMorePosts = async (uid = null, isProfilePage = false) => {
-            if (!hasMorePosts.value || postListLoading.value) return
-
-            const nextPage = currentPage.value + 1
-            const result = await loadPosts(nextPage, 10, uid, isProfilePage)
-
-            if (result.success && result.articles.length > 0) {
-                // 追加新文章到現有列表
-                posts.value = [...posts.value, ...result.articles]
-                currentPage.value = nextPage
-
-                // 檢查是否還有更多文章
-                hasMorePosts.value = result.articles.length === 10
-            } else {
-                // 訪客模式：後端在第二次請求返回 403，前端顯示提示
-                if (result.requireLogin || !currentUser.isAuthenticated) {
-                    alert(result?.message || '請登入以繼續瀏覽更多內容')
-                }
-                hasMorePosts.value = false
-            }
-        }
-
-        // 設置無限滾動
-        const setupInfiniteScroll = (uid = null, isProfilePage = false) => {
-            // 清理之前的 Observer
-            if (infiniteScrollObserver) {
-                infiniteScrollObserver.disconnect()
-            }
-
-            // 尋找觸發元素（由 PostList ViewComponent 提供）
-            const triggerElement = document.querySelector('.infinite-scroll-trigger')
-            if (!triggerElement) {
-                console.warn('Infinite scroll trigger element not found')
-                return
-            }
-
-            // console.log('Setting up infinite scroll...', { uid, isProfilePage })
-
-            // 設置 Intersection Observer
-            infiniteScrollObserver = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting && hasMorePosts.value && !postListLoading.value) {
-                        // console.log('Loading more posts...', { currentPage: currentPage.value })
-                        loadMorePosts(uid, isProfilePage)
-                    }
-                })
-            }, {
-                root: null,
-                rootMargin: '200px', // 提前 200px 開始載入
-                threshold: 0.1
-            })
-
-            infiniteScrollObserver.observe(triggerElement)
-        }
-
-        // 清理無限滾動
-        const cleanupInfiniteScroll = () => {
-            if (infiniteScrollObserver) {
-                infiniteScrollObserver.disconnect()
-                infiniteScrollObserver = null
-            }
-
-            // 移除觸發元素
-            const triggers = document.querySelectorAll('.infinite-scroll-trigger')
-            triggers.forEach(trigger => trigger.remove())
-        }
-
-        //#endregion
-
-        //#region Pop-Up Events
-
-        // Popup State
-        const popupState = reactive({
-            isVisible: false,
-            type: '',
-            title: ''
-        })
-
-        // Popup Data Storage
-        const popupData = reactive({
-            Search: [],
-            Notify: [],
-            Follows: [],
-            Collects: []
-        })
-
-        // popup helper
-        const getPopupTitle = type => {
-            const titles = {
-                'Search': '搜尋',
-                'Notify': '通知',
-                'Follows': '追蹤',
-                'Collects': '收藏'
-            }
-
-            return titles[type] || '視窗'
-        }
-
-        // Update popup data
-        const updatePopupData = (type, data) => {
-            if (popupData[type] !== undefined) popupData[type] = data
-        }
-
-        // Popup click
-        const openPopup = async type => {
-            popupState.type = type
-            popupState.title = getPopupTitle(type)
-            popupState.isVisible = true
-            isLoading.value = true   // 👈 加上這行：開始 loading
-
-            try {
-                const res = await fetch('/api/' + type.toLowerCase())
-                const data = await res.json()
-
-                updatePopupData(type, data)
-            } catch (err) {
-                console.log('Fetch Error:', err)
-            } finally {
-                isLoading.value = false
-            }  // 👈 加上這行：結束 loading
-        }
-
-        const closePopup = () => {
-            popupState.isVisible = false
-            popupState.type = ''
+        // 包裝 toggleFollow 以提供必要的參數
+        const handleToggleFollow = (targetPersonId, currentStatus) => {
+            return toggleFollow(targetPersonId, currentStatus, popupData, fetchFollows)
         }
 
         // Global Methods
         window.toggleFunc = (show, type) => show ? openPopup(type) : closePopup()
-
-        //#endregion
 
         //#region Global Action Functions
 
@@ -411,23 +191,14 @@ globalApp({
 
         // 組件掛載時獲取用戶信息並初始化頁面數據
         onMounted(async () => {
+            // 將 currentUser 設為全局可訪問
+            window.currentUser = currentUser
+            
             await getCurrentUser()
 
             // 如果是首頁，初始化文章列表
             if (isHomePage) {
-                // console.log('Initializing Home page posts...')
-
-                const result = await loadPosts(1, 10, null, false) // page=1, pageSize=10, uid=null, isProfilePage=false
-                if (result.success) {
-                    posts.value = result.articles
-                    currentPage.value = 1
-                    hasMorePosts.value = result.articles.length === 10
-
-                    // 設置無限滾動
-                    Vue.nextTick(() => {
-                        setupInfiniteScroll(null, false) // Home 頁面不篩選用戶
-                    })
-                }
+                await initializeHomePosts()
             }
 
             // 若頁面包含好友列表區塊，載入好友
@@ -438,47 +209,65 @@ globalApp({
 
         //#endregion
 
+        console.log('✅ setup() 成功初始化，searchQuery =', searchQuery.value)
+
+        // 合併所有loading狀態
+        const isLoading = computed(() => 
+            postListLoading.value || popupLoading.value || searchLoading.value
+        )
+
         return {
-            // user state
+            // 用戶相關
             currentUser,
             getCurrentUser,
 
-            // PostList data (共用狀態)
+            // 文章列表相關
             posts,
             hasMorePosts,
             currentPage,
             stateFunc,
             loadPosts,
-            loadMorePosts,
             setupInfiniteScroll,
             cleanupInfiniteScroll,
 
-            // pop-up
+            // 彈窗相關
             popupState,
             popupData,
-            isLoading: computed(() => postListLoading.value || isLoading.value), // 合併所有 loading 狀態
-            getPopupTitle,
+            isLoading,
+            getPopupTitle: popupManager.getPopupTitle,
             openPopup,
             closePopup,
+            fetchFollows,
+            
             // 向後相容
             isOpen: computed(() => popupState.isVisible),
             closeCollectModal: closePopup,
+            isAppReady,
 
-            // hooks
-            formatDate,
-            timeAgo,
+            // 搜尋相關
+            searchQuery,
+            onSearchClick,
+            manualFollowSearch,
 
-            // menu functions (spread from useMenu)
-            ...Menu,
-            ...Profile,
-            ...Home,
-            // friends
+            // 好友相關
+            toggleFollow: handleToggleFollow,
             friends,
             friendsLoading,
             friendsTotal,
             friendsStatus,
             loadFriends,
             changeFriendsStatus,
+
+            // hooks
+            formatDate,
+            timeAgo,
+
+            // 頁面組件
+            ...Menu,
+            ...Profile,
+            ...Home,
+            ...About,
+            ...Reply
         }
     }
 })

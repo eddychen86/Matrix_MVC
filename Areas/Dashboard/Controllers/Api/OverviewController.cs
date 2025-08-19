@@ -1,10 +1,12 @@
 using Microsoft.AspNetCore.Mvc;
+using Matrix.Attributes;
 using Matrix.Services.Interfaces;
 
 namespace Matrix.Areas.Dashboard.Controllers.Api
 {
     [Route("api/[controller]")]
     [ApiController]
+    [AdminAuthorization] // 跟頁面一樣，只有管理員可用
     public class OverviewController(
         ILogger<OverviewController> logger,
         IUserService userService,

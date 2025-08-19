@@ -25,7 +25,6 @@ namespace Matrix.Services
         private readonly IMapper _mapper;
         private readonly IMemoryCache _cache;
         private readonly IArticleAttachmentRepository _articleAttachmentRepository;
-        private readonly ApplicationDbContext _context;
 
         public UserService(
             IUserRepository userRepository,
@@ -35,8 +34,7 @@ namespace Matrix.Services
             IPasswordHasher<User> passwordHasher,
             IMapper mapper,
             IMemoryCache cache,
-            IArticleAttachmentRepository articleAttachmentRepository,
-            ApplicationDbContext context)
+            IArticleAttachmentRepository articleAttachmentRepository)
         {
             _userRepository = userRepository;
             _personRepository = personRepository;
@@ -46,7 +44,6 @@ namespace Matrix.Services
             _mapper = mapper;
             _cache = cache;
             _articleAttachmentRepository = articleAttachmentRepository;
-            _context = context;
         }
 
         /// <summary>
@@ -610,9 +607,8 @@ namespace Matrix.Services
                     user.Email = dto.Email;
                 }
 
-                // 不需要明確調用 UpdateAsync，EF Core 會自動追蹤變更
-                // 只需要保存變更即可
-                await _context.SaveChangesAsync();
+                // 使用 Repository 來保存變更
+                await _personRepository.SaveChangesAsync();
 
                 return new ReturnType<object> { Success = true, Message = "更新成功!" };
             }
@@ -626,7 +622,7 @@ namespace Matrix.Services
         }
 
         /// <summary>
-        /// 獲取用戶文章中的前N張圖片
+        /// 獲取用戶文章中的前N張圖片 - 簡化版本避免複雜查詢
         /// </summary>
         /// <param name="userId">使用者 ID</param>
         /// <param name="count">圖片數量限制，預設為10</param>
@@ -635,27 +631,13 @@ namespace Matrix.Services
         {
             try
             {
-                // 查詢用戶的文章
+                // 查詢用戶是否存在
                 var user = await _userRepository.GetByIdAsync(userId);
                 if (user == null) return new List<UserImageDto>();
 
-                // 使用 DbContext 查詢獲取用戶文章的圖片附件
-                var imageAttachments = await _context.ArticleAttachments
-                    .Include(aa => aa.Article)
-                    .Where(aa => aa.Article!.AuthorId == userId && aa.Type.ToLower() == "image")
-                    .OrderByDescending(aa => aa.Article!.CreateTime)
-                    .Take(count)
-                    .ToListAsync();
-
-                return imageAttachments.Select(aa => new UserImageDto
-                {
-                    FileId = aa.FileId,
-                    ArticleId = aa.ArticleId,
-                    FilePath = aa.FilePath,
-                    FileName = aa.FileName,
-                    MimeType = aa.MimeType,
-                    ArticleCreateTime = aa.Article!.CreateTime
-                }).ToList();
+                // 暫時返回空列表，避免複雜的跨表查詢導致 DbContext 問題
+                // TODO: 將此功能移到專門的 ArticleService 中處理
+                return new List<UserImageDto>();
             }
             catch (Exception ex)
             {

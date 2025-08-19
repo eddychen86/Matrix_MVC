@@ -6,6 +6,7 @@ namespace Matrix.Extensions
     {
         public bool IsAuthenticated { get; set; }
         public Guid UserId { get; set; }
+        public Guid PersonId { get; set; }
         public string UserName { get; set; } = string.Empty;  // 實際為 DisplayName
         public string DisplayName { get; set; } = string.Empty;
         public int Role { get; set; }
@@ -25,6 +26,7 @@ namespace Matrix.Extensions
             {
                 IsAuthenticated = context.Items["IsAuthenticated"] as bool? ?? false,
                 UserId = context.Items["UserId"] as Guid? ?? Guid.Empty,
+                PersonId = context.Items["PersonId"] as Guid? ?? Guid.Empty,
                 UserName = displayName,  // 前端顯示用的名稱
                 DisplayName = displayName,
                 Role = context.Items["UserRole"] as int? ?? 0,
