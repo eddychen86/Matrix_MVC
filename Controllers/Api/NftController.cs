@@ -37,7 +37,7 @@ namespace Matrix.Controllers.Api
                 !file.ContentType.StartsWith("image/", StringComparison.OrdinalIgnoreCase))
                 return BadRequest(new { success = false, message = "Content-Type 必須為 image/*" });
 
-            
+
 
             Directory.CreateDirectory(NftPhysicalDir);
 
@@ -94,5 +94,51 @@ namespace Matrix.Controllers.Api
 
             return Ok(files);
         }
+        //刪除圖片
+        // Delete   /api/Nft/{fileName}
+        [HttpDelete("{fileName}")]
+
+        public async Task<IActionResult> DeleteNFT([FromRoute]String fileName)
+        {
+            if (string.IsNullOrWhiteSpace(fileName)) 
+            {
+                return Ok(new
+                {
+                    Ok = false,
+                    message = "刪除失敗!"
+                });
+            }
+
+            var fullPath = Path.Combine(NftPhysicalDir, fileName);
+            if (!System.IO.File.Exists(fullPath)) 
+            {
+                return Ok(new
+                {
+                    Ok = false,
+                    message = "刪除失敗!!"
+                });
+            }
+
+            try
+            {
+                System.IO.File.Delete(fullPath);
+                return Ok(new
+                {
+                    Ok = true,
+                    message = "刪除成功!"
+                });
+            }
+            catch (Exception ex) 
+            {
+                return Ok(new
+                {
+                    Ok = false,
+                    message = $"刪除失敗:{ex.Message}"
+                });
+            }
+
+
+        }
+        
     }
 }

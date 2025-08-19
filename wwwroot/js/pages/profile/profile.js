@@ -327,7 +327,7 @@ export const useProfile = () => {
         showNFTDetailModal(image)
     }
 
-    // ====== More 視窗（純 CSS 網格，無任何文字） ======
+    // ====== More 視窗 ======
     const showNFTGallery = () => {
         ensureGalleryStyles()
 
@@ -367,44 +367,68 @@ export const useProfile = () => {
     .nft-card>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
     .nft-empty{color:#bbb;text-align:center;padding:24px;grid-column:1/-1;}
     /* NFT Gallery Grid (More) */
+    .nft-actions { margin-top: 12px;text-align: center;}
+    .nft-delete {background: #e53935;color: #fff;border: none;padding: 8px 16px;border-radius: 8px;cursor: pointer;}
+    .nft-delete:hover {background: #c62828;}
+    /* --- viewer for enlarged image --- */
+    .nft-viewer{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:10000;display:flex;align-items:center;justify-content:center;padding:16px;}
+    .nft-viewer-col{display:flex;flex-direction:column;align-items:center;gap:12px;max-width:90vw;max-height:90vh;}
+    .nft-viewer-frame{position:relative;width:78vmin;height:78vmin;display:flex;align-items:center;justify-content:center;background:#000;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.5);}
+    .nft-viewer-frame img{width:100%;height:100%;object-fit:contain;border-radius:12px;}
+    .nft-close{position:absolute;top:8px;right:8px;background:rgba(0,0,0,0.6);color:#fff;border:none;border-radius:10px;padding:6px 10px;font-size:16px;cursor:pointer}
+    .nft-actions{text-align:center}
+    .nft-delete{background:#e53935;color:#fff;border:none;padding:8px 16px;border-radius:8px;cursor:pointer}
+    .nft-delete:hover{background:#c62828}
+
     `
         document.head.appendChild(style)
     }
+    //點開後的大圖
+    function showNFTDetailModal(nft) {
+        // 背景 overlay
+        const overlay = document.createElement('div')
+        overlay.style.position = 'fixed'
+        overlay.style.inset = '0'
+        overlay.style.background = 'rgba(0,0,0,0.85)'
+        overlay.style.zIndex = '10000'
+        overlay.style.display = 'flex'
+        overlay.style.alignItems = 'center'
+        overlay.style.justifyContent = 'center'
+        overlay.style.padding = '16px'
 
-    const showNFTDetailModal = (image) => {
-        // 背景
-        const modal = document.createElement('div')
-        modal.style.position = 'fixed'
-        modal.style.inset = '0'
-        modal.style.background = 'rgba(0,0,0,0.7)'
-        modal.style.zIndex = '9999'
-        modal.style.display = 'flex'
-        modal.style.alignItems = 'center'
-        modal.style.justifyContent = 'center'
+        // 直向容器
+        const col = document.createElement('div')
+        col.style.display = 'flex'
+        col.style.flexDirection = 'column'
+        col.style.alignItems = 'center'
+        col.style.gap = '12px'
+        col.style.maxWidth = '90vw'
+        col.style.maxHeight = '90vh'
 
-        // 內層容器（讓 X 能以圖片為定位基準）
+        // 方形圖框
         const frame = document.createElement('div')
         frame.style.position = 'relative'
-        frame.style.maxWidth = '80vw'
-        frame.style.maxHeight = '80vh'
+        frame.style.width = '78vmin'
+        frame.style.height = '78vmin'
         frame.style.display = 'flex'
         frame.style.alignItems = 'center'
         frame.style.justifyContent = 'center'
+        frame.style.background = '#000'
+        frame.style.borderRadius = '12px'
+        frame.style.boxShadow = '0 10px 30px rgba(0,0,0,.5)'
 
         // 圖片
-        const img = document.createElement('img')
-        img.src = image.filePath
-        img.alt = image.fileName || ''
-        img.style.maxWidth = '100%'
-        img.style.maxHeight = '80vh'
+        const img = new Image()
+        img.src = nft.filePath
+        img.alt = nft.fileName || ''
+        img.style.width = '100%'
+        img.style.height = '100%'
         img.style.objectFit = 'contain'
         img.style.borderRadius = '12px'
-        img.style.boxShadow = '0 10px 30px rgba(0,0,0,.5)'
 
-        // 關閉按鈕（固定在圖片右上角）
+        // 關閉按鈕
         const closeBtn = document.createElement('button')
         closeBtn.textContent = '✕'
-        closeBtn.setAttribute('aria-label', 'Close')
         closeBtn.style.position = 'absolute'
         closeBtn.style.top = '8px'
         closeBtn.style.right = '8px'
@@ -413,25 +437,118 @@ export const useProfile = () => {
         closeBtn.style.border = 'none'
         closeBtn.style.borderRadius = '10px'
         closeBtn.style.padding = '6px 10px'
-        closeBtn.style.fontSize = '16px'
         closeBtn.style.cursor = 'pointer'
 
-        // 組裝 DOM
+        // 動作區（Delete）
+        const actions = document.createElement('div')
+        actions.style.textAlign = 'center'
+
+        const delBtn = document.createElement('button')
+        delBtn.textContent = 'Delete'
+        delBtn.style.background = '#e53935'
+        delBtn.style.color = '#fff'
+        delBtn.style.border = 'none'
+        delBtn.style.padding = '8px 16px'
+        delBtn.style.borderRadius = '8px'
+        delBtn.style.cursor = 'pointer'
+
+        // 判斷是否本人
+        const isOwner = String(nft.userId) === String(window.currentUserId)
+
+        if (!isOwner) {
+            delBtn.disabled = true
+            delBtn.style.opacity = '0.5'
+            delBtn.style.cursor = 'not-allowed'
+        }
+
+        // 組裝
         frame.appendChild(img)
         frame.appendChild(closeBtn)
-        modal.appendChild(frame)
-        document.body.appendChild(modal)
+        actions.appendChild(delBtn)
+        col.appendChild(frame)
+        col.appendChild(actions)
+        overlay.appendChild(col)
+        document.body.appendChild(overlay)
 
         // 關閉事件
-        closeBtn.addEventListener('click', (e) => {
-            e.stopPropagation()
-            modal.remove()
-        })
-        modal.addEventListener('click', (e) => {
-            // 點背景才關閉；點圖片/按鈕不關閉
-            if (e.target === modal) modal.remove()
-        })
+        closeBtn.addEventListener('click', (e) => { e.stopPropagation(); overlay.remove() })
+        overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove() })
+
+        // 刪除事件（只有本人時才綁定）
+        if (isOwner) {
+            delBtn.addEventListener('click', async () => {
+                if (!confirm('確定要刪除這張 NFT 嗎？')) return
+
+                const fileName = nft.fileName || (nft.filePath ? nft.filePath.split('/').pop() : '')
+                if (!fileName) {
+                    alert('缺少檔名，無法刪除')
+                    return
+                }
+
+                try {
+                    const response = await fetch(`/api/Nft/${encodeURIComponent(fileName)}`, {
+                        method: 'DELETE',
+                        credentials: 'include'
+                    })
+                    const data = await response.json().catch(() => ({}))
+
+                    if (!response.ok || data?.success === false) {
+                        throw new Error(data?.message || `HTTP ${response.status}`)
+                    }
+
+                    // 關閉視窗
+                    overlay.remove()
+
+                    // 取得被刪除的檔名（含副檔名）做一致比對
+                    const deletedName = (fileName || '').toLowerCase()
+
+                    // 1) 先「本地即時」移除，畫面立刻反應
+                    try {
+                        // More 的列表
+                        if (Array.isArray(userNFTs?.value)) {
+                            userNFTs.value = userNFTs.value.filter(x => {
+                                const name = (x.fileName || (x.filePath ? x.filePath.split('/').pop() : '') || '').toLowerCase()
+                                return name !== deletedName
+                            })
+                        }
+
+                        // 九宮格的列表
+                        if (Array.isArray(userImages?.value)) {
+                            const filtered = userImages.value.filter(x => {
+                                const name = (x.fileName || (x.filePath ? x.filePath.split('/').pop() : '') || '').toLowerCase()
+                                return name !== deletedName
+                            })
+                            // 你有 padToNine → 補回 9 張
+                            userImages.value = typeof padToNine === 'function' ? padToNine(filtered) : filtered
+                        }
+
+                        // 2) 重新渲染 More 視窗（如果正在 More）
+                        const grid = document.querySelector('#nft-gallery-grid')
+                        if (grid && typeof loadAllNFTs === 'function') {
+                            await loadAllNFTs(grid)
+                        }
+
+                        // 3) 權威刷新（避免快取、確保跨裝置一致）
+                        if (typeof GetNTFImages === 'function') {
+                            await GetNTFImages(profile?.personId, 30)
+                        }
+                        if (typeof loadUserImages === 'function') {
+                            await loadUserImages()
+                        }
+                    } catch (e) {
+                        console.warn('Refresh after delete failed:', e)
+                    }
+                } catch (err) {
+                    console.error('Delete failed:', err)
+                    alert(`刪除失敗：${err.message || '請稍後再試'}`)
+                }
+            })
+        }
     }
+
+
+
+
 
     // ====== 載入縮圖（純 CSS 正方形卡片；點了放大，X 在右上角） ======
     const loadAllNFTs = async (container) => {
@@ -461,7 +578,7 @@ export const useProfile = () => {
                 im.alt = img.fileName || ''
                 card.appendChild(im)
 
-                // 點縮圖 → 使用你剛換好的 showNFTDetailModal（只有 X）
+                // 點縮圖 → （只有 X）
                 card.addEventListener('click', (e) => {
                     e.stopPropagation()
                     showNFTDetailModal(img)
