@@ -229,6 +229,391 @@ export const useProfile = () => {
     }
     //#endregion
 
+    //#region NFT Management
+    const uploadNFT = () => {
+        // Create file input for NFT upload
+        const input = document.createElement('input')
+        input.type = 'file'
+        input.accept = 'image/*'
+        input.multiple = true
+        input.style.display = 'none'
+
+        input.addEventListener('change', async (event) => {
+            const files = Array.from(event.target.files)
+            if (files.length === 0) return
+
+            for (const file of files) {
+                await handleNFTUpload(file)
+            }
+
+            // Refresh user images after upload
+            await GetNTFImages(profile?.personId, 30)
+        })
+
+        document.body.appendChild(input)
+        input.click()
+        document.body.removeChild(input)
+    }
+
+    const userNFTs = Vue.ref([])
+
+    async function GetNTFImages(personId, count = 30) {
+        const params = new URLSearchParams({ count: String(count) })
+        if (personId) params.append('personId', personId)
+        const response = await fetch(`/api/Nft/images?${params.toString()}`, {
+            method: "GET",
+            credentials: "include",
+            cache: "no-store"
+        })
+        if (!response.ok) throw new Error(`Http${response.status}`)
+        const nfts = await response.json();
+        userNFTs.value = nfts
+        return nfts
+    }
+
+    const handleNFTUpload = async (file) => {
+        // Check file type
+        if (!file.type.startsWith('image')) {
+            alert('請選擇圖片')
+            return
+        }
+
+        // Check file size (limit 10MB for NFTs)
+        const maxSize = 10 * 1024 * 1024 // 10MB
+        if (file.size > maxSize) {
+            alert('檔案大小不可超過 10MB')
+            return
+        }
+
+        try {
+            // Create FormData
+            const formData = new FormData()
+            formData.append('file', file)
+            formData.append('type', 'nft')
+            formData.append('category', 'artwork')
+
+            // Send upload request
+            const response = await fetch('/api/Nft/upload', {
+                method: 'POST',
+                credentials: 'include',
+                body: formData
+            })
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`)
+            }
+
+            const result = await response.json()
+
+            if (result.success) {
+                console.log('NFT uploaded successfully:', result.data.filePath)
+                alert('NFT 上傳成功！')
+            } else {
+                throw new Error(result.message || '上傳失敗')
+            }
+        } catch (error) {
+            console.error('NFT upload failed:', error)
+            alert('上傳失敗，請稍後再試')
+        }
+    }
+
+    const viewAllNFTs = () => {
+        // Open NFT gallery modal or navigate to full NFT collection page
+        showNFTGallery()
+    }
+
+    const viewNFTDetail = (image) => {
+        // Show individual NFT detail modal
+        showNFTDetailModal(image)
+    }
+
+    // ====== More 視窗 ======
+    const showNFTGallery = () => {
+        ensureGalleryStyles()
+
+        const modal = document.createElement('div')
+        modal.className = 'nft-backdrop'
+        modal.innerHTML = `
+    <div class="nft-grid-shell">
+      <div id="nft-gallery-grid" class="nft-grid"></div>
+    </div>
+  `
+        document.body.appendChild(modal)
+
+        // 用下面改好的 loadAllNFTs 來塞縮圖
+        loadAllNFTs(modal.querySelector('#nft-gallery-grid'))
+
+        // 點背景關閉
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) modal.remove()
+        })
+    }
+    const ensureGalleryStyles = () => {
+        if (document.getElementById('nft-gallery-inline-css')) return
+        const style = document.createElement('style')
+        style.id = 'nft-gallery-inline-css'
+        style.textContent = `
+    /* Backdrop */
+    .nft-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px;}
+    /* Grid shell */
+    .nft-grid-shell{max-width:1200px;width:100%;max-height:90vh;overflow:auto;background:transparent;border-radius:12px;padding:8px;}
+    /* Responsive grid */
+    .nft-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;}
+    @media (min-width:640px){.nft-grid{grid-template-columns:repeat(3,1fr);}}
+    @media (min-width:900px){.nft-grid{grid-template-columns:repeat(4,1fr);}}
+    @media (min-width:1200px){.nft-grid{grid-template-columns:repeat(5,1fr);}}
+    /* Square cards */
+    .nft-card{position:relative;width:100%;padding-bottom:100%;overflow:hidden;border-radius:10px;background:#111;cursor:pointer;}
+    .nft-card>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+    .nft-empty{color:#bbb;text-align:center;padding:24px;grid-column:1/-1;}
+    /* NFT Gallery Grid (More) */
+    .nft-actions { margin-top: 12px;text-align: center;}
+    .nft-delete {background: #e53935;color: #fff;border: none;padding: 8px 16px;border-radius: 8px;cursor: pointer;}
+    .nft-delete:hover {background: #c62828;}
+    /* --- viewer for enlarged image --- */
+    .nft-viewer{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:10000;display:flex;align-items:center;justify-content:center;padding:16px;}
+    .nft-viewer-col{display:flex;flex-direction:column;align-items:center;gap:12px;max-width:90vw;max-height:90vh;}
+    .nft-viewer-frame{position:relative;width:78vmin;height:78vmin;display:flex;align-items:center;justify-content:center;background:#000;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.5);}
+    .nft-viewer-frame img{width:100%;height:100%;object-fit:contain;border-radius:12px;}
+    .nft-close{position:absolute;top:8px;right:8px;background:rgba(0,0,0,0.6);color:#fff;border:none;border-radius:10px;padding:6px 10px;font-size:16px;cursor:pointer}
+    .nft-actions{text-align:center}
+    .nft-delete{background:#e53935;color:#fff;border:none;padding:8px 16px;border-radius:8px;cursor:pointer}
+    .nft-delete:hover{background:#c62828}
+
+    `
+        document.head.appendChild(style)
+    }
+    //點開後的大圖
+    function showNFTDetailModal(nft) {
+        // 背景 overlay
+        const overlay = document.createElement('div')
+        overlay.style.position = 'fixed'
+        overlay.style.inset = '0'
+        overlay.style.background = 'rgba(0,0,0,0.85)'
+        overlay.style.zIndex = '10000'
+        overlay.style.display = 'flex'
+        overlay.style.alignItems = 'center'
+        overlay.style.justifyContent = 'center'
+        overlay.style.padding = '16px'
+
+        // 直向容器
+        const col = document.createElement('div')
+        col.style.display = 'flex'
+        col.style.flexDirection = 'column'
+        col.style.alignItems = 'center'
+        col.style.gap = '12px'
+        col.style.maxWidth = '90vw'
+        col.style.maxHeight = '90vh'
+
+        // 方形圖框
+        const frame = document.createElement('div')
+        frame.style.position = 'relative'
+        frame.style.width = '78vmin'
+        frame.style.height = '78vmin'
+        frame.style.display = 'flex'
+        frame.style.alignItems = 'center'
+        frame.style.justifyContent = 'center'
+        frame.style.background = '#000'
+        frame.style.borderRadius = '12px'
+        frame.style.boxShadow = '0 10px 30px rgba(0,0,0,.5)'
+
+        // 圖片
+        const img = new Image()
+        img.src = nft.filePath
+        img.alt = nft.fileName || ''
+        img.style.width = '100%'
+        img.style.height = '100%'
+        img.style.objectFit = 'contain'
+        img.style.borderRadius = '12px'
+
+        // 關閉按鈕
+        const closeBtn = document.createElement('button')
+        closeBtn.textContent = '✕'
+        closeBtn.style.position = 'absolute'
+        closeBtn.style.top = '8px'
+        closeBtn.style.right = '8px'
+        closeBtn.style.background = 'rgba(0,0,0,0.6)'
+        closeBtn.style.color = '#fff'
+        closeBtn.style.border = 'none'
+        closeBtn.style.borderRadius = '10px'
+        closeBtn.style.padding = '6px 10px'
+        closeBtn.style.cursor = 'pointer'
+
+        // 動作區（Delete）
+        const actions = document.createElement('div')
+        actions.style.textAlign = 'center'
+
+        const delBtn = document.createElement('button')
+        delBtn.textContent = 'Delete'
+        delBtn.style.background = '#e53935'
+        delBtn.style.color = '#fff'
+        delBtn.style.border = 'none'
+        delBtn.style.padding = '8px 16px'
+        delBtn.style.borderRadius = '8px'
+        delBtn.style.cursor = 'pointer'
+
+        // 判斷是否本人
+        const isOwner = String(nft.userId) === String(window.currentUserId)
+
+        if (!isOwner) {
+            delBtn.disabled = true
+            delBtn.style.opacity = '0.5'
+            delBtn.style.cursor = 'not-allowed'
+        }
+
+        // 組裝
+        frame.appendChild(img)
+        frame.appendChild(closeBtn)
+        actions.appendChild(delBtn)
+        col.appendChild(frame)
+        col.appendChild(actions)
+        overlay.appendChild(col)
+        document.body.appendChild(overlay)
+
+        // 關閉事件
+        closeBtn.addEventListener('click', (e) => { e.stopPropagation(); overlay.remove() })
+        overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove() })
+
+        // 刪除事件（只有本人時才綁定）
+        if (isOwner) {
+            delBtn.addEventListener('click', async () => {
+                if (!confirm('確定要刪除這張 NFT 嗎？')) return
+
+                const fileName = nft.fileName || (nft.filePath ? nft.filePath.split('/').pop() : '')
+                if (!fileName) {
+                    alert('缺少檔名，無法刪除')
+                    return
+                }
+
+                try {
+                    const response = await fetch(`/api/Nft/${encodeURIComponent(fileName)}`, {
+                        method: 'DELETE',
+                        credentials: 'include'
+                    })
+                    const data = await response.json().catch(() => ({}))
+
+                    if (!response.ok || data?.success === false) {
+                        throw new Error(data?.message || `HTTP ${response.status}`)
+                    }
+
+                    // 關閉視窗
+                    overlay.remove()
+
+                    // 取得被刪除的檔名（含副檔名）做一致比對
+                    const deletedName = (fileName || '').toLowerCase()
+
+                    // 1) 先「本地即時」移除，畫面立刻反應
+                    try {
+                        // More 的列表
+                        if (Array.isArray(userNFTs?.value)) {
+                            userNFTs.value = userNFTs.value.filter(x => {
+                                const name = (x.fileName || (x.filePath ? x.filePath.split('/').pop() : '') || '').toLowerCase()
+                                return name !== deletedName
+                            })
+                        }
+
+                        // 九宮格的列表
+                        if (Array.isArray(userImages?.value)) {
+                            const filtered = userImages.value.filter(x => {
+                                const name = (x.fileName || (x.filePath ? x.filePath.split('/').pop() : '') || '').toLowerCase()
+                                return name !== deletedName
+                            })
+                            // 你有 padToNine → 補回 9 張
+                            userImages.value = typeof padToNine === 'function' ? padToNine(filtered) : filtered
+                        }
+
+                        // 2) 重新渲染 More 視窗（如果正在 More）
+                        const grid = document.querySelector('#nft-gallery-grid')
+                        if (grid && typeof loadAllNFTs === 'function') {
+                            await loadAllNFTs(grid)
+                        }
+
+                        // 3) 權威刷新（避免快取、確保跨裝置一致）
+                        if (typeof GetNTFImages === 'function') {
+                            await GetNTFImages(profile?.personId, 30)
+                        }
+                        if (typeof loadUserImages === 'function') {
+                            await loadUserImages()
+                        }
+                    } catch (e) {
+                        console.warn('Refresh after delete failed:', e)
+                    }
+                } catch (err) {
+                    console.error('Delete failed:', err)
+                    alert(`刪除失敗：${err.message || '請稍後再試'}`)
+                }
+            })
+        }
+    }
+
+
+
+
+
+    // ====== 載入縮圖（純 CSS 正方形卡片；點了放大，X 在右上角） ======
+    const loadAllNFTs = async (container) => {
+        try {
+            const response = await fetch('/api/Nft/images?count=100', {
+                method: 'GET',
+                credentials: 'include'
+            })
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`)
+
+            const images = await response.json()
+
+            if (!Array.isArray(images) || images.length === 0) {
+                container.innerHTML = '<div class="nft-empty">尚無 NFT 作品</div>'
+                return
+            }
+
+            // 先清空，再逐張建立卡片（不用 inline onclick，避免全域命名/快取問題）
+            container.textContent = ''
+            images.forEach((img) => {
+                const card = document.createElement('button')
+                card.type = 'button'
+                card.className = 'nft-card'
+
+                const im = document.createElement('img')
+                im.src = img.filePath
+                im.alt = img.fileName || ''
+                card.appendChild(im)
+
+                // 點縮圖 → （只有 X）
+                card.addEventListener('click', (e) => {
+                    e.stopPropagation()
+                    showNFTDetailModal(img)
+                })
+
+                container.appendChild(card)
+            })
+
+            // 若其他地方需要用到清單
+            window._nftGalleryImages = images
+        } catch (err) {
+            console.error('Failed to load all NFTs:', err)
+            container.innerHTML = '<div class="nft-empty" style="color:#f66">載入失敗</div>'
+        }
+    }
+
+    const formatFileSize = (bytes) => {
+        if (bytes === 0) return '0 Bytes'
+        const k = 1024
+        const sizes = ['Bytes', 'KB', 'MB', 'GB']
+        const i = Math.floor(Math.log(bytes) / Math.log(k))
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
+    }
+
+    // Make viewNFTDetailFromGallery available globally for onclick events
+    window.viewNFTDetailFromGallery = (fileId) => {
+        const image = userImages.value.find(img => img.fileId === fileId)
+        if (image) {
+            showNFTDetailModal(image)
+        }
+    }
+
+
+    //#endregion
+
     //#region File Handling
 
     const updateFile = type => {
@@ -524,6 +909,8 @@ export const useProfile = () => {
         await loadUserImages()
         manualLoadFunctions = setupManualLoad()
 
+        await GetNTFImages(profile?.personId, 30)
+
         // 設置無限滾動（Profile 頁面）
         Vue.nextTick(() => {
             if (window.globalApp && typeof window.globalApp.setupInfiniteScroll === 'function') {
@@ -579,6 +966,13 @@ export const useProfile = () => {
         validatePassword,
         validatePasswordWithDebounce,
         togglePasswordVisibility,
+
+        // NFT Methods
+        uploadNFT,
+        viewAllNFTs,
+        viewNFTDetail,
+        GetNTFImages,
+        userNFTs,
 
         // Manual load functions
         showLoadMoreButton: manualLoadFunctions?.showLoadMoreButton || Vue.ref(false),
