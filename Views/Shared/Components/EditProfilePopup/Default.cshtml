@@ -1,5 +1,5 @@
 @inject ICustomLocalizer Localizer
-<div v-if="editMode" class="profile-edit">
+<div v-if="editMode" class="profile-edit hidden" :class="editMode ? '!flex' : 'hidden'">
   <div class="mock" v-on:click="cancel"></div>
 
   <form method="post" class="profile-edit_layout bg-accent">
