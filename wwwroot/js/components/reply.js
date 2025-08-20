@@ -7,9 +7,9 @@ export function useReply() {
         submitting: false,
         error: '',
         articleId: null,
-        article: null, 
+        article: null,
         replies: [],
-        newComment: '' 
+        newComment: ''
     })
 
     function normalizeReply(dto) {
@@ -23,9 +23,19 @@ export function useReply() {
                 dto.author?.effectiveDisplayName ??
                 dto.Author?.EffectiveDisplayName ??
                 '未知作者',
-            createTime: dto.createTime ?? dto.CreateTime ?? dto.createdAt ?? dto.CreatedAt ?? null,
+            authorAvatar:
+                dto.authorAvatar ??
+                dto.AuthorAvatar ??
+                dto.author?.avatarPath ??
+                dto.Author?.AvatarPath ??
+                '/static/img/default_avatar.png',
+            createTime:
+                dto.createTime ?? dto.CreateTime ?? dto.replyTime ?? dto.ReplyTime ?? null,
+            createTimeFormatted:
+                dto.createTimeFormatted ?? dto.CreateTimeFormatted ?? null
         }
     }
+
 
     async function openReply(articleId) {
         replyModal.visible = true
@@ -85,40 +95,38 @@ export function useReply() {
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',
                 body: JSON.stringify({ content })
-            });
+            })
 
             if (res.status === 401) {
-                replyModal.error = '請先登入才能留言';
-                window.loginPopupManager?.open?.();
-                return;
+                replyModal.error = '請先登入才能留言'
+                window.loginPopupManager?.open?.()
+                return
             }
 
-            let json;
+            let json
             try {
-                json = await res.clone().json();
+                json = await res.clone().json()
             } catch (e) {
-                const text = await res.text();
-                throw new Error("Invalid JSON: " + text);
+                const text = await res.text()
+                throw new Error('Invalid JSON: ' + text)
             }
 
             if (!res.ok || !json?.success) {
-                throw new Error(json?.message || res.statusText);
+                throw new Error(json?.message || res.statusText)
             }
 
-            const normalized = normalizeReply(json.data);
-            if (normalized) replyModal.replies.unshift(normalized);
-            replyModal.newComment = '';
+            const normalized = normalizeReply(json.data)
+            if (normalized) replyModal.replies.unshift(normalized)
+            replyModal.newComment = ''
 
-            await nextTick();
-            window.lucide?.createIcons?.();
+            await nextTick()
+            window.lucide?.createIcons?.()
         } catch (err) {
-            console.error('[submitReply] failed:', err);
-            replyModal.error = err.message || '留言失敗';
+            console.error('[submitReply] failed:', err)
+            replyModal.error = err.message || '留言失敗'
         } finally {
-            replyModal.submitting = false;
+            replyModal.submitting = false
         }
-
-
     }
 
     async function openReplyWithAuth(articleId, currentUser) {

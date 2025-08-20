@@ -1,17 +1,24 @@
 ﻿<div v-if="replyModal.visible" class="fixed inset-0 z-[999] flex items-center justify-center">
     <div class="absolute inset-0 bg-black/50" v-on:click="closeReply()"></div>
+
     <div class="relative z-[1000] flex h-[80vh] max-h-[800px] min-h-[650px] items-stretch">
 
-        <!-- 左側：文章內容 -->
+        <!-- 左側：文章 -->
         <div class="relative flex h-full w-[600px] flex-col overflow-hidden rounded-[15px] bg-[#161616] p-6 pt-[70px]">
-            <!-- 頭像和名字 -->
-            <img :src="replyModal.article?.authorAvatar || '/static/images/default_avatar.png'"
-                 class="absolute top-[25px] left-[24px] h-[32px] w-[34px] rounded-[24px] object-cover object-center"
-                 alt="" />
-            <div class="absolute top-[30px] left-[69px] text-white text-[18px] font-['Roboto'] font-normal leading-[22px]">
-                {{ replyModal.article?.authorName || '未知作者' }}
-            </div>
-            <button id="closePostBtn" v-on:click="closeReply()" class="absolute top-[22px] right-[24px] h-[32px] w-[32px] text-white hover:text-gray-300">
+            <!-- 只有拿到 article 才渲染頭部資訊，避免未載入時取到 undefined -->
+            <template v-if="replyModal.article">
+                <!-- 頭像 -->
+                <img :src="replyModal.article.authorAvatar || '/static/images/default_avatar.png'"
+                     class="absolute top-[25px] left-[24px] h-[32px] w-[34px] rounded-[24px] object-cover object-center"
+                     alt="" />
+                <!-- 名稱 -->
+                <div class="absolute top-[30px] left-[69px] text-white text-[18px] font-['Roboto'] leading-[22px]">
+                    {{ replyModal.article.authorName || '未知作者' }}
+                </div>
+            </template>
+
+            <!-- 關閉 -->
+            <button v-on:click="closeReply()" class="absolute top-[22px] right-[24px] h-[32px] w-[32px] text-white hover:text-gray-300">
                 <svg viewBox="0 0 24 24" class="h-full w-full fill-current">
                     <path d="M6 6 L18 18 M6 18 L18 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
                 </svg>
@@ -19,19 +26,20 @@
 
             <!-- 主要內容 -->
             <div class="flex flex-1 flex-col gap-4 pt-[10px] pb-[90px]">
-                <p class="leading-7 break-words whitespace-pre-wrap">{{ replyModal.article?.content }}</p>
+                <p class="leading-7 break-words whitespace-pre-wrap">
+                    {{ replyModal.article?.content }}
+                </p>
 
-                <!-- 檔案預覽區 -->
+                <!-- 檔案預覽區（若有） -->
                 <div id="imagePreviewArea" class="flex flex-wrap items-end gap-2"></div>
                 <div id="filePreviewArea" class="flex flex-wrap items-end gap-2"></div>
             </div>
 
-            <!-- 文章 hashtags -->
-            <div class="flex w-full flex-col px-6 pb-6" v-if="replyModal.article?.hashtags?.length">
-                <div class="mb-2 flex flex-wrap gap-2">
-                    <span v-for="tag in replyModal.article.hashtags" :key="tag.tagId"
-                          class="rounded-full bg-white/10 px-3 py-1 text-sm text-white">#{{ tag.text }}</span>
-                </div>
+            <!-- hashtag -->
+            <div v-if="replyModal.article?.hashtags?.length" class="flex w-full flex-wrap gap-2 px-6 pb-6">
+                <span v-for="tag in replyModal.article.hashtags"
+                      :key="tag.tagId"
+                      class="rounded-full bg-white/10 px-3 py-1 text-sm text-white">#{{ tag.text }}</span>
             </div>
 
             <!-- 按讚&收藏 -->
@@ -47,7 +55,7 @@
             </div>
         </div>
 
-        <!-- 右側：留言面板 -->
+        <!-- 右側：留言 -->
         <div class="relative flex h-full w-[400px] overflow-hidden rounded-[15px] bg-[#161616]">
             <div class="flex w-full flex-col">
                 <div class="flex items-center justify-between border-b border-white/10 px-4 py-3">
@@ -58,24 +66,36 @@
                 <div class="flex-1 space-y-3 overflow-y-auto px-4 py-3">
                     <div v-if="replyModal.loading" class="text-white/60">載入中…</div>
                     <div v-else-if="!replyModal.replies.length" class="text-white/60">還沒有留言</div>
-
-                    <div v-for="r in replyModal.replies" :key="r.replyId" class="rounded-lg bg-white/[0.04] p-3">
+                    <div v-for="reply in replyModal.replies" :key="reply.replyId" class="rounded-lg bg-white/[0.04] p-3">
                         <div class="flex items-center justify-between">
-                            <div class="text-sm font-medium text-white">{{ r.authorName || '未知作者' }}</div>
-                            <div class="text-xs text-white/50">{{ formatDate(r.createTime) }}</div>
+                            <div class="flex items-center gap-2">
+                                <img :src="reply.authorAvatar || '/static/img/default_avatar.png'"
+                                     class="h-7 w-7 rounded-full object-cover"
+                                     alt="avatar"
+                                     v-on:error ="e => e.target.src='/static/img/default_avatar.png'" />
+                                <div class="text-sm font-medium text-white">
+                                    {{ reply.authorName || '未知作者' }}
+                                </div>
+                            </div>
+                            <div class="text-xs text-white/50">
+                                {{ reply.createTimeFormatted || formatDate(reply.createTime, 'YYYY-MM-DD HH:mm') }}
+                            </div>
                         </div>
-                        <div class="mt-1 text-sm whitespace-pre-wrap text-white/90">{{ r.content }}</div>
+                        <div class="mt-2 text-sm whitespace-pre-wrap text-white/90">{{ reply.content }}</div>
                     </div>
+
                 </div>
 
                 <!-- 新增留言 -->
                 <div class="border-t border-white/10 p-3">
                     <div class="flex items-end gap-2">
-                        <textarea v-model="replyModal.newComment" rows="1"
-                                  class="placeholder-white/40 h-auto max-h-40 min-h-[2.5rem] w-full resize-none overflow-auto rounded-3xl bg-[#131313] p-2 text-white outline-none [field-sizing:content]"
+                        <textarea v-model="replyModal.newComment"
+                                  rows="1"
+                                  class="placeholder-white/40 h-auto max-h-40 min-h-[2.5rem] w-full resize-none overflow-auto rounded-full
+                     bg-[#131313] p-2 text-white outline-none [field-sizing:content]"
                                   placeholder="寫點什麼吧…"></textarea>
                         <button v-on:click="submitReply"
-                                class="shrink-0 rounded-3xl bg-white/90 px-3 py-2 text-sm font-medium text-black hover:bg-white"
+                                class="shrink-0 rounded-full bg-white/90 px-3 py-2 text-sm font-medium text-black hover:bg-white"
                                 :disabled="replyModal.submitting">
                             {{ replyModal.submitting ? '送出中…' : '送出' }}
                         </button>
@@ -84,5 +104,6 @@
                 </div>
             </div>
         </div>
+
     </div>
 </div>
