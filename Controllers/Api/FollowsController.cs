@@ -16,12 +16,14 @@ namespace Matrix.Controllers.Api
         private readonly ApplicationDbContext _context;
         private readonly IFollowService _followService;
         private readonly IPersonRepository _personRepository;
+        private readonly INotificationService _notificationService;
 
-        public FollowsController(ApplicationDbContext context, IFollowService followService, IPersonRepository personRepository)
+        public FollowsController(ApplicationDbContext context, IFollowService followService, IPersonRepository personRepository, INotificationService notificationService)
         {
             _context = context;
             _followService = followService;
             _personRepository = personRepository;
+            _notificationService = notificationService;
         }
 
         [HttpGet]
@@ -100,6 +102,26 @@ namespace Matrix.Controllers.Api
                 return Unauthorized(new { success = false, message = "找不到對應的用戶資料" });
 
             var success = await _followService.FollowAsync(person.PersonId, targetId);
+
+
+            if (success)
+            {
+                // 🔔 送「追蹤你」通知：這裡要用 UserId
+                // targetId 是對方的 PersonId，先找出對方的 UserId
+                var targetPerson = await _context.Persons
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(p => p.PersonId == targetId);
+
+                if (targetPerson?.UserId != null && targetPerson.UserId != Guid.Empty)
+                {
+                    // type=3 代表「追蹤」
+                    await _notificationService.SendUserNotificationAsync(
+                        senderId: auth.UserId,            // 我（UserId）
+                        receiverId: targetPerson.UserId,  // 對方（UserId）
+                        type: 3
+                    );
+                }
+            }
             return Ok(new { success });
         }
 

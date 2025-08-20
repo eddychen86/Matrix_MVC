@@ -106,7 +106,8 @@ public class Program
 
         builder.Services.AddScoped<IArticleService, ArticleService>();
         builder.Services.AddScoped<IFollowService, FollowService>();
-        
+        builder.Services.AddScoped<INotificationService, NotificationService>();
+
         // SignalR 相關服務（僅註冊 Hub）
         builder.Services.AddSignalR();
 
