@@ -98,7 +98,7 @@ namespace Matrix.Controllers.Api
         // Delete   /api/Nft/{fileName}
         [HttpDelete("{fileName}")]
 
-        public async Task<IActionResult> DeleteNFT([FromRoute]String fileName)
+        public IActionResult DeleteNFT([FromRoute]String fileName)
         {
             if (string.IsNullOrWhiteSpace(fileName)) 
             {
