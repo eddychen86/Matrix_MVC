@@ -48,5 +48,6 @@ namespace Matrix.Controllers.Api
             var stats = await _followService.GetFollowStatsAsync(personId);
             return Ok(new { success = true, data = stats });
         }
+
     }
 }

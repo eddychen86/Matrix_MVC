@@ -108,10 +108,13 @@
                                         </div>
 
                                         <div class="flex flex-col items-end justify-between space-y-1">
-                                            <button class="cts-btn !text-blue-400 hover:underline"
-                                                    @@click="toggleFollow(user.personId, user.isFollowed)">
-                                                {{ user.isFollowed ? '取消追蹤' : '追蹤' }}
-                                            </button>
+                                            <a class="cts-btn !text-blue-400 hover:underline"
+                                               :href="`/Profile/${encodeURIComponent(user.username)}`">
+                                                查看
+                                            </a>
+
+
+
                                         </div>
                                     </div>
 

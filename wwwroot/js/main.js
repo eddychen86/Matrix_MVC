@@ -505,6 +505,7 @@ globalApp({
 
                 popupData.Search.Users = users.data.map(user => ({
                     personId: user.personId,
+                    username: user.username || user.userName || '',
                     displayName: user.displayName,
                     avatarUrl: user.avatarPath,
                     bio: user.bio || '這位使用者尚未填寫個人簡介。',
