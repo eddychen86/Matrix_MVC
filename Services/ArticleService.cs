@@ -50,6 +50,56 @@ namespace Matrix.Services
             return _mapper.Map<ArticleDto>(article);
         }
 
+        ///<summary>
+        ///取得單篇文章詳情（含作者、附件、hashtags）
+        /// </summary>
+        public async Task<ArticleDto?> GetArticleDetailAsync(Guid articleId)
+        {
+            return await _context.Set<Article>()                   // ← _db 改成 _context
+                .AsNoTracking()
+                .Where(a => a.ArticleId == articleId)
+                .Select(a => new ArticleDto
+                {
+                    ArticleId = a.ArticleId,
+                    AuthorId = a.AuthorId,
+                    Content = a.Content,
+                    IsPublic = a.IsPublic,
+                    Status = a.Status,
+                    CreateTime = a.CreateTime,
+                    PraiseCount = a.PraiseCount,
+                    CollectCount = a.CollectCount,
+
+                    // ★ 不要指定 AuthorName/AuthorAvatar（它們是唯讀），改填 Author
+                    Author = a.Author == null ? null : new PersonDto
+                    {
+                        PersonId = a.Author.PersonId,
+                        UserId = a.Author.UserId,
+                        DisplayName = a.Author.DisplayName,
+                        AvatarPath = a.Author.AvatarPath
+                    },
+
+                    Attachments = a.Attachments.Select(att => new ArticleAttachmentDto
+                    {
+                        FileId = att.FileId,
+                        FilePath = att.FilePath,
+                        FileName = att.FileName,
+                        Type = att.Type
+                    }).ToList(),
+
+                    // ★ Hashtags：你的 HashtagDto 是 Name 欄位
+                    Hashtags = a.ArticleHashtags
+                        .Where(ah => ah.Hashtag != null)
+                        .Select(ah => new HashtagDto
+                        {
+                            TagId = ah.TagId,
+                            Name = ah.Hashtag!.Content   // 這裡改填 Name，不用 Content
+                        }).ToList()
+                })
+                .FirstOrDefaultAsync();
+        }
+
+
+
         /// <summary>
         /// 建立文章
         /// </summary>

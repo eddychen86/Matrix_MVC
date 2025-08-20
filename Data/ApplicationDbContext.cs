@@ -24,6 +24,20 @@ namespace Matrix.Data
                 .Entity<ArticleHashtag>()
                 .HasKey(ah => new { ah.ArticleId, ah.TagId });
 
+            /// ArticleHashtag → Article (多對一)；Article → ArticleHashtags (一對多)
+            modelBuilder.Entity<ArticleHashtag>()
+                .HasOne(ah => ah.Article)
+                .WithMany(a => a.ArticleHashtags)
+                .HasForeignKey(ah => ah.ArticleId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            /// ArticleHashtag → Hashtag (多對一)；Hashtag → ArticleHashtags (一對多)
+            modelBuilder.Entity<ArticleHashtag>()
+                .HasOne(ah => ah.Hashtag)
+                .WithMany(h => h.ArticleHashtags)
+                .HasForeignKey(ah => ah.TagId)
+                .OnDelete(DeleteBehavior.Cascade);
+
             /// <summary>
             /// 設定 Person 與 User 的一對一關聯，使用 Person.UserId 作為外鍵並設為必要關聯
             /// </summary>

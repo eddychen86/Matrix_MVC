@@ -1,8 +1,11 @@
-using Microsoft.AspNetCore.Mvc;
-using Matrix.Services.Interfaces;
 using Matrix.DTOs;
-using System.Security.Claims;
+using Matrix.Services.Interfaces;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using System.Collections.ObjectModel;
+using System.Net.Mail;
+using System.Security.Claims;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Matrix.Controllers.Api
 {
@@ -216,5 +219,40 @@ namespace Matrix.Controllers.Api
             var result = await _replyService.GetRepliesByArticleIdAsync(id);
             return Ok(result);
         }
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> Getarticle(Guid id)
+        {
+            try
+            {
+                var article = await _articleService.GetArticleAsync(id);
+                if (article == null)
+                {
+                    return NotFound(new { message = "文章不存在" });
+                }
+
+                var response = new
+                {
+                    articleId = article.ArticleId,
+                    content = article.Content,
+                    createTime = article.CreateTime,
+                    praiseCount = article.PraiseCount,
+                    collectCount = article.CollectCount,
+                    authorName = article.AuthorName,
+                    authorAvatar = article.AuthorAvatar,
+                    attachments = article.Attachments ?? [],
+                    replies = article.Replies ?? [],
+                    hashtags = article.Hashtags ?? []
+                };
+
+                return Ok(new { success = true, article = response });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error fetching article detail {Id}", id);
+                return StatusCode(500, new { success = false, message = ex.Message });
+            }
+        }
+
     }
 }

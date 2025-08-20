@@ -1,8 +1,9 @@
+﻿using AutoMapper;
 using Matrix.DTOs;
 using Matrix.Models;
+using Matrix.Repository;
 using Matrix.Repository.Interfaces;
 using Matrix.Services.Interfaces;
-using AutoMapper;
 
 namespace Matrix.Services
 {
@@ -10,12 +11,14 @@ namespace Matrix.Services
     {
         private readonly IReplyRepository _replyRepository;
         private readonly IArticleRepository _articleRepository;
+        private readonly IPersonRepository _personRepository;
         private readonly IMapper _mapper;
 
-        public ReplyService(IReplyRepository replyRepository, IArticleRepository articleRepository, IMapper mapper)
+        public ReplyService(IReplyRepository replyRepository, IArticleRepository articleRepository, IMapper mapper, IPersonRepository personRepository)
         {
             _replyRepository = replyRepository;
             _articleRepository = articleRepository;
+            _personRepository = personRepository;
             _mapper = mapper;
         }
 
@@ -27,19 +30,35 @@ namespace Matrix.Services
                 return new ReturnType<ReplyDto> { Success = false, Message = "Article not found." };
             }
 
+            // 這裡把 UserId 轉成 PersonId
+            var person = await _personRepository.GetByUserIdAsync(userId);
+            if (person == null)
+            {
+                return new ReturnType<ReplyDto> { Success = false, Message = "Person profile not found for current user." };
+            }
+
             var reply = new Reply
             {
                 ArticleId = articleId,
-                UserId = userId,
+                UserId = person.PersonId,
                 Content = content,
                 ReplyTime = DateTime.UtcNow
             };
 
             await _replyRepository.AddAsync(reply);
 
-            var replyDto = _mapper.Map<ReplyDto>(reply);
+            // 重新載入（含作者資訊）
+            var saved = await _replyRepository.GetByIdWithUserAsync(reply.ReplyId);
+            if (saved == null)
+            {
+                return new ReturnType<ReplyDto> { Success = false, Message = "Reply not found after creation." };
+            }
+
+            var replyDto = _mapper.Map<ReplyDto>(saved);
             return new ReturnType<ReplyDto> { Success = true, Data = replyDto };
         }
+
+
 
         public async Task<ReturnType<List<ReplyDto>>> GetRepliesByArticleIdAsync(Guid articleId)
         {

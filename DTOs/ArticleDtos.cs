@@ -42,6 +42,11 @@ namespace Matrix.DTOs
         public DateTime CreateTime { get; set; }
 
         /// <summary>
+        /// 文章的Hashtags
+        /// </summary>
+        public List<HashtagDto> Hashtags { get; set; } = new();
+
+        /// <summary>
         /// 文章獲得的讚數量
         /// </summary>
         public int PraiseCount { get; set; }
@@ -207,6 +212,12 @@ namespace Matrix.DTOs
         public string? FileName { get; set; }
         public string Type { get; set; } = null!;
         public DateTime CreateTime { get; set; }
+    }
+
+    public class HashtagDto
+    {
+        public Guid TagId { get; set; }
+        public string Name { get; set; } = string.Empty;
     }
 
     /// <summary>
