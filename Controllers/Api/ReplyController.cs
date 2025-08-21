@@ -54,7 +54,5 @@ namespace Matrix.Controllers.Api
                 return StatusCode(500, new { success = false, message = ex.Message });
             }
         }
-
-
     }
 }

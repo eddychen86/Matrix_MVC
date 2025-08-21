@@ -1,4 +1,5 @@
 using Matrix.DTOs;
+using Matrix.Models;
 using Matrix.Services.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -158,7 +159,8 @@ namespace Matrix.Controllers.Api
                         collectCount = a.CollectCount,
                         authorName = a.Author?.DisplayName ?? "未知作者",
                         authorAvator = a.Author?.AvatarPath ?? "",
-                        attachments = a.Attachments ?? new List<ArticleAttachmentDto>()
+                        attachments = a.Attachments ?? new List<ArticleAttachmentDto>(),
+                        hashtags = a.Hashtags ?? []
                     }).ToList(),
                     totalCount
                 };

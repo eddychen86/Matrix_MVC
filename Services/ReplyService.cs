@@ -42,7 +42,7 @@ namespace Matrix.Services
                 ArticleId = articleId,
                 UserId = person.PersonId,
                 Content = content,
-                ReplyTime = DateTime.UtcNow
+                ReplyTime = DateTime.Now
             };
 
             await _replyRepository.AddAsync(reply);
