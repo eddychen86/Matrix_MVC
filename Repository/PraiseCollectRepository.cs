@@ -49,6 +49,7 @@ namespace Matrix.Repository
         {
             return await _dbSet
                 .Include(pc => pc.Article)
+                .ThenInclude(a => a!.Attachments)
                 .Include(pc => pc.User)
                 .Where(pc => pc.UserId == userId && pc.Type == CollectType)
                 .OrderByDescending(pc => pc.CreateTime)

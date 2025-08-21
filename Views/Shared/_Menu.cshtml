@@ -1,9 +1,9 @@
-@using Matrix.Extensions
+﻿@using Matrix.Extensions
 @using Matrix.Services
 @model Matrix.ViewModels.MenuViewModel
 @inject ICustomLocalizer Localizer
 
-<aside id="sidebar-app" class="top-0 left-0 p-4 h-screen">
+<aside id="sidebar-app" class="top-0 left-0 h-screen p-4">
     <ul :class="isCollapsed ? 'sidebar-close' : 'sidebar-open'" class="sidebar">
         <!-- Sidebar content here -->
         <li>
@@ -18,15 +18,17 @@
                 </a>
             }
         </li>
-        <li>
-            @foreach (var i in Model.Menus)
-            {
-                <button class="cts-btn hover:bg-gray-900" v-on:click="openPopup('@i.Title')">
-                    <i data-lucide="@i.Icon" class="icon-base text-white"></i>
-                    <span class="title" data-i18n="@i.Title">@Localizer[i.Title]</span>
-                </button>
-            }
-        </li>
+        @if (Model.IsAuthenticated) {
+            <li>
+                @foreach (var i in Model.Menus)
+                {
+                    <button class="cts-btn hover:bg-gray-900" v-on:click="openPopup('@i.Title')">
+                        <i data-lucide="@i.Icon" class="icon-base text-white"></i>
+                        <span class="title" data-i18n="@i.Title">@Localizer[i.Title]</span>
+                    </button>
+                }
+            </li>
+        }
         <li>
             @if (Model.UserRole >= 1) {
                 <a asp-area="Dashboard" asp-controller="Overview" asp-action="Index" aria-current="page">

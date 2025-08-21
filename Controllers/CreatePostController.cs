@@ -14,19 +14,19 @@ using Matrix.Repository.Interfaces;
 namespace Matrix.Controllers
 {
     [Route("[controller]")]
-    public class PostController(
+    public class CreatePostController(
         IArticleService articleService,
         IHashtagRepository hashtagRepository,
         IFileService fileService,
         IArticleAttachmentRepository articleAttachmentRepository,
-        ILogger<PostController> logger
+        ILogger<CreatePostController> logger
     ) : Controller
     {
         private readonly IArticleService _articleService = articleService;
         private readonly IHashtagRepository _hashtagRepository = hashtagRepository;
         private readonly IFileService _fileService = fileService;
         private readonly IArticleAttachmentRepository _articleAttachmentRepository = articleAttachmentRepository;
-        private readonly ILogger<PostController> _logger = logger;
+        private readonly ILogger<CreatePostController> _logger = logger;
 
         [HttpPost("Create")]
         public async Task<IActionResult> Create([FromForm] CreateArticleDto dto)

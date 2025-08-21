@@ -121,7 +121,7 @@ export function useCreatePost({ onCreated } = {}) {
     async function fetchHashtags() {
         if (allHashtags.value.length > 0) return
         try {
-            const res = await fetch('/Post/GetHashtags')
+            const res = await fetch('/CreatePost/GetHashtags')
             const raw = await res.json()
             allHashtags.value = (raw || []).map(x => ({
                 tagId: String(x.tagId ?? x.TagId ?? x.id ?? x.ID),
@@ -246,7 +246,7 @@ export function useCreatePost({ onCreated } = {}) {
         selectedHashtags.value.forEach(tag => formData.append('SelectedHashtags', tag.tagId))
 
         try {
-            const res = await fetch('/Post/Create', { method: 'POST', body: formData })
+            const res = await fetch('/CreatePost/Create', { method: 'POST', body: formData })
             if (res.ok) {
                 const article = await res.json()
                 afterCreated?.(article)

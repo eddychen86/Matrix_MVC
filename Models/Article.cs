@@ -51,6 +51,12 @@ namespace Matrix.Models
         /// </summary>
         public int CollectCount { get; set; } = 0;
 
+        /// <summary>
+        /// 併發控制版本號，用於樂觀鎖定
+        /// </summary>
+        [Timestamp]
+        public byte[] RowVersion { get; set; } = null!;
+
         // Navigation properties
         /// <summary>
         /// 文章作者 (導航屬性)

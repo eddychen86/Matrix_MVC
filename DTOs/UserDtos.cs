@@ -111,6 +111,29 @@ namespace Matrix.DTOs
     }
 
     /// <summary>
+    /// 分析使用者資料
+    /// </summary>
+    public class UserBasicDto
+    {
+        /// <summary>
+        /// 使用者的唯一識別碼
+        /// </summary>
+        public Guid UserId { get; set; }
+
+        /// <summary>
+        /// 使用者的顯示名稱
+        /// </summary>
+        [Required(ErrorMessage = "User_UserNameRequired")]
+        [StringLength(50, MinimumLength = 1, ErrorMessage = "User_UserNameLength1To50")]
+        public string UserName { get; set; } = string.Empty;
+
+        /// <summary>
+        /// 使用者最後一次登入的時間
+        /// </summary>
+        public DateTime? LastLoginTime { get; set; }
+    }
+
+    /// <summary>
     /// 建立新使用者的資料傳輸物件
     /// </summary>
     public class CreateUserDto
@@ -207,13 +230,13 @@ namespace Matrix.DTOs
         public bool IsPasswordStrong()
         {
             if (string.IsNullOrEmpty(Password)) return false;
-            
+
             if (Password.Length < 6) return false;
-            
+
             if (!Password.Any(char.IsLetter)) return false;
-            
+
             if (!Password.Any(char.IsDigit)) return false;
-            
+
             return true;
         }
 
@@ -223,7 +246,7 @@ namespace Matrix.DTOs
         public bool IsEmailValid()
         {
             if (string.IsNullOrEmpty(Email)) return false;
-            
+
             try
             {
                 var addr = new System.Net.Mail.MailAddress(Email);

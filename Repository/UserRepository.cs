@@ -17,6 +17,20 @@ namespace Matrix.Repository
             _passwordHasher = passwordHasher;
         }
 
+        public async Task<List<UserBasicDto>> GetAllWithUserAsync()
+        {
+            return await _dbSet
+                .AsNoTracking()
+                .Where(u => u.Status != 0 && u.Role == 0) // 在資料庫層篩選
+                .Select(u => new UserBasicDto
+                {
+                    UserId = u.UserId,
+                    UserName = u.UserName,
+                    LastLoginTime = u.LastLoginTime
+                })
+                .ToListAsync();
+        }
+
         public async Task<User?> GetByUsernameAsync(string username)
         {
             return await _dbSet

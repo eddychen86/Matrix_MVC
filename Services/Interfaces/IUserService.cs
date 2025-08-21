@@ -9,6 +9,11 @@ namespace Matrix.Services.Interfaces
     public interface IUserService : ISearchableService<UserDto>, IStatusManageable<Guid>
     {
         /// <summary>
+        /// 獲取基本使用者資訊（UserId, UserName, LastLoginTime）
+        /// </summary>
+        Task<List<UserBasicDto>> GetUserBasicsAsync();
+
+        /// <summary>
         /// 根據 ID 獲取使用者資料
         /// </summary>
         /// <param name="id">使用者 ID</param>
@@ -165,5 +170,12 @@ namespace Matrix.Services.Interfaces
         /// <param name="count">圖片數量限制，預設為10</param>
         /// <returns>圖片資訊列表</returns>
         Task<List<UserImageDto>> GetUserImagesAsync(Guid userId, int count = 10);
+
+        /// <summary>
+        /// 更新使用者的最後登入時間
+        /// </summary>
+        /// <param name="userId">使用者 ID</param>
+        /// <returns>更新是否成功</returns>
+        Task<bool> UpdateLastLoginTimeAsync(Guid userId);
     }
 }

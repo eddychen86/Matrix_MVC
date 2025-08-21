@@ -27,51 +27,73 @@ namespace Matrix.Services
         /// </summary>
         public async Task<AuthorizationResult> CheckUserAuthorizationAsync(Guid userId, int? minimumRole = null)
         {
-            try
+            const int maxRetries = 3;
+            var retryCount = 0;
+
+            while (retryCount < maxRetries)
             {
-                // 獲取用戶信息
-                var user = await _userService.GetUserAsync(userId);
-                if (user == null)
+                try
                 {
-                    _logger.LogWarning("用戶不存在: {UserId}", userId);
-                    return AuthorizationResult.Fail(_localizer["UserNotFound"], UserStatusCode.NotFound);
+                    // 獲取用戶信息
+                    var user = await _userService.GetUserAsync(userId);
+                    if (user == null)
+                    {
+                        _logger.LogWarning("用戶不存在: {UserId}", userId);
+                        return AuthorizationResult.Fail(_localizer["UserNotFound"], UserStatusCode.NotFound);
+                    }
+
+                    // 檢查用戶狀態
+                    var statusResult = MapUserStatusToCode(user.Status);
+                    if (statusResult != UserStatusCode.Active)
+                    {
+                        var errorMessage = GetStatusErrorMessage(statusResult);
+                        _logger.LogWarning("用戶狀態異常: {UserId}, Status: {Status}", userId, user.Status);
+                        return AuthorizationResult.Fail(errorMessage, statusResult);
+                    }
+
+                    // 檢查權限等級
+                    if (minimumRole.HasValue && user.Role < minimumRole.Value)
+                    {
+                        _logger.LogWarning("用戶權限不足: {UserId}, Role: {Role}, Required: {RequiredRole}", 
+                            userId, user.Role, minimumRole.Value);
+                        return AuthorizationResult.Fail(_localizer["InsufficientPermission"], UserStatusCode.InsufficientPermission);
+                    }
+
+                    // 創建用戶授權信息
+                    var authInfo = new UserAuthInfo
+                    {
+                        UserId = user.UserId,
+                        UserName = user.UserName,
+                        Email = user.Email,
+                        Role = user.Role,
+                        Status = user.Status,
+                        LastLoginTime = user.LastLoginTime
+                    };
+
+                    return AuthorizationResult.Success(authInfo);
                 }
-
-                // 檢查用戶狀態
-                var statusResult = MapUserStatusToCode(user.Status);
-                if (statusResult != UserStatusCode.Active)
+                catch (InvalidOperationException ex) when (ex.Message.Contains("connection is closed"))
                 {
-                    var errorMessage = GetStatusErrorMessage(statusResult);
-                    _logger.LogWarning("用戶狀態異常: {UserId}, Status: {Status}", userId, user.Status);
-                    return AuthorizationResult.Fail(errorMessage, statusResult);
+                    retryCount++;
+                    _logger.LogWarning("資料庫連接已關閉，重試第 {RetryCount} 次: {UserId}", retryCount, userId);
+                    
+                    if (retryCount >= maxRetries)
+                    {
+                        _logger.LogError(ex, "檢查用戶授權時資料庫連接失敗，已達最大重試次數: {UserId}", userId);
+                        return AuthorizationResult.Fail("系統暫時無法驗證用戶權限，請稍後再試", UserStatusCode.NotFound);
+                    }
+                    
+                    // 等待一小段時間後重試
+                    await Task.Delay(100 * retryCount);
                 }
-
-                // 檢查權限等級
-                if (minimumRole.HasValue && user.Role < minimumRole.Value)
+                catch (Exception ex)
                 {
-                    _logger.LogWarning("用戶權限不足: {UserId}, Role: {Role}, Required: {RequiredRole}", 
-                        userId, user.Role, minimumRole.Value);
-                    return AuthorizationResult.Fail(_localizer["InsufficientPermission"], UserStatusCode.InsufficientPermission);
+                    _logger.LogError(ex, "檢查用戶授權時發生錯誤: {UserId}", userId);
+                    return AuthorizationResult.Fail(_localizer["AuthorizationCheckError"], UserStatusCode.NotFound);
                 }
-
-                // 創建用戶授權信息
-                var authInfo = new UserAuthInfo
-                {
-                    UserId = user.UserId,
-                    UserName = user.UserName,
-                    Email = user.Email,
-                    Role = user.Role,
-                    Status = user.Status,
-                    LastLoginTime = user.LastLoginTime
-                };
-
-                return AuthorizationResult.Success(authInfo);
             }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "檢查用戶授權時發生錯誤: {UserId}", userId);
-                return AuthorizationResult.Fail(_localizer["AuthorizationCheckError"], UserStatusCode.NotFound);
-            }
+
+            return AuthorizationResult.Fail("系統暫時無法驗證用戶權限，請稍後再試", UserStatusCode.NotFound);
         }
 
         /// <summary>
@@ -83,6 +105,11 @@ namespace Matrix.Services
             {
                 var user = await _userService.GetUserAsync(userId);
                 return user?.Status == 1; // 1 = 正常狀態
+            }
+            catch (InvalidOperationException ex) when (ex.Message.Contains("connection is closed"))
+            {
+                _logger.LogWarning(ex, "檢查用戶狀態時資料庫連接已關閉: {UserId}", userId);
+                return false; // 預設為不活躍，安全起見
             }
             catch (Exception ex)
             {
@@ -105,6 +132,11 @@ namespace Matrix.Services
                 }
 
                 return user.Role >= requiredRole;
+            }
+            catch (InvalidOperationException ex) when (ex.Message.Contains("connection is closed"))
+            {
+                _logger.LogWarning(ex, "檢查用戶權限時資料庫連接已關閉: {UserId}", userId);
+                return false; // 預設為無權限，安全起見
             }
             catch (Exception ex)
             {

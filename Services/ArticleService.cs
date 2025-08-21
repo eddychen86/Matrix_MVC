@@ -16,13 +16,15 @@ namespace Matrix.Services
         private readonly ApplicationDbContext _context;
         private readonly IFileService _fileService;
         private readonly IArticleAttachmentRepository _attachmentRepository;
+        private readonly IArticleHashtagRepository _articleHashtagRepository;
         private readonly IMapper _mapper;
 
-        public ArticleService(ApplicationDbContext context, IFileService fileService, IArticleAttachmentRepository attachmentRepository, IMapper mapper)
+        public ArticleService(ApplicationDbContext context, IFileService fileService, IArticleAttachmentRepository attachmentRepository, IArticleHashtagRepository articleHashtagRepository, IMapper mapper)
         {
             _context = context;
             _fileService = fileService;
             _attachmentRepository = attachmentRepository;
+            _articleHashtagRepository = articleHashtagRepository;
             _mapper = mapper;
         }
         /// <summary>
@@ -33,6 +35,8 @@ namespace Matrix.Services
             var article = await _context.Articles
                 .AsNoTracking() // 只讀查詢
                 .Include(a => a.Author)
+                .Include(a => a.Replies!)
+                .ThenInclude(r => r.User)
                 .FirstOrDefaultAsync(a => a.ArticleId == id);
 
             if (article == null) return null;
@@ -100,14 +104,14 @@ namespace Matrix.Services
         /// 獲取文章列表
         /// </summary>
         public async Task<(List<ArticleDto> Articles, int TotalCount)> GetArticlesAsync(
-            int page = 1, int pageSize = 20, string? searchKeyword = null, Guid? authorId = null
-        )
+            int page = 1, int pageSize = 20, string? searchKeyword = null, Guid? authorId = null,
+            int? status = null, bool onlyPublic = true, DateTime? dateFrom = null, DateTime? dateTo = null)
         {
             try
             {
                 Console.WriteLine($"GetArticlesAsync called - Page: {page}, PageSize: {pageSize}, AuthorId: {authorId}");
 
-                var query = BuildArticleQuery(searchKeyword, authorId);
+                var query = BuildArticleQuery(searchKeyword, authorId, status, onlyPublic, dateFrom, dateTo);
                 Console.WriteLine($"Query built successfully");
 
                 var totalCount = await query.CountAsync();
@@ -238,23 +242,48 @@ namespace Matrix.Services
         }
 
         // 私有輔助方法 - 優化版本，使用 Select 投影避免 N+1 查詢
-        private IQueryable<Article> BuildArticleQuery(string? searchKeyword, Guid? authorId)
+        private IQueryable<Article> BuildArticleQuery(
+            string? searchKeyword, Guid? authorId, int? status, bool onlyPublic, DateTime? dateFrom, DateTime? dateTo)
         {
             var query = _context.Articles
                 .AsNoTracking() // 只讀查詢
-                                // Status == 0 表示正常，IsPublic == 0 表示公開
+                // Status == 0 表示正常，IsPublic == 0 表示公開
                 .Where(a => a.Status == 0 && a.IsPublic == 0);
+
+            if (onlyPublic)
+            {
+                query = query.Where(a => a.Status == 0 && a.IsPublic == 0);
+            }
+            else
+            {
+                query = query.Where(a => a.Status != 2);
+                if (status.HasValue)
+                    query = query.Where(a => a.Status == status.Value);
+            }
 
             if (authorId.HasValue)
                 query = query.Where(a => a.AuthorId == authorId.Value);
 
-            if (!string.IsNullOrEmpty(searchKeyword))
-                query = query.Where(a => a.Content.Contains(searchKeyword));
+            if (!string.IsNullOrWhiteSpace(searchKeyword))
+                query = query.Where(a =>
+                    a.Content.Contains(searchKeyword) ||
+                    (a.Author != null && a.Author.DisplayName != null && a.Author.DisplayName.Contains(searchKeyword))
+                );
+            if (dateFrom.HasValue && dateTo.HasValue)
+            {
+                query = query.Where(a => a.CreateTime >= dateFrom.Value && a.CreateTime <= dateTo.Value);
+            }
+            else if (dateFrom.HasValue)
+            {
+                var next = dateFrom.Value.Date.AddDays(1);
+                query = query.Where(a => a.CreateTime >= dateFrom.Value.Date && a.CreateTime < next);
+            }
 
             // 包含作者個人資料的關聯
             return query.Include(a => a.Author!)
                        .ThenInclude(p => p.User);
         }
+
 
         private async Task<bool> UpdateCountAsync(Guid articleId, Action<Article> updateAction)
         {
@@ -292,7 +321,7 @@ namespace Matrix.Services
                 AuthorId = author.PersonId,
                 Content = dto.Content,
                 IsPublic = dto.IsPublic,
-                CreateTime = DateTime.UtcNow,
+                CreateTime = DateTime.Now,
                 Status = 0,
                 PraiseCount = 0,
                 CollectCount = 0
@@ -361,22 +390,69 @@ namespace Matrix.Services
                 }
             }
 
-
             // （若有標籤關聯，這裡處理）
             if (dto.SelectedHashtags?.Any() == true)
             {
-                foreach (var idStr in dto.SelectedHashtags)
+                var tagIds = dto.SelectedHashtags
+                    .Select(s => Guid.TryParse(s, out var g) ? g : (Guid?)null)
+                    .Where(g => g.HasValue)
+                    .Select(g => g!.Value)
+                    .Distinct()
+                    .ToList();
+
+                if (tagIds.Count > 0)
                 {
-                    if (Guid.TryParse(idStr, out var tagId))
-                    {
-                        // 依你的實作關聯文章與標籤
-                        // await _hashtagRepository.AttachAsync(article.ArticleId, tagId);
-                    }
+                    await _articleHashtagRepository.UpdateArticleHashtagsAsync(article.ArticleId, tagIds);
                 }
             }
-
             return await GetArticleAsync(article.ArticleId);
         }
 
+        /// <summary>
+        /// 後臺管理員更新文章
+        /// </summary>
+        public async Task<bool> AdminUpdateArticleContentAsync(Guid id, string content)
+        {
+            var article = await _context.Articles.FirstOrDefaultAsync(a => a.ArticleId == id);
+            if (article == null) return false;
+
+            article.Content = content;
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+        /// <summary>
+        /// 後臺管理員刪除文章
+        /// </summary>
+        public async Task<bool> AdminDeleteArticleAsync(Guid id)
+        {
+            var article = await _context.Articles.FirstOrDefaultAsync(a => a.ArticleId == id);
+            if (article == null) return false;
+
+            article.Status = 2;
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+        /// <summary>
+        /// 獲取文章總數
+        /// </summary>
+        /// <param name="onlyPublic">是否只計算公開文章</param>
+        /// <returns>文章總數</returns>
+        public async Task<int> GetTotalArticlesCountAsync(bool onlyPublic = true)
+        {
+            var query = _context.Articles.AsNoTracking();
+            
+            if (onlyPublic)
+            {
+                query = query.Where(a => a.IsPublic == 0 && a.Status == 1); // 公開且正常狀態
+            }
+            else
+            {
+                query = query.Where(a => a.Status == 1); // 只排除已刪除的
+            }
+            
+            return await query.CountAsync();
+        }
     }
 }

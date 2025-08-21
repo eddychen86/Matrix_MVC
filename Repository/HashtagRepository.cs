@@ -38,7 +38,8 @@ namespace Matrix.Repository
         {
             return await _dbSet
                 .AsNoTracking() // 只讀查詢
-                .Where(h => h.Content.Contains(keyword))
+                                .Where(h => h.Content.ToLower().Contains(keyword.ToLower()))
+
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
@@ -126,6 +127,22 @@ namespace Matrix.Repository
                 _dbSet.RemoveRange(unusedTags);
                 await _context.SaveChangesAsync();
             }
+        }
+
+        public async Task<IEnumerable<(Hashtag Tag, int UsageCount)>> GetAllTagsWithUsageCountAsync()
+        {
+            var result = await _dbSet
+                .AsNoTracking()
+                .Select(h => new
+                {
+                    Tag = h,
+                    UsageCount = _context.Set<ArticleHashtag>()
+                        .Count(ah => ah.TagId == h.TagId)
+                })
+                .OrderByDescending(x => x.UsageCount)
+                .ToListAsync();
+
+            return result.Select(x => (x.Tag, x.UsageCount));
         }
     }
 }

@@ -84,4 +84,6 @@
     @await Component.InvokeAsync("CreatePostPopup")
 
 
-@* Hot list logic moved to /js/pages/home/home.js (Vue setup) *@
+<div v-else-if="openReply">
+    @await Component.InvokeAsync("ReplyPopup")
+</div>

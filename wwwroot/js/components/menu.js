@@ -415,8 +415,7 @@ export const useMenu = () => {
         handleMenuClick,
         logout,
         login,
-        loadDashboardPage,
-        searchQuery,
+                loadDashboardPage,
         preloadTranslations,
     }
 }

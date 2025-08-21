@@ -35,6 +35,12 @@ namespace Matrix.Repository.Interfaces
         Task<bool> DecreasePraiseCountAsync(Guid articleId);
         Task<bool> IncreaseCollectCountAsync(Guid articleId);
         Task<bool> DecreaseCollectCountAsync(Guid articleId);
+        
+        // 原子操作方法（併發安全）
+        Task<bool> IncreasePraiseCountAtomicAsync(Guid articleId);
+        Task<bool> DecreasePraiseCountAtomicAsync(Guid articleId);
+        Task<bool> IncreaseCollectCountAtomicAsync(Guid articleId);
+        Task<bool> DecreaseCollectCountAtomicAsync(Guid articleId);
         Task<(List<ArticleDto> Items, int TotalCount)> GetArticlesWithUserStateAsync(int page, int pageSize, Guid? personId);
     }
 }

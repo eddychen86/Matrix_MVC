@@ -141,7 +141,7 @@ namespace Matrix.Controllers.Api
                             IsEssential = true,
                             SameSite = SameSiteMode.Lax,
                             Path = "/",
-                            Expires = DateTimeOffset.UtcNow.AddHours(1)
+                            Expires = DateTimeOffset.Now.AddHours(1)
                         });
                     }
                 }
@@ -196,9 +196,6 @@ namespace Matrix.Controllers.Api
                     totalCount
                 };
 
-                return Ok(response);
-
-                _logger.LogInformation("\nAbout to return OK response\n");
                 return Ok(response);
             }
             catch (Exception ex)

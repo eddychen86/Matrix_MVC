@@ -32,16 +32,25 @@ public class Program
         builder.Logging.AddDebug();
 
         // 從配置中獲取連接字串 (會自動從 appsettings.json, secrets.json, 環境變數等來源載入)
-        var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+        // smartASP.NET = DefaultConnection
+        // Azure SQL Server = AzureConnection
+
+        var connectString = new
+        {
+            defaultString = "DefaultConnection",    // SmarterASP.NET
+            azureString = "AzureConnection"         // Azure SQL Server
+        };
+
+        var connectionString = builder.Configuration.GetConnectionString(connectString.azureString);
 
         if (string.IsNullOrEmpty(connectionString))
         {
-            throw new InvalidOperationException("DefaultConnection connection string is not configured.");
+            throw new InvalidOperationException($"{connectString.azureString} connection string is not configured.");
         }
 
         // Add services to the container.
         builder.Services.AddDbContext<ApplicationDbContext>(options =>
-            options.UseSqlServer(connectionString, sqlOptions => 
+            options.UseSqlServer(connectionString, sqlOptions =>
             {
                 sqlOptions.CommandTimeout(60); // 增加到 60 秒
                 sqlOptions.EnableRetryOnFailure(3, TimeSpan.FromSeconds(5), null); // 啟用重試機制
@@ -72,17 +81,19 @@ public class Program
         builder.Services.AddScoped<IArticleHashtagRepository, ArticleHashtagRepository>();
         builder.Services.AddScoped<ILoginRecordRepository, LoginRecordRepository>();
         builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
-        
+        builder.Services.AddScoped<ISearchHashtagService, SearchHashtagService>();
+
         #endregion
 
         #region 註冊 Service
 
         // 註冊記憶體快取
         builder.Services.AddMemoryCache();
-        
+
         // 註冊 AutoMapper
-        builder.Services.AddAutoMapper(cfg => {
-            cfg.AddProfile<Matrix.Mappings.AutoMapperProfile>();
+        builder.Services.AddAutoMapper(cfg =>
+        {
+            cfg.AddProfile<Mappings.AutoMapperProfile>();
         });
 
         builder.Services.AddScoped<IFileService, FileService>();
@@ -91,13 +102,24 @@ public class Program
         builder.Services.AddScoped<ICollectService, CollectService>();
         builder.Services.AddScoped<IPraiseService, PraiseService>();
         builder.Services.AddScoped<IReplyService, ReplyService>();
+        builder.Services.AddScoped<IReportService, ReportService>();
+        builder.Services.AddScoped<IHashtagService, HashtagService>();
         builder.Services.AddScoped<IArticleService, ArticleService>();
+        builder.Services.AddScoped<ISystemStatusService, SystemStatusService>();
         builder.Services.AddScoped<NotificationService>();
-        builder.Services.AddScoped<Matrix.Controllers.AuthController>();
+        builder.Services.AddScoped<Controllers.AuthController>();
         builder.Services.AddHttpContextAccessor(); // 為 CustomLocalizer 提供 HttpContext 訪問
         builder.Services.AddScoped<ICustomLocalizer, CustomLocalizer>();
         builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
-        
+        builder.Services.AddScoped<ISearchUserService, SearchUserService>();
+        builder.Services.AddScoped<IReportService, ReportService>();
+
+        builder.Services.AddScoped<IArticleService, ArticleService>();
+        builder.Services.AddScoped<IFollowService, FollowService>();
+
+        // SignalR 相關服務（僅註冊 Hub）
+        builder.Services.AddSignalR();
+
         // 配置本地化選項
         builder.Services.Configure<RequestLocalizationOptions>(options =>
         {
@@ -112,13 +134,13 @@ public class Program
 
         #region 帳號密碼驗證規則配置
 
-        builder.Services.Configure<Matrix.Services.UserValidationOptions>(options =>
+        builder.Services.Configure<UserValidationOptions>(options =>
         {
             // 用戶名規則
             options.UserName.RequiredLength = 3;
             options.UserName.MaximumLength = 20;
             options.UserName.AllowedCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_";
-            
+
             // 密碼規則
             options.Password.RequiredLength = 8;
             options.Password.MaximumLength = 20;
@@ -127,7 +149,7 @@ public class Program
             options.Password.RequireUppercase = true;
             options.Password.RequireNonAlphanumeric = true;
             options.Password.RequiredUniqueChars = 1;
-            
+
             // Email 規則
             options.Email.MaximumLength = 30;
             options.Email.RequireConfirmedEmail = false;
@@ -201,7 +223,7 @@ public class Program
                 "image/svg+xml"
             };
         });
-        
+
         builder.Services.AddControllersWithViews(options =>
         {
             // 自訂 ModelBinding 錯誤訊息提供者
@@ -211,6 +233,8 @@ public class Program
         {
             // 防止 JSON 序列化循環引用
             options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
+            // 設定 JSON 屬性名稱為 camelCase (firstName 而非 FirstName)
+            options.JsonSerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase;
         });
         builder.Services.AddRazorPages();
 
@@ -230,7 +254,7 @@ public class Program
             var uri = new Uri(originalUrls);
             var originalPort = uri.Port;
             var availablePort = FindAvailablePort(originalPort);
-            
+
             if (availablePort != originalPort)
             {
                 var newUrl = $"{uri.Scheme}://{uri.Host}:{availablePort}";
@@ -257,7 +281,7 @@ public class Program
         }
 
         app.UseHttpsRedirection();
-        app.UseResponseCompression(); // 啟用響應壓縮
+        //app.UseResponseCompression(); // 啟用響應壓縮
         app.UseStaticFiles();
         app.UseRouting();
         app.UseRequestLocalization();
@@ -278,6 +302,9 @@ public class Program
         app.UseAuthorization();
 
         app.MapControllers(); // 啟用 API 控制器的屬性路由
+
+        // SignalR Hub 路由
+        app.MapHub<Matrix.Hubs.MatrixHub>("/matrixHub");
 
         // Areas 路由 (優先處理)
         app.MapControllerRoute(

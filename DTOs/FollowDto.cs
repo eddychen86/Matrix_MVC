@@ -196,5 +196,8 @@ namespace Matrix.DTOs
                 ["IsActiveFollow"] = IsActiveFollow
             };
         }
+
     }
+    /// <summary>追蹤統計：Followers=被追蹤數、Following=追蹤數</summary>
+    public sealed record FollowStatsDto(int Followers, int Following);
 }

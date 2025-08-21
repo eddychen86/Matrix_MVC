@@ -1,24 +1,166 @@
-@{
-    ViewData["Title"] = "檢舉管理";
-}
-
-<div id="adminReports" class="w-full h-full p-8">
-    <template v-if="isLoading">
-        <div class="flex h-[50vh] w-full items-center justify-center">
-            <div class="flex flex-col items-center gap-4">
-                <img src="~/static/img/Loading.gif" alt="Loading" class="h-16 w-16" />
-                <span class="text-gray-700">Loading</span>
+﻿
+<div id="reports-app" class="flex flex-col 2xl:flex-row 2xl:grid h-full w-full grid-cols-4 gap-4">
+    <h2 class="col-span-4 text-5xl font-bold text-gray-700">Reports Management</h2>
+    <!--  -->
+    <aside class="col-span-1 grid grid-cols-3 2xl:flex flex-row 2xl:flex-col gap-8 border-r border-gray-200 bg-white">
+        <!-- Keyword -->
+        <div class="flex justify-end gap-4 col-span-1">
+            <div class="relative w-full">
+                <input name="keyword" type="text"
+                       v-model="keyword"
+                       @@keyup.enter="search"
+                       class="w-full rounded border bg-gray-50 px-3 py-2 focus:ring-2 focus:ring-blue-200 focus:outline-none"
+                       placeholder="Please enter keyword">
+                <button type="button"
+                        @@click="search"
+                        class="absolute top-1/2 right-4 -translate-y-1/2 cursor-pointer">
+                    <i data-lucide="search" class="icon-base"></i>
+                </button>
             </div>
         </div>
-    </template>
-    <template v-else>
-        <h2 class="text-2xl font-bold text-gray-700 mb-4">Reports Management</h2>
-        <div class="rounded-2xl border border-black/10 bg-white p-4 text-gray-600">
-            尚未串接 API，待補。
+
+        <!-- Status -->
+        <div class="flex items-center justify-between gap-3">
+            <span class="text-base font-semibold text-[20px] text-gray-700">Status</span>
+            <!--   Vue 點擊切換按鈕  -->
+            <div class="flex rounded-full border border-blue-400 bg-white p-0.5 shadow-inner">
+                <button class="rounded-full px-3 py-1 text-sm font-semibold text-blue-600 transition"
+                        :class="{ 'bg-blue-700 text-white shadow': status === '' }"
+                        @@click ="setStatus('')">
+                    All
+                </button>
+                <button class="rounded-full p-1 px-3 text-sm font-semibold text-blue-600 transition"
+                :class="{ 'bg-blue-700 text-white shadow': isStatusActive(0) }"
+                @@click="setStatus(0)">Not yet</button>
+                <button class="rounded-full px-3 py-1 text-sm font-semibold text-blue-600 transition"
+                        :class="{ 'bg-blue-700 text-white shadow': isStatusActive(1) }"
+                        @@click ="setStatus(1)">
+                    Processed
+                </button>
+            </div>
         </div>
-    </template>
+
+        <!-- Type -->           
+        <div class="flex items-center justify-between gap-3">
+            <span class="text-base font-semibold text-[20px] text-gray-700">Type</span>
+            <div class="flex rounded-full border border-blue-400 bg-white p-0.5 shadow-inner">
+                <button class="rounded-full px-3 py-1 text-sm font-semibold text-blue-600 transition"
+                        :class="{ 'bg-blue-700 text-white shadow': type === '' }"
+                        @@click="setType('')">
+                    All
+                </button>
+                <button class="rounded-full px-3 py-1 text-sm font-semibold text-blue-600 transition"
+                        :class="{ 'bg-blue-700 text-white shadow': isTypeActive(0) }"
+                        @@click ="setType(0)">
+                    Users
+                </button>
+                <button class="rounded-full px-3 py-1 text-sm font-semibold text-blue-600 transition"
+                        :class="{ 'bg-blue-700 text-white shadow': isTypeActive(1) }"
+                        @@click ="setType(1)">
+                    Article
+                </button>
+            </div>
+        </div>
+        <!-- Modify time（常駐日曆） -->
+        <div class="h-40 w-full hidden 2xl:block">
+            <calendar-date class="cally bg-base-100 border-base-300 rounded-box w-full border shadow-lg" onchange="window.setReportDate && window.setReportDate(this.value)">
+                <svg aria-label="Previous" class="size-4 fill-current text-[#161616]" slot="previous" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="currentColor" d="M15.75 19.5 8.25 12l7.5-7.5"></path></svg>
+                <svg aria-label="Next" class="size-4 fill-current text-[#161616]" slot="next" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="currentColor" d="m8.25 4.5 7.5 7.5-7.5 7.5"></path></svg>
+                <calendar-month></calendar-month>
+            </calendar-date>
+        </div>
+    </aside>
+
+    <!--  -->
+    <main class="col-span-3 h-full">
+        <div class="h-full w-full rounded-2xl border border-black/10 bg-yellow-50 p-4">
+            <table class="table w-full">
+                <thead>
+                    <tr>
+                        <th>Reason</th>
+                        <th>Reporter</th>
+                        <th>Type</th>
+                        <th>Target</th>
+                        <th>ModifyTime</th>
+                        <!-- ⬇⬇ 新增：狀態欄 -->
+                        <th>Status</th>
+                        <!-- ⬇⬇ 新增：管理員（處理者） -->
+                        <th>Resolver</th>
+                    </tr>
+                </thead>
+                <tbody class="text-[14px]">
+                    <tr v-for="item in reports" :key="item.reportId" class="cursor-pointer hover:bg-blue-100">
+                        <td class="max-w-[240px] truncate" :title="item.reason">{{ item.reason }}</td>
+                        <td>{{ item.reporter }}</td>
+                        <td>{{ item.type }}</td>
+                        <td class="max-w-[200px] truncate" :title="item.target">{{ item.target }}</td>
+                        <td>{{ item.modifyTime ? formatDate(item.modifyTime) : '-' }}<!-- ⬇⬇ 新增：Status 欄（未處理顯示下拉、已處理顯示標籤） -->
+                        </td>
+                            <td>
+                            <!-- 未處理顯示下拉 -->
+                            <div v-if="item.statusCode === 0" class="dropdown dropdown-end" tabindex="0">
+                                <button type="button" class="btn btn-xs" :disabled="!!rowBusy[item.reportId]" @@click.stop>
+                                    Take action
+                                    <i data-lucide="chevron-down" class="ml-1 h-4 w-4"></i>
+                                </button>
+                                <ul class="dropdown-content menu bg-base-100 rounded-box z-[1] w-44 p-2 shadow" tabindex="0" @@click.stop>
+                                    <li>
+                                        <a href="#" @@click.prevent="takeReportAction(item, 'process')">
+                                            <i data-lucide="check-circle" class="mr-1 h-4 w-4"></i> Accept report
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a @@click.prevent="takeReportAction(item, 'reject')">
+                                            <i data-lucide="x-circle" class="mr-1 h-4 w-4"></i> Reject
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+
+                            <!-- 已處理顯示標籤 -->
+                            <span v-else class="badge badge-success">{{ item.statusText }}</span>
+                        </td>
+
+
+                        <!-- ⬇⬇ 新增：Resolver（管理員名字；未處理顯示 - ） -->
+                        <td>{{ item.resolverName || '-' }}</td>
+                    </tr>
+                </tbody>
+
+                <!--  -->
+                <tfoot v-if="totalPages > 0">
+                    <tr>
+                        <td colspan="5">
+                            <div class="bg-yellow-50 px-4 py-2">
+                                <div class="flex justify-center gap-1">
+                                    <button :disabled="page === 1"
+                                            @@click="goPage(page - 1)"
+                                            class="rounded px-2 py-1 text-gray-500 hover:bg-gray-200">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-left"><path d="m15 18-6-6 6-6" /></svg>
+                                    </button>
+                                    <button v-for="(p, index) in showPage"
+                                            :key="index"
+                                            :disabled="p === '...'"
+                                            @@click="typeof p === 'number' && goPage(p)"
+                                            class="rounded px-2 py-1"
+                                            :class="p === page ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-gray-200'">
+                                        {{ p }}
+                                    </button>
+                                    <button :disabled="page === totalPages"
+                                            @@click="goPage(page + 1)"
+                                            class="rounded px-2 py-1 text-gray-500 hover:bg-gray-200">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-right"><path d="m9 18 6-6-6-6" /></svg>
+                                    </button>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </main>
 </div>
 
 @section Scripts {
-    <script src="~/js/dashboard/pages/reports/reports.js" asp-append-version="true"></script>
+    <script type="module" src="~/js/dashboard/pages/reports/reports.js" asp-append-version="true"></script>
 }

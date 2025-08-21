@@ -30,7 +30,6 @@ namespace Matrix.Controllers.Api
             _authController = authController;
             _authorizationService = authorizationService;
         }
-        private static readonly string[] InvalidCredentialsError = ["Invalid user name or password."];
 
         /// <summary>處理登入 API 請求</summary>
         [HttpPost]
@@ -86,6 +85,18 @@ namespace Matrix.Controllers.Api
                 return statusError;
 
             _logger.LogInformation("帳號狀態：{0}", statusError);
+
+            // 更新最後登入時間
+            var updateLoginTimeResult = await _userService.UpdateLastLoginTimeAsync(userDto.UserId);
+            if (!updateLoginTimeResult)
+            {
+                _logger.LogWarning("Failed to update last login time for user {UserName}", userDto.UserName);
+                // 不要因為更新登入時間失敗而阻止登入，只記錄警告
+            }
+            else
+            {
+                _logger.LogInformation("Updated last login time for user {UserName}", userDto.UserName);
+            }
 
             // 產生 JWT 並設定 Cookie
             var token = _authController.GenerateJwtToken(userDto);
