@@ -49,7 +49,7 @@ namespace Matrix.Controllers
                     engName = "Eason",
                     email = "561993111e@gmail.com",
                     github = "EasonTsia",
-                    img = "",
+                    img = "eason.jpg",
                     level = "組員",
                     description = "",
                     skill = new string[] {
@@ -74,8 +74,8 @@ namespace Matrix.Controllers
                     twName = "林鈺棠",
                     engName = "",
                     email = "lin055377@gmail.com",
-                    github = "",
-                    img = "",
+                    github = "Tommy1050",
+                    img = "tommy.jpg",
                     level = "組員",
                     description = "",
                     skill = new string[] {
@@ -89,7 +89,7 @@ namespace Matrix.Controllers
                         pages = new string[] {
                             "「個人檔案」頁面製作",
                             "「編輯個人檔案」浮動視窗製作",
-                            "「帳號管理」頁面製作",
+                            "「帳號管理」後台頁面製作",
                             "「NFT 展示」頁面製作",
                         }
                     }
