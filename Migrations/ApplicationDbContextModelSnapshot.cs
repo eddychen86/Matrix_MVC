@@ -26,13 +26,16 @@ namespace Matrix.Migrations
                 {
                     b.Property<Guid>("ArticleId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uniqueidentifier")
+                        .HasDefaultValueSql("NEWSEQUENTIALID()");
 
                     b.Property<Guid>("AuthorId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("CollectCount")
-                        .HasColumnType("int");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(0);
 
                     b.Property<string>("Content")
                         .IsRequired()
@@ -40,16 +43,22 @@ namespace Matrix.Migrations
                         .HasColumnType("nvarchar(4000)");
 
                     b.Property<DateTime>("CreateTime")
-                        .HasColumnType("datetime2");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETDATE()");
 
                     b.Property<int>("IsPublic")
-                        .HasColumnType("int");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(0);
 
                     b.Property<Guid?>("OwnerPersonId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("PraiseCount")
-                        .HasColumnType("int");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(0);
 
                     b.Property<byte[]>("RowVersion")
                         .IsConcurrencyToken()
@@ -58,15 +67,39 @@ namespace Matrix.Migrations
                         .HasColumnType("rowversion");
 
                     b.Property<int>("Status")
-                        .HasColumnType("int");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(0);
 
                     b.HasKey("ArticleId");
 
-                    b.HasIndex("AuthorId");
+                    b.HasIndex("AuthorId")
+                        .HasDatabaseName("IX_Articles_AuthorId");
+
+                    b.HasIndex("CollectCount")
+                        .HasDatabaseName("IX_Articles_CollectCount");
+
+                    b.HasIndex("CreateTime")
+                        .HasDatabaseName("IX_Articles_CreateTime");
+
+                    b.HasIndex("IsPublic")
+                        .HasDatabaseName("IX_Articles_IsPublic");
 
                     b.HasIndex("OwnerPersonId");
 
-                    b.ToTable("Articles");
+                    b.HasIndex("PraiseCount")
+                        .HasDatabaseName("IX_Articles_PraiseCount");
+
+                    b.HasIndex("Status")
+                        .HasDatabaseName("IX_Articles_Status");
+
+                    b.HasIndex("AuthorId", "CreateTime")
+                        .HasDatabaseName("IX_Articles_AuthorId_CreateTime");
+
+                    b.HasIndex("IsPublic", "Status", "CreateTime")
+                        .HasDatabaseName("IX_Articles_IsPublic_Status_CreateTime");
+
+                    b.ToTable("Articles", (string)null);
                 });
 
             modelBuilder.Entity("Matrix.Models.ArticleAttachment", b =>
@@ -143,27 +176,55 @@ namespace Matrix.Migrations
                 {
                     b.Property<Guid>("FriendshipId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uniqueidentifier")
+                        .HasDefaultValueSql("NEWSEQUENTIALID()");
 
                     b.Property<Guid>("FriendId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("RequestDate")
-                        .HasColumnType("datetime2");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETDATE()");
 
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)")
+                        .HasDefaultValue("Pending");
 
                     b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("FriendshipId");
 
-                    b.HasIndex("FriendId");
+                    b.HasIndex("FriendId")
+                        .HasDatabaseName("IX_Friendships_FriendId");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("RequestDate")
+                        .HasDatabaseName("IX_Friendships_RequestDate");
 
-                    b.ToTable("Friendships");
+                    b.HasIndex("Status")
+                        .HasDatabaseName("IX_Friendships_Status");
+
+                    b.HasIndex("UserId")
+                        .HasDatabaseName("IX_Friendships_UserId");
+
+                    b.HasIndex("UserId", "FriendId")
+                        .IsUnique()
+                        .HasDatabaseName("IX_Friendships_UserId_FriendId");
+
+                    b.HasIndex("FriendId", "Status", "RequestDate")
+                        .HasDatabaseName("IX_Friendships_FriendId_Status_RequestDate");
+
+                    b.HasIndex("UserId", "Status", "RequestDate")
+                        .HasDatabaseName("IX_Friendships_UserId_Status_RequestDate");
+
+                    b.ToTable("Friendships", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_Friendships_NoSelfFriend", "[UserId] != [FriendId]");
+                        });
                 });
 
             modelBuilder.Entity("Matrix.Models.Hashtag", b =>
@@ -216,6 +277,41 @@ namespace Matrix.Migrations
                     b.ToTable("LoginRecords");
                 });
 
+            modelBuilder.Entity("Matrix.Models.Message", b =>
+                {
+                    b.Property<Guid>("MsgId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier")
+                        .HasDefaultValueSql("NEWSEQUENTIALID()");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.Property<DateTime>("CreateTime")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETDATE()");
+
+                    b.Property<int>("IsRead")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(0);
+
+                    b.Property<Guid>("ReceiverId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("SentId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("MsgId");
+
+                    b.HasIndex("SentId");
+
+                    b.ToTable("Messages");
+                });
+
             modelBuilder.Entity("Matrix.Models.NFT", b =>
                 {
                     b.Property<Guid>("NftId")
@@ -265,13 +361,16 @@ namespace Matrix.Migrations
                 {
                     b.Property<Guid>("NotifyId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uniqueidentifier")
+                        .HasDefaultValueSql("NEWSEQUENTIALID()");
 
                     b.Property<Guid>("GetId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("IsRead")
-                        .HasColumnType("int");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(0);
 
                     b.Property<DateTime?>("IsReadTime")
                         .HasColumnType("datetime2");
@@ -280,25 +379,48 @@ namespace Matrix.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("SentTime")
-                        .HasColumnType("datetime2");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETDATE()");
 
                     b.Property<int>("Type")
                         .HasColumnType("int");
 
                     b.HasKey("NotifyId");
 
-                    b.HasIndex("GetId");
+                    b.HasIndex("GetId")
+                        .HasDatabaseName("IX_Notifications_GetId");
 
-                    b.HasIndex("SendId");
+                    b.HasIndex("IsRead")
+                        .HasDatabaseName("IX_Notifications_IsRead");
 
-                    b.ToTable("Notifications");
+                    b.HasIndex("SendId")
+                        .HasDatabaseName("IX_Notifications_SendId");
+
+                    b.HasIndex("SentTime")
+                        .HasDatabaseName("IX_Notifications_SentTime");
+
+                    b.HasIndex("Type")
+                        .HasDatabaseName("IX_Notifications_Type");
+
+                    b.HasIndex("SendId", "SentTime")
+                        .HasDatabaseName("IX_Notifications_SendId_SentTime");
+
+                    b.HasIndex("GetId", "IsRead", "SentTime")
+                        .HasDatabaseName("IX_Notifications_GetId_IsRead_SentTime");
+
+                    b.HasIndex("GetId", "Type", "SentTime")
+                        .HasDatabaseName("IX_Notifications_GetId_Type_SentTime");
+
+                    b.ToTable("Notifications", (string)null);
                 });
 
             modelBuilder.Entity("Matrix.Models.Person", b =>
                 {
                     b.Property<Guid>("PersonId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uniqueidentifier")
+                        .HasDefaultValueSql("NEWSEQUENTIALID()");
 
                     b.Property<string>("AvatarPath")
                         .HasMaxLength(2048)
@@ -317,7 +439,9 @@ namespace Matrix.Migrations
                         .HasColumnType("nvarchar(50)");
 
                     b.Property<int>("IsPrivate")
-                        .HasColumnType("int");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(0);
 
                     b.Property<DateTime?>("ModifyTime")
                         .HasColumnType("datetime2");
@@ -326,7 +450,8 @@ namespace Matrix.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("WalletAddress")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("Website1")
                         .HasMaxLength(2048)
@@ -342,10 +467,23 @@ namespace Matrix.Migrations
 
                     b.HasKey("PersonId");
 
-                    b.HasIndex("UserId")
-                        .IsUnique();
+                    b.HasIndex("DisplayName")
+                        .HasDatabaseName("IX_Persons_DisplayName");
 
-                    b.ToTable("Persons");
+                    b.HasIndex("IsPrivate")
+                        .HasDatabaseName("IX_Persons_IsPrivate");
+
+                    b.HasIndex("ModifyTime")
+                        .HasDatabaseName("IX_Persons_ModifyTime");
+
+                    b.HasIndex("UserId")
+                        .IsUnique()
+                        .HasDatabaseName("IX_Persons_UserId");
+
+                    b.HasIndex("WalletAddress")
+                        .HasDatabaseName("IX_Persons_WalletAddress");
+
+                    b.ToTable("Persons", (string)null);
                 });
 
             modelBuilder.Entity("Matrix.Models.PraiseCollect", b =>
@@ -568,6 +706,17 @@ namespace Matrix.Migrations
                         .WithMany("LoginRecords")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Matrix.Models.Message", b =>
+                {
+                    b.HasOne("Matrix.Models.Person", "User")
+                        .WithMany()
+                        .HasForeignKey("SentId")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("User");

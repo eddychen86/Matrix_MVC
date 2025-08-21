@@ -155,7 +155,7 @@ window.mountOverviewPage = function() {
           // 先嘗試從 cookie 讀取加密數據
           const cachedData = loadEncryptedData(USERS_DATA_KEY)
           if (cachedData) {
-            console.log('Users data: 從 cookie 讀取數據')
+            // console.log('Users data: 從 cookie 讀取數據')
             
             // 更新 total 陣列中對應的項目
             const userItem = total.find(item => item.title === 'user')
@@ -166,7 +166,7 @@ window.mountOverviewPage = function() {
             return
           }
 
-          console.log('Users data: 呼叫 API 獲取新數據')
+          // console.log('Users data: 呼叫 API 獲取新數據')
           const response = await fetch('/api/Overview/GetUserState')
 
           if (response.ok) {
@@ -214,7 +214,7 @@ window.mountOverviewPage = function() {
           // 先嘗試從 cookie 讀取加密數據
           const cachedData = loadEncryptedData(POSTS_DATA_KEY)
           if (cachedData) {
-            console.log('Posts data: 從 cookie 讀取數據')
+            // console.log('Posts data: 從 cookie 讀取數據')
             
             // 更新 total 陣列中文章總數的項目
             const postsItem = total.find(item => item.title === 'post')
@@ -224,7 +224,7 @@ window.mountOverviewPage = function() {
             return
           }
 
-          console.log('Posts data: 呼叫 API 獲取新數據')
+          // console.log('Posts data: 呼叫 API 獲取新數據')
           const response = await fetch('/api/Overview/GetPostsState')
           
           if (response.ok) {
@@ -254,7 +254,7 @@ window.mountOverviewPage = function() {
           // 先嘗試從 cookie 讀取加密數據
           const cachedData = loadEncryptedData(REPORTS_DATA_KEY)
           if (cachedData) {
-            console.log('Reports data: 從 cookie 讀取數據')
+            // console.log('Reports data: 從 cookie 讀取數據')
             
             // 更新 total 陣列中待處理報告的項目
             const reportsItem = total.find(item => item.title === 'reports')
@@ -264,7 +264,7 @@ window.mountOverviewPage = function() {
             return
           }
 
-          console.log('Reports data: 呼叫 API 獲取新數據')
+          // console.log('Reports data: 呼叫 API 獲取新數據')
           const response = await fetch('/api/Overview/GetReportsState')
           
           if (response.ok) {
@@ -294,17 +294,17 @@ window.mountOverviewPage = function() {
           // 先嘗試從 cookie 讀取加密數據
           const cachedData = loadEncryptedData(HASHTAGS_DATA_KEY)
           if (cachedData) {
-            console.log('Hashtags data: 從 cookie 讀取數據')
+            // console.log('Hashtags data: 從 cookie 讀取數據')
             
             // 更新標籤資料
             hashtagsData.totalHashtags = cachedData.totalHashtags || 0
             hashtagsData.hashtags = cachedData.hashtags || []
             
-            console.log('Hashtags loaded from cache:', hashtagsData.totalHashtags, 'tags')
+            // console.log('Hashtags loaded from cache:', hashtagsData.totalHashtags, 'tags')
             return
           }
 
-          console.log('Hashtags data: 呼叫 API 獲取新數據')
+          // console.log('Hashtags data: 呼叫 API 獲取新數據')
           const response = await fetch('/api/Overview/GetHashtagsState')
           
           if (response.ok) {
@@ -321,7 +321,7 @@ window.mountOverviewPage = function() {
             hashtagsData.totalHashtags = data.totalHashtags || 0
             hashtagsData.hashtags = data.hashtags || []
             
-            console.log('Hashtags loaded from API:', hashtagsData.totalHashtags, 'tags')
+            // console.log('Hashtags loaded from API:', hashtagsData.totalHashtags, 'tags')
           } else {
             console.error('Failed to fetch hashtags state:', response.status)
           }
@@ -370,7 +370,7 @@ window.mountOverviewPage = function() {
           if (!forceUpdate) {
             const cachedData = loadEncryptedData(UPTIME_DATA_KEY)
             if (cachedData) {
-              console.log('System uptime: 從 cookie 讀取數據')
+              // console.log('System uptime: 從 cookie 讀取數據')
               const uptimeFormatted = formatUptime(cachedData.days || 0, cachedData.hours || 0, cachedData.minutes || 0)
               systemStatus.totelRunTime = uptimeFormatted
               return
@@ -378,11 +378,11 @@ window.mountOverviewPage = function() {
           }
 
           if (!forceUpdate && !shouldUpdate(UPTIME_KEY, UPTIME_INTERVAL)) {
-            console.log('System uptime: 尚未到更新時間，跳過API呼叫')
+            // console.log('System uptime: 尚未到更新時間，跳過API呼叫')
             return
           }
 
-          console.log('System uptime: 呼叫 API 獲取新數據')
+          // console.log('System uptime: 呼叫 API 獲取新數據')
           const response = await fetch('/api/Overview/GetSystemUptime')
           
           if (response.ok) {
@@ -399,7 +399,7 @@ window.mountOverviewPage = function() {
             const uptimeFormatted = formatUptime(data.days || 0, data.hours || 0, data.minutes || 0)
             systemStatus.totelRunTime = uptimeFormatted
             localStorage.setItem(UPTIME_KEY, Date.now().toString())
-            console.log('System uptime loaded from API:', data)
+            // console.log('System uptime loaded from API:', data)
           } else {
             console.error('Failed to fetch system uptime:', response.status)
             systemStatus.totelRunTime = '載入失敗'
@@ -416,18 +416,18 @@ window.mountOverviewPage = function() {
           if (!forceUpdate) {
             const cachedData = loadEncryptedData(DB_STATUS_DATA_KEY)
             if (cachedData) {
-              console.log('Database status: 從 cookie 讀取數據')
+              // console.log('Database status: 從 cookie 讀取數據')
               systemStatus.DBConnectStatus = cachedData.databaseConnected || false
               return
             }
           }
 
           if (!forceUpdate && !shouldUpdate(DB_STATUS_KEY)) {
-            console.log('Database status: 尚未到更新時間，跳過API呼叫')
+            // console.log('Database status: 尚未到更新時間，跳過API呼叫')
             return
           }
 
-          console.log('Database status: 呼叫 API 獲取新數據')
+          // console.log('Database status: 呼叫 API 獲取新數據')
           const response = await fetch('/api/Overview/GetDatabaseStatus')
           
           if (response.ok) {
@@ -441,7 +441,7 @@ window.mountOverviewPage = function() {
             
             systemStatus.DBConnectStatus = data.databaseConnected || false
             localStorage.setItem(DB_STATUS_KEY, Date.now().toString())
-            console.log('Database status loaded from API:', data)
+            // console.log('Database status loaded from API:', data)
           } else {
             console.error('Failed to fetch database status:', response.status)
             systemStatus.DBConnectStatus = false
@@ -458,18 +458,18 @@ window.mountOverviewPage = function() {
           if (!forceUpdate) {
             const cachedData = loadEncryptedData(SMTP_STATUS_DATA_KEY)
             if (cachedData) {
-              console.log('SMTP status: 從 cookie 讀取數據')
+              // console.log('SMTP status: 從 cookie 讀取數據')
               systemStatus.SMTPStatus = cachedData.smtpServiceActive || false
               return
             }
           }
 
           if (!forceUpdate && !shouldUpdate(SMTP_STATUS_KEY)) {
-            console.log('SMTP status: 尚未到更新時間，跳過API呼叫')
+            // console.log('SMTP status: 尚未到更新時間，跳過API呼叫')
             return
           }
 
-          console.log('SMTP status: 呼叫 API 獲取新數據')
+          // console.log('SMTP status: 呼叫 API 獲取新數據')
           const response = await fetch('/api/Overview/GetSmtpStatus')
           
           if (response.ok) {
@@ -483,7 +483,7 @@ window.mountOverviewPage = function() {
             
             systemStatus.SMTPStatus = data.smtpServiceActive || false
             localStorage.setItem(SMTP_STATUS_KEY, Date.now().toString())
-            console.log('SMTP status loaded from API:', data)
+            // console.log('SMTP status loaded from API:', data)
           } else {
             console.error('Failed to fetch SMTP status:', response.status)
             systemStatus.SMTPStatus = false
@@ -500,7 +500,7 @@ window.mountOverviewPage = function() {
           if (!forceUpdate) {
             const cachedData = loadEncryptedData(STORAGE_DATA_KEY)
             if (cachedData) {
-              console.log('Storage status: 從 cookie 讀取數據')
+              // console.log('Storage status: 從 cookie 讀取數據')
               const storageFormatted = formatStorageStatus(cachedData.storageUsagePercentage || 0)
               systemStatus.Storage = storageFormatted
               return
@@ -508,11 +508,11 @@ window.mountOverviewPage = function() {
           }
 
           if (!forceUpdate && !shouldUpdate(STORAGE_KEY)) {
-            console.log('Storage status: 尚未到更新時間，跳過API呼叫')
+            // console.log('Storage status: 尚未到更新時間，跳過API呼叫')
             return
           }
 
-          console.log('Storage status: 呼叫 API 獲取新數據')
+          // console.log('Storage status: 呼叫 API 獲取新數據')
           const response = await fetch('/api/Overview/GetStorageStatus')
           
           if (response.ok) {
@@ -527,7 +527,7 @@ window.mountOverviewPage = function() {
             const storageFormatted = formatStorageStatus(data.storageUsagePercentage || 0)
             systemStatus.Storage = storageFormatted
             localStorage.setItem(STORAGE_KEY, Date.now().toString())
-            console.log('Storage status loaded from API:', data)
+            // console.log('Storage status loaded from API:', data)
           } else {
             console.error('Failed to fetch storage status:', response.status)
             systemStatus.Storage = '載入失敗'
@@ -632,6 +632,6 @@ const overviewElement = document.querySelector('#adminOverview')
 if (overviewElement) {
   window.mountOverviewPage()
 } else {
-  console.log('❌ 找不到 #adminOverview 元素')
+  // console.log('❌ 找不到 #adminOverview 元素')
 }
 

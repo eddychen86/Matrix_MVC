@@ -26,6 +26,14 @@ namespace Matrix.Data.Configurations
         /// <param name="builder">實體類型建構器</param>
         public void Configure(EntityTypeBuilder<Article> builder)
         {
+            /// <summary>
+            /// 設定 Article 與 Person 的一對多關聯，一個 Person 可以有多篇 Article，使用 Article.AuthorId 作為外鍵
+            /// </summary>
+            builder.HasOne(a => a.Author)
+                .WithMany(p => p.Articles)
+                .HasForeignKey(a => a.AuthorId)
+                .OnDelete(DeleteBehavior.Restrict);
+
             // === 主鍵配置 ===
             /// <summary>
             /// 設定 ArticleId 作為主鍵

@@ -23,24 +23,24 @@
             await loadScript('/js/dashboard/core/theme-manager.js')
             await loadScript('/js/dashboard/core/menu-app.js')
 
-            console.log('✅ Dashboard 核心模組載入完成')
+            // console.log('✅ Dashboard 核心模組載入完成')
             
             // 2. 初始化全域狀態
             if (typeof window.initGlobalState === 'function') {
                 await window.initGlobalState()
-                console.log('✅ Dashboard 全域狀態初始化完成')
+                // console.log('✅ Dashboard 全域狀態初始化完成')
             }
 
             // 3. 初始化主題管理
             if (window.DashboardThemeManager) {
                 window.DashboardThemeManager.initTheme()
-                console.log('✅ Dashboard 主題管理初始化完成')
+                // console.log('✅ Dashboard 主題管理初始化完成')
             }
 
             // 4. 啟動選單應用
             if (typeof window.createDashboardMenuApp === 'function') {
                 window.createDashboardMenuApp()
-                console.log('✅ Dashboard 選單應用啟動完成')
+                // console.log('✅ Dashboard 選單應用啟動完成')
             }
 
         } catch (error) {
@@ -96,7 +96,6 @@
         if (typeof window.__DASHBOARD_FALLBACK__ !== 'undefined') {
             console.warn('正在載入 Dashboard 回退版本...')
             loadScript('/js/dashboard/d_main-original.js')
-                .then(() => console.log('✅ Dashboard 回退版本載入成功'))
                 .catch(fallbackError => console.error('❌ Dashboard 回退版本載入失敗:', fallbackError))
         }
     }
@@ -106,7 +105,7 @@
         try {
             await loadModules()
             setupBackwardCompatibility()
-            console.log('🎉 Dashboard 初始化完成')
+            // console.log('🎉 Dashboard 初始化完成')
         } catch (error) {
             handleInitializationError(error)
         }
