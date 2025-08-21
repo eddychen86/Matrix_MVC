@@ -12,6 +12,7 @@ import { usePopupManager } from '/js/components/popup-manager.js'
 import { useSearchService } from '/js/components/search-service.js'
 import { useFriendsManager } from '/js/components/friends-manager.js'
 import { usePostManager } from '/js/components/post-manager.js'
+import { useChat } from '/js/components/chat.js'
 
 const globalApp = content => {
     if (typeof Vue === 'undefined') {
@@ -115,6 +116,35 @@ globalApp({
             initializeHomePosts,
             postListLoading
         } = postManager
+
+        // 初始化聊天管理器
+        const chatManager = useChat(currentUser)
+        const {
+            // 聊天狀態
+            messages,
+            conversations,
+            unreadCount,
+            currentConversation,
+            isConnected,
+            
+            // 聊天 Popup 狀態
+            isChatPopupOpen,
+            openChatPopup,
+            closeChatPopup,
+            toggleChatPopup,
+            
+            // 聊天方法
+            sendMessage,
+            loadConversation,
+            loadConversations,
+            markAsRead,
+            markConversationAsRead,
+            searchMessages,
+            
+            // SignalR 連接
+            startConnection,
+            stopConnection
+        } = chatManager
 
         //#endregion
 
@@ -257,6 +287,31 @@ globalApp({
             friendsStatus,
             loadFriends,
             changeFriendsStatus,
+
+            // 聊天相關
+            messages,
+            conversations,
+            unreadCount,
+            currentConversation,
+            isConnected,
+            
+            // 聊天 Popup 控制
+            isChatPopupOpen,
+            openChatPopup,
+            closeChatPopup,
+            toggleChatPopup,
+            
+            // 聊天方法
+            sendMessage,
+            loadConversation,
+            loadConversations,
+            markAsRead,
+            markConversationAsRead,
+            searchMessages,
+            
+            // SignalR 連接
+            startConnection,
+            stopConnection,
 
             // hooks
             formatDate,

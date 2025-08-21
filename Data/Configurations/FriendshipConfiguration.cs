@@ -27,6 +27,22 @@ namespace Matrix.Data.Configurations
         /// <param name="builder">實體類型建構器</param>
         public void Configure(EntityTypeBuilder<Friendship> builder)
         {
+            /// <summary>
+            /// 設定好友請求發起者關聯，一人可發起多個好友請求，使用 UserId 作為外鍵，限制刪除以維護關係完整性
+            /// </summary>
+            builder.HasOne(f => f.Requester)
+                .WithMany(p => p.Friends)
+                .HasForeignKey(f => f.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            /// <summary>
+            /// 設定好友請求接收者關聯，一人可接收多個好友請求，使用 FriendId 作為外鍵，限制刪除以維護關係完整性
+            /// </summary>
+            builder.HasOne(f => f.Recipient)
+                .WithMany(p => p.FriendOf)
+                .HasForeignKey(f => f.FriendId)
+                .OnDelete(DeleteBehavior.Restrict);
+
             // === 主鍵配置 ===
             /// <summary>
             /// 設定 FriendshipId 作為主鍵
