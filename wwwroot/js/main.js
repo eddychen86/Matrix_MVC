@@ -30,7 +30,7 @@ const globalApp = content => {
                     }
                     console.warn(msg)
                 }
-                window.globalApp = app.mount('#app')
+                window.globalApp = app.use(window.CKEditor?.default || window.CKEditor).mount('#app')
             })
         } else {
             // DOM 已經載入完成
@@ -42,7 +42,7 @@ const globalApp = content => {
                 }
                 console.warn(msg)
             }
-            window.globalApp = app.mount('#app')
+            window.globalApp = app.use(window.CKEditor?.default || window.CKEditor).mount('#app')
         }
     }
 }

@@ -1,5 +1,5 @@
 export function useCreatePost({ onCreated } = {}) {
-    const { ref, onMounted } = Vue
+    const { ref, reactive, onMounted } = Vue
 
     const URL_API = (typeof window !== 'undefined')
         ? (window.URL || window.webkitURL || null)
@@ -20,26 +20,25 @@ export function useCreatePost({ onCreated } = {}) {
     const maxSize = 5 * 1024 * 1024;
 
     const ClassicEditor = window.ClassicEditor
-
-    const editorConfig = {
+    const editorConfig = reactive({
         placeholder: 'Write your post here...',
         toolbar: {
             items: [
                 'heading', '|',
-                'bold', 'italic', 'underline', 'link', '|',
+                'bold', 'italic', 'link', '|',
                 'bulletedList', 'numberedList', 'blockQuote', '|',
                 'undo', 'redo'
             ]
         },
 
         removePlugins: [
-            'ImageUpload',
+            // 'ImageUpload',
             'CKFinder', 'CKFinderUploadAdapter',
             'CKBox', 'EasyImage',
             'AutoImage', 'ImageInsert',
             'MediaEmbed', 'MediaEmbedToolbar'
         ]
-    }
+    })
 
     function htmlToText(html) {
         const el = document.createElement('div');
@@ -53,6 +52,18 @@ export function useCreatePost({ onCreated } = {}) {
     }
 
     function onEditorReady(editor) {
+
+
+        // 外框 (含工具列)
+        editor.ui.view.element.classList.add('my-editor-frame');
+
+        // 內容區（真正輸入的地方）
+        editor.ui.view.editable.element.classList.add(
+            'min-h-[150px]',
+            'max-h-[467px]',
+            'rounded-[10px]',
+            'bg-transparent'
+        );
 
         editor.editing.view.document.on('clipboardInput', (evt, data) => {
             const dt = data.dataTransfer
@@ -261,10 +272,10 @@ export function useCreatePost({ onCreated } = {}) {
         }
     }
 
-    onMounted(() => {
-        const btn = document.querySelector('#openPostBtn')
-        if (btn) btn.addEventListener('click', openModal, { once: false })
-    })
+    // onMounted(() => {
+    //     const btn = document.querySelector('#openPostBtn')
+    //     if (btn) btn.addEventListener('click', openModal, { once: false })
+    // })
 
     return {
         postContent, showPostModal, showHashtagModal,

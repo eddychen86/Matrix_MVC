@@ -1,3 +1,5 @@
+import { useCreatePost } from '/js/components/create-post.js'
+
 export const useHome = () => {
     const { ref, onMounted, onBeforeUnmount, nextTick } = Vue
     const openCreatePost = ref(false)
@@ -138,14 +140,17 @@ export const useHome = () => {
             }
         } catch (e) {
             console.error(e)
-            alert(e.message === 'unauthorized' ? '½Ð¥ýµn¤J' : '¾Þ§@¥¢±Ñ')
+            alert(e.message === 'unauthorized' ? 'ï¿½Ð¥ï¿½ï¿½nï¿½J' : 'ï¿½Þ§@ï¿½ï¿½ï¿½ï¿½')
         } finally {
             item._busy = false
             window.lucide?.createIcons?.()
         }
     }
 
+    const createPost = useCreatePost()
+
     return {
+        ...createPost,
         toggleCreatePost, openCreatePost,
         hotlist, hotCarouselRef, hotPrev, hotNext,
         canPrev, canNext,
