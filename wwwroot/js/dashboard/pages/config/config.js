@@ -1,9 +1,32 @@
-const { createApp, ref, onMounted } = Vue
+const { createApp, ref, reactive, onMounted } = Vue
 
 window.mountConfigPage = function() {
   const app = createApp({
     setup() {
+      //#region 變數
+      
       const isLoading = ref(true)
+      const toolStateList = reactive([
+        { id: 0, name: 'FriendShip', state: false },
+        { id: 0, name: 'NFTs_Collect', state: false },
+        { id: 0, name: 'Web_Log', state: false },
+      ])
+
+      //#endregion
+
+      //#region data
+
+
+
+      //#endregion
+
+      //#region tools
+
+
+
+      //#endregion
+
+      //#region LifeCycle
 
       const init = async () => {
         try {
@@ -15,7 +38,15 @@ window.mountConfigPage = function() {
 
       onMounted(() => init())
 
-      return { isLoading }
+      //#endregion
+
+      return {
+        isLoading,
+        
+
+        // Data
+        toolStateList,
+      }
     }
   })
 

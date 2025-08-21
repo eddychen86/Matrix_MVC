@@ -25,9 +25,9 @@
                 </div>
             </div>
             <h3>{{ profile.displayName }}</h3>
-            <i data-lucide="globe" v-if="!profile.isPrivate" class="size-4 sm:size-8 2xl:size-12 mb-0 2xl:mb-4 text-blue-500"></i>
-            <i data-lucide="globe-lock" v-else class="size-4 sm:size-8 2xl:size-12 mb-0 2xl:mb-4 text-blue-500"></i>
-            <i data-lucide="crown" v-show="profile.walletAddress" class="size-4 sm:size-8 2xl:size-12 mb-0 2xl:mb-4 text-yellow-500"></i>
+            <i data-lucide="globe" v-if="!profile.isPrivate" class="mb-0 size-4 text-blue-500 sm:size-8 2xl:mb-4 2xl:size-12"></i>
+            <i data-lucide="globe-lock" v-else class="mb-0 size-4 text-blue-500 sm:size-8 2xl:mb-4 2xl:size-12"></i>
+            <i data-lucide="crown" v-show="profile.walletAddress" class="mb-0 size-4 text-yellow-500 sm:size-8 2xl:mb-4 2xl:size-12"></i>
         </div>
         <button class="subTitle font-semibold" data-i18n="Create">@Localizer["Create"]</button>
     </div>
@@ -57,17 +57,36 @@
                         </div>
                     </li>
                 </ul>
+                <div class="mb-4 flex items-center justify-between">
+                    <h4 class="subTitle" data-i18n="ProfileNFTs">@Localizer["ProfileNFTs"]</h4>
+                    <div class="flex gap-2">
+                        <button @@click="uploadNFT" class="btn btn-sm btn-primary flex items-center gap-2">
+                            <i data-lucide="upload" class="size-4"></i>
+                            <span data-i18n="Upload">Upload</span>
+                        </button>
+                        <button @@click="viewAllNFTs" class="btn btn-sm btn-outline flex items-center gap-2">
+                            <i data-lucide="grid-3x3" class="size-4"></i>
+                            <span data-i18n="More">More</span>
+                        </button>
+                    </div>
+                </div>
+                <!-- NFT 3x3 Grid -->
+                <div class="grid grid-cols-3 gap-3">
+                    <div v-for="(image, idx) in userNFTs.slice(0, 9)" :key="image.fileId" class="aspect-square">
+                        <img :src="image.filePath"
+                             :alt="image.fileName"
+                             class="h-full w-full cursor-pointer rounded-lg object-cover shadow-md transition-opacity hover:opacity-80"
+                             @@click="viewNFTDetail(image)" />
+                    </div>
+                    <!-- Empty placeholder slots if less than 9 images -->
+                    <div v-for="n in Math.max(0, 9 - userNFTs.length)" :key="'empty-' + n" class="aspect-square">
+                        <div class="flex h-full w-full cursor-pointer items-center justify-center rounded-lg bg-gray-200 transition-colors hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600">
+                            <i data-lucide="plus" class="size-8 text-gray-400 dark:text-gray-500"></i>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </li>
-        <li>
-            <h4 class="subTitle" data-i18n="ProfileNFTs">@Localizer["ProfileNFTs"]</h4>
-            <div class="flex gap-2 flex-wrap items-center">
-                <img v-for="(image, idx) in userImages.slice(0, 10)" :key="image.fileId"
-                    :src="image.filePath"
-                    :alt="image.fileName"
-                    class="h-[100px] w-[100px] rounded-lg object-cover cursor-pointer hover:opacity-80 transition-opacity" 
-                />
-            </div>
+
         </li>
     </ul>
 </section>

@@ -1,11 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
-    <PropertyGroup>
+  <PropertyGroup>
         <TargetFramework>net8.0</TargetFramework>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
         <UserSecretsId>aspnet-Matrix-d348be40-1233-4007-9aa2-b05d1d3abdd7</UserSecretsId>
         <NoDefaultLaunchSettingsFile>True</NoDefaultLaunchSettingsFile>
+        <UseSharedCompilation>false</UseSharedCompilation>
     </PropertyGroup>
 
     <ItemGroup>

@@ -1,17 +1,17 @@
 @layer components {
   .about {
     &-container {
-      @apply col-span-7 py-12;
+      @apply col-span-7 py-12 min-h-screen;
     }
-  
+
     &-header {
       @apply text-center mb-12;
     }
-  
+
     &-title {
       @apply text-4xl font-bold mb-4;
     }
-  
+
     &-divider {
       @apply w-24 h-1 bg-gradient-to-r from-[#304357] to-stone-500 mx-auto mb-6;
     }
@@ -19,106 +19,111 @@
 
   .team {
     &-list {
-      @apply mx-20 w-full flex gap-0 justify-center;
+      @apply transition-all duration-500 ease-out
+        px-3 w-full flex justify-center overflow-hidden
+        gap-2 sm:gap-2 2xl:gap-8;
+      scroll-behavior: smooth;
+      overflow-anchor: none;
     }
-  
+
     &-card {
-      @apply rounded-[30px] border-8 border-[#161616] flex bg-secondary overflow-hidden;
-      flex: 0 0 20%; /* 五等份寬度 */
-      transition: flex 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+      @apply rounded-[30px] border border-white/20 flex
+        bg-gradient-to-br from-blue-400/15 to-stone-900/80 backdrop-blur-lg shadow-2xl
+        relative z-[1] cursor-pointer overflow-x-visible overflow-y-hidden
+        transition-all duration-500 ease-out
+        flex-grow-0 flex-shrink-0 basis-[calc(100%/6)] /* 六等份寬度 */
+        sm:scale-[80%] sm:basis-[calc(90%/6)] 2xl:scale-100 2xl:basis-[calc(100%/6)];
     }
-  
+
     &-img {
-      @apply h-full flex flex-col gap-4 rounded-l-[30px];
-      flex: 0 0 100%; /* 未hover時佔滿card的100% */
-      transition: flex 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+      @apply h-full flex flex-col gap-4 rounded-l-[30px] transition-all duration-500 ease-out
+        flex-grow-0 flex-shrink-0 basis-full;
 
       img {
-        @apply h-2/3 object-cover;
+        @apply h-[400px] object-cover transition-none select-none rounded-[20px] m-4;
+        pointer-events: none;
+        -webkit-user-drag: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
       }
     }
-  
+
+    &-info {
+      @apply flex flex-col gap-2 items-center justify-center h-1/3 mb-8;
+    }
+
     &-section {
-      @apply p-8 flex flex-col gap-4 h-[70vh] overflow-hidden opacity-0 text-white min-w-[500px] w-[500px];
-      flex: 0 0 0%; /* 未hover時寬度為0 */
-      transition: flex 0.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease-in-out 0.2s, padding 0.5s;
+      @apply flex flex-col gap-4 opacity-0 text-white size-0 p-0 overflow-x-visible overflow-hidden transition-all duration-500 ease-out
+        flex-grow-0 flex-shrink-0 basis-0;
     }
-    
-    /* 統一在card層級處理hover效果 */
-    &-card:hover {
-      flex: 0 0 70%; /* hover時卡片展開到50% */
-      
+
+    &-card.expanded {
+      @apply z-10 flex-grow-0 flex-shrink-0 basis-[calc(80%/2)] min-w-[600px] 2xl:min-w-auto;
+
       .team-img {
-        flex: 0 0 30%; /* hover時圖片佔40% */
+        @apply w-[40%] flex-grow-0 flex-shrink-0 basis-[40%];
       }
-      
+
       .team-section {
-        flex: 0 0 70%; /* hover時section佔70% */
-        @apply opacity-100 p-8 flex flex-col gap-4 overflow-hidden;
-        /* 移除 min-w-[70%]，使用原本設定的固定寬度 */
+        @apply p-8 opacity-100 overflow-hidden h-auto flex-grow-0 flex-shrink-0 basis-[60%];
       }
     }
-  
+
+    &-card.expanded {
+      @apply transform-none;
+    }
+
     &-name {
       @apply text-2xl font-bold;
     }
-  
+
     &-level {
       @apply text-base;
     }
-  
+
     &-links {
       @apply flex gap-4 items-center;
     }
-  
+
     &-link {
-      @apply flex items-center justify-center  bg-white text-secondary rounded-full p-1;
+      @apply flex items-center justify-center bg-white text-secondary rounded-full p-1;
     }
-  
+
     &-icon {
       @apply size-5;
     }
-  
+
     &-skills {
-      @apply grid grid-cols-3 gap-4 w-full flex-shrink-0;
+      @apply flex flex-wrap gap-4 w-full flex-shrink-0;
     }
-  
+
     &-skill {
-      @apply col-span-1 rounded-full px-3 py-2 bg-stone-500 text-white flex items-center justify-center min-w-max;
-      white-space: nowrap; /* 防止文字換行 */
-      
+      @apply rounded-full px-2 py-1 bg-stone-500 text-white flex items-center justify-center min-w-max whitespace-nowrap;
+
       &-text {
         @apply m-0 p-0 text-sm;
       }
     }
-  
+
     &-works {
-      @apply grid grid-cols-2 gap-2 gap-x-8 w-full flex-shrink-0;
+      @apply gap-2 gap-x-8 flex-shrink-0;
 
       &_layout {
         @apply flex gap-4 border border-stone-400 p-4 rounded-[20px] shadow-md shadow-black/70;
-        
+
         .green-dot {
           @apply border-4 border-green-600 bg-green-400 shadow-green-500 size-4 rounded-full my-1 flex-shrink-0;
         }
       }
-
     }
-  
+
     &-work {
       &-item {
-        @apply col-span-1 flex gap-2 items-center min-w-max;
-        white-space: nowrap; /* 防止文字換行 */
-        
-        p {
-          font-size: 0.875rem; /* 固定字體大小 */
-          margin: 0; /* 移除預設間距 */
-        }
+        @apply flex gap-2 items-center whitespace-nowrap;
       }
-      
+
       &-icon {
-        @apply size-5 text-green-500;
-        flex-shrink: 0; /* 確保圖標不會被壓縮 */
+        @apply size-5 text-green-500 flex-shrink-0;
       }
     }
   }
