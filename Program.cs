@@ -32,16 +32,25 @@ public class Program
         builder.Logging.AddDebug();
 
         // 從配置中獲取連接字串 (會自動從 appsettings.json, secrets.json, 環境變數等來源載入)
-        var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+        // smartASP.NET = DefaultConnection
+        // Azure SQL Server = AzureConnection
+
+        var connectString = new
+        {
+            defaultString = "DefaultConnection",    // SmarterASP.NET
+            azureString = "AzureConnection"         // Azure SQL Server
+        };
+
+        var connectionString = builder.Configuration.GetConnectionString(connectString.azureString);
 
         if (string.IsNullOrEmpty(connectionString))
         {
-            throw new InvalidOperationException("DefaultConnection connection string is not configured.");
+            throw new InvalidOperationException($"{connectString.azureString} connection string is not configured.");
         }
 
         // Add services to the container.
         builder.Services.AddDbContext<ApplicationDbContext>(options =>
-            options.UseSqlServer(connectionString, sqlOptions => 
+            options.UseSqlServer(connectionString, sqlOptions =>
             {
                 sqlOptions.CommandTimeout(60); // 增加到 60 秒
                 sqlOptions.EnableRetryOnFailure(3, TimeSpan.FromSeconds(5), null); // 啟用重試機制
@@ -80,9 +89,10 @@ public class Program
 
         // 註冊記憶體快取
         builder.Services.AddMemoryCache();
-        
+
         // 註冊 AutoMapper
-        builder.Services.AddAutoMapper(cfg => {
+        builder.Services.AddAutoMapper(cfg =>
+        {
             cfg.AddProfile<Mappings.AutoMapperProfile>();
         });
 
@@ -131,7 +141,7 @@ public class Program
             options.UserName.RequiredLength = 3;
             options.UserName.MaximumLength = 20;
             options.UserName.AllowedCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_";
-            
+
             // 密碼規則
             options.Password.RequiredLength = 8;
             options.Password.MaximumLength = 20;
@@ -140,7 +150,7 @@ public class Program
             options.Password.RequireUppercase = true;
             options.Password.RequireNonAlphanumeric = true;
             options.Password.RequiredUniqueChars = 1;
-            
+
             // Email 規則
             options.Email.MaximumLength = 30;
             options.Email.RequireConfirmedEmail = false;
@@ -214,7 +224,7 @@ public class Program
                 "image/svg+xml"
             };
         });
-        
+
         builder.Services.AddControllersWithViews(options =>
         {
             // 自訂 ModelBinding 錯誤訊息提供者
@@ -245,7 +255,7 @@ public class Program
             var uri = new Uri(originalUrls);
             var originalPort = uri.Port;
             var availablePort = FindAvailablePort(originalPort);
-            
+
             if (availablePort != originalPort)
             {
                 var newUrl = $"{uri.Scheme}://{uri.Host}:{availablePort}";
