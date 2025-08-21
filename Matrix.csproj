@@ -7,6 +7,7 @@
         <UserSecretsId>aspnet-Matrix-d348be40-1233-4007-9aa2-b05d1d3abdd7</UserSecretsId>
         <NoDefaultLaunchSettingsFile>True</NoDefaultLaunchSettingsFile>
         <UseSharedCompilation>false</UseSharedCompilation>
+        <PreserveCompilationContext>true</PreserveCompilationContext>
     </PropertyGroup>
 
     <ItemGroup>
