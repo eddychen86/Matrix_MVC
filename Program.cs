@@ -272,7 +272,10 @@ public class Program
 
         // Configure the HTTP request pipeline.
         if (app.Environment.IsDevelopment())
+        {
             app.UseMigrationsEndPoint();
+            app.UseDeveloperExceptionPage();
+        }
         else
         {
             app.UseExceptionHandler("/Home/Error");
