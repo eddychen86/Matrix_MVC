@@ -31,19 +31,29 @@ namespace Matrix.Controllers
         [HttpPost("Create")]
         public async Task<IActionResult> Create([FromForm] CreateArticleDto dto)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+            if (!ModelState.IsValid) return BadRequest(ModelState);
 
             var currentUserId = HttpContext.Items["UserId"] as Guid?;
-            if (!currentUserId.HasValue)
-                return Unauthorized(new { message = "請先登入後再發文" });
+            if (!currentUserId.HasValue) return Unauthorized(new { message = "請先登入後再發文" });
 
             try
             {
-                var result = await _articleService.CreateArticleWithAttachmentsAsync(currentUserId.Value, dto);
-                if (result == null)
-                    return BadRequest(new { message = "建立文章失敗" });
+                _logger.LogInformation(
+                    "CreateArticleWithAttachments start, UserId={UserId}, ContentLen={Len}, Attachments={A}, Tags={T}",
+                    currentUserId.Value, dto.Content?.Length ?? 0,
+                    dto.Attachments?.Count ?? (dto.Files?.Count ?? 0) + (dto.Images?.Count ?? 0),
+                    dto.SelectedHashtags?.Count ?? 0
+                );
 
+                var result = await _articleService.CreateArticleWithAttachmentsAsync(currentUserId.Value, dto);
+
+                if (result == null)
+                {
+                    _logger.LogWarning("CreateArticleWithAttachments returned null (UserId={UserId})", currentUserId.Value);
+                    return BadRequest(new { message = "建立文章失敗" });
+                }
+
+                _logger.LogInformation("Article saved. ArticleId={ArticleId}", result.ArticleId);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -52,6 +62,7 @@ namespace Matrix.Controllers
                 return StatusCode(500, "建立文章過程中發生錯誤");
             }
         }
+
 
         [HttpPost("upload")]
         public async Task<IActionResult> UploadAttachment(
@@ -141,11 +152,13 @@ namespace Matrix.Controllers
 
 
         [HttpGet("GetHashtags")]
-        public async Task<IActionResult> GetHashtags()
+        public async Task<IActionResult> GetHashtags([FromServices] IHashtagRepository hashtags)
         {
-            var hashtags = await _hashtagRepository.GetAllAsync();
-            var data = hashtags.Select(x => new { x.TagId, x.Content });
-            return Json(data);
+            var list = await hashtags.GetAllAsync();
+            return Ok(list.Select(x => new { x.TagId, x.Content }));
         }
+
+
+
     }
 }

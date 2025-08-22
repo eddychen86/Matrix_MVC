@@ -256,21 +256,35 @@ export function useCreatePost({ onCreated } = {}) {
         selectedFiles.value.forEach(f => formData.append('Attachments', f))
         selectedHashtags.value.forEach(tag => formData.append('SelectedHashtags', tag.tagId))
 
+        // 👇 這段把 FormData 內容印出來
+        const dump = []
+        for (const [k, v] of formData.entries()) {
+            dump.push([k, v instanceof File ? `(File:${v.name}, ${v.size}B)` : v])
+        }
+        console.log('[submit] POST /CreatePost/Create payload =', dump)
+
         try {
             const res = await fetch('/CreatePost/Create', { method: 'POST', body: formData })
-            if (res.ok) {
-                const article = await res.json()
-                afterCreated?.(article)
-                alert('送出成功！')
-                closeModal()
-            } else {
-                const error = await res.text()
-                alert('送出失敗: ' + error)
+            console.log('[submit] response status =', res.status)
+
+            if (!res.ok) {
+                const txt = await res.text()
+                console.error('[submit] error body =', txt)
+                alert('送出失敗: ' + (txt?.slice(0, 200) || res.status))
+                return
             }
+
+            const article = await res.json()
+            console.log('[submit] success article =', article)
+            afterCreated?.(article)
+            alert('送出成功！')
+            closeModal()
         } catch (err) {
+            console.error('[submit] network error =', err)
             alert('網路錯誤：' + err.message)
         }
     }
+
 
     // onMounted(() => {
     //     const btn = document.querySelector('#openPostBtn')
