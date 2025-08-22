@@ -30,8 +30,9 @@ export const useHome = () => {
         if (!item) return list.clientWidth
         const itemWidth = item.getBoundingClientRect().width
         const csList = getComputedStyle(list)
-        const gap = parseFloat(csList.columnGap || csList.gap || '0')
-        return itemWidth + gap
+        // 使用固定的 gap 值 (1.75rem = 28px)
+        const gap = parseFloat(csList.gap || '28')
+        return Math.round(itemWidth + gap)
     }
 
     function snapToIndex(el, index) {
@@ -47,7 +48,9 @@ export const useHome = () => {
     function getMaxIndex(el) {
         const step = getStep(el)
         if (!step) return 0
-        const maxLeft = Math.max(0, el.scrollWidth - el.clientWidth)
+        // 考慮 padding-right，確保最後一個 item 可以完全顯示
+        const paddingRight = parseFloat(getComputedStyle(el).paddingRight || '0')
+        const maxLeft = Math.max(0, el.scrollWidth - el.clientWidth + paddingRight)
         return Math.max(0, Math.floor(maxLeft / step))
     }
 
@@ -65,8 +68,14 @@ export const useHome = () => {
         const idx = getIndex(el)
         const target = Math.max(0, Math.min(idx + dir, max))
         snapToIndex(el, target)
-        canPrev.value = target > 0
-        canNext.value = target < max
+
+        // 延遲更新按鈕狀態，等待滾動完成
+        setTimeout(() => {
+            const currentIdx = getIndex(el)
+            const currentMax = getMaxIndex(el)
+            canPrev.value = currentIdx > 0
+            canNext.value = currentIdx < currentMax
+        }, 300)
     }
 
     const hotPrev = () => {

@@ -20,7 +20,7 @@
 
                 <ul ref="hotCarouselRef" class="carousel carousel-center carousel_layout" v-if="hotlist && hotlist.length">
                     <li class="carousel-item carousel-item_cts" v-for="item in hotlist" :key="item.articleId">
-                        <div class="card bg-base-100 image-full shadow-sm">
+                        <div class="card bg-base-100 image-full shadow-sm w-full">
                             <figure>
                                 <img v-if="item.image && item.image.filePath" :src="item.image.filePath" :alt="item.content" />
                                 <div v-else class="no-img bg-accent">

@@ -260,7 +260,7 @@ window.matrixSignalR = new MatrixSignalR();
 
 // 自動初始化（僅限已登入用戶）
 document.addEventListener('DOMContentLoaded', async () => {
-  // 檢查用戶是否已登入
+  // 使用 controller 中已取得的用戶資訊來判斷是否要初始化 SignalR
   const authData = window.matrixAuthData || { isAuthenticated: false };
 
   if (authData.isAuthenticated) {
@@ -270,6 +270,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       // 將連接實例也掛載到 window.signalRConnection 供其他組件使用
       window.signalRConnection = window.matrixSignalR.connection;
 
+      // console.log(`SignalR 已為用戶 ${authData.userName} 初始化`);
     } catch (error) {
       console.warn('SignalR 自動初始化失敗:', error);
     }

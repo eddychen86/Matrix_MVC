@@ -168,26 +168,6 @@ globalApp({
         // Global Methods
         window.toggleFunc = (show, type) => show ? openPopup(type) : closePopup()
 
-        //#region Global Action Functions
-
-        // 定義全域動作函數供 PostList 使用
-        window.praize = (articleId) => {
-            console.log('Praise action for article:', articleId)
-            // TODO: Implement praise API call
-        }
-
-        window.comment = (articleId) => {
-            console.log('Comment action for article:', articleId)
-            // TODO: Implement comment functionality
-        }
-
-        window.collect = (articleId) => {
-            console.log('Collect action for article:', articleId)
-            // TODO: Implement collect API call
-        }
-
-        //#endregion
-
         //#region Lifecycle
 
         // 組件掛載時獲取用戶信息並初始化頁面數據
@@ -205,14 +185,14 @@ globalApp({
             }
 
             // 若頁面包含好友列表區塊，載入好友
-            if (document.querySelector('.friends-list')) {
-                loadFriends(1, 20, null, friendsStatus.value)
-            }
+            // if (document.querySelector('.friends-list')) {
+            //     loadFriends(1, 20, null, friendsStatus.value)
+            // }
         })
 
         //#endregion
 
-        console.log('✅ setup() 成功初始化，searchQuery =', searchQuery.value)
+        // console.log('✅ setup() 成功初始化，searchQuery =', searchQuery.value)
 
         // 合併所有loading狀態
         const isLoading = computed(() =>
@@ -254,12 +234,12 @@ globalApp({
 
             // 好友相關
             toggleFollow: handleToggleFollow,
-            friends,
-            friendsLoading,
-            friendsTotal,
-            friendsStatus,
-            loadFriends,
-            changeFriendsStatus,
+            // friends,
+            // friendsLoading,
+            // friendsTotal,
+            // friendsStatus,
+            // loadFriends,
+            // changeFriendsStatus,
 
             // hooks
             formatDate,
