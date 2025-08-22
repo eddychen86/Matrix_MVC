@@ -247,7 +247,7 @@ namespace Matrix.Services
         {
             var query = _context.Articles
                 .AsNoTracking() // 只讀查詢
-                // Status == 0 表示正常，IsPublic == 0 表示公開
+                                // Status == 0 表示正常，IsPublic == 0 表示公開
                 .Where(a => a.Status == 0 && a.IsPublic == 0);
 
             if (onlyPublic)
@@ -308,10 +308,62 @@ namespace Matrix.Services
             return true;
         }
 
-        // 映射方法已由 AutoMapper 取代
-
+        /// <summary>
+        /// 建立一篇新文章，並處理其檔案附件
+        /// </summary>
         public async Task<ArticleDto?> CreateArticleWithAttachmentsAsync(Guid authorId, CreateArticleDto dto)
         {
+            const int maxImgs = 6;
+            const int maxFiles = 6;
+            const long maxSize = 5 * 1024 * 1024; // 5MB
+
+            static bool IsImageExt(string fileName)
+            {
+                var ext = Path.GetExtension(fileName).ToLowerInvariant();
+                return ext is ".jpg" or ".jpeg" or ".png" or ".gif" or ".webp" or ".bmp";
+            }
+            static bool IsImageByContentType(string? ct)
+                => !string.IsNullOrEmpty(ct) && ct.StartsWith("image/", StringComparison.OrdinalIgnoreCase);
+            static bool LooksLikeImage(IFormFile f)
+                => IsImageByContentType(f.ContentType) || IsImageExt(f.FileName);
+            static IEnumerable<IFormFile> Dedupe(IEnumerable<IFormFile> files)
+                => files.Where(f => f != null && f.Length > 0)
+                        .GroupBy(f => new { f.FileName, f.Length })
+                        .Select(g => g.First());
+
+            //先做附件驗證
+            var all = new List<IFormFile>();
+            if (dto.Images?.Any() == true) all.AddRange(dto.Images);
+            if (dto.Files?.Any() == true) all.AddRange(dto.Files);
+            if (dto.Attachments?.Any() == true) all.AddRange(dto.Attachments);
+
+            var deduped = Dedupe(all).ToList();
+            var images = deduped.Where(LooksLikeImage).ToList();
+            var files = deduped.Where(f => !LooksLikeImage(f)).ToList();
+
+            if (images.Count > maxImgs)
+                throw new ArgumentException($"圖片最多 {maxImgs} 張");
+            if (files.Count > maxFiles)
+                throw new ArgumentException($"檔案最多 {maxFiles} 個");
+            if (deduped.Any(f => f.Length > maxSize))
+                throw new ArgumentException("有檔案超過 5MB 上限");
+
+            //先解析並檢查 Hashtag 上限
+            List<Guid> tagIds = new();
+            if (dto.SelectedHashtags?.Any() == true)
+            {
+                tagIds = dto.SelectedHashtags
+                    .Select(s => Guid.TryParse(s, out var g) ? g : (Guid?)null)
+                    .Where(g => g.HasValue)
+                    .Select(g => g!.Value)
+                    .Distinct()
+                    .ToList();
+
+                if (tagIds.Count > 6)
+                    throw new ArgumentException("最多只能選擇6個標籤");
+            }
+
+            // 取得作者並建立文章
             var author = await _context.Persons.FirstOrDefaultAsync(p => p.UserId == authorId);
             if (author == null) return null;
 
@@ -330,23 +382,6 @@ namespace Matrix.Services
             _context.Articles.Add(article);
             await _context.SaveChangesAsync();
 
-            static bool IsImageExt(string fileName)
-            {
-                var ext = Path.GetExtension(fileName).ToLowerInvariant();
-                return ext is ".jpg" or ".jpeg" or ".png" or ".gif" or ".webp" or ".bmp";
-            }
-
-            static bool IsImageByContentType(string? ct)
-                => !string.IsNullOrEmpty(ct) && ct.StartsWith("image/", StringComparison.OrdinalIgnoreCase);
-
-            static bool LooksLikeImage(IFormFile f)
-                => IsImageByContentType(f.ContentType) || IsImageExt(f.FileName);
-
-            static IEnumerable<IFormFile> Dedupe(IEnumerable<IFormFile> files)
-                => files.Where(f => f != null && f.Length > 0)
-                        .GroupBy(f => new { f.FileName, f.Length })
-                        .Select(g => g.First());
-
             async Task SaveOneAsync(IFormFile f, string subfolder, string type)
             {
                 var path = await _fileService.CreateFileAsync(f, subfolder);
@@ -359,26 +394,21 @@ namespace Matrix.Services
                     ArticleId = article.ArticleId,
                     FilePath = path,
                     FileName = f.FileName,
-                    Type = type,                              // "image" / "file"
+                    Type = type,                       // "image" / "file"
                     MimeType = f.ContentType ?? string.Empty
                 };
                 await _attachmentRepository.AddAsync(att);
             }
 
             if (dto.Images?.Any() == true)
-            {
                 foreach (var f in Dedupe(dto.Images))
                     await SaveOneAsync(f, "public/posts/imgs", "image");
-            }
 
             if (dto.Files?.Any() == true)
-            {
                 foreach (var f in Dedupe(dto.Files))
                     await SaveOneAsync(f, "public/posts/files", "file");
-            }
 
             if (dto.Attachments?.Any() == true)
-            {
                 foreach (var f in Dedupe(dto.Attachments))
                 {
                     var isImg = LooksLikeImage(f);
@@ -388,25 +418,14 @@ namespace Matrix.Services
                         isImg ? "image" : "file"
                     );
                 }
-            }
 
-            // （若有標籤關聯，這裡處理）
-            if (dto.SelectedHashtags?.Any() == true)
-            {
-                var tagIds = dto.SelectedHashtags
-                    .Select(s => Guid.TryParse(s, out var g) ? g : (Guid?)null)
-                    .Where(g => g.HasValue)
-                    .Select(g => g!.Value)
-                    .Distinct()
-                    .ToList();
+            if (tagIds.Count > 0)
+                await _articleHashtagRepository.UpdateArticleHashtagsAsync(article.ArticleId, tagIds);
 
-                if (tagIds.Count > 0)
-                {
-                    await _articleHashtagRepository.UpdateArticleHashtagsAsync(article.ArticleId, tagIds);
-                }
-            }
             return await GetArticleAsync(article.ArticleId);
         }
+
+
 
         /// <summary>
         /// 後臺管理員更新文章
@@ -442,7 +461,7 @@ namespace Matrix.Services
         public async Task<int> GetTotalArticlesCountAsync(bool onlyPublic = true)
         {
             var query = _context.Articles.AsNoTracking();
-            
+
             if (onlyPublic)
             {
                 query = query.Where(a => a.IsPublic == 0 && a.Status == 1); // 公開且正常狀態
@@ -451,7 +470,7 @@ namespace Matrix.Services
             {
                 query = query.Where(a => a.Status == 1); // 只排除已刪除的
             }
-            
+
             return await query.CountAsync();
         }
     }

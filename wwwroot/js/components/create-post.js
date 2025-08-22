@@ -17,7 +17,8 @@ export function useCreatePost({ onCreated } = {}) {
     const selectedFiles = ref([])
     const fileInput = ref(null)
     const fileInputMode = ref('file')
-    const maxSize = 5 * 1024 * 1024;
+    const maxSize = 5 * 1024 * 1024
+    const maxTags = 6
 
     const ClassicEditor = window.ClassicEditor
     const editorConfig = reactive({
@@ -151,15 +152,29 @@ export function useCreatePost({ onCreated } = {}) {
     const cancelHashtagModal = () => { showHashtagModal.value = false }
     const confirmHashtagModal = () => {
         const set = tempSelectedIds.value
+        if (set.size > maxTags) {
+            alert(`最多只能選擇${maxTags}個標籤`)
+            return
+        }
         selectedHashtags.value = allHashtags.value.filter(t => set.has(String(t.tagId)))
         showHashtagModal.value = false
     }
-
-    function toggleTempTag(tag) {
+    function toggleTempTag(tag, evt) {
         const id = String(tag.tagId)
         const set = tempSelectedIds.value
-        if (set.has(id)) set.delete(id)
-        else set.add(id)
+
+        if (set.has(id)) {
+            set.delete(id)
+            if (evt?.target) evt.target.checked = false
+            return
+        }
+        if (set.size >= maxTags) {
+            alert(`最多只能選擇${maxTags}個標籤`)
+            if (evt?.target) evt.target.checked = false
+            return
+        }
+        set.add(id)
+        if (evt?.target) evt.target.checked = true
     }
 
     function setFileInput(type) {
@@ -178,7 +193,6 @@ export function useCreatePost({ onCreated } = {}) {
             arr.findIndex(f => f.name === file.name && f.size === file.size) === idx
         )
     }
-
     function looksLikeImage(file) {
         const ct = (file.type || '').toLowerCase()
         const byCT = ct.startsWith('image/')

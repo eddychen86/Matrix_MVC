@@ -138,8 +138,8 @@
                 <div class="mb-4 flex-1 overflow-y-auto">
                     <label v-for="tag in allHashtags" :key="tag.tagId" class="mb-2 block cursor-pointer">
                         <input type="checkbox"
-                               :checked="tempSelectedIds.has(tag.tagId)"
-                               @@change="toggleTempTag(tag)" class="mr-2" />
+                               :checked="tempSelectedIds.has(String(tag.tagId))"
+                               @@change ="toggleTempTag(tag, $event)" />
                         {{ tag.content }}
                     </label>
                 </div>

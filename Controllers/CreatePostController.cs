@@ -28,33 +28,27 @@ namespace Matrix.Controllers
         private readonly IArticleAttachmentRepository _articleAttachmentRepository = articleAttachmentRepository;
         private readonly ILogger<CreatePostController> _logger = logger;
 
-        [HttpPost("Create")]
+        [HttpPost("create")]
         public async Task<IActionResult> Create([FromForm] CreateArticleDto dto)
         {
-            if (!ModelState.IsValid) return BadRequest(ModelState);
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
 
             var currentUserId = HttpContext.Items["UserId"] as Guid?;
-            if (!currentUserId.HasValue) return Unauthorized(new { message = "請先登入後再發文" });
+            if (!currentUserId.HasValue)
+                return Unauthorized(new { message = "請先登入後再發文" });
 
             try
             {
-                _logger.LogInformation(
-                    "CreateArticleWithAttachments start, UserId={UserId}, ContentLen={Len}, Attachments={A}, Tags={T}",
-                    currentUserId.Value, dto.Content?.Length ?? 0,
-                    dto.Attachments?.Count ?? (dto.Files?.Count ?? 0) + (dto.Images?.Count ?? 0),
-                    dto.SelectedHashtags?.Count ?? 0
-                );
-
                 var result = await _articleService.CreateArticleWithAttachmentsAsync(currentUserId.Value, dto);
-
                 if (result == null)
-                {
-                    _logger.LogWarning("CreateArticleWithAttachments returned null (UserId={UserId})", currentUserId.Value);
                     return BadRequest(new { message = "建立文章失敗" });
-                }
 
-                _logger.LogInformation("Article saved. ArticleId={ArticleId}", result.ArticleId);
                 return Ok(result);
+            }
+            catch (ArgumentException ex) 
+            {
+                return BadRequest(new { message = ex.Message });
             }
             catch (Exception ex)
             {
@@ -62,6 +56,7 @@ namespace Matrix.Controllers
                 return StatusCode(500, "建立文章過程中發生錯誤");
             }
         }
+
 
 
         [HttpPost("upload")]
