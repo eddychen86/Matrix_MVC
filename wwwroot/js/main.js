@@ -113,6 +113,7 @@ globalApp({
             setupInfiniteScroll,
             cleanupInfiniteScroll,
             initializeHomePosts,
+            setupPostRefreshListener,
             postListLoading
         } = postManager
 
@@ -199,6 +200,8 @@ globalApp({
             // 如果是首頁，初始化文章列表
             if (isHomePage) {
                 await initializeHomePosts()
+                // 設置新貼文事件監聽器
+                setupPostRefreshListener()
             }
 
             // 若頁面包含好友列表區塊，載入好友

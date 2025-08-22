@@ -151,6 +151,32 @@ export const usePostManager = (currentUser) => {
         return result
     }
 
+    // 監聽新貼文事件，實現局部刷新
+    const setupPostRefreshListener = () => {
+        window.addEventListener('post:listRefresh', (event) => {
+            const { action, newArticle } = event.detail;
+
+            if (action === 'prepend' && newArticle) {
+                // 將新貼文插入到列表頂部
+                posts.value.unshift(newArticle);
+
+                // 可選：添加視覺提示
+                Vue.nextTick(() => {
+                    const firstPost = document.querySelector('.post-item:first-child, .article-item:first-child');
+                    if (firstPost) {
+                        firstPost.classList.add('new-post-highlight');
+                        // 3秒後移除高亮
+                        setTimeout(() => {
+                            firstPost.classList.remove('new-post-highlight');
+                        }, 3000);
+                    }
+                });
+
+                console.log('新貼文已添加到列表頂部');
+            }
+        });
+    }
+
     //#endregion
 
     return {
@@ -167,7 +193,8 @@ export const usePostManager = (currentUser) => {
         setupInfiniteScroll,
         cleanupInfiniteScroll,
         resetPostState,
-        initializeHomePosts
+        initializeHomePosts,
+        setupPostRefreshListener
     }
 }
 

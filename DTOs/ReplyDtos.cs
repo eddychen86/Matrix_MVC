@@ -155,7 +155,7 @@ namespace Matrix.DTOs
         /// <summary>
         /// 獲取回覆的作者頭像
         /// </summary>
-        public string AuthorAvatar => !string.IsNullOrEmpty(Author?.AvatarPath) ? Author.AvatarPath : "/static/images/default_avatar.png";
+        public string? AuthorAvatar => !string.IsNullOrEmpty(Author?.AvatarPath) ? Author.AvatarPath : null;
 
         /// <summary>
         /// 獲取被回覆者的顯示名稱

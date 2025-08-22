@@ -1,5 +1,7 @@
+import { postListService } from './PostListService.js'
+
 export function useCreatePost({ onCreated } = {}) {
-    const { ref, reactive, onMounted } = Vue
+    const { ref, reactive } = Vue
 
     const URL_API = (typeof window !== 'undefined')
         ? (window.URL || window.webkitURL || null)
@@ -290,6 +292,49 @@ export function useCreatePost({ onCreated } = {}) {
 
             const article = await res.json()
             console.log('[submit] success article =', article)
+
+            // 觸發貼文列表局部刷新
+            try {
+                // 格式化新貼文數據以符合前端顯示格式
+                const formattedArticle = postListService.formatArticles([article])[0];
+
+                console.log('準備觸發 post:listRefresh 事件', { formattedArticle });
+
+                // 方法1: 本地事件 - 立即更新發文者自己的列表
+                window.dispatchEvent(new CustomEvent('post:listRefresh', {
+                    detail: {
+                        action: 'prepend',
+                        newArticle: formattedArticle,
+                        rawArticle: article,
+                        source: 'local' // 標記為本地事件
+                    }
+                }));
+
+                // 方法2: SignalR - 通知其他用戶
+                if (window.matrixSignalR && window.matrixSignalR.isConnected) {
+                    const signalRSuccess = await window.matrixSignalR.notifyNewPost({
+                        articleId: article.articleId,
+                        authorId: article.authorId || article.userId,
+                        authorName: article.authorName || article.userName,
+                        content: article.content,
+                        createTime: article.createTime,
+                        formattedArticle: formattedArticle
+                    });
+
+                    if (signalRSuccess) {
+                        console.log('SignalR 新貼文通知已發送');
+                    } else {
+                        console.warn('SignalR 新貼文通知發送失敗');
+                    }
+                } else {
+                    console.warn('SignalR 連接未建立，無法通知其他用戶');
+                }
+
+                console.log('post:listRefresh 事件已觸發');
+            } catch (refreshError) {
+                console.warn('刷新貼文列表失敗:', refreshError);
+            }
+
             afterCreated?.(article)
             alert('送出成功！')
             closeModal()

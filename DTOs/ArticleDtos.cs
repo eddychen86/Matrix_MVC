@@ -179,7 +179,7 @@ namespace Matrix.DTOs
         /// 獲取文章的作者頭像
         /// 用途：顯示文章作者的頭像
         /// </summary>
-        public string AuthorAvatar => !string.IsNullOrEmpty(Author?.AvatarPath) ? Author.AvatarPath : "/static/images/default_avatar.png";
+        public string? AuthorAvatar => !string.IsNullOrEmpty(Author?.AvatarPath) ? Author.AvatarPath : null;
 
         /// <summary>
         /// 當前使用者是否已經點讚

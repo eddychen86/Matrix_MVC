@@ -5,7 +5,6 @@ using Matrix.ViewModels;
 
 namespace Matrix.Controllers.Api
 {
-    [Route("api/[controller]")]
     [Route("api/friends")]
     [ApiController]
     public class FriendshipController(
