@@ -8,7 +8,7 @@
     @* 熱門文章輪播（僅登入可見） *@
     @if (ViewBag.IsAuthenticated == true)
     {
-        <section class="home-hots_list overflow-x-hidden">
+        <section class="home-hots_list overflow-hidden">
             <h1 class="title">Hot</h1>
             <div class="hots_list_carousel">
                 <button v-on:click="hotPrev">

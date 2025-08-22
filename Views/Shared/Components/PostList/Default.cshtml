@@ -35,8 +35,11 @@
             </div>
 
             <div class="post-content_attachments_files" v-if="item.attachments.filter(f => f.type.toLowerCase() === 'file').length > 0">
-                <div v-for="file in item.attachments.filter(f => f.type.toLowerCase() === 'file')" :key="file.fileId">
-                    <a :download="file.fileName" target="_blank" rel="noopener noreferrer">{{ file.fileName }}</a>
+                <div v-for="file in item.attachments.filter(f => f.type.toLowerCase() === 'file')" :key="file.fileId" class="rounded-md p-2 text-white cursor-pointer transition-colors" style="background: #555;">
+                    <a :href="file.filePath" :download="file.fileName" target="_blank" rel="noopener noreferrer" class="flex gap-1 items-center">
+                        <i data-lucide="file-text" class="size-6 text-stone-300"></i>
+                        {{ file.fileName }}
+                    </a>
                 </div>
             </div>
         </div>
