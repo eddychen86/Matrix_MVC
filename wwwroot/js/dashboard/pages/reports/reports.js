@@ -137,7 +137,7 @@ window.mountReportsPage = function() {
         try {
           const url = `/api/Db_Reports?${buildQuery()}`
           const res = await fetch(url)
-          console.log('GET', url, '→', res.status)
+          // console.log('GET', url, '→', res.status)
           if (!res.ok) {
             console.error('API Error:', res.status, res.statusText)
             return
@@ -310,7 +310,7 @@ window.mountReportsPage = function() {
 
           // 如果目前頁面存在 Reports 的容器，就自動載入
           if (document.getElementById('reports-app')) {
-            console.log('Reports app container found, loading reports...')
+            // console.log('Reports app container found, loading reports...')
             loadReports()
           } else {
             console.log('Reports app container not found, setting up observer...')

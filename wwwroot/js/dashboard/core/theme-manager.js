@@ -69,7 +69,7 @@
                 }
             }))
 
-            console.log(`主題已切換至: ${themeName}`)
+            // console.log(`主題已切換至: ${themeName}`)
             return themeConfig
         },
 

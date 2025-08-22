@@ -295,11 +295,11 @@ export function useCreatePost({ onCreated } = {}) {
         for (const [k, v] of formData.entries()) {
             dump.push([k, v instanceof File ? `(File:${v.name}, ${v.size}B)` : v])
         }
-        console.log('[submit] POST /CreatePost/Create payload =', dump)
+        // console.log('[submit] POST /CreatePost/Create payload =', dump)
 
         try {
             const res = await fetch('/CreatePost/Create', { method: 'POST', body: formData })
-            console.log('[submit] response status =', res.status)
+            // console.log('[submit] response status =', res.status)
 
             if (!res.ok) {
                 const txt = await res.text()
@@ -309,14 +309,14 @@ export function useCreatePost({ onCreated } = {}) {
             }
 
             const article = await res.json()
-            console.log('[submit] success article =', article)
+            // console.log('[submit] success article =', article)
 
             // 觸發貼文列表局部刷新
             try {
                 // 格式化新貼文數據以符合前端顯示格式
                 const formattedArticle = postListService.formatArticles([article])[0];
 
-                console.log('準備觸發 post:listRefresh 事件', { formattedArticle });
+                // console.log('準備觸發 post:listRefresh 事件', { formattedArticle });
 
                 // 方法1: 本地事件 - 立即更新發文者自己的列表
                 window.dispatchEvent(new CustomEvent('post:listRefresh', {
@@ -340,7 +340,7 @@ export function useCreatePost({ onCreated } = {}) {
                     });
 
                     if (signalRSuccess) {
-                        console.log('SignalR 新貼文通知已發送');
+                        // console.log('SignalR 新貼文通知已發送');
                     } else {
                         console.warn('SignalR 新貼文通知發送失敗');
                     }
@@ -348,7 +348,7 @@ export function useCreatePost({ onCreated } = {}) {
                     console.warn('SignalR 連接未建立，無法通知其他用戶');
                 }
 
-                console.log('post:listRefresh 事件已觸發');
+                // console.log('post:listRefresh 事件已觸發');
             } catch (refreshError) {
                 console.warn('刷新貼文列表失敗:', refreshError);
             }

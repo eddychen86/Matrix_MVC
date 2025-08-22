@@ -25,7 +25,7 @@ export const useSearchService = (initialPopupData, initialPopupState) => {
             console.warn('popupData not initialized yet')
             return
         }
-        console.log('🔍 手動搜尋按鈕觸發！', searchQuery)
+        // console.log('🔍 手動搜尋按鈕觸發！', searchQuery)
 
         const keyword = searchQuery.value
 
@@ -55,7 +55,7 @@ export const useSearchService = (initialPopupData, initialPopupState) => {
             }))
 
             popupData.Search.Hashtags = tags.data
-            console.log('🎯 搜尋結果資料：', popupData.Search)
+            // console.log('🎯 搜尋結果資料：', popupData.Search)
         } catch (err) {
             console.error('Search API Error:', err)
             popupData.Search.Users = []

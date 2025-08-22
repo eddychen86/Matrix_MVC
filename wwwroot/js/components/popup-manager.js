@@ -141,7 +141,7 @@ export const usePopupManager = (clearSearchCallback = null) => {
             if (overlayEl) overlayEl.style.display = ''
         })
 
-        console.log('🧠 開啟 popup：', popupState.type)
+        // console.log('🧠 開啟 popup：', popupState.type)
         if (type === 'Notify') {
             popupData.Notify = []
             await fetchNotify()

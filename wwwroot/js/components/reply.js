@@ -56,7 +56,7 @@ export function useReply() {
             const res = await fetch(`/api/post/${articleId}`, { credentials: 'include' })
             if (!res.ok) throw new Error(`HTTP ${res.status}`)
             const json = await res.json()
-            console.log('[DEBUG] article:', json)
+            // console.log('[DEBUG] article:', json)
             if (!json?.success) throw new Error(json?.message || '讀取文章失敗')
 
             replyModal.article = json.article
