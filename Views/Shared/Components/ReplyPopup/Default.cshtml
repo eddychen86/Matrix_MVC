@@ -1,11 +1,10 @@
-﻿<div v-if="replyModal.visible" class="fixed inset-0 z-[999] flex items-center justify-center">
+﻿<div v-cloak v-show="replyModal.visible" class="fixed inset-0 z-[999] flex items-center justify-center">
     <div class="absolute inset-0 bg-black/50" v-on:click="closeReply()"></div>
 
     <div class="relative z-[1000] flex h-[80vh] max-h-[800px] min-h-[650px] items-stretch">
 
         <!-- 左側：文章 -->
-        <div class="relative flex h-full w-[600px] flex-col overflow-hidden rounded-[15px] bg-[#161616] p-6 pt-[70px]">
-            <!-- 只有拿到 article 才渲染頭部資訊，避免未載入時取到 undefined -->
+        <div class="relative flex h-full max-w-[650px] min-w-[450px] flex-col overflow-hidden rounded-[15px] bg-[#161616] p-6 pt-[70px]">
             <template v-if="replyModal.article">
                 <!-- 頭像 -->
                 <img :src="replyModal.article.authorAvatar || '/static/images/default_avatar.png'"
@@ -30,16 +29,47 @@
                     {{ replyModal.article?.content }}
                 </p>
 
-                <!-- 檔案預覽區（若有） -->
-                <div id="imagePreviewArea" class="flex flex-wrap items-end gap-2"></div>
-                <div id="filePreviewArea" class="flex flex-wrap items-end gap-2"></div>
+                <!-- 圖片附件 -->
+                <div v-if="replyModal.article?.attachments?.some(f => f.type === 'image')" class="mt-4">
+                    <div class="flex flex-wrap gap-2">
+                        <img v-for="img in replyModal.article.attachments.filter(f => f.type === 'image')"
+                             :key="img.fileId"
+                             :src="img.filePath"
+                             class="rounded-lg max-h-35 max-w-full object-contain">
+                    </div>
+                </div>
+
+                <!-- 非圖片附件 -->
+                <div v-if="replyModal.article?.attachments?.some(f => f.type !== 'image')" class="flex flex-wrap items-end gap-2">
+                    <a v-for="(file, index) in replyModal.article.attachments.filter(f => f.type !== 'image')"
+                       :key="file.fileId || index"
+                       :href="file.filePath"
+                       target="_blank"
+                       class="relative w-[60px] shrink-0 rounded-[12px] bg-white/5 p-1"
+                       :title="file.fileName || (file.filePath || '').split('/').pop()">
+                        <div class="flex h-[40px] w-full items-center justify-center rounded-[10px] bg-white">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 24 24">
+                                <path fill="none" d="M0 0h24v24H0z"></path>
+                                <path fill="currentColor"
+                                      d="m20.41 8.41-4.83-4.83c-.37-.37-.88-.58-1.41-.58H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V9.83c0-.53-.21-1.04-.59-1.42zM7 7h7v2H7V7zm10 10H7v-2h10v2zm0-4H7v-2h10v2z">
+                                </path>
+                            </svg>
+                        </div>
+                        <span class="mt-1 block max-w-full text-center break-words text-[11px]">
+                            {{ file.fileName || (file.filePath || '').split('/').pop() }}
+                        </span>
+                    </a>
+                </div>
             </div>
 
             <!-- hashtag -->
-            <div v-if="replyModal.article?.hashtags?.length" class="flex w-full flex-wrap gap-2 px-6 pb-6">
+            <div v-if="replyModal.article?.hashtags?.length"
+                 class="mt-4 flex flex-wrap gap-2">
                 <span v-for="tag in replyModal.article.hashtags"
                       :key="tag.tagId"
-                      class="rounded-full bg-white/10 px-3 py-1 text-sm text-white">#{{ tag.text }}</span>
+                      class="rounded-full bg-white/10 px-3 py-1 text-sm whitespace-nowrap text-white">
+                    #{{ tag.name }}
+                </span>
             </div>
 
             <!-- 按讚&收藏 -->
@@ -72,7 +102,7 @@
                                 <img :src="reply.authorAvatar || '/static/img/default_avatar.png'"
                                      class="h-7 w-7 rounded-full object-cover"
                                      alt="avatar"
-                                     v-on:error ="e => e.target.src='/static/img/default_avatar.png'" />
+                                     v-on:error="e => e.target.src='/static/img/default_avatar.png'" />
                                 <div class="text-sm font-bold text-black">
                                     {{ reply.authorName || '未知作者' }}
                                 </div>
@@ -91,8 +121,7 @@
                     <div class="flex items-end gap-2">
                         <textarea v-model="replyModal.newComment"
                                   rows="1"
-                                  class="placeholder-white/40 h-auto max-h-40 min-h-[2.5rem] w-full resize-none overflow-auto rounded-[15px] bg-[#131313]
-                     p-2 p-2 text-white outline-none [field-sizing:content]"
+                                  class="placeholder-white/40 h-auto max-h-40 min-h-[2.5rem] w-full resize-none overflow-auto rounded-[15px] bg-[#131313] p-2 text-white outline-none [field-sizing:content]"
                                   placeholder="寫點什麼吧…"></textarea>
                         <button v-on:click="submitReply"
                                 class="min-h-[2.5rem] shrink-0 rounded-full bg-gray-700 px-3 py-2 text-sm font-medium text-white hover:from-[#162534]"

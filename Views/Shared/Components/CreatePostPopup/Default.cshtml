@@ -2,7 +2,7 @@
 <div id="overlay" class="fixed inset-0 z-[1000] hidden bg-white opacity-20"></div>
 
 <!-- 編輯發文容器 -->
-<div id="postModel" class="fixed inset-0 z-[1010] flex items-center justify-center">
+<div v-cloak v-show="postModal.visible" class="fixed inset-0 z-[1010] flex items-center justify-center">
     <div class="relative flex max-h-[800px] min-h-[450px] w-[600px] flex-col rounded-[15px] bg-[#161616] p-6 pt-[70px]">
         <!-- 頭像和名字 -->
         @* <img src="@ViewBag.CurrentUser.Avatar"

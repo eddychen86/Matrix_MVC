@@ -227,11 +227,10 @@ namespace Matrix.Controllers.Api
         {
             try
             {
-                var article = await _articleService.GetArticleAsync(id);
+                var article = await _articleService.GetArticleDetailAsync(id);
+
                 if (article == null)
-                {
                     return NotFound(new { message = "文章不存在" });
-                }
 
                 var response = new
                 {
@@ -240,11 +239,11 @@ namespace Matrix.Controllers.Api
                     createTime = article.CreateTime,
                     praiseCount = article.PraiseCount,
                     collectCount = article.CollectCount,
-                    authorName = article.AuthorName,
-                    authorAvatar = article.AuthorAvatar,
-                    attachments = article.Attachments ?? [],
-                    replies = article.Replies ?? [],
-                    hashtags = article.Hashtags ?? []
+                    authorName = article.Author?.DisplayName,
+                    authorAvatar = article.Author?.AvatarPath,
+                    attachments = article.Attachments ?? new List<ArticleAttachmentDto>(),
+                    replies = article.Replies ?? new List<ReplyDto>(),
+                    hashtags = article.Hashtags ?? new List<HashtagDto>()
                 };
 
                 return Ok(new { success = true, article = response });
@@ -255,6 +254,5 @@ namespace Matrix.Controllers.Api
                 return StatusCode(500, new { success = false, message = ex.Message });
             }
         }
-
     }
 }

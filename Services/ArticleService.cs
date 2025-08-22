@@ -31,31 +31,26 @@ namespace Matrix.Services
         public async Task<ArticleDto?> GetArticleAsync(Guid id)
         {
             var article = await _context.Articles
-                .AsNoTracking() // 只讀查詢
+                .AsNoTracking()
                 .Include(a => a.Author)
+                .Include(a => a.Attachments!)
+                .Include(a => a.ArticleHashtags!)
+                    .ThenInclude(ah => ah.Hashtag)
                 .Include(a => a.Replies!)
-                .ThenInclude(r => r.User)
+                    .ThenInclude(r => r.User)
                 .FirstOrDefaultAsync(a => a.ArticleId == id);
 
             if (article == null) return null;
-
-            // 如果需要回覆資料，單獨查詢避免 N+1 問題
-            var replies = await _context.Replies
-                .AsNoTracking()
-                .Include(r => r.User)
-                .Where(r => r.ArticleId == id)
-                .ToListAsync();
-
-            article.Replies = replies;
             return _mapper.Map<ArticleDto>(article);
         }
+
 
         ///<summary>
         ///取得單篇文章詳情（含作者、附件、hashtags）
         /// </summary>
         public async Task<ArticleDto?> GetArticleDetailAsync(Guid articleId)
         {
-            return await _context.Set<Article>()                   // ← _db 改成 _context
+            return await _context.Set<Article>()
                 .AsNoTracking()
                 .Where(a => a.ArticleId == articleId)
                 .Select(a => new ArticleDto
@@ -69,7 +64,6 @@ namespace Matrix.Services
                     PraiseCount = a.PraiseCount,
                     CollectCount = a.CollectCount,
 
-                    // ★ 不要指定 AuthorName/AuthorAvatar（它們是唯讀），改填 Author
                     Author = a.Author == null ? null : new PersonDto
                     {
                         PersonId = a.Author.PersonId,
@@ -86,13 +80,12 @@ namespace Matrix.Services
                         Type = att.Type
                     }).ToList(),
 
-                    // ★ Hashtags：你的 HashtagDto 是 Name 欄位
                     Hashtags = a.ArticleHashtags
                         .Where(ah => ah.Hashtag != null)
                         .Select(ah => new HashtagDto
                         {
                             TagId = ah.TagId,
-                            Name = ah.Hashtag!.Content   // 這裡改填 Name，不用 Content
+                            Name = ah.Hashtag!.Content
                         }).ToList()
                 })
                 .FirstOrDefaultAsync();

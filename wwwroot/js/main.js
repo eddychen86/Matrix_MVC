@@ -421,7 +421,7 @@ globalApp({
             openReply,
             closeReply,
             submitReply,
-            openReplyWithAuth,   // <<<<<< 這裡一定要有逗號！
+            openReplyWithAuth,
 
             // popup
             popupState,
