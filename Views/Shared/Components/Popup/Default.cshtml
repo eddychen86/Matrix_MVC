@@ -66,7 +66,6 @@
                                 </div>
                                 <div class="flex flex-col items-end space-y-1">
                                     <span class="text-xs text-gray-500">{{ timeAgo(item.sentTime) }}</span>
-                                    <button class="text-sm text-blue-400 hover:underline">Reply</button>
                                 </div>
                             </div>
                         </div>
@@ -98,7 +97,7 @@
 
                         <!-- 如果沒有搜尋結果且有關鍵字，顯示沒有結果 -->
                         <div v-else-if="popupData.Search?.Users?.length === 0 && searchQuery.trim() !== ''" 
-                             class="text-center text-gray-400 py-8">
+                             class="py-8 text-center text-gray-400">
                             沒有找到符合「{{ searchQuery }}」的使用者。
                         </div>
 
@@ -125,7 +124,7 @@
                         </div>
 
                         <!-- 空狀態 -->
-                        <div v-else class="text-center text-gray-400 py-8">
+                        <div v-else class="py-8 text-center text-gray-400">
                             <p v-if="searchQuery.trim() === ''">尚未追蹤任何人</p>
                         </div>
                     </div>
