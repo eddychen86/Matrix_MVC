@@ -116,5 +116,6 @@ namespace Matrix.Services.Interfaces
         /// <param name="days">保留天數</param>
         /// <returns>清理的通知數量</returns>
         Task<int> CleanupOldNotificationsAsync(int days = 30);
+        Task<bool> SendUserNotificationByPersonAsync(Guid senderPersonId, Guid receiverPersonId, int type, Guid? relatedId = null);
     }
 }

@@ -35,7 +35,7 @@ createApp({
             // 清除之前的錯誤訊息
             document.querySelectorAll('p[data-valmsg-for]').forEach(p => p.textContent = '')
 
-            console.log('Received errors:', errors) // Debug log
+            // console.log('Received errors:', errors) // Debug log
 
             Object.keys(errors).forEach(field => {
                 const errMsg = errors[field]
@@ -45,7 +45,7 @@ createApp({
 
                     if (el) {
                         el.textContent = errMsg[0]
-                        console.log(`Set error for ${field}:`, errMsg[0]) // Debug log
+                        // console.log(`Set error for ${field}:`, errMsg[0]) // Debug log
                     } else {
                         console.log(`Could not find validation element for ${field}`)
                         console.log('Available validation elements:', document.querySelectorAll('p[data-valmsg-for]'))
@@ -91,10 +91,10 @@ createApp({
                 if (result.success) {
                     if (result.data?.redirectUrl) {
                         // 成功時保持 loading 狀態直到頁面跳轉
-                        console.log(
-                            'Redirecting to:', result.data.redirectUrl,
-                            "window.location.href", window.location.origin
-                        )
+                        // console.log(
+                        //     'Redirecting to:', result.data.redirectUrl,
+                        //     "window.location.href", window.location.origin
+                        // )
                         setTimeout(() => {
                             // history.pushState(null, '', '/dashboard/overview/index')
                             window.location.href = result.data.redirectUrl

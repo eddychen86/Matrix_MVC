@@ -87,7 +87,7 @@
                             const result = await response.json()
 
                             if (result.success) {
-                                console.log('Logout successful')
+                                // console.log('Logout successful')
                                 window.location.href = '/'
                             } else {
                                 console.error('Logout failed')
@@ -144,7 +144,7 @@
                         
                         // 檢查是否為當前頁面，如果是則不跳轉
                         if (isSamePath(targetUrl)) {
-                            console.log(`已在目標頁面 ${targetUrl}，跳過導航`)
+                            // console.log(`已在目標頁面 ${targetUrl}，跳過導航`)
                             return
                         }
                         
@@ -170,7 +170,7 @@
                         const targetUrl = `/Dashboard/${capitalizedPage}`
                         
                         if (isSamePath(targetUrl)) {
-                            console.log(`已在目標頁面 ${targetUrl}，跳過導航`)
+                            // console.log(`已在目標頁面 ${targetUrl}，跳過導航`)
                             return
                         }
 
@@ -190,7 +190,7 @@
 
                         // 如果在 Dashboard 路徑下，檢查是否為相同頁面
                         if (isSamePath(targetUrl)) {
-                            console.log(`已在目標頁面 ${targetUrl}，跳過導航`)
+                            // console.log(`已在目標頁面 ${targetUrl}，跳過導航`)
                             return
                         }
 

@@ -73,7 +73,7 @@ createApp({
                     
                     if (el && field) {
                         el.textContent = errMsg[0]
-                        console.log(`Set error for ${field}:`, errMsg[0]) // Debug log
+                        // console.log(`Set error for ${field}:`, errMsg[0]) // Debug log
                     } else if (!field) {
                         console.log('General error:', errMsg[0])
                         // 顯示一般錯誤在頁面頂部或用 popup
@@ -113,7 +113,7 @@ createApp({
                 })
 
                 const result = await response.json()
-                console.log('API Response:', result) // Debug log
+                // console.log('API Response:', result) // Debug log
 
                 if (result.success && result.redirectUrl) {
                     // 檢查是否有郵件發送標記

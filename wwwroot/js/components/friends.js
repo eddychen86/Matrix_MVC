@@ -11,7 +11,10 @@ export class FriendsService {
      * @param {string|null} username - 指定使用者名稱；不提供時取當前登入者
      * @returns {Promise<{success:boolean, friends:Array, totalCount:number, unauthorized?:boolean, error?:string}>}
      */
+    
     async getFriends(page = 1, pageSize = 20, username = null, status = 'accepted') {
+        return
+        
         try {
             // 新版 API 不再需要分頁；保留參數以維持呼叫端相容，但不帶入
             const params = new URLSearchParams();

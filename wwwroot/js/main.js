@@ -25,25 +25,25 @@ const globalApp = content => {
             document.addEventListener('DOMContentLoaded', () => {
                 const app = Vue.createApp(content)
                 // 配置警告處理器來忽略 script/style 標籤警告
-                app.config.warnHandler = (msg, instance, trace) => {
+                app.config.warnHandler = (msg) => {
                     if (msg.includes('Tags with side effect') && msg.includes('are ignored in client component templates')) {
                         return // 忽略這類警告
                     }
                     console.warn(msg)
                 }
-                window.globalApp = app.mount('#app')
+                window.globalApp = app.use(window.CKEditor?.default || window.CKEditor).mount('#app')
             })
         } else {
             // DOM 已經載入完成
             const app = Vue.createApp(content)
             // 配置警告處理器來忽略 script/style 標籤警告
-            app.config.warnHandler = (msg, instance, trace) => {
+            app.config.warnHandler = (msg) => {
                 if (msg.includes('Tags with side effect') && msg.includes('are ignored in client component templates')) {
                     return // 忽略這類警告
                 }
                 console.warn(msg)
             }
-            window.globalApp = app.mount('#app')
+            window.globalApp = app.use(window.CKEditor?.default || window.CKEditor).mount('#app')
         }
     }
 }
@@ -53,7 +53,7 @@ window.loginPopupManager = loginPopupManager
 
 globalApp({
     setup() {
-        const { ref, computed, onMounted, watch } = Vue
+        const { ref, computed, onMounted } = Vue
         const { formatDate, timeAgo } = useFormatting()
 
         //#region 模組化管理器初始化
@@ -64,9 +64,12 @@ globalApp({
 
         // 初始化搜尋服務
         const searchService = useSearchService(null, null) // 先初始化搜尋服務
-        const { 
-            searchQuery, 
-            onSearchClick, 
+        const {
+            goTag,
+            onHoverUser,
+            manualSearch,
+            searchQuery,
+            onSearchClick,
             manualFollowSearch,
             clearSearch,
             setPopupData,
@@ -76,13 +79,13 @@ globalApp({
 
         // 初始化彈窗管理器，傳入清空搜尋的回調
         const popupManager = usePopupManager(clearSearch)
-        const { 
-            popupState, 
-            popupData, 
-            openPopup, 
-            closePopup, 
+        const {
+            popupState,
+            popupData,
+            openPopup,
+            closePopup,
             fetchFollows,
-            isLoading: popupLoading 
+            isLoading: popupLoading
         } = popupManager
 
         // 重新設定搜尋服務的 popupData 和 popupState
@@ -114,6 +117,7 @@ globalApp({
             setupInfiniteScroll,
             cleanupInfiniteScroll,
             initializeHomePosts,
+            setupPostRefreshListener,
             postListLoading
         } = postManager
 
@@ -184,7 +188,7 @@ globalApp({
         const Menu = (typeof useMenu === 'function') ? useMenu() : {}
         const Home = LoadingPage(/^\/(?:home(?:\/|$))?$|^\/$/i, useHome)
         const Profile = LoadingPage(/^\/profile(?:\/|$)/i, useProfile)
-        const Reply = LoadingPage(/^\/reply(?:\/|$)/i, useReply)
+        const Reply = (typeof useReply === 'function') ? useReply() : {}  // 全域載入，因為 ReplyPopup 在各頁面都會使用
         const About = LoadingPage(/^\/about(?:\/|$)/i, useAbout)
 
         //#endregion
@@ -197,52 +201,34 @@ globalApp({
         // Global Methods
         window.toggleFunc = (show, type) => show ? openPopup(type) : closePopup()
 
-        //#region Global Action Functions
-
-        // 定義全域動作函數供 PostList 使用
-        window.praize = (articleId) => {
-            console.log('Praise action for article:', articleId)
-            // TODO: Implement praise API call
-        }
-
-        window.comment = (articleId) => {
-            console.log('Comment action for article:', articleId)
-            // TODO: Implement comment functionality
-        }
-
-        window.collect = (articleId) => {
-            console.log('Collect action for article:', articleId)
-            // TODO: Implement collect API call
-        }
-
-        //#endregion
-
         //#region Lifecycle
 
         // 組件掛載時獲取用戶信息並初始化頁面數據
         onMounted(async () => {
             // 將 currentUser 設為全局可訪問
             window.currentUser = currentUser
-            
+
             await getCurrentUser()
 
             // 如果是首頁，初始化文章列表
             if (isHomePage) {
                 await initializeHomePosts()
+                // 設置新貼文事件監聽器
+                setupPostRefreshListener()
             }
 
             // 若頁面包含好友列表區塊，載入好友
-            if (document.querySelector('.friends-list')) {
-                loadFriends(1, 20, null, friendsStatus.value)
-            }
+            // if (document.querySelector('.friends-list')) {
+            //     loadFriends(1, 20, null, friendsStatus.value)
+            // }
         })
 
         //#endregion
 
-        console.log('✅ setup() 成功初始化，searchQuery =', searchQuery.value)
+        // console.log('✅ setup() 成功初始化，searchQuery =', searchQuery.value)
 
         // 合併所有loading狀態
-        const isLoading = computed(() => 
+        const isLoading = computed(() =>
             postListLoading.value || popupLoading.value || searchLoading.value
         )
 
@@ -268,7 +254,7 @@ globalApp({
             openPopup,
             closePopup,
             fetchFollows,
-            
+
             // 向後相容
             isOpen: computed(() => popupState.isVisible),
             closeCollectModal: closePopup,
@@ -278,15 +264,18 @@ globalApp({
             searchQuery,
             onSearchClick,
             manualFollowSearch,
+            goTag,
+            onHoverUser,
+            manualSearch,
 
             // 好友相關
             toggleFollow: handleToggleFollow,
-            friends,
-            friendsLoading,
-            friendsTotal,
-            friendsStatus,
-            loadFriends,
-            changeFriendsStatus,
+            // friends,
+            // friendsLoading,
+            // friendsTotal,
+            // friendsStatus,
+            // loadFriends,
+            // changeFriendsStatus,
 
             // 聊天相關
             messages,

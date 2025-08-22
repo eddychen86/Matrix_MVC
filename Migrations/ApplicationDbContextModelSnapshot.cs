@@ -508,7 +508,8 @@ namespace Matrix.Migrations
 
                     b.HasIndex("ArticleId");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("UserId", "ArticleId", "Type")
+                        .IsUnique();
 
                     b.ToTable("PraiseCollects");
                 });

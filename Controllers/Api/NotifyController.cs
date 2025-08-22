@@ -25,7 +25,7 @@ namespace Matrix.Controllers.Api
         public async Task<IActionResult> GetMyNotifications([FromQuery] int take = 10)
         {
             var auth = HttpContext.GetAuthInfo();
-            
+
             if (auth == null || !auth.IsAuthenticated || auth.UserId == Guid.Empty)
                 return Unauthorized(new { success = false, message = "尚未登入" });
 
@@ -53,11 +53,15 @@ namespace Matrix.Controllers.Api
                 SenderAvatarUrl = !string.IsNullOrWhiteSpace(n.Sender?.AvatarPath)
                                     ? n.Sender!.AvatarPath!
                                     : "/static/img/cute.png",
-                Message = n.Type == 0 ? "有人留言了你的貼文"
-                                  : n.Type == 1 ? "有人私訊你"
-                                  : "有新通知",
-                SentTime = n.SentTime,
-                IsRead = n.IsRead == 1,
+                Message = n.Type == 3
+                     ? $"{(n.Sender?.DisplayName ?? "有人")} 開始追蹤了您"
+                     : n.Type == 0
+                         ? $"{(n.Sender?.DisplayName ?? "有人")}留言了你的貼文" 
+                         : n.Type == 1
+                             ? $"{(n.Sender?.DisplayName ?? "有人")}私訊你"
+                             : "有新通知",
+                                 SentTime = n.SentTime,
+                                 IsRead = n.IsRead == 1,
                 NotifyId = n.NotifyId
             }).ToList();
 
@@ -72,7 +76,7 @@ namespace Matrix.Controllers.Api
         public async Task<IActionResult> MarkAsRead([FromRoute] Guid notifyId)
         {
             var auth = HttpContext.GetAuthInfo();
-            
+
             if (auth == null || !auth.IsAuthenticated || auth.UserId == Guid.Empty)
                 return Unauthorized(new { success = false, message = "尚未登入" });
 

@@ -1,0 +1,13 @@
+new {
+  twName = "蔡詣弘",          <- 我已設定
+  engName = "Eason",
+  email = "561993111e@gmail.com",              <- 我已設定
+  github = "EasonTsia",
+  img = "",
+  level = "組員",
+  description = "",      <- 簡易自我介紹
+  在該專案中你所使用到的技術
+  skill = new string[] { "SCSS", "JS", "Tailwindcss", "Vue", "ASP.NET Core", "SQL" },
+   你被分配到的工作
+  works = new string[] { "前台:Search", "前台:Notify", "前台:Follows","前台:Collects","後台:Reports" }
+}

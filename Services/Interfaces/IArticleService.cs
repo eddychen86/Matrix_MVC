@@ -92,6 +92,12 @@ namespace Matrix.Services.Interfaces
         /// <param name="onlyPublic">是否只計算公開文章</param>
         /// <returns>文章總數</returns>
         Task<int> GetTotalArticlesCountAsync(bool onlyPublic = true);
+
+        ///<summary>
+        ///根據ID獲取文章全部內容
+        /// </summary>
+        Task<ArticleDto?> GetArticleDetailAsync(Guid articleId);
+
     }
 
 }

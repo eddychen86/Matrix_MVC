@@ -41,7 +41,7 @@ public class Program
             azureString = "AzureConnection"         // Azure SQL Server
         };
 
-        var connectionString = builder.Configuration.GetConnectionString(connectString.azureString);
+        var connectionString = builder.Configuration.GetConnectionString(connectString.defaultString);
 
         if (string.IsNullOrEmpty(connectionString))
         {
@@ -113,9 +113,10 @@ public class Program
         builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
         builder.Services.AddScoped<ISearchUserService, SearchUserService>();
         builder.Services.AddScoped<IReportService, ReportService>();
-
+        builder.Services.AddScoped<ISearchHashtagService, SearchHashtagService>();
         builder.Services.AddScoped<IArticleService, ArticleService>();
         builder.Services.AddScoped<IFollowService, FollowService>();
+        builder.Services.AddScoped<INotificationService, NotificationService>();
 
         // SignalR 相關服務（僅註冊 Hub）
         builder.Services.AddSignalR();

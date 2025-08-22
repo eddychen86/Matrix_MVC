@@ -48,5 +48,16 @@ namespace Matrix.Controllers.Api
             var stats = await _followService.GetFollowStatsAsync(personId);
             return Ok(new { success = true, data = stats });
         }
+
+        [HttpGet("tags/{tag}/posts")]
+        public async Task<IActionResult> GetPostsByTag(
+            [FromRoute] string tag,
+            [FromQuery] int page = 1,
+            [FromQuery] int pageSize = 10)
+        {
+            var (total, items) = await _searchHashtagService.GetArticlesByTagAsync(tag, page, pageSize);
+            return Ok(new { success = true, totalCount = total, articles = items });
+        }
+
     }
 }

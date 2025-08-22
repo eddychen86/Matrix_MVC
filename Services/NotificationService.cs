@@ -341,5 +341,45 @@ namespace Matrix.Services
                 _ => "未知通知內容"
             };
         }
+        // NotificationService.cs
+        public async Task<bool> SendUserNotificationByPersonAsync(Guid senderPersonId, Guid receiverPersonId, int type, Guid? relatedId = null)
+        {
+            if (senderPersonId == Guid.Empty || receiverPersonId == Guid.Empty || senderPersonId == receiverPersonId)
+                return false;
+
+            var sender = await _context.Persons.FirstOrDefaultAsync(p => p.PersonId == senderPersonId);
+            var receiver = await _context.Persons.FirstOrDefaultAsync(p => p.PersonId == receiverPersonId);
+            if (sender == null || receiver == null) return false;
+
+            var existing = await _context.Notifications
+                .FirstOrDefaultAsync(n => n.SendId == senderPersonId &&
+                                          n.GetId == receiverPersonId &&
+                                          n.Type == type);
+
+            if (existing != null)
+            {
+                existing.SentTime = DateTime.UtcNow;
+                existing.IsRead = 0;
+                existing.IsReadTime = null;
+            }
+            else
+            {
+                _context.Notifications.Add(new Notification
+                {
+                    NotifyId = Guid.NewGuid(),
+                    GetId = receiverPersonId,   // ✅ DB 存 PersonId
+                    SendId = senderPersonId,     // ✅ DB 存 PersonId
+                    Type = type,               // 3 = Follow（下面會用）
+                    IsRead = 0,
+                    SentTime = DateTime.UtcNow,
+                    Receiver = receiver,
+                    Sender = sender
+                });
+            }
+
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
     }
 }
