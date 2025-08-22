@@ -19,6 +19,26 @@ export const useSearchService = (initialPopupData, initialPopupState) => {
         popupState = newPopupState
     }
 
+    // ------- 新增：點 hashtag 相關 -------
+    let onTagClickHandler = null
+    const setTagClickHandler = (fn) => { onTagClickHandler = fn }
+
+    const goTag = async (tag) => {
+        if (!tag) return
+        // 關閉搜尋彈窗
+        if (popupState) {
+            popupState.isVisible = false
+            popupState.type = ''
+        }
+        // 交給外部註冊的 handler（SPA 不換頁）；若沒註冊，fallback 直接換頁
+        if (typeof onTagClickHandler === 'function') {
+            await onTagClickHandler(tag)
+        } else {
+            window.location.href = `/?tag=${encodeURIComponent(tag)}`
+        }
+    }
+    // ------- 新增：點 hashtag 相關 END -------
+
     watch(searchQuery, (newVal) => {
         console.log('👀 searchQuery 改變：', newVal)
     })
@@ -160,7 +180,9 @@ export const useSearchService = (initialPopupData, initialPopupState) => {
         onSearchClick,
         setupSearchWatcher,
         clearSearch,
-        setPopupData
+        setPopupData,
+        goTag,
+        setTagClickHandler
     }
 }
 

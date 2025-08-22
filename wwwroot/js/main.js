@@ -469,8 +469,86 @@ globalApp({
             }
         }
 
+        //------------------增加取標籤文章的方法--------------------------------
+        // 點 hashtag：關閉搜尋彈窗、清空清單、載入第 1 頁，再綁無限滾動
+        const goTag = async (tag) => {
+            if (!tag) return
+
+            // 關閉搜尋視窗
+            popupState.isVisible = false
+            popupState.type = ''
+
+            // 重置文章清單
+            posts.value = []
+            currentPage.value = 1
+            hasMorePosts.value = true
+
+            // 直接呼叫 Search 區的端點（不動 Post 區）
+            const res = await fetch(`/api/search/tags/${encodeURIComponent(tag)}/posts?page=1&pageSize=10`, {
+                credentials: 'include'
+            })
+            const json = await res.json()
+            const list = Array.isArray(json?.articles) ? json.articles : []
+
+            // 用你現有的格式化器（若沒載入也能 fallback）
+            const { postListService } = await import('/js/components/PostListService.js')
+            const firstPage = postListService?.formatArticles
+                ? postListService.formatArticles(list)
+                : list
+
+            posts.value = firstPage
+            hasMorePosts.value = firstPage.length === 10
+
+            // 設定以 tag 為條件的無限滾動
+            Vue.nextTick(() => setupInfiniteScrollForTag(tag))
+        }
+
+        const setupInfiniteScrollForTag = (tag) => {
+            // 清掉舊的 observer
+            cleanupInfiniteScroll()
+
+            const trigger = document.querySelector('.infinite-scroll-trigger')
+            if (!trigger) return
+
+            infiniteScrollObserver = new IntersectionObserver(async entries => {
+                for (const e of entries) {
+                    if (!e.isIntersecting || !hasMorePosts.value || postListLoading.value) continue
+                    postListLoading.value = true
+                    try {
+                        const next = currentPage.value + 1
+                        const res = await fetch(`/api/search/tags/${encodeURIComponent(tag)}/posts?page=${next}&pageSize=10`, {
+                            credentials: 'include'
+                        })
+                        const json = await res.json()
+                        const list = Array.isArray(json?.articles) ? json.articles : []
+
+                        const { postListService } = await import('/js/components/PostListService.js')
+                        const more = postListService?.formatArticles
+                            ? postListService.formatArticles(list)
+                            : list
+
+                        if (more.length) {
+                            posts.value = [...posts.value, ...more]
+                            currentPage.value = next
+                            hasMorePosts.value = more.length === 10
+                        } else {
+                            hasMorePosts.value = false
+                        }
+                    } finally {
+                        postListLoading.value = false
+                    }
+                }
+            }, { root: null, rootMargin: '200px', threshold: 0.1 })
+
+            infiniteScrollObserver.observe(trigger)
+        }
+
+
+
+        //------------------增加取標籤文章的方法END--------------------------------
+
         watch(searchQuery, (newVal) => {
-            console.log('👀 searchQuery 改變：', newVal)
+            //console.log('👀 searchQuery 改變：', newVal)
         })
 
         // 當 openPopup 的類型是 Search 的時候，清空 searchQuery
@@ -482,7 +560,7 @@ globalApp({
         //})
 
         const manualSearch = async () => {
-            console.log('🔍 手動搜尋按鈕觸發！', searchQuery)
+            //console.log('🔍 手動搜尋按鈕觸發！', searchQuery)
 
             const keyword = searchQuery.value
 
@@ -515,9 +593,9 @@ globalApp({
                 }))
 
                 popupData.Search.Hashtags = tags.data
-                console.log('🎯 搜尋結果資料：', popupData.Search)
+                //console.log('🎯 搜尋結果資料：', popupData.Search)
             } catch (err) {
-                console.error('Search API Error:', err)
+                //console.error('Search API Error:', err)
                 popupData.Search.Users = []
                 popupData.Search.Hashtags = []
             } finally {
@@ -794,7 +872,7 @@ globalApp({
 
             manualFollowSearch,
             toggleFollow,
-
+            goTag,
             onHoverUser,
             // hooks
             formatDate,

@@ -151,7 +151,7 @@
                                 <button v-for="(tag, index) in popupData.Search.Hashtags"
                                         :key="'tag-' + index"
                                         class="inline-block rounded-full border border-gray-600 bg-neutral-800 px-3 py-2 text-sm whitespace-nowrap text-white transition hover:bg-neutral-700"
-                                        @@click="searchQuery = tag.content; onSearchClick()">
+                                        @@click="goTag(tag.content)">
                                     #{{ tag.content }}
                                 </button>
                             </div>
