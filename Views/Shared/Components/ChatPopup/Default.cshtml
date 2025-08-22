@@ -1,0 +1,20 @@
+<teleport to="body">
+    @inject ICustomLocalizer Localizer
+    <div id="chat-popup" class="hidden fixed bottom-5 right-5 w-[450px] h-[550px] bg-white rounded-lg shadow-lg flex flex-col z-50">
+        <div id="chat-header" class="flex justify-between items-center p-4 bg-gray-200 rounded-t-lg flex-shrink-0">
+            <h3 class="text-lg font-semibold">@Localizer["Chat"]</h3>
+            <button id="closeChatBtn">
+                <i data-lucide="x" class="h-6 w-6"></i>
+            </button>
+        </div>
+        <div id="chat-messages" class="p-4 overflow-y-auto flex-grow">
+            <!-- Chat messages will appear here -->
+        </div>
+        <div class="p-4 border-t flex-shrink-0">
+            <div class="flex gap-2">
+                <input type="text" id="chat-input" class="w-full px-3 py-2 border rounded-lg" placeholder="@Localizer["Type a message"]...">
+                <button id="sendChatBtn" class="px-4 py-2 bg-blue-500 text-white rounded-lg">@Localizer["Send"]</button>
+            </div>
+        </div>
+    </div>
+</teleport>
