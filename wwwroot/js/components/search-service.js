@@ -19,10 +19,6 @@ export const useSearchService = (initialPopupData, initialPopupState) => {
         popupState = newPopupState
     }
 
-    watch(searchQuery, (newVal) => {
-        console.log('👀 searchQuery 改變：', newVal)
-    })
-
     // 通用搜尋功能
     const manualSearch = async () => {
         if (!popupData) {

@@ -1,9 +1,13 @@
-using Microsoft.AspNetCore.Mvc;
-using Matrix.Services.Interfaces;
 using Matrix.DTOs;
-using System.Security.Claims;
+using Matrix.Models;
+using Matrix.Services.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Matrix.Repository.Interfaces;
+using Microsoft.AspNetCore.Mvc;
+using System.Collections.ObjectModel;
+using System.Net.Mail;
+using System.Security.Claims;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Matrix.Controllers.Api
 {
@@ -191,7 +195,8 @@ namespace Matrix.Controllers.Api
 
                         // 直接用集合判斷
                         isPraised = currentPersonId.HasValue && praisedSet.Contains(a.ArticleId),
-                        isCollected = currentPersonId.HasValue && collectedSet.Contains(a.ArticleId)
+                        isCollected = currentPersonId.HasValue && collectedSet.Contains(a.ArticleId),
+                        hashtags = a.Hashtags ?? []
                     }).ToList(),
                     totalCount
                 };
@@ -249,6 +254,39 @@ namespace Matrix.Controllers.Api
         {
             var result = await _replyService.GetRepliesByArticleIdAsync(id);
             return Ok(result);
+        }
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> Getarticle(Guid id)
+        {
+            try
+            {
+                var article = await _articleService.GetArticleDetailAsync(id);
+
+                if (article == null)
+                    return NotFound(new { message = "文章不存在" });
+
+                var response = new
+                {
+                    articleId = article.ArticleId,
+                    content = article.Content,
+                    createTime = article.CreateTime,
+                    praiseCount = article.PraiseCount,
+                    collectCount = article.CollectCount,
+                    authorName = article.Author?.DisplayName,
+                    authorAvatar = article.Author?.AvatarPath,
+                    attachments = article.Attachments ?? new List<ArticleAttachmentDto>(),
+                    replies = article.Replies ?? new List<ReplyDto>(),
+                    hashtags = article.Hashtags ?? new List<HashtagDto>()
+                };
+
+                return Ok(new { success = true, article = response });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error fetching article detail {Id}", id);
+                return StatusCode(500, new { success = false, message = ex.Message });
+            }
         }
     }
 }

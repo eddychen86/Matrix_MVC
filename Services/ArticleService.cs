@@ -33,24 +33,67 @@ namespace Matrix.Services
         public async Task<ArticleDto?> GetArticleAsync(Guid id)
         {
             var article = await _context.Articles
-                .AsNoTracking() // 只讀查詢
+                .AsNoTracking()
                 .Include(a => a.Author)
+                .Include(a => a.Attachments!)
+                .Include(a => a.ArticleHashtags!)
+                    .ThenInclude(ah => ah.Hashtag)
                 .Include(a => a.Replies!)
-                .ThenInclude(r => r.User)
+                    .ThenInclude(r => r.User)
                 .FirstOrDefaultAsync(a => a.ArticleId == id);
 
             if (article == null) return null;
-
-            // 如果需要回覆資料，單獨查詢避免 N+1 問題
-            var replies = await _context.Replies
-                .AsNoTracking()
-                .Include(r => r.User)
-                .Where(r => r.ArticleId == id)
-                .ToListAsync();
-
-            article.Replies = replies;
             return _mapper.Map<ArticleDto>(article);
         }
+
+
+        ///<summary>
+        ///取得單篇文章詳情（含作者、附件、hashtags）
+        /// </summary>
+        public async Task<ArticleDto?> GetArticleDetailAsync(Guid articleId)
+        {
+            return await _context.Set<Article>()
+                .AsNoTracking()
+                .Where(a => a.ArticleId == articleId)
+                .Select(a => new ArticleDto
+                {
+                    ArticleId = a.ArticleId,
+                    AuthorId = a.AuthorId,
+                    Content = a.Content,
+                    IsPublic = a.IsPublic,
+                    Status = a.Status,
+                    CreateTime = a.CreateTime,
+                    PraiseCount = a.PraiseCount,
+                    CollectCount = a.CollectCount,
+
+                    Author = a.Author == null ? null : new PersonDto
+                    {
+                        PersonId = a.Author.PersonId,
+                        UserId = a.Author.UserId,
+                        DisplayName = a.Author.DisplayName,
+                        AvatarPath = a.Author.AvatarPath
+                    },
+
+                    Attachments = a.Attachments!.Select(att => new ArticleAttachmentDto
+                    {
+                        FileId = att.FileId,
+                        FilePath = att.FilePath,
+                        FileName = att.FileName,
+                        Type = att.Type
+                    }).ToList(),
+
+                    Hashtags = a.ArticleHashtags!
+                        .Where(ah => ah.Hashtag != null)
+                        .Select(ah => new HashtagDto
+                        {
+                            TagId = ah.TagId,
+                            Name = ah.Hashtag!.Content
+                        }).ToList()
+                })
+                .FirstOrDefaultAsync();
+        }
+
+
 
         /// <summary>
         /// 建立文章

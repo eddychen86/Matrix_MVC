@@ -24,7 +24,7 @@ const globalApp = content => {
             document.addEventListener('DOMContentLoaded', () => {
                 const app = Vue.createApp(content)
                 // 配置警告處理器來忽略 script/style 標籤警告
-                app.config.warnHandler = (msg, instance, trace) => {
+                app.config.warnHandler = (msg) => {
                     if (msg.includes('Tags with side effect') && msg.includes('are ignored in client component templates')) {
                         return // 忽略這類警告
                     }
@@ -36,7 +36,7 @@ const globalApp = content => {
             // DOM 已經載入完成
             const app = Vue.createApp(content)
             // 配置警告處理器來忽略 script/style 標籤警告
-            app.config.warnHandler = (msg, instance, trace) => {
+            app.config.warnHandler = (msg) => {
                 if (msg.includes('Tags with side effect') && msg.includes('are ignored in client component templates')) {
                     return // 忽略這類警告
                 }
@@ -155,7 +155,7 @@ globalApp({
         const Menu = (typeof useMenu === 'function') ? useMenu() : {}
         const Home = LoadingPage(/^\/(?:home(?:\/|$))?$|^\/$/i, useHome)
         const Profile = LoadingPage(/^\/profile(?:\/|$)/i, useProfile)
-        const Reply = LoadingPage(/^\/reply(?:\/|$)/i, useReply)
+        const Reply = (typeof useReply === 'function') ? useReply() : {}  // 全域載入，因為 ReplyPopup 在各頁面都會使用
         const About = LoadingPage(/^\/about(?:\/|$)/i, useAbout)
 
         //#endregion

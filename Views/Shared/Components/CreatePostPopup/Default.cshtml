@@ -1,8 +1,8 @@
 ﻿    <!-- 遮罩 -->
-<div v-if="showPostModal" class="fixed inset-0 z-[1000] bg-white opacity-20"></div>
+<div v-if="showPostModal" class="fixed inset-0 z-[1000] bg-white opacity-20" style="display:none;"></div>
 
 <!-- 編輯發文容器 -->
-<div v-if="showPostModal" class="fixed inset-0 z-[1010] flex items-center justify-center">
+<div v-if="showPostModal" class="fixed inset-0 z-[1010] flex items-center justify-center" style="display:none;">
     <div class="relative flex max-h-[800px] min-h-[450px] w-[600px] flex-col rounded-[15px] bg-[#161616] p-6 pt-[70px]">
         <!-- 頭像和名字 -->
         @* <img src="@ViewBag.CurrentUser.Avatar"

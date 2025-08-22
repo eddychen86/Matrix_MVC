@@ -31,13 +31,13 @@
                                 <div class="userInfo">
                                     <a href="/profile">
                                         <img v-if="item.authorAvatar" :src="item.authorAvatar" :alt="item.authorName" />
-                                        <div v-else class="no-img">
+                                        <div v-else class="no-img border-2 border-white bg-secondary">
                                             <span>{{ (item.authorName || '').slice(0, 1).toUpperCase() }}</span>
                                         </div>
                                     </a>
-                                    <h2 class="card-title text-sm">{{ item.authorName || '' }}</h2>
+                                    <h2 class="card-title text-sm text-white">{{ item.authorName || '' }}</h2>
                                 </div>
-                                <div class="card-actions justify-end">
+                                <div class="card-actions justify-end text-white">
                                     <p class="line-clamp-3 text-xs">{{ item.content }}</p>
                                 </div>
                             </div>
@@ -76,14 +76,14 @@
 </div>
 
 <!-- 好友列表 -->
-<aside class="friends-list">
-    @await Component.InvokeAsync("FriendsList")
-</aside>
+<!--
+    <aside class="friends-list">
+        await Component.InvokeAsync("FriendsList")
+    </aside>
+-->
 
 @* Create Post Popup Component *@
-    @await Component.InvokeAsync("CreatePostPopup")
+@await Component.InvokeAsync("CreatePostPopup")
 
-
-@* <div v-else-if="openReply">
-    @await Component.InvokeAsync("ReplyPopup")
-</div> *@
+<!-- 留言視窗 -->
+@await Component.InvokeAsync("ReplyPopup")

@@ -3,6 +3,8 @@
  * 從 main.js 中抽離出來的文章管理功能
  */
 
+import { usePostActions } from '/js/hooks/usePostActions.js'
+
 export const usePostManager = (currentUser) => {
     const { ref } = Vue
 
@@ -15,19 +17,11 @@ export const usePostManager = (currentUser) => {
     const currentPage = ref(1)
     let infiniteScrollObserver = null
 
-    // PostList 相關的方法
-    const stateFunc = (action, articleId) => {
-        console.log(`Action: ${action?.name || action}, Article ID: ${articleId}`)
-
-        if (!currentUser.isAuthenticated) {
-            alert('請先登入才能進行此操作')
-            return
-        }
-
-        // Call appropriate action
-        if (typeof action === 'function') {
-            action(articleId)
-        }
+    // PostList 相關的方法 - 使用統一的文章操作 hook
+    const postActions = usePostActions()
+    
+    const stateFunc = async (action, articleId, item = null) => {
+        return await postActions.stateFunc(action, articleId, item)
     }
 
     // 載入文章的通用方法

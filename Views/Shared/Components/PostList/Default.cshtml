@@ -62,7 +62,6 @@
                     <span class="ml-1">{{ item.praiseCount }}</span>
                 </span>
             </button>
-
             <button v-on:click="stateFunc('comment', item)">
                 <i data-lucide="message-circle" class="size-4"></i>
                 <span data-i18n="Comment">@Localizer["Comment"]</span>
@@ -100,7 +99,7 @@
 <!-- 載入狀態指示器 -->
 <li v-if="isLoading" class="py-8 text-center">
     <div class="flex items-center justify-center gap-2 text-gray-400">
-        <div class="h-6 w-6 animate-spin rounded-full border-b-2 border-white"></div>
+        <img src="~/static/img/Loading.gif" alt="Loading" class="h-6 w-6" />
         <span>載入中...</span>
     </div>
 </li>

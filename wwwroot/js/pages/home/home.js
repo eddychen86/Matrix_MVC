@@ -1,4 +1,5 @@
 import { useCreatePost } from '/js/components/create-post.js'
+import { usePostActions } from '/js/hooks/usePostActions.js'
 
 export const useHome = () => {
     const { ref, onMounted, onBeforeUnmount, nextTick } = Vue
@@ -114,46 +115,12 @@ export const useHome = () => {
         window.removeEventListener('resize', handleResize)
     })
 
-    const getToken = () => localStorage.getItem('access_token') || ''
-
-    async function stateFunc(action, item) {
-        if (!item?.articleId || item._busy) return
-        item._busy = true
-        try {
-            if (action === 'praise') {
-                const res = await fetch('/api/PostState/praise', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', ...(getToken() ? { Authorization: `Bearer ${getToken()}` } : {}) },
-                    body: JSON.stringify({ articleId: item.articleId })
-                })
-                const body = await res.text()
-                if (!res.ok) { if (res.status === 401) throw new Error('unauthorized'); throw new Error('praise failed: ' + body) }
-                const data = JSON.parse(body || '{}')
-                if (!data?.success) throw new Error(data?.message || 'praise failed')
-                item.isPraised = !!data.isPraised
-                item.praiseCount = Number(data.praiseCount ?? item.praiseCount)
-            }
-
-            if (action === 'collect') {
-                const res = await fetch('/api/PostState/collect', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', ...(getToken() ? { Authorization: `Bearer ${getToken()}` } : {}) },
-                    body: JSON.stringify({ articleId: item.articleId })
-                })
-                const body = await res.text()
-                if (!res.ok) { if (res.status === 401) throw new Error('unauthorized'); throw new Error('collect failed: ' + body) }
-                const data = JSON.parse(body || '{}')
-                if (!data?.success) throw new Error(data?.message || 'collect failed')
-                item.isCollected = !!data.isCollected
-                item.collectCount = Number(data.collectCount ?? item.collectCount)
-            }
-        } catch (e) {
-            console.error(e)
-            alert(e.message === 'unauthorized' ? '�Х��n�J' : '�ާ@����')
-        } finally {
-            item._busy = false
-            window.lucide?.createIcons?.()
-        }
+    // 使用統一的文章操作 hook
+    const postActions = usePostActions()
+    
+    const stateFunc = async (action, item) => {
+        if (!item?.articleId) return
+        return await postActions.stateFunc(action, item.articleId, item)
     }
 
     const createPost = useCreatePost()

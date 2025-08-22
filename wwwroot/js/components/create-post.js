@@ -129,8 +129,26 @@ export function useCreatePost({ onCreated } = {}) {
         if (fileInput.value) fileInput.value.value = ''
     }
 
-    const openModal = () => { showPostModal.value = true }
-    const closeModal = () => { resetPostModal(); showPostModal.value = false }
+    const openModal = () => { 
+        showPostModal.value = true 
+        // 顯示元件
+        Vue.nextTick(() => {
+            const maskEl = document.querySelector('div[v-if="showPostModal"]:first-child')
+            const modalEl = document.querySelector('div[v-if="showPostModal"]:last-child')
+            if (maskEl) maskEl.style.display = ''
+            if (modalEl) modalEl.style.display = ''
+        })
+    }
+    const closeModal = () => { 
+        // 隱藏元件
+        const maskEl = document.querySelector('div[v-if="showPostModal"]:first-child')
+        const modalEl = document.querySelector('div[v-if="showPostModal"]:last-child')
+        if (maskEl) maskEl.style.display = 'none'
+        if (modalEl) modalEl.style.display = 'none'
+        
+        resetPostModal(); 
+        showPostModal.value = false 
+    }
 
     async function fetchHashtags() {
         if (allHashtags.value.length > 0) return

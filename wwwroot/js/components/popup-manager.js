@@ -77,6 +77,12 @@ export const usePopupManager = (clearSearchCallback = null) => {
         popupState.title = getPopupTitle('Follows')
         popupState.isVisible = true
         
+        // 顯示彈窗元件
+        Vue.nextTick(() => {
+            const overlayEl = document.getElementById('popup-overlay')
+            if (overlayEl) overlayEl.style.display = ''
+        })
+        
         // 清空搜尋欄位
         if (typeof clearSearchCallback === 'function') {
             clearSearchCallback()
@@ -129,6 +135,12 @@ export const usePopupManager = (clearSearchCallback = null) => {
         popupState.title = getPopupTitle(type)
         popupState.isVisible = true
 
+        // 顯示彈窗元件
+        Vue.nextTick(() => {
+            const overlayEl = document.getElementById('popup-overlay')
+            if (overlayEl) overlayEl.style.display = ''
+        })
+
         console.log('🧠 開啟 popup：', popupState.type)
         if (type === 'Notify') {
             popupData.Notify = []
@@ -161,6 +173,10 @@ export const usePopupManager = (clearSearchCallback = null) => {
     }
 
     const closePopup = () => {
+        // 隱藏彈窗元件
+        const overlayEl = document.getElementById('popup-overlay')
+        if (overlayEl) overlayEl.style.display = 'none'
+        
         popupState.isVisible = false
         popupState.type = ''
     }
