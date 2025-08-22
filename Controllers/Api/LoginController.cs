@@ -184,12 +184,6 @@ namespace Matrix.Controllers.Api
         {
             _logger.LogInformation("Calling UserService.GetUserByIdentifierAsync with: {Identifier}", Name_Or_Email);
 
-            // 先直接測試 Repository 層
-            var userFromRepo = await _userRepository.GetByIdentifierAsync(Name_Or_Email);
-            _logger.LogInformation("Repository result: User found={UserFound}, Person found={PersonFound}",
-                userFromRepo != null, userFromRepo?.Person != null);
-
-            // 再調用 Service 層
             var result = await _userService.GetUserByIdentifierAsync(Name_Or_Email);
             _logger.LogInformation("Service result: {ServiceResult}", result != null ? "Found" : "Null");
 

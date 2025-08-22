@@ -34,11 +34,13 @@ namespace Matrix.Areas.Dashboard.Controllers.Api
         private async Task<(Guid UserId, int Role)?> GetCurrentUserInfoAsync()
         {
             try
-            {
-                // 從 Claims 中獲取用戶 ID
-                var userIdClaim = User.FindFirst("UserId")?.Value;
+            { 
+                // 嘗試從不同的 Claim 類型中獲取用戶 ID
+                var userIdClaim = User.FindFirst("UserId")?.Value ?? User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+
                 if (string.IsNullOrEmpty(userIdClaim) || !Guid.TryParse(userIdClaim, out var userId))
                 {
+                    _logger.LogWarning("UserId claim is missing or invalid: {UserIdClaim}", userIdClaim);
                     return null;
                 }
 

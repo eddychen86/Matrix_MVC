@@ -13,11 +13,11 @@
         </div>
     </template>
     <template v-else>
-        <div class="grid grid-cols-4 gap-8">
-            <h1 class="col-span-4 text-3xl font-bold text-gray-700" data-i18n="Config_Title">@Localizer["Config_Title"]</h1>
+        <div class="flex flex-col gap-8">
+            <h1 class="text-3xl font-bold text-gray-700" data-i18n="Config_Title">@Localizer["Config_Title"]</h1>
 
             @* 功能狀態欄 *@
-            <div class="col-span-4 flex flex-col gap-4">
+            <div class="flex flex-col gap-4">
                 <h2 class="title font-semibold" data-i18n="Config_ToolsState">@Localizer["Config_ToolsState"]</h2>
 
                 <ul class="flex flex-col gap-2">
@@ -33,111 +33,104 @@
                 </ul>
             </div>
 
-            @* 新增「管理員」 *@
-            <div class="col-span-1">
-                <div class="card bg-base-100 shadow-xl">
-                    <div class="card-body">
-                        <h3 class="card-title" data-i18n="Config_CreateAdmin">@Localizer["Create"] @Localizer["Config_AdminList"]</h3>
+            <div class="grid grid-cols-4 gap-8">
+                <h3 class="title font-semibold col-span-4" data-i18n="Config_CreateAdmin">@Localizer["Config_AdminList"]</h3>
+                
+                <div class="tabs tabs-lift col-span-1">
+                    @* 篩選列表 *@
+                    @* <input type="radio" name="config_tabs" class="tab subTitle" aria-label="篩選列表" checked="checked" />
+                    <div class="tab-content border-black/10 p-6">
                         
-                        <form v-show="showCreateForm" v-on:submit.prevent="submitCreateAdmin" class="space-y-1">
+                    </div> *@
+
+                    @* 新增「管理員」 *@
+                    <input type="radio" name="config_tabs" class="tab subTitle" aria-label="新增管理員" />
+                    <div class="tab-content border-black/10 p-6 flex flex-col gap-4">
+                        <form v-on:submit.prevent="submitCreateAdmin" class="space-y-1">
                             @* 頭像上傳 *@
                             <fieldset class="fieldset">
-                                <legend class="fieldset-legend" data-i18n="Avatar">Avatar</legend>
-                                <div class="flex items-center gap-4">
-                                    <div class="avatar cursor-pointer" @@click="triggerFileUpload">
-                                        <div class="mask mask-squircle h-16 w-16 hover:opacity-80 transition-opacity" :class="!formData.avatarPreview ? 'flex items-end justify-center pt-4 px-2 bg-gray-300' : ''">
-                                            <img v-if="formData.avatarPreview" :src="formData.avatarPreview" alt="Avatar Preview" />
+                                <legend class="fieldset-legend" data-i18n="Avatar">@Localizer["Avatar"]</legend>
+                                <div class="flex items-center text-center gap-4">
+                                    <div class="avatar cursor-pointer mask mask-squircle h-16 w-16" @@click="triggerFileUpload">
+                                        <img v-if="formData.avatarPreview" :src="formData.avatarPreview" alt="Avatar Preview" />
+                                        <div class="flex items-end justify-center pt-4 px-2 bg-gray-300">
                                             <i v-else data-lucide="user-round" class="size-12"></i>
                                         </div>
                                     </div>
-                                    <input type="file" 
-                                        ref="fileInput" 
-                                        class="hidden" 
-                                        accept="image/*" 
-                                        @@change="handleAvatarUpload" />
+                                    <input type="file" ref="fileInput" class="hidden" accept="image/*" @@change="handleAvatarUpload" />
                                 </div>
                             </fieldset>
 
                             @* 使用者名稱 *@
                             <fieldset class="fieldset">
-                                <legend class="fieldset-legend" data-i18n="UserName">UserName</legend>
+                                <legend class="fieldset-legend" data-i18n="UserName">@Localizer["UserName"]</legend>
                                 <label class="input validator">
                                     <i data-lucide="user" class="size-4 opacity-50"></i>
                                     <input type="text" 
                                         v-model="formData.userName" 
-                                        placeholder="Enter username" 
+                                        placeholder="@Localizer["UserNamePlaceholder"]"
+                                        data-i18n-placeholder="UserNamePlaceholder"
                                         required 
                                         minlength="3" 
                                         maxlength="20" 
                                         pattern="[A-Za-z][A-Za-z0-9\\-]*" 
                                         title="@Localizer["User_UserNameAllowedChars"]" />
                                 </label>
-                                <p class="validator-hint" data-i18n="User_UserNameLength3To20">@Localizer["User_UserNameLength3To20"]</p>
-                            </fieldset>
-
-                            @* 顯示名稱 *@
-                            <fieldset class="fieldset">
-                                <legend class="fieldset-legend" data-i18n="DisplayName">Display Name</legend>
-                                <label class="input validator">
-                                    <i data-lucide="tag" class="size-4 opacity-50"></i>
-                                    <input type="text" 
-                                        v-model="formData.displayName" 
-                                        placeholder="Enter display name" 
-                                        maxlength="50" 
-                                        title="@Localizer["User_DisplayNameMaxLength50"]" />
-                                </label>
-                                <p class="validator-hint" data-i18n="User_DisplayNameMaxLength50">@Localizer["User_DisplayNameMaxLength50"]</p>
+                                <p v-show="formData.userName && !isValidUserName(formData.userName)" class="validator-hint" data-i18n="User_UserNameLength3To20">@Localizer["User_UserNameLength3To20"]</p>
                             </fieldset>
 
                             @* Email *@
                             <fieldset class="fieldset">
-                                <legend class="fieldset-legend" data-i18n="Email">Email</legend>
+                                <legend class="fieldset-legend" data-i18n="Email">@Localizer["Email"]</legend>
                                 <label class="input validator">
                                     <i data-lucide="mail" class="size-4 opacity-50"></i>
                                     <input type="email" 
                                         v-model="formData.email" 
-                                        placeholder="Enter email address" 
+                                        placeholder="@Localizer["EmailPlaceholder"]"
+                                        data-i18n-placeholder="EmailPlaceholder"
                                         required 
                                         maxlength="100" 
                                         title="@Localizer["User_EmailInvalid"]" />
                                 </label>
-                                <p class="validator-hint" data-i18n="User_EmailInvalid">@Localizer["User_EmailInvalid"]</p>
+                                <p v-show="formData.email && !isValidEmail(formData.email)" class="validator-hint" data-i18n="User_EmailInvalid">@Localizer["User_EmailInvalid"]</p>
                             </fieldset>
 
                             @* 密碼 *@
                             <fieldset class="fieldset">
-                                <legend class="fieldset-legend" data-i18n="Password">Password</legend>
+                                <legend class="fieldset-legend" data-i18n="Password">@Localizer["Password"]</legend>
                                 <label class="input validator">
                                     <i data-lucide="key" class="size-4 opacity-50"></i>
                                     <input type="password" 
                                         v-model="formData.password" 
-                                        placeholder="Enter password" 
+                                        placeholder="@Localizer["PasswordPlaceholder"]"
+                                        data-i18n-placeholder="PasswordPlaceholder"
                                         required 
                                         minlength="8" 
                                         maxlength="20" 
                                         pattern="(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[#@@$!%*?&amp;]).{8,}" 
                                         title="@Localizer["User_PasswordComplexity"]" />
                                 </label>
-                                <p class="validator-hint" data-i18n="User_PasswordComplexity">@Localizer["User_PasswordComplexity"]</p>
+                                <p v-show="formData.password && !isValidPassword(formData.password)" class="validator-hint" data-i18n="User_PasswordComplexity">@Localizer["User_PasswordComplexity"]</p>
                             </fieldset>
 
                             @* 確認密碼 *@
                             <fieldset class="fieldset">
-                                <legend class="fieldset-legend" data-i18n="ConfirmPassword">Confirm Password</legend>
+                                <legend class="fieldset-legend" data-i18n="ConfirmPassword">@Localizer["ConfirmPassword"]</legend>
                                 <label class="input validator">
                                     <i data-lucide="key" class="size-4 opacity-50"></i>
                                     <input type="password" 
                                         v-model="formData.passwordConfirm" 
-                                        placeholder="Confirm password" 
+                                        placeholder="@Localizer["ConfirmPasswordPlaceholder`"]"
+                                        data-i18n-placeholder="ConfirmPasswordPlaceholder`"
                                         required 
                                         title="@Localizer["User_PasswordsMustMatch"]" />
                                 </label>
-                                <p class="validator-hint" data-i18n="User_PasswordsMustMatch">@Localizer["User_PasswordsMustMatch"]</p>
+                                <p v-show="formData.passwordConfirm && formData.password !== formData.passwordConfirm" class="validator-hint" data-i18n="User_PasswordsMustMatch">@Localizer["User_PasswordsMustMatch"]</p>
                             </fieldset>
 
                             @* 角色選擇（僅超級管理員可見） *@
-                            <fieldset v-if="userPermissions && userPermissions.canCreateSuperAdmin" class="fieldset">
-                                <legend class="fieldset-legend" data-i18n="Role">Role</legend>
+                            <fieldset v-if="userPermissions.role === 2" class="fieldset">
+                                <legend class="fieldset-legend" data-i18n="Role">@Localizer["Role"]</legend>
                                 <select v-model="formData.role" class="select select-primary">
                                     <option value="1">管理員</option>
                                     <option value="2">超級管理員</option>
@@ -145,7 +138,7 @@
                             </fieldset>
 
                             @* 提交按鈕 *@
-                            <div class="card-actions justify-end">
+                            <div class="card-actions justify-center">
                                 <button type="button" 
                                         @@click="cancelCreateAdmin" 
                                         class="btn btn-ghost">
@@ -158,102 +151,100 @@
                                     <span data-i18n="Create">Create</span>
                                 </button>
                             </div>
-                        </form>
-
-                        @* 顯示創建按鈕 *@
-                        <div v-show="!showCreateForm" class="text-center">
-                            <button class="btn btn-secondary" @@click="startCreateAdmin" data-i18n="Create">@Localizer["Create"]</button>
-                        </div>
+                        </form>                       
                     </div>
                 </div>
-            </div>
 
-            <div class="col-span-3 overflow-x-auto bg-yellow-50 rounded-2xl border border-black/10">
-                <table class="table table-pin-rows table-pin-cols">
-                    <!-- head -->
-                    <thead>
-                        <tr class="text-center bg-yellow-50">
-                            <td v-for="head in adminList.header" :key="head.title" :class="head.class" :data-i18n="head.title"></td>
-                            <th class="bg-yellow-50"></th>
-                        </tr>
-                    </thead>
 
-                    <tbody class="subTitle">
-                        <tr v-for="item in adminList.data" :key="item.id" class="hover:bg-yellow-100">
-                            <td>
-                                <div class="flex items-center gap-3">
-                                    <div class="avatar">
-                                        <div class="mask mask-squircle h-12 w-12" :class="!item.Avatar ? 'flex items-end justify-center pt-3 px-1 bg-gray-300' : ''">
-                                            <img v-if="item.Avatar" :src="item.Avatar" :alt="item.UserName" :title="item.UserName" />
-                                            <i v-else data-lucide="user-round" class="size-10"></i>
+                <div class="col-span-3">
+                    <div class="overflow-x-auto bg-yellow-50 rounded-2xl border border-black/10 min-h-[500px]">
+                        <table class="table table-pin-rows table-pin-cols">
+                            <!-- head -->
+                            <thead>
+                                <tr class="text-center bg-yellow-50">
+                                    <td v-for="head in adminList.header" :key="head.title" :class="head.class" :data-i18n="head.title"></td>
+                                    <th class="bg-yellow-50"></th>
+                                </tr>
+                            </thead>
+
+                            <tbody class="subTitle">
+                                <tr v-for="item in adminList.data" :key="item.id" class="hover:bg-yellow-100">
+                                    <td>
+                                        <div class="flex items-center gap-3">
+                                            <div class="avatar">
+                                                <div class="mask mask-squircle h-12 w-12" :class="!item.Avatar ? 'flex items-end justify-center pt-3 px-1 bg-gray-300' : ''">
+                                                    <img v-if="item.Avatar" :src="item.Avatar" :alt="item.UserName" :title="item.UserName" />
+                                                    <i v-else data-lucide="user-round" class="size-10"></i>
+                                                </div>
+                                            </div>
+                                            <div class="flex flex-col gap-1">
+                                                <div class="font-bold">{{ item.UserName }}</div>
+                                                <div class="text-sm opacity-50">{{ item.email }}</div>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="flex flex-col gap-1">
-                                        <div class="font-bold">{{ item.UserName }}</div>
-                                        <div class="text-sm opacity-50">{{ item.email }}</div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td>{{ item.DisplayName }}</td>
-                            <td class="text-center">
-                                <div :data-i18n="item.SuperAdmin === 2 ? 'Yes' : 'No'"></div>
-                            </td>
-                            <td class="text-center">
-                                <div class="rounded-full text-center text-white w-20 shadow-xl/30 border-2"
-                                        :class="item.status === 1 ? 'bg-green-500 border-green-300 shadow-green-300' : 'bg-red-500 border-red-300 shadow-red-300'"
-                                        :data-i18n="item.status === 1 ? 'enable' : 'disable'"
-                                        ></div>
-                            </td>
-                            <th class="text-center bg-yellow-50">
-                                <div class="join">
-                                    <button class="btn btn-ghost rounded-md btn-sm px-2 py-1" @@click="editAdmin(item.id)">
-                                        <i data-lucide="pen" class="size-6 text-blue-500 cursor-pointer"></i>
-                                    </button>
-                                    <button class="btn btn-ghost rounded-md btn-sm px-2 py-1" @@click="delAdmin(item.id)">
-                                        <i data-lucide="trash-2" class="size-6 text-red-500 cursor-pointer"></i>
-                                    </button>
-                                </div>
-                            </th>
-                        </tr>
-                    </tbody>
+                                    </td>
+                                    <td>{{ item.DisplayName }}</td>
+                                    <td class="text-center">
+                                        <div :data-i18n="item.SuperAdmin === 2 ? 'Yes' : 'No'"></div>
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="rounded-full text-center text-white w-20 shadow-xl/30 border-2"
+                                                :class="item.status === 1 ? 'bg-green-500 border-green-300 shadow-green-300' : 'bg-red-500 border-red-300 shadow-red-300'"
+                                                :data-i18n="item.status === 1 ? 'enable' : 'disable'"
+                                                ></div>
+                                    </td>
+                                    <th class="text-center bg-yellow-50">
+                                        <div class="join">
+                                            <button class="btn btn-ghost rounded-md btn-sm px-2 py-1" @@click="editAdmin(item.id)">
+                                                <i data-lucide="pen" class="size-6 text-blue-500 cursor-pointer"></i>
+                                            </button>
+                                            <button class="btn btn-ghost rounded-md btn-sm px-2 py-1" @@click="delAdmin(item.id)">
+                                                <i data-lucide="trash-2" class="size-6 text-red-500 cursor-pointer"></i>
+                                            </button>
+                                        </div>
+                                    </th>
+                                </tr>
+                            </tbody>
 
-                    <!-- foot -->
-                    <tfoot v-if="adminList.data.length > adminList_pageSize">
-                        <tr>
-                            <td colspan="6" class="bg-yellow-50">
-                                <div class="flex items-center justify-center w-full py-2">
-                                    <div class="join">
-                                        <button class="join-item bg-white btn" @@click="togglePrevPage">
-                                            <i data-lucide="chevron-left" class="size-8 text-black"></i>
-                                        </button>
-                                        <button class="join-item btn"
-                                                :class="adminList_curPage === 1 ? 'bg-blue-500 text-white' : 'bg-white'"
-                                                @@click="toggleFirstPage"
-                                                >1</button>
+                            <!-- foot -->
+                            <tfoot v-if="adminList.data.length > adminList_pageSize">
+                                <tr>
+                                    <td colspan="6" class="bg-yellow-50">
+                                        <div class="flex items-center justify-center w-full py-2">
+                                            <div class="join">
+                                                <button class="join-item bg-white btn" @@click="togglePrevPage">
+                                                    <i data-lucide="chevron-left" class="size-8 text-black"></i>
+                                                </button>
+                                                <button class="join-item btn"
+                                                        :class="adminList_curPage === 1 ? 'bg-blue-500 text-white' : 'bg-white'"
+                                                        @@click="toggleFirstPage"
+                                                        >1</button>
 
-                                        <button class="join-item bg-white btn btn-disabled"
-                                                v-if="adminList_curPage >= 3"
-                                                >...</button>
-                                        <button class="join-item bg-blue-500 text-white btn"
-                                                v-if="adminList_curPage > 1 && adminList_curPage < adminList_pageSize"
-                                                >{{ adminList_curPage }}</button>
-                                        <button class="join-item bg-white btn btn-disabled"
-                                                v-if="adminList_curPage <= adminList_pageSize - 2"
-                                                >...</button>
+                                                <button class="join-item bg-white btn btn-disabled"
+                                                        v-if="adminList_curPage >= 3"
+                                                        >...</button>
+                                                <button class="join-item bg-blue-500 text-white btn"
+                                                        v-if="adminList_curPage > 1 && adminList_curPage < adminList_pageSize"
+                                                        >{{ adminList_curPage }}</button>
+                                                <button class="join-item bg-white btn btn-disabled"
+                                                        v-if="adminList_curPage <= adminList_pageSize - 2"
+                                                        >...</button>
 
-                                        <button class="join-item btn"
-                                                :class="adminList_curPage === adminList_pageSize ? 'bg-blue-500 text-white' : 'bg-white'"
-                                                @@click="toggleLastPage"
-                                                >{{ adminList_pageSize }}</button>
-                                        <button class="join-item bg-white btn" @@click="toggleNextPage">
-                                            <i data-lucide="chevron-right" class="size-8 text-black"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                            </td>
-                        </tr>
-                    </tfoot>
-                </table>
+                                                <button class="join-item btn"
+                                                        :class="adminList_curPage === adminList_pageSize ? 'bg-blue-500 text-white' : 'bg-white'"
+                                                        @@click="toggleLastPage"
+                                                        >{{ adminList_pageSize }}</button>
+                                                <button class="join-item bg-white btn" @@click="toggleNextPage">
+                                                    <i data-lucide="chevron-right" class="size-8 text-black"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>
 

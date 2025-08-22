@@ -11,7 +11,6 @@ window.mountConfigPage = function() {
       const userPermissions = ref(null)
       const formData = reactive({
         userName: '',
-        displayName: '',
         email: '',
         password: '',
         passwordConfirm: '',
@@ -40,30 +39,19 @@ window.mountConfigPage = function() {
       //#region data
 
       const getAvatarAsync = async path => {
-        if (!path || path.trim() === '') {
-          return null
-        }
+        if (!path || path.trim() === '') { return null }
 
         try {
           const response = await fetch(path, { method: 'HEAD' })
-
-          if (response.ok) {
-            return path
-          } else {
-            return null
-          }
-        } catch (err) {
-          result = null
-        }
+          return response.ok ? path : null
+        } catch (err) { result = null }
       }
 
       const getAdminsAsync = async () => {
         try {
           const response = await fetch('/api/Config', {
             method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               pages: adminList_curPage.value,
               pageSize: adminList_pageSize.value
@@ -86,17 +74,32 @@ window.mountConfigPage = function() {
               }))
             )
             adminList.data = processedData
-          } else {
-            console.log('Error: data not found')
-          }
-        } catch (err) {
-          console.log('Error: ', err)
-        }
+          } else console.log('Error: data not found')
+        } catch (err) { console.log('Error: ', err) }
       }
 
       //#endregion
 
       //#region tools
+
+      // 驗證函數
+      const isValidUserName = (userName) => {
+        if (!userName) return true // 空值時不顯示錯誤
+        const pattern = /^[A-Za-z][A-Za-z0-9\-]*$/
+        return userName.length >= 3 && userName.length <= 20 && pattern.test(userName)
+      }
+
+      const isValidEmail = (email) => {
+        if (!email) return true // 空值時不顯示錯誤
+        const pattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+        return pattern.test(email) && email.length <= 100
+      }
+
+      const isValidPassword = (password) => {
+        if (!password) return true // 空值時不顯示錯誤
+        const pattern = /(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[#@$!%*?&]).{8,}/
+        return password.length >= 8 && password.length <= 20 && pattern.test(password)
+      }
 
       // 權限管理
       const PermissionService = {
@@ -117,10 +120,6 @@ window.mountConfigPage = function() {
         try {
           const permissions = await PermissionService.getUserPermissions()
           userPermissions.value = permissions
-          
-          // 顯示創建表單
-          showCreateForm.value = true
-          
           // 重設表單數據
           resetFormData()
         } catch (error) {
@@ -134,14 +133,15 @@ window.mountConfigPage = function() {
       }
       
       const resetFormData = () => {
-        formData.userName = ''
-        formData.displayName = ''
-        formData.email = ''
-        formData.password = ''
-        formData.passwordConfirm = ''
-        formData.role = 1
-        formData.avatarFile = null
-        formData.avatarPreview = null
+        formData = {
+          userName: '',
+          email: '',
+          password: '',
+          passwordConfirm: '',
+          role: 1,
+          avatarFile: null,
+          avatarPreview: null ,
+        }
       }
       
       const triggerFileUpload = () => {
@@ -187,7 +187,6 @@ window.mountConfigPage = function() {
           // 準備請求數據
           const adminData = {
             userName: formData.userName,
-            displayName: formData.displayName || null,
             email: formData.email,
             password: formData.password,
             passwordConfirm: formData.passwordConfirm,
@@ -268,6 +267,7 @@ window.mountConfigPage = function() {
         try {
           // 預留：若未來有 /api/Db_ConfigApi 可在此呼叫
           await getAdminsAsync()
+          await startCreateAdmin()
         } finally {
           isLoading.value = false
         }
@@ -291,6 +291,9 @@ window.mountConfigPage = function() {
         formData,
 
         // tools
+        isValidUserName,
+        isValidEmail,
+        isValidPassword,
         startCreateAdmin,
         cancelCreateAdmin,
         triggerFileUpload,

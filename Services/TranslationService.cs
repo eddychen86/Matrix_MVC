@@ -265,8 +265,9 @@ namespace Matrix.Services
                 ["User_BioMaxLength300"] = "個人簡介長度不能超過 300 個字元",
                 ["User_PrivacyRange0Or1"] = "隱私設定必須是 0（公開）或 1（私人）",
                 ["User_UserNameAllowedCharsWithChinese"] = "使用者名稱只能包含字母、數字、底線和中文字元",
-                
+
                 // Avatar upload
+                ["Avatar"] = "頭像",
                 ["ClickToUploadAvatar"] = "點擊圖片上傳頭像",
                 ["SupportedImageFormats"] = "支援 JPG, PNG, GIF (最大5MB)",
                 #endregion
@@ -785,6 +786,7 @@ namespace Matrix.Services
                 ["User_UserNameAllowedCharsWithChinese"] = "User name may only contain letters, numbers, underscores, and Chinese characters.",
                 
                 // Avatar upload
+                ["Avatar"] = "Avatar",
                 ["ClickToUploadAvatar"] = "Click image to upload avatar",
                 ["SupportedImageFormats"] = "Supports JPG, PNG, GIF (max 5MB)",
                 #endregion
