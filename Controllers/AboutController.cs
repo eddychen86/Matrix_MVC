@@ -100,7 +100,7 @@ namespace Matrix.Controllers
                     engName = "Jay",
                     email = "weijay907@gmail.com",
                     github = "Jay9453",
-                    img = "",
+                    img = "jay.jpg",
                     level = "組員",
                     description = "",
                     skill = new string[] {
