@@ -52,7 +52,7 @@ window.loginPopupManager = loginPopupManager
 
 globalApp({
     setup() {
-        const { ref, computed, onMounted, watch } = Vue
+        const { ref, computed, onMounted } = Vue
         const { formatDate, timeAgo } = useFormatting()
 
         //#region 模組化管理器初始化
@@ -64,6 +64,9 @@ globalApp({
         // 初始化搜尋服務
         const searchService = useSearchService(null, null) // 先初始化搜尋服務
         const {
+            goTag,
+            onHoverUser,
+            manualSearch,
             searchQuery,
             onSearchClick,
             manualFollowSearch,
@@ -231,6 +234,9 @@ globalApp({
             searchQuery,
             onSearchClick,
             manualFollowSearch,
+            goTag,
+            onHoverUser,
+            manualSearch,
 
             // 好友相關
             toggleFollow: handleToggleFollow,

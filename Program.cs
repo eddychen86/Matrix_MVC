@@ -113,7 +113,7 @@ public class Program
         builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
         builder.Services.AddScoped<ISearchUserService, SearchUserService>();
         builder.Services.AddScoped<IReportService, ReportService>();
-
+        builder.Services.AddScoped<ISearchHashtagService, SearchHashtagService>();
         builder.Services.AddScoped<IArticleService, ArticleService>();
         builder.Services.AddScoped<IFollowService, FollowService>();
         builder.Services.AddScoped<INotificationService, NotificationService>();

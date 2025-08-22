@@ -18,6 +18,7 @@ namespace Matrix.Services
             return users.Select(p => new SearchUserDto
             {
                 PersonId = p.PersonId,
+                Username = p.User?.UserName ?? "",
                 DisplayName = p.DisplayName ?? "無名氏",
                 AvatarPath = p.AvatarPath ?? "/static/img/cute.png"
 
