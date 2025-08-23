@@ -17,11 +17,22 @@ export const useChat = (currentUser) => {
   //#region 聊天 Popup 控制
 
   // 開啟聊天視窗
-  const openChatPopup = () => {
+  const openChatPopup = async (receiver) => {
+    if (!receiver || !receiver.userId) {
+        console.error("Receiver information is missing.");
+        return;
+    }
+    console.log(`Opening chat with:`, receiver);
+    currentConversation.value = receiver;
+    await loadConversation(receiver.userId);
+    isChatPopupOpen.value = true;
   }
 
   // 關閉聊天視窗
   const closeChatPopup = () => {
+    isChatPopupOpen.value = false;
+    currentConversation.value = null;
+    messages.value = []; // 清空訊息
   }
 
   // TODO: 實現切換聊天 Popup 邏輯
@@ -37,7 +48,19 @@ export const useChat = (currentUser) => {
   }
 
   // 載入對話記錄
-  const loadConversation = async (userId, page = 1, pageSize = 20) => {
+  const loadConversation = async (userId, page = 1, pageSize = 50) => {
+    try {
+        const response = await fetch(`/api/chat/history/${userId}?page=${page}&pageSize=${pageSize}`);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        messages.value = data.sort((a, b) => new Date(a.createTime) - new Date(b.createTime)); // 按時間排序
+        console.log('Conversation loaded:', messages.value);
+    } catch (error) {
+        console.error('Failed to load conversation:', error);
+        messages.value = []; // 發生錯誤時清空
+    }
   }
 
   // 載入對話列表

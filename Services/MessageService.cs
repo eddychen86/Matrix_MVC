@@ -32,8 +32,8 @@ namespace Matrix.Services
             try
             {
                 // 檢查發送者和接收者是否存在
-                var sender = await _personRepository.GetByIdAsync(senderId);
-                var receiver = await _personRepository.GetByIdAsync(receiverId);
+                var sender = await _personRepository.GetByUserIdAsync(senderId);
+                var receiver = await _personRepository.GetByUserIdAsync(receiverId);
 
                 if (sender == null)
                 {
@@ -68,8 +68,8 @@ namespace Matrix.Services
                 // 創建訊息
                 var message = new Message
                 {
-                    SentId = senderId,
-                    ReceiverId = receiverId,
+                    SentId = sender.PersonId,
+                    ReceiverId = receiver.PersonId,
                     Content = content,
                     CreateTime = DateTime.Now,
                     IsRead = 0 // 未讀
@@ -99,7 +99,17 @@ namespace Matrix.Services
                     throw new UnauthorizedAccessException("沒有權限查看此對話");
                 }
 
-                return await _messageRepository.GetConversationAsync(user1Id, user2Id, page, pageSize);
+                // 將 UserId 轉換為 PersonId
+                var user1Person = await _personRepository.GetByUserIdAsync(user1Id);
+                var user2Person = await _personRepository.GetByUserIdAsync(user2Id);
+
+                if (user1Person == null || user2Person == null)
+                {
+                    // 如果找不到對應的 Person，返回空列表
+                    return Enumerable.Empty<Message>();
+                }
+
+                return await _messageRepository.GetConversationAsync(user1Person.PersonId, user2Person.PersonId, page, pageSize);
             }
             catch (Exception ex)
             {
@@ -293,7 +303,7 @@ namespace Matrix.Services
                 }
 
                 // 檢查接收者是否為私人帳號
-                var receiver = await _personRepository.GetByIdAsync(receiverId);
+                var receiver = await _personRepository.GetByUserIdAsync(receiverId);
                 if (receiver == null)
                 {
                     return false;
@@ -345,10 +355,19 @@ namespace Matrix.Services
         {
             try
             {
-                // 檢查是否存在任何一條訊息（發送或接收）
-                var hasMessage = await _messageRepository.ExistsAsync(m => 
-                    (m.SentId == userId && m.ReceiverId == otherUserId) ||
-                    (m.SentId == otherUserId && m.ReceiverId == userId));
+                // 先將 UserId 轉換為 PersonId
+                var userPerson = await _personRepository.GetByUserIdAsync(userId);
+                var otherUserPerson = await _personRepository.GetByUserIdAsync(otherUserId);
+
+                if (userPerson == null || otherUserPerson == null)
+                {
+                    return false; // 如果任一用戶找不到對應的 Person，則無法查看
+                }
+
+                // 使用 PersonId 進行查詢
+                var hasMessage = await _messageRepository.ExistsAsync(m =>
+                    (m.SentId == userPerson.PersonId && m.ReceiverId == otherUserPerson.PersonId) ||
+                    (m.SentId == otherUserPerson.PersonId && m.ReceiverId == userPerson.PersonId));
 
                 return hasMessage;
             }
