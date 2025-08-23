@@ -15,6 +15,9 @@ namespace Matrix.Repository.Interfaces
         Task<T?> GetAsync(Expression<Func<T, bool>> predicate);
 
         /// <summary>取得所有實體</summary>
+        IQueryable<T> AsQueryable();
+
+        /// <summary>取得所有實體</summary>
         Task<IEnumerable<T>> GetAllAsync();
 
         /// <summary>根據條件取得實體集合</summary>

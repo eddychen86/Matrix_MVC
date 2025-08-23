@@ -476,9 +476,30 @@ namespace Matrix.Services
             throw new NotImplementedException("此方法需要重構");
         }
 
-        public Task<(List<UserDto> Users, int TotalCount)> GetUsersAsync(int page = 1, int pageSize = 20, string? searchKeyword = null)
+        public async Task<(List<UserDto> Users, int TotalCount)> GetUsersAsync(int page = 1, int pageSize = 20, string? searchKeyword = null)
         {
-            throw new NotImplementedException("需要實作分頁查詢方法");
+            IQueryable<User> query = _userRepository.AsQueryable().Include(u => u.Person);
+
+            if (!string.IsNullOrWhiteSpace(searchKeyword))
+            {
+                var keyword = searchKeyword.ToLower().Trim();
+                query = query.Where(u =>
+                    u.UserName.Contains(keyword) ||
+                    u.Email.Contains(keyword) ||
+                    (u.Person != null && u.Person.DisplayName != null && u.Person.DisplayName.ToLower().Contains(keyword)));
+            }
+
+            var totalCount = await query.CountAsync();
+
+            var users = await query
+                .OrderByDescending(u => u.CreateTime)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            var userDtos = _mapper.Map<List<UserDto>>(users);
+
+            return (userDtos, totalCount);
         }
 
         public Task<(List<UserDto> Items, int TotalCount)> SearchAsync(string? keyword = null, int page = 1, int pageSize = 20)

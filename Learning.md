@@ -543,10 +543,539 @@ const Reply = (typeof useReply === 'function') ? useReply() : {} // ✅ 總是�
 
 ---
 
+### 問題 11: Vue v-model 使用可選鏈結運算子導致 Invalid left-hand side in assignment
+**症狀**: 在瀏覽器 console 出現「Uncaught SyntaxError: Invalid left-hand side in assignment」，發生於 `Areas/Dashboard/Views/Config/index.cshtml` 第27–43行（`v-model` 綁定處）。
+
+**原因**: `v-model` 會被 Vue 編譯為賦值表達式，例如 `model[key] = $event`。若在 `v-model` 的左側使用可選鏈結運算子（如 `obj?.[key]`），編譯後會變成 `obj?.[key] = ...`，這在 JavaScript 中是無效的賦值左值，因此觸發語法錯誤。
+
+**錯誤寫法**:
+```html
+<input v-model="adminFilterVal?.[tool.title]">
+<input type="checkbox" v-model="adminFilterVal?.[tool.title]">
+```
+
+**正確寫法**:
+```html
+<input v-model="adminFilterVal[tool.title]">
+<input type="checkbox" v-model="adminFilterVal[tool.title]">
+```
+
+**解決方案**: 
+- 將 `v-model` 左側的可選鏈結 `?.` 移除，確保是可指派的目標。
+- 確保 `adminFilterVal` 於初始化時為物件（例如 `ref({})` 或含預設鍵值的物件），避免取值時為 `null/undefined`。
+- 若擔心鍵不存在，可在初始化時先建立對應鍵（例如 `Keyword/SuperAdmin/Status`）。
+- 檢查其他相似寫法（如被註解的 `logFilterVal?.[tool.title]`）並一併改為不含 `?.`。
+
+**相關檔案**: 
+- `/Areas/Dashboard/Views/Config/index.cshtml:27-43, 240-256`
+- `/wwwroot/js/dashboard/pages/config/config.js`（`adminFilterVal` 初始化位置）
+
+### 問題 12: 配置管理頁面的完整功能實作與 v-for 優化
+**需求**: 完善配置管理頁面的所有功能，包含管理員列表、新增、編輯、刪除、篩選、分頁等，並使用 v-for 結構減少重複程式碼。
+
+**解決方案**:
+
+**步驟1: JavaScript 變數初始化完善**
+```javascript
+// 新增分頁相關變數
+const adminList_totalPages = ref(1)
+const adminList_totalCount = ref(0)
+
+// 改善 getAdminsAsync 支援篩選
+const getAdminsAsync = async (useFilter = false) => {
+  const requestBody = {
+    page: adminList_curPage.value,  // 修正: 使用 page 而非 pages
+    pageSize: adminList_pageSize.value
+  }
+  
+  if (useFilter) {
+    // 篩選邏輯實作
+    const filterConditions = {}
+    if (adminFilterVal.value.Config_AdminList_Keyword) {
+      filterConditions.keyword = adminFilterVal.value.Config_AdminList_Keyword
+    }
+    // ... 其他篩選條件
+    requestBody.filters = filterConditions
+  }
+  
+  // 更新分頁資訊
+  adminList_totalPages.value = result.totalPages || 1
+  adminList_totalCount.value = result.totalCount || 0
+}
+```
+
+**步驟2: 管理員 CRUD 操作實作**
+```javascript
+const editAdmin = async (id) => {
+  const admin = adminList.data.find(a => a.id === id)
+  if (admin) {
+    admin.isEditing = true
+    admin.originalData = { /* 備份原始資料 */ }
+  }
+}
+
+const saveAdmin = async (id) => {
+  // PUT /api/Config/Update 實作
+}
+
+const delAdmin = async (id) => {
+  // DELETE /api/Config/Delete/{id} 實作
+  if (!confirm('確定要刪除此管理員嗎？')) return
+}
+```
+
+**步驟3: HTML 模板 v-for 結構優化**
+```html
+<ul class="flex flex-col gap-4">
+  <li v-for="tool in adminFilter" :key="tool.id">
+    <!-- 文字搜尋 -->
+    <template v-if="tool.type === 'text'">
+      <div class="flex flex-col gap-2">
+        <h5 class="subTitle">{{ tool.title }}</h5>
+        <input type="search" 
+               v-model="adminFilterVal[tool.title]" 
+               :placeholder="tool.placeholder || '搜尋...'" 
+               @input="applyFilter" />
+      </div>
+    </template>
+
+    <!-- 開關選項 -->
+    <template v-else-if="tool.type === 'switch'">
+      <div class="flex items-center justify-between">
+        <h5 class="subTitle">{{ tool.title }}</h5>
+        <div class="tabs tabs-box">
+          <input type="radio" 
+                 v-for="opt in switchOpts" 
+                 :key="opt.id" 
+                 v-model="adminFilterVal[tool.title]" 
+                 :value="opt.id" 
+                 @change="applyFilter" />
+        </div>
+      </div>
+    </template>
+  </li>
+</ul>
+```
+
+**步驟4: 動態配置物件擴展**
+```javascript
+const adminFilter = ref([
+  { 
+    id: 0, 
+    title: 'Config_AdminList_Keyword', 
+    type: 'text',
+    placeholder: '搜尋使用者名稱或信箱...'
+  },
+  { id: 1, title: 'Config_AdminList_SuperAdmin', type: 'switch' },
+  { id: 2, title: 'Config_AdminList_Status', type: 'switch' },
+])
+
+const logFilter = ref([
+  { id: 0, title: 'Config_LoginList_Keyword', type: 'text' },
+  { id: 1, title: 'Config_LoginList_Role', type: 'switch' },
+  { id: 2, title: 'Config_LoginList_Browser', type: 'Number' },
+  { 
+    id: 6, 
+    title: 'Config_LoginList_ActionType', 
+    type: 'select',
+    options: [
+      { value: 'login', label: '登入' },
+      { value: 'logout', label: '登出' }
+    ]
+  },
+  { id: 3, title: 'Config_LoginList_LoginTime', type: 'DateTime' },
+])
+```
+
+**步驟5: 分頁功能修正**
+```javascript
+// 修正分頁變數引用
+const toggleLastPage = async () => {
+  if (adminList_curPage.value !== adminList_totalPages.value) {  // 使用正確變數
+    adminList_curPage.value = adminList_totalPages.value
+    await getAdminsAsync()
+  }
+}
+```
+
+**關鍵改進**:
+1. **統一的 v-for 架構**: 支援 text、switch、Number、DateTime、select 等多種控件類型
+2. **動態模板渲染**: 透過 `<template>` 標籤根據配置物件自動渲染對應的 UI 元件
+3. **響應式篩選**: 輸入變更時自動觸發篩選功能
+4. **完整的 CRUD 操作**: 支援編輯模式、資料備份還原、API 呼叫
+5. **正確的分頁處理**: 使用正確的變數名稱和邏輯
+
+**相關檔案**:
+- `/wwwroot/js/dashboard/pages/config/config.js:21-24, 80-143, 295-398`
+- `/Areas/Dashboard/Views/Config/index.cshtml:25-71, 222-272, 282-348`
+
+### 問題 13: 配置管理頁面多語言 placeholder 整合
+**症狀**: JavaScript 中使用硬編碼的 placeholder 文字，未與既有的翻譯系統整合。
+
+**原因**: JavaScript 配置物件中直接設定中文 placeholder，而專案已建立完整的 TranslationService.cs 多語言架構。
+
+**錯誤寫法**:
+```javascript
+const adminFilter = ref([
+  { 
+    id: 0, 
+    title: 'Config_AdminList_Keyword', 
+    type: 'text',
+    placeholder: '搜尋使用者名稱或信箱...'  // ❌ 硬編碼中文
+  }
+])
+```
+
+**正確寫法**:
+```javascript
+const adminFilter = ref([
+  { 
+    id: 0, 
+    title: 'Config_AdminList_Keyword', 
+    type: 'text',
+    placeholderKey: 'Config_AdminList_KeywordPlaceholder'  // ✅ 使用翻譯 key
+  }
+])
+```
+
+**HTML 模板修正**:
+```html
+<!-- 錯誤寫法 -->
+<input :placeholder="tool.placeholder || '搜尋...'" />
+
+<!-- 正確寫法 -->
+<input :data-i18n-placeholder="tool.placeholderKey || ''"
+       :placeholder="@Localizer[\"tool.placeholderKey\"]" />
+```
+
+**TranslationService.cs 擴充**:
+```csharp
+// 新增共用按鈕翻譯
+["Apply"] = "套用",
+["Clear"] = "清除",
+
+// 英文版本
+["Apply"] = "Apply",
+["Clear"] = "Clear",
+```
+
+**解決方案**:
+1. JavaScript 配置物件使用 `placeholderKey` 指向翻譯 key
+2. HTML 模板透過 `@Localizer` 系統渲染正確語言
+3. 確保所有 UI 文字都支援多語言切換
+4. 遵循既有的 `Config_` 前綴命名規範
+
+**關鍵優點**:
+- **一致性**: 所有文字都通過翻譯系統管理
+- **可維護性**: 單一位置管理所有翻譯內容  
+- **國際化支援**: 自動支援新增語言版本
+- **標準化**: 遵循專案既有的翻譯架構
+
+**相關檔案**:
+- `/wwwroot/js/dashboard/pages/config/config.js:53-91`
+- `/Areas/Dashboard/Views/Config/index.cshtml:34-38, 291-294, 305-308`
+- `/Services/TranslationService.cs:438-441, 800-803`
+
+### 問題 14: 配置管理頁面後端篩選 API 實作
+**需求**: 修改 ConfigController.cs 以支援前端的管理員列表篩選功能，包含關鍵字搜尋、角色篩選、狀態篩選，以及正確的分頁資訊回傳。
+
+**解決方案**:
+
+**步驟1: 創建篩選 DTO 類別**
+```csharp
+// DTOs/UserDtos.cs
+/// <summary>
+/// 管理員篩選請求的資料傳輸物件
+/// </summary>
+public class AdminFilterDto
+{
+    /// <summary>
+    /// 頁碼（從1開始）
+    /// </summary>
+    public int Page { get; set; } = 1;
+
+    /// <summary>
+    /// 每頁筆數
+    /// </summary>
+    public int PageSize { get; set; } = 10;
+
+    /// <summary>
+    /// 篩選條件
+    /// </summary>
+    public AdminFilters? Filters { get; set; }
+}
+
+/// <summary>
+/// 管理員篩選條件
+/// </summary>
+public class AdminFilters
+{
+    /// <summary>
+    /// 關鍵字搜尋（用戶名稱、信箱、顯示名稱）
+    /// </summary>
+    public string? Keyword { get; set; }
+
+    /// <summary>
+    /// 超級管理員篩選（true=僅超級管理員, false=僅一般管理員, null=全部）
+    /// </summary>
+    public bool? SuperAdmin { get; set; }
+
+    /// <summary>
+    /// 狀態篩選（true=已啟用, false=未啟用, null=全部）
+    /// </summary>
+    public bool? Status { get; set; }
+}
+```
+
+**步驟2: 修改 ConfigController 的 GetAllAdminAsync 方法**
+```csharp
+[HttpPost("")]
+public async Task<IActionResult> GetAllAdminAsync([FromBody] AdminFilterDto dto)
+{
+    try
+    {
+        // 修正分頁參數名稱 (前端傳 page，後端期望 pages)
+        var pageNumber = dto.Page > 0 ? dto.Page : 1;
+        var pageSize = dto.PageSize > 0 ? dto.PageSize : 10;
+
+        // 獲取篩選後的管理員資料
+        var (admins, totalCount) = await GetFilteredAdminsAsync(pageNumber, pageSize, dto.Filters);
+
+        // 計算分頁資訊
+        var totalPages = (int)Math.Ceiling((double)totalCount / pageSize);
+
+        return Ok(new
+        {
+            success = true,
+            data = admins,
+            totalPages = totalPages,
+            totalCount = totalCount,
+            currentPage = pageNumber,
+            pageSize = pageSize
+        });
+    }
+    catch (Exception ex)
+    {
+        _logger.LogError(ex, "獲取管理員列表失敗");
+        return StatusCode(500, new
+        {
+            success = false,
+            message = "獲取管理員列表失敗"
+        });
+    }
+}
+```
+
+**步驟3: 實作篩選邏輯的私有方法**
+```csharp
+/// <summary>
+/// 獲取篩選後的管理員資料
+/// </summary>
+private async Task<(List<object> Admins, int TotalCount)> GetFilteredAdminsAsync(int page, int pageSize, AdminFilters? filters)
+{
+    // 獲取所有管理員資料（角色 1 和 2）
+    var query = await _userService.GetAllUsersQueryableAsync();
+    
+    // 篩選管理員（角色 >= 1）
+    query = query.Where(u => u.Role >= 1);
+
+    // 應用篩選條件
+    if (filters != null)
+    {
+        // 關鍵字搜尋（使用者名稱或信箱）
+        if (!string.IsNullOrWhiteSpace(filters.Keyword))
+        {
+            var keyword = filters.Keyword.Trim().ToLower();
+            query = query.Where(u => 
+                u.UserName.ToLower().Contains(keyword) || 
+                u.Email.ToLower().Contains(keyword) ||
+                u.DisplayName.ToLower().Contains(keyword));
+        }
+
+        // 超級管理員篩選
+        if (filters.SuperAdmin.HasValue)
+        {
+            if (filters.SuperAdmin.Value)
+            {
+                query = query.Where(u => u.Role == 2); // 僅超級管理員
+            }
+            else
+            {
+                query = query.Where(u => u.Role == 1); // 僅一般管理員
+            }
+        }
+
+        // 狀態篩選
+        if (filters.Status.HasValue)
+        {
+            if (filters.Status.Value)
+            {
+                query = query.Where(u => u.Status == 1); // 已啟用
+            }
+            else
+            {
+                query = query.Where(u => u.Status == 0); // 未啟用
+            }
+        }
+    }
+
+    // 計算總數和分頁
+    var totalCount = await _userService.CountUsersAsync(query);
+    var users = await _userService.GetPagedUsersAsync(query, page, pageSize);
+
+    // 轉換為前端需要的格式
+    var adminList = users.Select(u => new
+    {
+        userId = u.UserId,
+        userName = u.UserName,
+        displayName = u.DisplayName ?? u.UserName,
+        email = u.Email,
+        avatarPath = u.AvatarPath,
+        role = u.Role,
+        status = u.Status,
+        createTime = u.CreateTime,
+        lastLoginTime = u.LastLoginTime
+    }).ToList<object>();
+
+    return (adminList, totalCount);
+}
+```
+
+**前端與後端參數對應**:
+- **前端篩選參數**：
+  - `Config_AdminList_Keyword` → `filters.keyword`
+  - `Config_AdminList_SuperAdmin` (1/2/0) → `filters.superAdmin` (true/false/null)
+  - `Config_AdminList_Status` (1/2/0) → `filters.status` (true/false/null)
+
+- **分頁參數修正**：
+  - 前端發送 `page`，後端統一使用 `Page` 屬性
+
+- **回傳格式增強**：
+  - 增加 `totalPages`, `totalCount`, `currentPage` 分頁資訊
+  - 支援前端分頁控制器正確顯示
+
+**關鍵特性**:
+1. **多條件篩選**: 支援關鍵字、角色、狀態的組合篩選
+2. **模糊搜尋**: 關鍵字可搜尋用戶名稱、信箱、顯示名稱
+3. **正確分頁**: 提供完整分頁資訊供前端使用
+4. **錯誤處理**: 完整的異常處理和日誌記錄
+5. **資料轉換**: 統一的前端資料格式
+
+**相關檔案**:
+- `/Areas/Dashboard/Controllers/Api/ConfigController.cs:82-135`
+- `/DTOs/UserDtos.cs:198-238`
+
+### 問題 13: ConfigController 中 Update 和 Delete 方法的 TODO 實作
+**症狀**: ConfigController 中的 UpdateAdminAsync 和 DeleteAdminAsync 方法只有 TODO 註解，缺少實際實作
+
+**原因**: 初始開發時只實作了篩選和創建功能，更新和刪除功能留下了 TODO 標記
+
+**解決方案**: 實作完整的管理員更新和軟刪除功能
+
+**UpdateAdminAsync 實作**:
+```csharp
+try
+{
+    // 獲取原始用戶實體以進行更新
+    var userEntity = await _userService.GetUserEntityAsync(id);
+    if (userEntity == null)
+    {
+        return NotFound(new { success = false, message = "找不到指定的用戶" });
+    }
+
+    // 更新用戶資料
+    bool hasUpdates = false;
+
+    if (model.Role.HasValue && model.Role.Value != userEntity.Role)
+    {
+        userEntity.Role = model.Role.Value;
+        hasUpdates = true;
+        _logger.LogInformation("更新用戶角色: {UserId} 從 {OldRole} 到 {NewRole}", 
+            id, targetUser.Role, model.Role.Value);
+    }
+
+    if (model.Status.HasValue && model.Status.Value != userEntity.Status)
+    {
+        userEntity.Status = model.Status.Value;
+        hasUpdates = true;
+    }
+
+    if (!hasUpdates)
+    {
+        return BadRequest(new { success = false, message = "沒有需要更新的資料" });
+    }
+
+    // 執行更新
+    var updateResult = await _userService.UpdateUserEntityAsync(userEntity);
+    if (!updateResult)
+    {
+        return StatusCode(500, new { success = false, message = "更新管理員資料失敗" });
+    }
+
+    return Ok(new { success = true, message = "管理員資料更新成功" });
+}
+catch (Exception ex)
+{
+    _logger.LogError(ex, "更新管理員資料時發生錯誤: {UserId}", id);
+    return StatusCode(500, new { success = false, message = "更新管理員資料失敗" });
+}
+```
+
+**DeleteAdminAsync 實作**:
+```csharp
+try
+{
+    // 檢查是否嘗試刪除自己
+    if (currentUser.Value.UserId == id)
+    {
+        return BadRequest(new { success = false, message = "不能刪除自己的帳號" });
+    }
+
+    // 使用軟刪除以保持資料完整性
+    var deleteResult = await _userService.SoftDeleteUserAsync(id);
+    if (!deleteResult)
+    {
+        _logger.LogError("軟刪除管理員失敗: {UserId}", id);
+        return StatusCode(500, new { success = false, message = "刪除管理員失敗" });
+    }
+
+    _logger.LogInformation("管理員軟刪除成功: {UserId}, 操作者: {OperatorId}", 
+        id, currentUser.Value.UserId);
+
+    return Ok(new { success = true, message = "管理員刪除成功" });
+}
+catch (Exception ex)
+{
+    _logger.LogError(ex, "刪除管理員時發生錯誤: {UserId}", id);
+    return StatusCode(500, new { success = false, message = "刪除管理員失敗" });
+}
+```
+
+**關鍵特性**:
+1. **實體層更新**: 使用 `UpdateUserEntityAsync` 直接操作 User 實體，提供更好的控制
+2. **變更追蹤**: 檢查是否有實際需要更新的欄位，避免無意義的資料庫操作
+3. **軟刪除**: 使用 `SoftDeleteUserAsync` 保持資料完整性，便於恢復和審計
+4. **安全檢查**: 防止管理員刪除自己的帳號，避免系統無法管理的情況
+5. **詳細日誌**: 記錄所有管理員操作，包括操作者資訊，便於審計追蹤
+6. **權限驗證**: 在實作前已通過 `CanEditUserAsync` 和 `CanDeleteUserAsync` 權限檢查
+7. **完整錯誤處理**: 包含 try-catch 和詳細的錯誤回應
+
+**使用的服務方法**:
+- `GetUserEntityAsync()`: 獲取完整的用戶實體以進行修改
+- `UpdateUserEntityAsync()`: 更新用戶實體到資料庫
+- `SoftDeleteUserAsync()`: 執行軟刪除操作
+
+**相關檔案**:
+- `/Areas/Dashboard/Controllers/Api/ConfigController.cs:299-367, 400-436`
+- `/Services/Interfaces/IUserService.cs:120, 195`
+- `/DTOs/UserDtos.cs:278-315` (UpdateAdminDto)
+
+---
+
 ## 待補充問題
 *後續遇到的問題和解決方案會持續更新到此處*
 
 ---
 
 **最後更新**: 2025-08-23  
-**版本**: v1.7
+**版本**: v1.11

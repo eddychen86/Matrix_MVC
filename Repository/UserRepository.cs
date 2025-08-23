@@ -188,6 +188,7 @@ namespace Matrix.Repository
             if (user == null) return false;
 
             user.IsDelete = 1;
+            user.Status = 2;
             await UpdateAsync(user);
             await SaveChangesAsync();
             return true;

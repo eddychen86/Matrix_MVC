@@ -196,6 +196,48 @@ namespace Matrix.DTOs
     }
 
     /// <summary>
+    /// 管理員篩選請求的資料傳輸物件
+    /// </summary>
+    public class AdminFilterDto
+    {
+        /// <summary>
+        /// 頁碼（從1開始）
+        /// </summary>
+        public int Page { get; set; } = 1;
+
+        /// <summary>
+        /// 每頁筆數
+        /// </summary>
+        public int PageSize { get; set; } = 10;
+
+        /// <summary>
+        /// 篩選條件
+        /// </summary>
+        public AdminFilters? Filters { get; set; }
+    }
+
+    /// <summary>
+    /// 管理員篩選條件
+    /// </summary>
+    public class AdminFilters
+    {
+        /// <summary>
+        /// 關鍵字搜尋（用戶名稱、信箱、顯示名稱）
+        /// </summary>
+        public string? Keyword { get; set; }
+
+        /// <summary>
+        /// 超級管理員篩選（true=僅超級管理員, false=僅一般管理員, null=全部）
+        /// </summary>
+        public bool? SuperAdmin { get; set; }
+
+        /// <summary>
+        /// 狀態篩選（true=已啟用, false=未啟用, null=全部）
+        /// </summary>
+        public bool? Status { get; set; }
+    }
+
+    /// <summary>
     /// 建立管理員帳號的資料傳輸物件
     /// </summary>
     public class CreateAdminDto

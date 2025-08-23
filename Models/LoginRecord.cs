@@ -72,7 +72,8 @@ namespace Matrix.Models
         public string PagePath { get; set; } = string.Empty;
 
         /// <summary>
-        /// 操作類型 (LOGIN, LOGOUT, VIEW, CREATE, UPDATE, DELETE, ERROR)
+        /// 操作類型 (
+        /// VIEW, CREATE, UPDATE, DELETE, ERROR)
         /// </summary>
         [Required]
         [StringLength(20)]

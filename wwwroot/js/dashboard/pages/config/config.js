@@ -18,8 +18,16 @@ window.mountConfigPage = function() {
         avatarFile: null,
         avatarPreview: null
       })
+      const formErrors = reactive({
+        userName: '',
+        email: '',
+        password: '',
+        passwordConfirm: ''
+      })
       const adminList_curPage = ref(1)
       const adminList_pageSize = ref(5)
+      const adminList_totalPages = ref(1)
+      const adminList_totalCount = ref(0)
       const adminList = reactive({
         header: [
           { title: 'Config_AdminList_UserName', class: '', fixed: false, },
@@ -30,26 +38,69 @@ window.mountConfigPage = function() {
         data: []
       })
       const adminFilterVal = ref({
-        keyword: null,
-        SuperAdmin: null,
-        Status: null
+        Config_AdminList_Keyword: null,
+        Config_AdminList_SuperAdmin: null,
+        Config_AdminList_Status: null
       })
       const logFilterVal = ref({
-        error: null,
-        api: [],
-        state: null,
-        time: new Date(),
+        Config_LoginList_Keyword: null,
+        Config_LoginList_Role: 0,
+        Config_LoginList_Browser: null,
+        Config_LoginList_ActionType: null,
+        Config_LoginList_LoginTime: '',
+        Config_LoginList_LogoutTime: '',
+        Config_LoginList_StartTime: '',
       })
+      const switchOpts = ref([
+        { id: 0, title: 'All', value: 0 },
+        { id: 1, title: 'Yes', value: 1 },
+        { id: 2, title: 'No', value: 2 },
+      ])
+      const actionOpts = ref([
+        { id: 0, title: 'Config_LoginList_ActionType_VIEW', value: 'VIEW' },
+        { id: 1, title: 'Config_LoginList_ActionType_CREATE', value: 'CREATE' },
+        { id: 2, title: 'Config_LoginList_ActionType_UPDATE', value: 'UPDATE' },
+        { id: 3, title: 'Config_LoginList_ActionType_DELETE', value: 'DELETE' },
+        { id: 4, title: 'Config_LoginList_ActionType_ERROR', value: 'ERROR' },
+      ])
+      const roleOpts = ref([
+        { id: 0, title: 'All', value: 0 },
+        { id: 1, title: 'Admin', value: 1 },
+        { id: 2, title: 'SuperAdmin', value: 2 },
+      ])
       const adminFilter = ref([
-        { id: 0, title: 'Keyword', type: 'text' },
-        { id: 1, title: 'SuperAdmin', type: 'switch' },
-        { id: 2, title: 'Status', type: 'switch' },
+        { 
+          id: 0, 
+          title: 'Config_AdminList_Keyword', 
+          type: 'text',
+          placeholderKey: 'Config_AdminList_KeywordPlaceholder'
+        },
+        { id: 1, title: 'Config_AdminList_SuperAdmin', type: 'switch' },
+        { id: 2, title: 'Config_AdminList_Status', type: 'switch' },
       ])
       const logFilter = ref([
-        { id: 0, title: 'Error', type: 'text' },
-        { id: 1, title: 'api', type: 'text' },
-        { id: 2, title: 'State', type: 'Number' },
-        { id: 3, title: 'DateTime', type: 'DateTime' },
+        { 
+          id: 0, 
+          title: 'Config_LoginList_Keyword', 
+          type: 'text',
+          placeholderKey: 'Config_AdminList_KeywordPlaceholder'
+        },
+        { id: 1, title: 'Config_LoginList_Role', type: 'switch', options: roleOpts },
+        // { 
+        //   id: 2, 
+        //   title: 'Config_LoginList_Browser', 
+        //   type: 'Number',
+        //   placeholderKey: 'Config_LoginList_Browser'
+        // },
+        { 
+          id: 6, 
+          title: 'Config_LoginList_ActionType', 
+          type: 'select',
+          options: actionOpts
+        },
+        { id: 3, title: 'Config_LoginList_LoginTime', type: 'DateTime' },
+        { id: 4, title: 'Config_LoginList_LogoutTime', type: 'DateTime' },
+        { id: 5, title: 'Config_LoginList_StartTime', type: 'DateTime' },
       ])
       //#endregion
 
@@ -64,19 +115,36 @@ window.mountConfigPage = function() {
         } catch (err) { result = null }
       }
 
-      const getAdminsAsync = async () => {
+      const getAdminsAsync = async (useFilter = false) => {
         try {
-          const response = await fetch('/api/Config', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              pages: adminList_curPage.value,
-              pageSize: adminList_pageSize.value
-            })
-          })
+          const requestBody = {
+            page: adminList_curPage.value,
+            pageSize: adminList_pageSize.value
+          }
+
+          // 如果要使用篩選，加入篩選條件
+          if (useFilter) {
+            const filterConditions = {}
+
+            if (adminFilterVal.value.Config_AdminList_Keyword) 
+              filterConditions.keyword = adminFilterVal.value.Config_AdminList_Keyword
+            if (adminFilterVal.value.Config_AdminList_SuperAdmin !== null && adminFilterVal.value.Config_AdminList_SuperAdmin !== 0)
+              filterConditions.superAdmin = adminFilterVal.value.Config_AdminList_SuperAdmin === 1
+            if (adminFilterVal.value.Config_AdminList_Status !== null && adminFilterVal.value.Config_AdminList_Status !== 0)
+              filterConditions.status = adminFilterVal.value.Config_AdminList_Status === 1
+
+            requestBody.filters = filterConditions
+          }
+
+          const response = await fetch('/api/Config', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(requestBody) })
 
           if(response.ok) {
             const result = await response.json()
+            
+            // 更新分頁資訊
+            adminList_totalPages.value = result.totalPages || 1
+            adminList_totalCount.value = result.totalCount || 0
+
             const processedData = await Promise.all(
               result.data.map(async m => ({
                 id: m.userId,
@@ -91,32 +159,27 @@ window.mountConfigPage = function() {
               }))
             )
             adminList.data = processedData
-          } else console.log('Error: data not found')
-        } catch (err) { console.log('Error: ', err) }
+          } else {
+            console.log('Error: data not found')
+
+            // 重置資料
+            adminList.data = []
+            adminList_totalPages.value = 1
+            adminList_totalCount.value = 0
+          }
+        } catch (err) { 
+          console.log('Error: ', err)
+
+          // 發生錯誤時重置資料
+          adminList.data = []
+          adminList_totalPages.value = 1
+          adminList_totalCount.value = 0
+        }
       }
 
       //#endregion
 
       //#region tools
-
-      // 驗證函數
-      const isValidUserName = (userName) => {
-        if (!userName) return true // 空值時不顯示錯誤
-        const pattern = /^[A-Za-z][A-Za-z0-9\-]*$/
-        return userName.length >= 3 && userName.length <= 20 && pattern.test(userName)
-      }
-
-      const isValidEmail = (email) => {
-        if (!email) return true // 空值時不顯示錯誤
-        const pattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-        return pattern.test(email) && email.length <= 100
-      }
-
-      const isValidPassword = (password) => {
-        if (!password) return true // 空值時不顯示錯誤
-        const pattern = /(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[#@$!%*?&]).{8,}/
-        return password.length >= 8 && password.length <= 20 && pattern.test(password)
-      }
 
       // 權限管理
       const PermissionService = {
@@ -191,12 +254,11 @@ window.mountConfigPage = function() {
       }
       
       const submitCreateAdmin = async () => {
-        // 驗證密碼一致
-        if (formData.password !== formData.passwordConfirm) {
-          alert('密碼不一致')
-          return
+        // 提交前先清空舊的錯誤訊息
+        for (const key in formErrors) {
+          formErrors[key] = ''
         }
-        
+
         isSubmitting.value = true
         
         try {
@@ -208,9 +270,6 @@ window.mountConfigPage = function() {
             passwordConfirm: formData.passwordConfirm,
             role: parseInt(formData.role)
           }
-          
-          // TODO: 如果有頭像檔案，需要先上傳頭像再創建管理員
-          // 目前先不處理頭像上傳
           
           const response = await fetch('/api/Config/Create', {
             method: 'POST',
@@ -227,14 +286,17 @@ window.mountConfigPage = function() {
             cancelCreateAdmin()
             await getAdminsAsync()
           } else {
-            // 處理錯誤
+            // 處理後端返回的驗證錯誤
             if (result.errors) {
-              let errorMessages = []
               for (const [field, messages] of Object.entries(result.errors)) {
-                errorMessages.push(...messages)
+                // 將後端欄位名稱（首字母小寫）對應到 formErrors
+                const errorKey = field.charAt(0).toLowerCase() + field.slice(1)
+                if (formErrors.hasOwnProperty(errorKey)) {
+                  formErrors[errorKey] = messages.join(' ')
+                }
               }
-              alert('創建失敗：\n' + errorMessages.join('\n'))
             } else {
+              // 處理其他一般錯誤
               alert(result.message || '創建失敗')
             }
           }
@@ -245,34 +307,138 @@ window.mountConfigPage = function() {
           isSubmitting.value = false
         }
       }
-      const editAdmin = id => {
-        // adminList.data
-        console.log(id)
+
+      const editAdmin = async id => {
+        const admin = adminList.data.find(a => a.id === id)
+        if (admin) {
+          // 進入編輯模式
+          admin.isEditing = true
+          // 備份原始資料以便取消時還原
+          admin.originalData = {
+            DisplayName: admin.DisplayName,
+            email: admin.email,
+            SuperAdmin: admin.SuperAdmin,
+            status: admin.status
+          }
+        }
       }
-      const delAdmin = id => {
-        // adminList.data
-        console.log(id)
+      
+      const delAdmin = async id => {
+        if (!confirm('確定要刪除此管理員嗎？')) return
+        
+        try {
+          const response = await fetch(`/api/Config/Delete/${id}`, {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' }
+          })
+          
+          const result = await response.json()
+          
+          if (response.ok && result.success) {
+            alert(result.message || '管理員刪除成功')
+            // 重新載入管理員列表
+            await getAdminsAsync()
+          } else {
+            alert(result.message || '刪除失敗')
+          }
+        } catch (error) {
+          console.error('刪除管理員錯誤:', error)
+          alert('網路錯誤，請稍後再試')
+        }
       }
-      const saveAdmin = id => {
-        // adminList.data
-        console.log(id)
+      
+      const saveAdmin = async id => {
+        const admin = adminList.data.find(a => a.id === id)
+        if (!admin) return
+        
+        try {
+          const updateData = {
+            userId: admin.id,
+            displayName: admin.DisplayName,
+            email: admin.email,
+            role: admin.SuperAdmin,
+            status: admin.status
+          }
+          
+          const response = await fetch('/api/Config/Update', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(updateData)
+          })
+          
+          const result = await response.json()
+          
+          if (response.ok && result.success) {
+            alert(result.message || '管理員資料更新成功')
+            // 退出編輯模式
+            admin.isEditing = false
+            delete admin.originalData
+            // 重新載入管理員列表以確保資料一致性
+            await getAdminsAsync()
+          } else {
+            alert(result.message || '更新失敗')
+          }
+        } catch (error) {
+          console.error('更新管理員錯誤:', error)
+          alert('網路錯誤，請稍後再試')
+        }
+      }
+      
+      const cancelEdit = id => {
+        const admin = adminList.data.find(a => a.id === id)
+        if (admin && admin.originalData) {
+          // 還原原始資料
+          admin.DisplayName = admin.originalData.DisplayName
+          admin.email = admin.originalData.email
+          admin.SuperAdmin = admin.originalData.SuperAdmin
+          admin.status = admin.originalData.status
+          // 退出編輯模式
+          admin.isEditing = false
+          delete admin.originalData
+        }
+      }
+
+      // 篩選功能
+      const applyFilter = async () => {
+        adminList_curPage.value = 1 // 篩選時重置到第一頁
+        await getAdminsAsync(true)
+      }
+      
+      const clearFilter = async () => {
+        // 重置篩選條件
+        adminFilterVal.value.Config_AdminList_Keyword = null
+        adminFilterVal.value.Config_AdminList_SuperAdmin = null
+        adminFilterVal.value.Config_AdminList_Status = null
+        adminList_curPage.value = 1
+        await getAdminsAsync(false)
       }
 
       const toggleFirstPage = async () => {
-        adminList_curPage.value = 1
-        await getAdminsAsync()
+        if (adminList_curPage.value !== 1) {
+          adminList_curPage.value = 1
+          await getAdminsAsync()
+        }
       }
+      
       const toggleLastPage = async () => {
-        adminList_curPage.value = adminList?.pages || 1
-        await getAdminsAsync()
+        if (adminList_curPage.value !== adminList_totalPages.value) {
+          adminList_curPage.value = adminList_totalPages.value
+          await getAdminsAsync()
+        }
       }
+      
       const togglePrevPage = async () => {
-        adminList_curPage.value > 1 ? adminList_curPage.value -= 1 : 1
-        await getAdminsAsync()
+        if (adminList_curPage.value > 1) {
+          adminList_curPage.value -= 1
+          await getAdminsAsync()
+        }
       }
+      
       const toggleNextPage = async () => {
-        adminList_curPage.value < adminList?.pages ? adminList_curPage.value += 1 : adminList_curPage.value
-        await getAdminsAsync()
+        if (adminList_curPage.value < adminList_totalPages.value) {
+          adminList_curPage.value += 1
+          await getAdminsAsync()
+        }
       }
 
       //#endregion
@@ -300,15 +466,15 @@ window.mountConfigPage = function() {
         adminList,
         adminList_curPage,
         adminList_pageSize,
+        adminList_totalPages,
+        adminList_totalCount,
         showCreateForm,
         isSubmitting,
         userPermissions,
         formData,
+        formErrors,
 
         // tools
-        isValidUserName,
-        isValidEmail,
-        isValidPassword,
         startCreateAdmin,
         cancelCreateAdmin,
         triggerFileUpload,
@@ -317,12 +483,17 @@ window.mountConfigPage = function() {
         editAdmin,
         delAdmin,
         saveAdmin,
+        cancelEdit,
         toggleFirstPage,
         toggleLastPage,
         togglePrevPage,
         toggleNextPage,
+        applyFilter,
+        clearFilter,
 
         // Filter
+        switchOpts,
+        actionOpts,
         adminFilterVal,
         logFilterVal,
         adminFilter,

@@ -93,6 +93,7 @@ namespace Matrix.Services
                 ["GuestAccount"] = "訪客",
 
                 // 狀態
+                ["All"] = "全部",
                 ["enable"] = "啟用",
                 ["disable"] = "停用",
                 ["public"] = "公開",
@@ -414,12 +415,38 @@ namespace Matrix.Services
                 ["Config_ToolsState"] = "功能開關",
                 ["Config_WebLog"] = "網站日誌",
                 ["Config_AdminList"] = "管理員列表",
+                ["Config_AdminList_Keyword"] = "關鍵字查詢",
+                ["Config_AdminList_KeywordPlaceholder"] = "請輸入帳號或匿名",
                 ["Config_AdminList_UserName"] = "帳號",
                 ["Config_AdminList_DisplayName"] = "匿名",
                 ["Config_AdminList_Email"] = "信箱",
                 ["Config_AdminList_Admin"] = "一般管理員",
                 ["Config_AdminList_SuperAdmin"] = "超級管理員",
                 ["Config_AdminList_Status"] = "狀態",
+
+                ["Config_LoginList"] = "管理員監控",
+                ["Config_LoginList_Keyword"] = "關鍵字查詢",
+                ["Config_LoginList_IP"] = "IP",
+                ["Config_LoginList_Role"] = "角色",
+                ["Config_LoginList_Role_Admin"] = "一般管理員",
+                ["Config_LoginList_Role_SuperAdmin"] = "超級管理員",
+                ["Config_LoginList_Account"] = "帳號",
+                ["Config_LoginList_Browser"] = "瀏覽器資訊",
+                ["Config_LoginList_PagePath"] = "頁面路徑",
+                ["Config_LoginList_LoginTime"] = "登入時間",
+                ["Config_LoginList_LogoutTime"] = "登出時間",
+                ["Config_LoginList_StartTime"] = "事件時間",
+                ["Config_LoginList_DurationTime"] = "停留時間(秒)",
+                ["Config_LoginList_ActionType"] = "操作類型",
+                ["Config_LoginList_ActionType_VIEW"] = "檢視",
+                ["Config_LoginList_ActionType_CREATE"] = "新增",
+                ["Config_LoginList_ActionType_UPDATE"] = "更新",
+                ["Config_LoginList_ActionType_DELETE"] = "刪除",
+                ["Config_LoginList_ActionType_ERROR"] = "錯誤",
+                
+                // 共用按鈕和操作
+                ["Apply"] = "套用",
+                ["Clear"] = "清除",
 
                 #endregion
             },
@@ -508,6 +535,7 @@ namespace Matrix.Services
                 ["GuestAccount"] = "Guest",
 
                 // 狀態
+                ["All"] = "All",
                 ["enable"] = "Enable",
                 ["disable"] = "Disable",
                 ["public"] = "Public",
@@ -758,12 +786,38 @@ namespace Matrix.Services
                 ["Config_ToolsState"] = "Tools",
                 ["Config_WebLog"] = "Web logs",
                 ["Config_AdminList"] = "Admin List",
+                ["Config_AdminList_Keyword"] = "Search",
+                ["Config_AdminList_KeywordPlaceholder"] = "Enter display name or user name.",
                 ["Config_AdminList_UserName"] = "Account",
                 ["Config_AdminList_DisplayName"] = "Display Name",
                 ["Config_AdminList_Email"] = "Email",
                 ["Config_AdminList_Admin"] = "Admin",
                 ["Config_AdminList_SuperAdmin"] = "Super Admin",
                 ["Config_AdminList_Status"] = "Account State",
+
+                ["Config_LoginList"] = "Admin Activities",
+                ["Config_LoginList_Keyword"] = "Search",
+                ["Config_LoginList_IP"] = "IP",
+                ["Config_LoginList_Role"] = "Permissions",
+                ["Config_LoginList_Role_Admin"] = "Admin",
+                ["Config_LoginList_Role_SuperAdmin"] = "Super Admin",
+                ["Config_LoginList_Account"] = "Account",
+                ["Config_LoginList_Browser"] = "Browser Info",
+                ["Config_LoginList_PagePath"] = "Page Path",
+                ["Config_LoginList_LoginTime"] = "Login Time",
+                ["Config_LoginList_LogoutTime"] = "Logout Time",
+                ["Config_LoginList_StartTime"] = "Event Start Time",
+                ["Config_LoginList_DurationTime"] = "Duration (s)",
+                ["Config_LoginList_ActionType"] = "Action Type",
+                ["Config_LoginList_ActionType_VIEW"] = "VIEW",
+                ["Config_LoginList_ActionType_CREATE"] = "CREATE",
+                ["Config_LoginList_ActionType_UPDATE"] = "UPDATE",
+                ["Config_LoginList_ActionType_DELETE"] = "DELETE",
+                ["Config_LoginList_ActionType_ERROR"] = "ERROR",
+                
+                // 共用按鈕和操作
+                ["Apply"] = "Apply",
+                ["Clear"] = "Clear",
 
                 #endregion
 

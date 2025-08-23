@@ -19,6 +19,11 @@ namespace Matrix.Repository
             _dbSet = context.Set<T>();
         }
 
+        public virtual IQueryable<T> AsQueryable()
+        {
+            return _dbSet.AsQueryable();
+        }
+
         public virtual async Task<T?> GetByIdAsync<TKey>(TKey id)
         {
             return await _dbSet.FindAsync(id);
