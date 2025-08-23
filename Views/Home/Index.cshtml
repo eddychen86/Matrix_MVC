@@ -1,14 +1,14 @@
-@* Model no longer used; hot list loads via API *@
+﻿@* Model no longer used; hot list loads via API *@
 @using Matrix.Services
 @inject ICustomLocalizer Localizer
 
 <!-- 文章 -->
-<div class="col-span-5 2xl:col-span-4 2xl:col-start-2 flex flex-col gap-8">
+<div class="col-span-5 flex flex-col gap-8 2xl:col-span-4 2xl:col-start-2">
 
     @* 熱門文章輪播（僅登入可見） *@
     @if (ViewBag.IsAuthenticated == true)
     {
-        <section class="home-hots_list overflow-x-hidden">
+        <section class="home-hots_list overflow-hidden">
             <h1 class="title">Hot</h1>
             <div class="hots_list_carousel">
                 <button v-on:click="hotPrev">
@@ -20,7 +20,7 @@
 
                 <ul ref="hotCarouselRef" class="carousel carousel-center carousel_layout" v-if="hotlist && hotlist.length">
                     <li class="carousel-item carousel-item_cts" v-for="item in hotlist" :key="item.articleId">
-                        <div class="card bg-base-100 image-full shadow-sm">
+                        <div class="card bg-base-100 image-full shadow-sm w-full">
                             <figure>
                                 <img v-if="item.image && item.image.filePath" :src="item.image.filePath" :alt="item.content" />
                                 <div v-else class="no-img bg-accent">
@@ -31,13 +31,13 @@
                                 <div class="userInfo">
                                     <a href="/profile">
                                         <img v-if="item.authorAvatar" :src="item.authorAvatar" :alt="item.authorName" />
-                                        <div v-else class="no-img">
+                                        <div v-else class="no-img border-2 border-white bg-secondary">
                                             <span>{{ (item.authorName || '').slice(0, 1).toUpperCase() }}</span>
                                         </div>
                                     </a>
-                                    <h2 class="card-title text-sm">{{ item.authorName || '' }}</h2>
+                                    <h2 class="card-title text-sm text-white">{{ item.authorName || '' }}</h2>
                                 </div>
-                                <div class="card-actions justify-end">
+                                <div class="card-actions justify-end text-white">
                                     <p class="line-clamp-3 text-xs">{{ item.content }}</p>
                                 </div>
                             </div>
@@ -62,7 +62,7 @@
             <!--發文編輯-->
             @if (ViewBag.IsAuthenticated == true)
             {
-                <button v-on:click="toggleCreatePost">
+                <button v-on:click="openModal">
                     <i data-lucide="plus" class="size-6 text-black"></i>
                     <span class="subTitle">Post</span>
                 </button>
@@ -76,15 +76,14 @@
 </div>
 
 <!-- 好友列表 -->
-<aside class="friends-list">
-    @await Component.InvokeAsync("FriendsList")
-</aside>
+<!--
+    <aside class="friends-list">
+        await Component.InvokeAsync("FriendsList")
+    </aside>
+-->
 
 @* Create Post Popup Component *@
-<div v-if="openCreatePost">
-    @await Component.InvokeAsync("CreatePostPopup")
-</div>
+@await Component.InvokeAsync("CreatePostPopup")
 
-<div v-else-if="openReply">
-    @await Component.InvokeAsync("ReplyPopup")
-</div>
+<!-- 留言視窗 -->
+@await Component.InvokeAsync("ReplyPopup")

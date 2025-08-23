@@ -96,12 +96,12 @@ namespace Matrix.DTOs
         /// <summary>
         /// 獲取好友請求發送者的頭像
         /// </summary>
-        public string RequesterAvatar => !string.IsNullOrEmpty(Requester?.AvatarPath) ? Requester.AvatarPath : "/static/images/default_avatar.png";
+        public string? RequesterAvatar => !string.IsNullOrEmpty(Requester?.AvatarPath) ? Requester.AvatarPath : null;
 
         /// <summary>
         /// 獲取好友請求接收者的頭像
         /// </summary>
-        public string AddresseeAvatar => !string.IsNullOrEmpty(Addressee?.AvatarPath) ? Addressee.AvatarPath : "/static/images/default_avatar.png";
+        public string? AddresseeAvatar => !string.IsNullOrEmpty(Addressee?.AvatarPath) ? Addressee.AvatarPath : null;
 
         /// <summary>
         /// 獲取好友關係的描述文字
@@ -321,7 +321,7 @@ namespace Matrix.DTOs
         public string GetOtherPersonAvatar(Guid currentUserId)
         {
             var otherPerson = GetOtherPerson(currentUserId);
-            return !string.IsNullOrEmpty(otherPerson?.AvatarPath) ? otherPerson.AvatarPath : "/static/images/default_avatar.png";
+            return !string.IsNullOrEmpty(otherPerson?.AvatarPath) ? otherPerson.AvatarPath : "";
         }
 
         /// <summary>

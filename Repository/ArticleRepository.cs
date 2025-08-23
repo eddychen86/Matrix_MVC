@@ -209,5 +209,49 @@ namespace Matrix.Repository
             );
             return rowsAffected > 0;
         }
+
+        public async Task<(List<ArticleDto> Items, int TotalCount)> GetArticlesWithUserStateAsync(int page, int pageSize, Guid? personId)
+        {
+            const int PraiseType = 0;
+            const int CollectType = 1;
+
+            var baseQuery = _context.Articles
+                .AsNoTracking()
+                .Where(a => a.Status == 0 && a.IsPublic == 0);
+
+            var total = await baseQuery.CountAsync();
+
+            var items = await baseQuery
+                .OrderByDescending(a => a.CreateTime)
+                .Select(a => new ArticleDto
+                {
+                    ArticleId = a.ArticleId,
+                    AuthorId = a.AuthorId,
+                    Content = a.Content,
+                    CreateTime = a.CreateTime,
+                    Status = a.Status,
+                    IsPublic = a.IsPublic,
+                    PraiseCount = a.PraiseCount,
+                    CollectCount = a.CollectCount,
+
+                    // 關鍵：當前使用者狀態（未登入 = false）
+                    IsPraised = personId != null && _context.PraiseCollects
+                        .Any(pc => pc.ArticleId == a.ArticleId
+                                && pc.UserId == personId.Value
+                                && pc.Type == PraiseType),
+
+                    IsCollected = personId != null && _context.PraiseCollects
+                        .Any(pc => pc.ArticleId == a.ArticleId
+                                && pc.UserId == personId.Value
+                                && pc.Type == CollectType),
+                })
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return (items, total);
+        }
+
+
     }
 }

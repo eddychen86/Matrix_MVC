@@ -58,7 +58,7 @@ namespace Matrix.Services
                     UserId = r.p.UserId,
                     DisplayName = r.p.DisplayName ?? "未知用戶",
                     AvatarPath = string.IsNullOrEmpty(r.p.AvatarPath)
-                                  ? "/static/images/default_avatar.png"
+                                  ? null
                                   : r.p.AvatarPath,
                     //IsPublic = false              // Person 無此欄位 → 先預設
                 },

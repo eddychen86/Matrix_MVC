@@ -80,12 +80,12 @@ namespace Matrix.DTOs
         /// <summary>
         /// 獲取追蹤者的頭像
         /// </summary>
-        public string FollowerAvatar => !string.IsNullOrEmpty(Follower?.AvatarPath) ? Follower.AvatarPath : "/static/images/default_avatar.png";
+        public string? FollowerAvatar => !string.IsNullOrEmpty(Follower?.AvatarPath) ? Follower.AvatarPath : null;
 
         /// <summary>
         /// 獲取被追蹤者的頭像
         /// </summary>
-        public string FollowedAvatar => !string.IsNullOrEmpty(Followed?.AvatarPath) ? Followed.AvatarPath : "/static/images/default_avatar.png";
+        public string? FollowedAvatar => !string.IsNullOrEmpty(Followed?.AvatarPath) ? Followed.AvatarPath : null;
 
         /// <summary>
         /// 獲取追蹤關係的描述文字

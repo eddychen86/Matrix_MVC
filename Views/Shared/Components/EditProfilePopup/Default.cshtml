@@ -1,5 +1,5 @@
 @inject ICustomLocalizer Localizer
-<div v-if="editMode" class="profile-edit hidden" :class="editMode ? '!flex' : 'hidden'">
+<div v-if="editMode" class="profile-edit" style="display:none;">
   <div class="mock" v-on:click="cancel"></div>
 
   <form method="post" class="profile-edit_layout bg-accent">
@@ -48,7 +48,7 @@
             
             <!-- 密碼驗證狀態和錯誤訊息 -->
             <div v-if="passwordValidation.isValidating" class="flex items-center gap-2 text-gray-400">
-              <div class="animate-spin rounded-full h-3 w-3 border-b border-gray-400"></div>
+              <img src="~/static/img/Loading.gif" alt="Loading" class="h-3 w-3" />
               <span class="text-sm">驗證中...</span>
             </div>
             

@@ -26,6 +26,14 @@ namespace Matrix.Data.Configurations
         /// <param name="builder">實體類型建構器</param>
         public void Configure(EntityTypeBuilder<Person> builder)
         {
+            /// <summary>
+            /// 設定 Person 與 User 的一對一關聯，使用 Person.UserId 作為外鍵並設為必要關聯
+            /// </summary>
+            builder.HasOne(p => p.User)
+                .WithOne(u => u.Person)
+                .HasForeignKey<Person>(p => p.UserId)
+                .IsRequired();
+
             // === 主鍵配置 ===
             /// <summary>
             /// 設定 PersonId 作為主鍵

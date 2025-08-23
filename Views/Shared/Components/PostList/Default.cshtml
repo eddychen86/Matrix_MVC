@@ -1,28 +1,28 @@
-@inject ICustomLocalizer Localizer
+﻿@inject ICustomLocalizer Localizer
 <li v-for="(item, index) in posts" :key="item.articleId">
     <article class="bg-accent">
         @* 文章標題區 *@
         <div class="post-content_header">
-            <div class="author-info flex gap-4 items-center">
+            <div class="author-info flex items-center gap-4">
                 <div class="author-avatar">
-                    <img v-if="item?.authorAvator != null" :src="item?.authorAvator" alt="item?.authorName">
+                    <img v-if="item?.authorAvatar" :src="item.authorAvatar" :alt="item?.authorName">
                     <span v-else class="bg-secondary">{{ item?.authorName?.slice(0,1).toUpperCase() }}</span>
                 </div>
                 <div>
-                    <h3 class="text-white font-medium">{{ item.authorName || @Localizer["GuestAccount"] }}</h3>
-                    <p class="text-gray-400 text-sm">{{ item.createTime }}</p>
+                    <h3 class="font-medium text-white">{{ item.authorName || @Localizer["GuestAccount"] }}</h3>
+                    <p class="text-sm text-gray-400">{{ item.createTime }}</p>
                 </div>
             </div>
-            <div class="flex items-center gap-2 text-gray-400 text-sm">
-                <i data-lucide="heart" class="w-4 h-4"></i>
+            <div class="flex items-center gap-2 text-sm text-gray-400">
+                <i data-lucide="heart" class="h-4 w-4"></i>
                 <span>{{ item.praiseCount }}</span>
-                <i data-lucide="bookmark" class="w-4 h-4 ml-2"></i>
+                <i data-lucide="bookmark" class="ml-2 h-4 w-4"></i>
                 <span>{{ item.collectCount }}</span>
             </div>
         </div>
 
         @* 文章內容 *@
-        <div class="text-gray-300 mb-4 leading-relaxed">
+        <div class="mb-4 leading-relaxed text-gray-300">
             {{ item.content }}
         </div>
 
@@ -35,31 +35,60 @@
             </div>
 
             <div class="post-content_attachments_files" v-if="item.attachments.filter(f => f.type.toLowerCase() === 'file').length > 0">
-                <div v-for="file in item.attachments.filter(f => f.type.toLowerCase() === 'file')" :key="file.fileId">
-                    <a :download="file.fileName" target="_blank" rel="noopener noreferrer">{{ file.fileName }}</a>
+                <div v-for="file in item.attachments.filter(f => f.type.toLowerCase() === 'file')" :key="file.fileId" class="rounded-md p-2 text-white cursor-pointer transition-colors" style="background: #555;">
+                    <a :href="file.filePath" :download="file.fileName" target="_blank" rel="noopener noreferrer" class="flex gap-1 items-center">
+                        <i data-lucide="file-text" class="size-6 text-stone-300"></i>
+                        {{ file.fileName }}
+                    </a>
                 </div>
             </div>
         </div>
 
         @* 文章操作列（需登入） *@
         <div class="post-content_state" v-if="currentUser?.isAuthenticated">
-            <button v-on:click="stateFunc(praize, item.articleId)">
-                <i data-lucide="heart" class="size-4"></i>
-                <span data-i18n="Praise">@Localizer["Praise"]</span>
+            <button :disabled="item._busy"
+                    v-on:click="stateFunc('praise', item)">
+                <span class="inline-flex items-center gap-1"
+                      :class="item.isPraised ? 'text-red-500' : 'text-gray-400'">
+                    <svg xmlns="http://www.w3.org/2000/svg"
+                         viewBox="0 0 24 24"
+                         class="size-4"
+                         stroke="currentColor"
+                         :fill="item.isPraised ? 'currentColor' : 'none'"
+                         stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 1 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z" />
+                    </svg>
+                    <span data-i18n="Praise">@Localizer["Praise"]</span>
+                    <span class="ml-1">{{ item.praiseCount }}</span>
+                </span>
             </button>
-            <button v-on:click="stateFunc(comment, item.articleId)">
+            <button v-on:click="stateFunc('comment', item)">
                 <i data-lucide="message-circle" class="size-4"></i>
                 <span data-i18n="Comment">@Localizer["Comment"]</span>
             </button>
-            <button v-on:click="stateFunc(collect, item.articleId)">
-                <i data-lucide="bookmark" class="size-4"></i>
-                <span data-i18n="Collect">@Localizer["Collect"]</span>
+
+            <button :disabled="item._busy" v-on:click="stateFunc('collect', item)">
+                <span class="inline-flex items-center gap-1"
+                      :class="item.isCollected ? 'text-yellow-500' : 'text-gray-400'">
+                    <svg xmlns="http://www.w3.org/2000/svg"
+                         viewBox="0 0 24 24"
+                         class="size-4"
+                         stroke="currentColor"
+                         :fill="item.isCollected ? 'currentColor' : 'none'"
+                         stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M19 21l-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
+                    </svg>
+                    <span data-i18n="Collect">@Localizer["Collect"]</span>
+                    <span class="ml-1">{{ item.collectCount }}</span>
+                </span>
             </button>
         </div>
 
+
+
         @* 未登入狀態：顯示提示 *@
         <div class="post-content_state" v-else>
-            <div class="text-gray-400 text-sm flex items-center gap-3">
+            <div class="flex items-center gap-3 text-sm text-gray-400">
                 <i data-lucide="lock" class="size-4"></i>
                 <span data-i18n="GuestBrowseMsg">@Localizer["GuestBrowseMsg"]</span>
             </div>
@@ -68,9 +97,9 @@
 </li>
 
 <!-- 載入狀態指示器 -->
-<li v-if="isLoading" class="text-center py-8">
+<li v-if="isLoading" class="py-8 text-center">
     <div class="flex items-center justify-center gap-2 text-gray-400">
-        <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
+        <img src="~/static/img/Loading.gif" alt="Loading" class="h-6 w-6" />
         <span>載入中...</span>
     </div>
 </li>
@@ -81,7 +110,7 @@
 </li>
 
 <!-- 空狀態 -->
-<li v-if="!isLoading && posts.length === 0" class="text-center py-8">
+<li v-if="!isLoading && posts.length === 0" class="py-8 text-center">
     <span class="text-gray-400">還沒有發布任何文章</span>
 </li>
 

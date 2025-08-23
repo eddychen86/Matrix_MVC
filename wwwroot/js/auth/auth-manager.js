@@ -73,7 +73,7 @@ export class AuthManager {
             });
 
             if (response.ok) {
-                console.log('Logout successful');
+                // console.log('Logout successful');
 
                 // 清除 AuthService 緩存
                 authService?.clearAuthStatus?.();

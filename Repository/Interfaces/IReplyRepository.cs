@@ -21,5 +21,8 @@ namespace Matrix.Repository.Interfaces
 
         /// <summary>計算文章的回覆數量</summary>
         Task<int> CountRepliesByArticleAsync(Guid articleId);
+
+        Task<IEnumerable<Reply>> GetByUserIdAsync(Guid userId);
+        Task<Reply?> GetByIdWithUserAsync(Guid replyId);
     }
 }

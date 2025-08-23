@@ -7,7 +7,9 @@
       "destination": "wwwroot/lib/vue/",
       "files": [
         "dist/vue.global.js",
-        "dist/vue.global.prod.js"
+        "dist/vue.global.prod.js",
+        "dist/vue.esm-browser.js",
+        "dist/vue.esm-browser.prod.js"
       ]
     },
     {

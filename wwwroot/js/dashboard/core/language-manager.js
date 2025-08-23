@@ -74,7 +74,7 @@
                     }
                 }))
 
-                console.log(`語系已切換至: ${changeLang}`)
+                // console.log(`語系已切換至: ${changeLang}`)
                 return changeLang
 
             } catch (error) {

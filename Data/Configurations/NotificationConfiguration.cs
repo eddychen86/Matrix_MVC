@@ -26,6 +26,22 @@ namespace Matrix.Data.Configurations
         /// <param name="builder">實體類型建構器</param>
         public void Configure(EntityTypeBuilder<Notification> builder)
         {
+            /// <summary>
+            /// 設定通知接收者關聯，一人可接收多個通知，使用 GetId 作為外鍵，限制刪除以維護資料完整性
+            /// </summary>
+            builder.HasOne(n => n.Receiver)
+                .WithMany(p => p.NotificationsReceived)
+                .HasForeignKey(n => n.GetId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            /// <summary>
+            /// 設定通知發送者關聯，一人可發送多個通知，使用 SendId 作為外鍵，限制刪除以維護資料完整性
+            /// </summary>
+            builder.HasOne(n => n.Sender)
+                .WithMany(p => p.NotificationsSent)
+                .HasForeignKey(n => n.SendId)
+                .OnDelete(DeleteBehavior.Restrict);
+
             // === 主鍵配置 ===
             /// <summary>
             /// 設定 NotifyId 作為主鍵

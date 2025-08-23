@@ -16,13 +16,15 @@ namespace Matrix.Services
         private readonly ApplicationDbContext _context;
         private readonly IFileService _fileService;
         private readonly IArticleAttachmentRepository _attachmentRepository;
+        private readonly IArticleHashtagRepository _articleHashtagRepository;
         private readonly IMapper _mapper;
 
-        public ArticleService(ApplicationDbContext context, IFileService fileService, IArticleAttachmentRepository attachmentRepository, IMapper mapper)
+        public ArticleService(ApplicationDbContext context, IFileService fileService, IArticleAttachmentRepository attachmentRepository, IArticleHashtagRepository articleHashtagRepository, IMapper mapper)
         {
             _context = context;
             _fileService = fileService;
             _attachmentRepository = attachmentRepository;
+            _articleHashtagRepository = articleHashtagRepository;
             _mapper = mapper;
         }
         /// <summary>
@@ -31,24 +33,67 @@ namespace Matrix.Services
         public async Task<ArticleDto?> GetArticleAsync(Guid id)
         {
             var article = await _context.Articles
-                .AsNoTracking() // 只讀查詢
+                .AsNoTracking()
                 .Include(a => a.Author)
+                .Include(a => a.Attachments!)
+                .Include(a => a.ArticleHashtags!)
+                    .ThenInclude(ah => ah.Hashtag)
                 .Include(a => a.Replies!)
-                .ThenInclude(r => r.User)
+                    .ThenInclude(r => r.User)
                 .FirstOrDefaultAsync(a => a.ArticleId == id);
 
             if (article == null) return null;
-
-            // 如果需要回覆資料，單獨查詢避免 N+1 問題
-            var replies = await _context.Replies
-                .AsNoTracking()
-                .Include(r => r.User)
-                .Where(r => r.ArticleId == id)
-                .ToListAsync();
-
-            article.Replies = replies;
             return _mapper.Map<ArticleDto>(article);
         }
+
+
+        ///<summary>
+        ///取得單篇文章詳情（含作者、附件、hashtags）
+        /// </summary>
+        public async Task<ArticleDto?> GetArticleDetailAsync(Guid articleId)
+        {
+            return await _context.Set<Article>()
+                .AsNoTracking()
+                .Where(a => a.ArticleId == articleId)
+                .Select(a => new ArticleDto
+                {
+                    ArticleId = a.ArticleId,
+                    AuthorId = a.AuthorId,
+                    Content = a.Content,
+                    IsPublic = a.IsPublic,
+                    Status = a.Status,
+                    CreateTime = a.CreateTime,
+                    PraiseCount = a.PraiseCount,
+                    CollectCount = a.CollectCount,
+
+                    Author = a.Author == null ? null : new PersonDto
+                    {
+                        PersonId = a.Author.PersonId,
+                        UserId = a.Author.UserId,
+                        DisplayName = a.Author.DisplayName,
+                        AvatarPath = a.Author.AvatarPath
+                    },
+
+                    Attachments = a.Attachments!.Select(att => new ArticleAttachmentDto
+                    {
+                        FileId = att.FileId,
+                        FilePath = att.FilePath,
+                        FileName = att.FileName,
+                        Type = att.Type
+                    }).ToList(),
+
+                    Hashtags = a.ArticleHashtags!
+                        .Where(ah => ah.Hashtag != null)
+                        .Select(ah => new HashtagDto
+                        {
+                            TagId = ah.TagId,
+                            Name = ah.Hashtag!.Content
+                        }).ToList()
+                })
+                .FirstOrDefaultAsync();
+        }
+
+
 
         /// <summary>
         /// 建立文章
@@ -212,6 +257,7 @@ namespace Matrix.Services
             var articles = await _context.Articles
                 .AsNoTracking() // 只讀查詢
                 .Include(a => a.Author)
+                .Include(a => a.Attachments!.Where(att => (att.Type ?? "") == "image"))
                 .Where(a => a.Status == 0 && a.IsPublic == 0 && a.CreateTime >= sinceDate)
                 .OrderByDescending(a => a.PraiseCount + a.CollectCount)
                 .Take(limit)
@@ -242,7 +288,10 @@ namespace Matrix.Services
         private IQueryable<Article> BuildArticleQuery(
             string? searchKeyword, Guid? authorId, int? status, bool onlyPublic, DateTime? dateFrom, DateTime? dateTo)
         {
-            IQueryable<Article> query = _context.Articles.AsNoTracking();
+            var query = _context.Articles
+                .AsNoTracking() // 只讀查詢
+                                // Status == 0 表示正常，IsPublic == 0 表示公開
+                .Where(a => a.Status == 0 && a.IsPublic == 0);
 
             if (onlyPublic)
             {
@@ -302,10 +351,62 @@ namespace Matrix.Services
             return true;
         }
 
-        // 映射方法已由 AutoMapper 取代
-
+        /// <summary>
+        /// 建立一篇新文章，並處理其檔案附件
+        /// </summary>
         public async Task<ArticleDto?> CreateArticleWithAttachmentsAsync(Guid authorId, CreateArticleDto dto)
         {
+            const int maxImgs = 6;
+            const int maxFiles = 6;
+            const long maxSize = 5 * 1024 * 1024; // 5MB
+
+            static bool IsImageExt(string fileName)
+            {
+                var ext = Path.GetExtension(fileName).ToLowerInvariant();
+                return ext is ".jpg" or ".jpeg" or ".png" or ".gif" or ".webp" or ".bmp";
+            }
+            static bool IsImageByContentType(string? ct)
+                => !string.IsNullOrEmpty(ct) && ct.StartsWith("image/", StringComparison.OrdinalIgnoreCase);
+            static bool LooksLikeImage(IFormFile f)
+                => IsImageByContentType(f.ContentType) || IsImageExt(f.FileName);
+            static IEnumerable<IFormFile> Dedupe(IEnumerable<IFormFile> files)
+                => files.Where(f => f != null && f.Length > 0)
+                        .GroupBy(f => new { f.FileName, f.Length })
+                        .Select(g => g.First());
+
+            //先做附件驗證
+            var all = new List<IFormFile>();
+            if (dto.Images?.Any() == true) all.AddRange(dto.Images);
+            if (dto.Files?.Any() == true) all.AddRange(dto.Files);
+            if (dto.Attachments?.Any() == true) all.AddRange(dto.Attachments);
+
+            var deduped = Dedupe(all).ToList();
+            var images = deduped.Where(LooksLikeImage).ToList();
+            var files = deduped.Where(f => !LooksLikeImage(f)).ToList();
+
+            if (images.Count > maxImgs)
+                throw new ArgumentException($"圖片最多 {maxImgs} 張");
+            if (files.Count > maxFiles)
+                throw new ArgumentException($"檔案最多 {maxFiles} 個");
+            if (deduped.Any(f => f.Length > maxSize))
+                throw new ArgumentException("有檔案超過 5MB 上限");
+
+            //先解析並檢查 Hashtag 上限
+            List<Guid> tagIds = new();
+            if (dto.SelectedHashtags?.Any() == true)
+            {
+                tagIds = dto.SelectedHashtags
+                    .Select(s => Guid.TryParse(s, out var g) ? g : (Guid?)null)
+                    .Where(g => g.HasValue)
+                    .Select(g => g!.Value)
+                    .Distinct()
+                    .ToList();
+
+                if (tagIds.Count > 6)
+                    throw new ArgumentException("最多只能選擇6個標籤");
+            }
+
+            // 取得作者並建立文章
             var author = await _context.Persons.FirstOrDefaultAsync(p => p.UserId == authorId);
             if (author == null) return null;
 
@@ -315,36 +416,59 @@ namespace Matrix.Services
                 AuthorId = author.PersonId,
                 Content = dto.Content,
                 IsPublic = dto.IsPublic,
-                CreateTime = DateTime.UtcNow,
-                Status = 0
+                CreateTime = DateTime.Now,
+                Status = 0,
+                PraiseCount = 0,
+                CollectCount = 0
             };
 
             _context.Articles.Add(article);
             await _context.SaveChangesAsync();
 
-            if (dto.Attachments != null && dto.Attachments.Any())
+            async Task SaveOneAsync(IFormFile f, string subfolder, string type)
             {
-                foreach (var file in dto.Attachments)
+                var path = await _fileService.CreateFileAsync(f, subfolder);
+                if (string.IsNullOrEmpty(path))
+                    throw new InvalidOperationException($"儲存失敗: {f.FileName}");
+
+                var att = new ArticleAttachment
                 {
-                    var filePath = await _fileService.CreateFileAsync(file, "posts/files");
-                    if (filePath != null)
-                    {
-                        var attachment = new ArticleAttachment
-                        {
-                            FileId = Guid.NewGuid(),
-                            ArticleId = article.ArticleId,
-                            FilePath = filePath,
-                            FileName = file.FileName,
-                            Type = file.ContentType.StartsWith("image") ? "image" : "file",
-                            MimeType = file.ContentType
-                        };
-                        await _attachmentRepository.AddAsync(attachment);
-                    }
-                }
+                    FileId = Guid.NewGuid(),
+                    ArticleId = article.ArticleId,
+                    FilePath = path,
+                    FileName = f.FileName,
+                    Type = type,                       // "image" / "file"
+                    MimeType = f.ContentType ?? string.Empty
+                };
+                await _attachmentRepository.AddAsync(att);
             }
+
+            if (dto.Images?.Any() == true)
+                foreach (var f in Dedupe(dto.Images))
+                    await SaveOneAsync(f, "public/posts/imgs", "image");
+
+            if (dto.Files?.Any() == true)
+                foreach (var f in Dedupe(dto.Files))
+                    await SaveOneAsync(f, "public/posts/files", "file");
+
+            if (dto.Attachments?.Any() == true)
+                foreach (var f in Dedupe(dto.Attachments))
+                {
+                    var isImg = LooksLikeImage(f);
+                    await SaveOneAsync(
+                        f,
+                        isImg ? "public/posts/imgs" : "public/posts/files",
+                        isImg ? "image" : "file"
+                    );
+                }
+
+            if (tagIds.Count > 0)
+                await _articleHashtagRepository.UpdateArticleHashtagsAsync(article.ArticleId, tagIds);
 
             return await GetArticleAsync(article.ArticleId);
         }
+
+
 
         /// <summary>
         /// 後臺管理員更新文章
@@ -380,7 +504,7 @@ namespace Matrix.Services
         public async Task<int> GetTotalArticlesCountAsync(bool onlyPublic = true)
         {
             var query = _context.Articles.AsNoTracking();
-            
+
             if (onlyPublic)
             {
                 query = query.Where(a => a.IsPublic == 0 && a.Status == 1); // 公開且正常狀態
@@ -389,7 +513,7 @@ namespace Matrix.Services
             {
                 query = query.Where(a => a.Status == 1); // 只排除已刪除的
             }
-            
+
             return await query.CountAsync();
         }
     }

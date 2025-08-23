@@ -1,4 +1,5 @@
 import { useFormatting } from '/js/hooks/useFormatting.js'
+import { usePostActions } from '/js/hooks/usePostActions.js'
 import postListService from '/js/components/PostListService.js'
 
 export const useProfile = () => {
@@ -63,6 +64,10 @@ export const useProfile = () => {
     }
 
     const cancel = () => {
+        // 隱藏元件
+        const editEl = document.querySelector('.profile-edit')
+        if (editEl) editEl.style.display = 'none'
+        
         editMode.value = false
         if (profile.backup) {
             // Restore from backup
@@ -76,8 +81,10 @@ export const useProfile = () => {
         // Create a deep copy for backup
         Object.assign(updatProfile, JSON.parse(JSON.stringify(profile)))
 
-        // 在下一個tick更新翻譯，確保DOM已經渲染
+        // 在下一個tick更新翻譯，確保DOM已經渲染並顯示元件
         Vue.nextTick(() => {
+            const editEl = document.querySelector('.profile-edit')
+            if (editEl) editEl.style.display = ''
             updateEditPopupTranslations()
         })
     }
@@ -157,6 +164,10 @@ export const useProfile = () => {
             // 更新 profile 資料
             Object.assign(profile, updatProfile);
 
+            // 隱藏元件
+            const editEl = document.querySelector('.profile-edit')
+            if (editEl) editEl.style.display = 'none'
+            
             editMode.value = false
             rand.value = new Date().getTime() // Force re-render
         } catch (err) {
@@ -848,53 +859,11 @@ export const useProfile = () => {
     //#endregion
 
     //#region Article Interaction
-    const togglePraise = async (aid) => {
-        try {
-            const response = await fetch(`/api/post/${aid}/toggle-praise`, { method: 'POST' });
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            const data = await response.json();
-            console.log('Praise toggled:', data);
-        } catch (error) {
-            console.error('Error toggling praise:', error);
-        }
-    };
-
-    const toggleCollect = async (aid) => {
-        try {
-            const response = await fetch(`/api/post/${aid}/toggle-collect`, { method: 'POST' });
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            const data = await response.json();
-            console.log('Collect toggled:', data);
-        } catch (error) {
-            console.error('Error toggling collect:', error);
-        }
-    };
-
-    const toggleComment = async (aid) => {
-        // TODO: Implement comment functionality, e.g., opening a comment modal
-        console.log('Comment button clicked for article:', aid);
-    };
-
-    const share = (aid) => {
-        // TODO: Implement share functionality
-        console.log('Share button clicked for article:', aid);
-    }
-
-    const stateFunc = (type, aid) => {
-        const actions = {
-            praise: togglePraise,
-            collect: toggleCollect,
-            comment: toggleComment,
-            share: share
-        };
-
-        if (actions[type]) {
-            actions[type](aid);
-        }
+    // 使用統一的文章操作 hook
+    const postActions = usePostActions()
+    
+    const stateFunc = async (type, aid) => {
+        return await postActions.stateFunc(type, aid)
     }
     //#endregion
 

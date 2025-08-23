@@ -155,12 +155,17 @@ namespace Matrix.DTOs
         /// <summary>
         /// 獲取回覆的作者頭像
         /// </summary>
-        public string AuthorAvatar => !string.IsNullOrEmpty(Author?.AvatarPath) ? Author.AvatarPath : "/static/images/default_avatar.png";
+        public string? AuthorAvatar => !string.IsNullOrEmpty(Author?.AvatarPath) ? Author.AvatarPath : null;
 
         /// <summary>
         /// 獲取被回覆者的顯示名稱
         /// </summary>
         public string? ParentAuthorName => ParentReply?.AuthorName;
+        
+        /// <summary>
+        /// 獲取回覆者的回覆時間
+        /// </summary>
+        public string CreateTimeFormatted => CreateTime.ToString("yyyy-MM-dd HH:mm");
 
         /// <summary>
         /// 獲取回覆的完整顯示文字

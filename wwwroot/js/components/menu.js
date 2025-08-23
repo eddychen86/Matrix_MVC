@@ -102,7 +102,7 @@ export const useMenu = () => {
     // 預載翻譯
     const preloadTranslations = async () => {
         if (preloadInProgress) {
-            console.log('Translation preload already in progress, skipping...')
+            // console.log('Translation preload already in progress, skipping...')
             return
         }
 
@@ -193,7 +193,7 @@ export const useMenu = () => {
             // 如果 API 失敗，嘗試從快取獲取
             const cachedTranslations = translationCache.get(changeLang)
             if (cachedTranslations) {
-                console.log('Using fallback cached translations')
+                // console.log('Using fallback cached translations')
                 updatePageText(cachedTranslations)
                 const cultureCookie = `c=${changeLang}|uic=${changeLang}`
                 document.cookie = `.AspNetCore.Culture=${encodeURIComponent(cultureCookie)}; path=/; max-age=31536000; SameSite=Lax`
@@ -277,7 +277,7 @@ export const useMenu = () => {
             const result = await response.json()
 
             if (result.success) {
-                console.log('Logout successful')
+                // console.log('Logout successful')
                 // 跳轉到首頁或登入頁
                 window.location.href = '/'
             } else console.error('Logout failed')

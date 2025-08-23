@@ -240,7 +240,7 @@ namespace Matrix.Controllers.Api
                 return StatusCode(500, new { success = false, message = "上傳過程中發生錯誤，請稍後再試" });
             }
         }
-
+            
         /// <summary>
         /// 驗證密碼規則
         /// 提供前端即時驗證密碼是否符合server端規則

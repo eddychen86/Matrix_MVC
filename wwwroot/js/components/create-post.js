@@ -1,549 +1,383 @@
-/**
- * 新增文章彈窗 JavaScript
- * 處理新增文章彈窗所有功能，包含檔案上傳、標籤選擇和文章提交
- */
+import { postListService } from './PostListService.js'
 
-document.addEventListener('DOMContentLoaded', function () {
-    // ========== 資料儲存變數 ==========
-    
-    /** 儲存從後端載入的所有可選標籤 */
-    let allHashtags = [];
-    
-    /** 使用者目前選中的標籤列表 */
-    let selectedHashtags = [];
-    
-    /** 使用者選擇的圖片檔案列表 */
-    let selectedImages = [];
-    
-    /** 使用者選擇的非圖片檔案列表 */
-    let selectedFiles = [];
+export function useCreatePost({ onCreated } = {}) {
+    const { ref, reactive } = Vue
 
-    // ========== DOM 元素獲取 ==========
-    
-    /** 開啟發文彈窗的按鈕 */
-    const openBtn = document.getElementById('openPostBtn');
-    
-    /** 關閉發文彈窗的按鈕 */
-    const closeBtn = document.getElementById('closePostBtn');
-    
-    /** 彈窗背景遮罩 */
-    const overlay = document.getElementById('overlay');
-    
-    /** 發文彈窗主體容器 */
-    const postModel = document.getElementById('postModel');
-    
-    /** 標籤選擇彈窗容器 */
-    const hashtagModal = document.getElementById('hashtagModal');
-    
-    /** 標籤選擇清單容器 */
-    const hashtagList = document.getElementById('hashtagList');
-    
-    /** 開啟標籤選擇彈窗的按鈕 */
-    const openHashtagBtn = document.getElementById('openHashtagBtn');
-    
-    /** 關閉標籤選擇彈窗的按鈕 */
-    const closeHashtagModalBtn = document.getElementById('closeHashtagModalBtn');
-    
-    /** 確認選擇標籤的按鈕 */
-    const confirmHashtagBtn = document.getElementById('confirmHashtagBtn');
-    
-    /** 圖片預覽區域 */
-    const imagePreview = document.getElementById('imagePreviewArea');
-    
-    /** 檔案預覽區域 */
-    const filePreview = document.getElementById('filePreviewArea');
-    
-    /** 隱藏的檔案選擇輸入框 */
-    const fileInput = document.getElementById('fileInput');
-    
-    /** 上傳檔案按鈕 */
-    const uploadFileBtn = document.getElementById('uploadFileBtn');
-    
-    /** 上傳圖片按鈕 */
-    const uploadImgBtn = document.getElementById('uploadImgBtn');
+    const URL_API = (typeof window !== 'undefined')
+        ? (window.URL || window.webkitURL || null)
+        : null
 
-    // ========== 核心功能函數 ==========
-    
-    /**
-     * 重置發文彈窗狀態
-     * 清空所有輸入內容、檔案預覽、已選標籤等，回到初始狀態
-     */
-    const resetPostModal = () => {
-        // 清空文章內容輸入框
-        document.querySelector('#postModel textarea').value = '';
-        
-        // 清空圖片預覽區域
-        imagePreview.innerHTML = '';
-        
-        // 清空檔案預覽區域
-        filePreview.innerHTML = '';
-        
-        // 重置檔案選擇器
-        fileInput.value = '';
-        
-        // 清空所有選中的檔案和標籤
-        selectedImages = [];
-        selectedFiles = [];
-        selectedHashtags = [];
-        
-        // 重新渲染已選標籤顯示區（會顯示為空）
-        renderSelectedHashtags();
+    const postContent = ref('')
+    const showPostModal = ref(false)
+    const showHashtagModal = ref(false)
+
+    const allHashtags = ref([])
+    const selectedHashtags = ref([])
+    const tempSelectedIds = ref(new Set())
+
+    const selectedImages = ref([])
+    const selectedFiles = ref([])
+    const fileInput = ref(null)
+    const fileInputMode = ref('file')
+    const maxSize = 5 * 1024 * 1024
+    const maxTags = 6
+
+    const ClassicEditor = window.ClassicEditor
+    const editorConfig = reactive({
+        placeholder: 'Write your post here...',
+        toolbar: {
+            items: [
+                'heading', '|',
+                'bold', 'italic', 'link', '|',
+                'bulletedList', 'numberedList', 'blockQuote', '|',
+                'undo', 'redo'
+            ]
+        },
+
+        removePlugins: [
+            // 'ImageUpload',
+            'CKFinder', 'CKFinderUploadAdapter',
+            'CKBox', 'EasyImage',
+            'AutoImage', 'ImageInsert',
+            'MediaEmbed', 'MediaEmbedToolbar'
+        ]
+    })
+
+    function htmlToText(html) {
+        const el = document.createElement('div');
+        el.innerHTML = html || '';
+        const withBreaks = el.innerHTML
+            .replace(/<\/p>\s*<p>/gi, '\n\n')
+            .replace(/<br\s*\/?>/gi, '\n')
+            .replace(/<\/?p[^>]*>/gi, '');
+        el.innerHTML = withBreaks;
+        return el.textContent || '';
     }
 
-    // ========== 彈窗開關事件處理 ==========
-    
-    /**
-     * 開啟發文彈窗事件處理
-     * 檢查按鈕是否存在後才綁定事件，避免頁面中沒有此按鈕時出錯
-     */
-    if (openBtn) {
-        openBtn.addEventListener('click', () => {
-            // 移除隱藏樣式，顯示遮罩
-            overlay.classList.remove('hidden');
-            
-            // 移除隱藏樣式，顯示發文彈窗
-            postModel.classList.remove('hidden');
-            
-            // 重置彈窗內容到初始狀態
-            resetPostModal();
-        });
-    }
+    function onEditorReady(editor) {
 
-    /**
-     * 關閉發文彈窗事件處理
-     * 點擊關閉按鈕時觸發
-     */
-    if (closeBtn) {
-        closeBtn.addEventListener('click', () => {
-            // 隱藏遮罩
-            overlay.classList.add('hidden');
-            
-            // 隱藏發文彈窗
-            postModel.classList.add('hidden');
-            
-            // 重置彈窗內容
-            resetPostModal();
-        });
-    }
 
-    /**
-     * 點擊遮罩關閉彈窗事件處理
-     * 提供更好的使用者體驗，點擊外部區域也能關閉彈窗
-     */
-    if (overlay) {
-        overlay.addEventListener('click', () => {
-            // 隱藏遮罩
-            overlay.classList.add('hidden');
-            
-            // 隱藏發文彈窗
-            postModel.classList.add('hidden');
-            
-            // 重置彈窗內容
-            resetPostModal();
-        });
-    }
+        // 外框 (含工具列)
+        editor.ui.view.element.classList.add('my-editor-frame');
 
-    // ========== 檔案上傳功能 ==========
-    
-    /**
-     * 圖片上傳按鈕點擊事件處理
-     * 限制只能選擇圖片格式檔案
-     */
-    if (uploadImgBtn && fileInput) {
-        uploadImgBtn.addEventListener('click', () => {
-            // 重置檔案選擇器，確保能重複選擇相同檔案
-            fileInput.value = '';
-            
-            // 設定只接受圖片格式
-            fileInput.accept = 'image/*';
-            
-            // 觸發檔案選擇對話框
-            fileInput.click();
-        });
-    }
+        // 內容區（真正輸入的地方）
+        editor.ui.view.editable.element.classList.add(
+            'min-h-[150px]',
+            'max-h-[467px]',
+            'rounded-[10px]',
+            'bg-transparent'
+        );
 
-    /**
-     * 一般檔案上傳按鈕點擊事件處理
-     * 限制只能選擇指定格式的檔案（文件、壓縮檔等）
-     */
-    if (uploadFileBtn && fileInput) {
-        uploadFileBtn.addEventListener('click', () => {
-            // 重置檔案選擇器
-            fileInput.value = '';
-            
-            // 設定接受的檔案格式（PDF、Word、Excel、PowerPoint、文字檔、壓縮檔）
-            fileInput.accept = '.pdf,.docx,.doc,.ppt,.pptx,.xls,.xlsx,.txt,.zip,.rar';
-            
-            // 觸發檔案選擇對話框
-            fileInput.click();
-        });
-    }
-
-    /**
-     * 檔案選擇變更事件處理
-     * 根據當前的檔案類型設定，將選中的檔案分類到圖片或檔案陣列中
-     */
-    if (fileInput) {
-        fileInput.addEventListener('change', () => {
-        // 根據 accept 屬性判斷是圖片模式還是檔案模式
-        if (fileInput.accept === 'image/*') {
-            // 圖片模式：篩選出圖片類型的檔案
-            const newImages = Array.from(fileInput.files).filter(f => f.type.startsWith('image/'));
-            
-            // 合併新選擇的圖片到現有陣列，並去除重複檔案
-            // 判重條件：檔案名稱和檔案大小都相同
-            selectedImages = selectedImages.concat(newImages)
-                .filter((file, idx, arr) => arr.findIndex(f => f.name === file.name && f.size === file.size) === idx);
-        } else {
-            // 檔案模式：篩選出非圖片類型的檔案
-            const newFiles = Array.from(fileInput.files).filter(f => !f.type.startsWith('image/'));
-            
-            // 合併新選擇的檔案到現有陣列，並去除重複檔案
-            selectedFiles = selectedFiles.concat(newFiles)
-                .filter((file, idx, arr) => arr.findIndex(f => f.name === file.name && f.size === file.size) === idx);
-        }
-        
-        // 更新檔案預覽顯示
-        renderPreviews();
-        });
-    }
-
-    /**
-     * 縮短檔案名稱顯示
-     * 避免過長的檔案名稱影響介面美觀
-     * @param {string} name - 原始檔案名稱
-     * @returns {string} - 處理後的檔案名稱
-     */
-    const truncateFilename = (name) => {
-        // 使用正規表達式檢查是否包含中文字元
-        const hasChinese = /[^\x00-\x7F]/.test(name);
-        
-        if (hasChinese) {
-            // 中文檔名：超過 5 個字元就截斷並加省略號
-            return name.length > 5 ? name.slice(0, 5) + '…' : name;
-        } else {
-            // 英文檔名：超過 10 個字元就截斷並加省略號
-            return name.length > 10 ? name.slice(0, 10) + '…' : name;
-        }
-    }
-
-    // ========== 檔案預覽功能 ==========
-    
-    /**
-     * 渲染圖片與檔案的預覽區域
-     * 動態產生預覽元素，讓使用者可以視覺化確認已選擇的檔案
-     */
-    const renderPreviews = () => {
-        // ========== 圖片預覽區域處理 ==========
-        
-        // 清空現有的圖片預覽內容
-        if (imagePreview) {
-            imagePreview.innerHTML = '';
-            
-            // 為每個選中的圖片建立預覽元素
-            selectedImages.forEach(file => {
-            // 建立圖片預覽容器
-            const div = document.createElement('div');
-            div.className = 'flex h-[100px] w-[100px] items-center justify-center overflow-hidden rounded-[30px] bg-cover bg-center bg-no-repeat';
-            
-            // 建立圖片元素
-            const img = document.createElement('img');
-            
-            // 使用 URL.createObjectURL 建立本地圖片預覽連結
-            img.src = URL.createObjectURL(file);
-            img.className = 'h-full w-full object-cover';
-            
-            // 將圖片加入容器
-            div.appendChild(img);
-            
-            // 將預覽容器加入預覽區域
-            imagePreview.appendChild(div);
-            });
-        }
-
-        // ========== 一般檔案預覽區域處理 ==========
-        
-        // 清空現有的檔案預覽內容
-        if (filePreview) {
-            filePreview.innerHTML = '';
-        
-        // 為每個選中的檔案建立預覽元素
-        selectedFiles.forEach(file => {
-            // 建立檔案預覽容器
-            const container = document.createElement('div');
-            container.className = "flex flex-col items-center gap-1 rounded-[20px] p-1";
-            container.style.width = '60px';
-
-            // 建立檔案圖示區域
-            const iconDiv = document.createElement('div');
-            iconDiv.className = "flex h-[40px] w-[60px] items-center justify-center rounded-[20px] bg-[#ffffff]";
-            
-            // 使用統一的檔案圖示 SVG
-            iconDiv.innerHTML = `
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" style="fill: rgb(51, 51, 51);" viewBox="0 0 24 24">
-                    <path fill="none" d="M0 0h24v24H0z"></path>
-                    <path d="m20.41 8.41-4.83-4.83c-.37-.37-.88-.58-1.41-.58H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V9.83c0-.53-.21-1.04-.59-1.42zM7 7h7v2H7V7zm10 10H7v-2h10v2zm0-4H7v-2h10v2z"></path>
-                </svg>
-            `;
-
-            // 建立檔案名稱顯示元素
-            const filenameSpan = document.createElement('span');
-            
-            // 使用縮短函數處理檔案名稱
-            filenameSpan.textContent = truncateFilename(file.name);
-            
-            // 設定檔案名稱樣式
-            filenameSpan.style.fontSize = '11px';
-            filenameSpan.style.textAlign = 'center';
-            filenameSpan.style.wordBreak = 'break-word';
-            filenameSpan.style.maxWidth = '60px';
-
-            // 將圖示和檔案名稱加入容器
-            container.appendChild(iconDiv);
-            container.appendChild(filenameSpan);
-            
-            // 將檔案預覽容器加入預覽區域
-            filePreview.appendChild(container);
-            });
-        }
-    }
-
-    // ========== 標籤功能 ==========
-    
-    /**
-     * 從後端 API 非同步獲取所有可用標籤
-     * 使用快取機制，避免重複呼叫 API
-     */
-    const fetchHashtags = async () => {
-        // 如果已經載入過標籤，直接返回，避免重複請求
-        if (allHashtags.length > 0) return;
-        
-        try {
-            // 呼叫後端 API 獲取所有標籤
-            const res = await fetch('/Post/GetHashtags');
-            
-            // 將回應解析為 JSON 格式並儲存到全域變數
-            allHashtags = await res.json();
-        } catch (error) {
-            // API 請求失敗時的錯誤處理
-            console.error('載入標籤失敗:', error);
-        }
-    }
-
-    /**
-     * 渲染標籤選擇彈窗內的標籤清單
-     * 顯示所有可用標籤，並標記已選中的標籤
-     */
-    const renderHashtagModal = () => {
-        // 清空現有的標籤清單
-        if (hashtagList) {
-            hashtagList.innerHTML = '';
-            
-            // 為每個標籤建立選擇項目
-            allHashtags.forEach(tag => {
-            // 檢查該標籤是否已被使用者選中
-            const isChecked = selectedHashtags.some(t => t && t.tagId === tag.tagId);
-            
-            // 建立標籤選擇項目的容器（label 元素）
-            const label = document.createElement('label');
-            label.className = 'flex items-center gap-2 px-2 py-2 rounded-xl bg-[#232323] hover:bg-gray-800 cursor-pointer min-h-[36px]';
-            
-            // 設定標籤選擇項目的內容（核取方塊 + 標籤文字）
-            label.innerHTML = `
-                <input type="checkbox" value="${tag.tagId}" ${isChecked ? 'checked' : ''} class="flex-shrink-0 accent-[#ffda78]">
-                <span class="block max-w-[100px] truncate text-sm">${tag.content}</span>
-            `;
-            
-            // 將標籤選擇項目加入清單
-            hashtagList.appendChild(label);
-            });
-        }
-    }
-
-    /**
-     * 渲染已選標籤的顯示區域
-     * 在發文彈窗中顯示使用者已選中的標籤
-     */
-    const renderSelectedHashtags = () => {
-        // 獲取已選標籤顯示區域的容器
-        const container = document.getElementById('selected-hashtags');
-        
-        // 清空現有的已選標籤顯示
-        if (container) {
-            container.innerHTML = '';
-        
-        // 為每個已選標籤建立顯示元素
-        selectedHashtags.forEach(tag => {
-            // 跳過無效的標籤物件
-            if (!tag) return;
-            
-            // 建立標籤顯示元素
-            const tagSpan = document.createElement('span');
-            tagSpan.className = 'min-h-[32px] min-w-[40px] text-center rounded-full bg-[#ffda78] text-[#333333] text-[14px] leading-[16px] font-medium font-["Roboto"] p-2';
-            
-            // 設定標籤顯示文字
-            tagSpan.textContent = tag.content;
-            
-            // 設定標籤 ID 屬性，用於後續提交時識別
-            tagSpan.setAttribute('data-tag-id', tag.tagId);
-            
-            // 將標籤顯示元素加入容器
-            container.appendChild(tagSpan);
-            });
-        }
-    }
-
-    // ========== 標籤彈窗事件處理 ==========
-    
-    /**
-     * 開啟標籤選擇彈窗事件處理
-     * 點擊標籤按鈕時觸發，載入並顯示標籤選擇介面
-     */
-    if (openHashtagBtn && hashtagModal) {
-        openHashtagBtn.addEventListener('click', async function () {
-            // 先載入所有可用標籤（如果尚未載入）
-            await fetchHashtags();
-            
-            // 渲染標籤選擇清單
-            renderHashtagModal();
-            
-            // 顯示標籤選擇彈窗
-            hashtagModal.classList.remove('hidden');
-        });
-    }
-
-    /**
-     * 關閉標籤選擇彈窗事件處理
-     * 點擊取消按鈕時觸發，關閉標籤選擇彈窗但不儲存變更
-     */
-    if (closeHashtagModalBtn && hashtagModal) {
-        closeHashtagModalBtn.addEventListener('click', () => {
-            // 隱藏標籤選擇彈窗
-            hashtagModal.classList.add('hidden');
-        });
-    }
-
-    /**
-     * 確認選擇標籤事件處理
-     * 點擊確定按鈕時觸發，儲存使用者的標籤選擇
-     */
-    if (confirmHashtagBtn && hashtagList && hashtagModal) {
-        confirmHashtagBtn.addEventListener('click', () => {
-            // 獲取所有被選中的核取方塊
-            const checks = hashtagList.querySelectorAll('input[type=checkbox]:checked');
-            
-            // 將選中的核取方塊轉換為標籤物件
-            selectedHashtags = Array.from(checks).map(chk => {
-                // 從核取方塊取得標籤 ID
-                const tagId = chk.value;
-                
-                // 從所有標籤中找到對應的標籤物件
-                return allHashtags.find(t => t.tagId === tagId);
-            });
-            
-            // 重新渲染已選標籤顯示區域
-            renderSelectedHashtags();
-            
-            // 隱藏標籤選擇彈窗
-            hashtagModal.classList.add('hidden');
-        });
-    }
-
-    // ========== 文章提交功能 ==========
-    
-    /**
-     * 文章提交按鈕點擊事件處理
-     * 收集所有輸入資料並送出到後端 API
-     */
-    const submitPostBtn = document.getElementById('submitPostBtn');
-    if (submitPostBtn) {
-        submitPostBtn.addEventListener('click', async () => {
-        // ========== 資料收集 ==========
-        
-        // 取得文章內容並去除前後空白
-        const content = document.getElementById('postContent').value.trim();
-        
-        // 取得上傳的檔案列表
-        const attachments = document.getElementById('fileInput').files;
-        
-        // 從已選標籤顯示區域取得所有標籤 ID
-        const selectedHashtags = Array.from(document.querySelectorAll('#selected-hashtags span'))
-            .map(el => el.dataset.tagId);
-
-        // ========== 資料驗證 ==========
-        
-        // 檢查文章內容是否為空
-        if (!content) {
-            alert('文章內容不能為空');
-            return;
-        }
-
-        // ========== 資料封裝 ==========
-        
-        // 建立 FormData 物件，用於傳送檔案和文字資料
-        const formData = new FormData();
-        
-        // 加入文章內容
-        formData.append('Content', content);
-        
-        // 加入文章可見性設定（0=公開，1=私人）
-        formData.append('IsPublic', '0');
-
-        // 加入所有附件檔案
-        for (const file of attachments) {
-            formData.append('Attachments', file);
-        }
-        
-        // 加入所有選中的標籤 ID
-        selectedHashtags.forEach(tagId => {
-            if (tagId) formData.append('SelectedHashtags', tagId);
-        });
-
-        // ========== API 請求處理 ==========
-        
-        try {
-            // 向後端 API 送出新增文章請求
-            const response = await fetch('/Post/Create', {
-                method: 'POST',
-                body: formData
-            });
-
-            if (response.ok) {
-                // ========== 成功處理 ==========
-                
-                // 顯示成功訊息
-                alert('文章送出成功！');
-                
-                // 重置表單內容
-                document.getElementById('postContent').value = '';
-                document.getElementById('fileInput').value = '';
-                document.getElementById('selected-hashtags').innerHTML = '';
-                
-                // 關閉彈窗
-                document.getElementById('postModel').classList.add('hidden');
-                document.getElementById('overlay').classList.add('hidden');
-                
-                // 可在此處添加頁面重新整理或重新載入文章列表的邏輯
-                // window.location.reload(); // 如需要重新整理頁面
-                
-            } else {
-                // ========== 失敗處理 ==========
-                
-                // 取得錯誤訊息並顯示給使用者
-                const errorText = await response.text();
-                alert('送出失敗: ' + errorText);
+        editor.editing.view.document.on('clipboardInput', (evt, data) => {
+            const dt = data.dataTransfer
+            if (dt && (dt.files?.length || 0) > 0) {
+                evt.stop()
             }
-        } catch (err) {
-            // ========== 例外處理 ==========
-            
-            // 網路錯誤或其他例外狀況的處理
-            alert('發生錯誤: ' + err.message);
-            console.error('文章提交錯誤:', err);
-        }
-        });
+        })
+
+        const editable = editor.ui.getEditableElement()
+        if (!editable) return
+
+        editable.addEventListener('dragover', (e) => {
+            const hasFile = Array.from(e.dataTransfer?.items || []).some(i => i.kind === 'file')
+            if (hasFile) e.preventDefault()
+        })
+
+        editable.addEventListener('drop', (e) => {
+            if ((e.dataTransfer?.files?.length || 0) > 0) {
+                e.preventDefault()
+            }
+        })
     }
-    
-    // ========== 初始化完成 ==========
-    
-    // console.log('新增文章彈窗功能已初始化完成');
-});
+
+
+    function truncateFilename(name) {
+        const hasChinese = /[^\x00-\x7F]/.test(name)
+        return hasChinese
+            ? (name.length > 5 ? name.slice(0, 5) + '…' : name)
+            : (name.length > 10 ? name.slice(0, 10) + '…' : name)
+    }
+
+    function safeURL(file) {
+        if (!file || !(file instanceof File)) return ''
+        if (file.__previewURL) return file.__previewURL
+        if (!URL_API || typeof URL_API.createObjectURL !== 'function') return ''
+        try {
+            file.__previewURL = URL_API.createObjectURL(file)
+            return file.__previewURL
+        } catch {
+            return ''
+        }
+    }
+
+    function revokeAllPreviews() {
+        ;[...selectedImages.value, ...selectedFiles.value].forEach(f => {
+            if (f && f.__previewURL && URL_API?.revokeObjectURL) {
+                try { URL_API.revokeObjectURL(f.__previewURL) } catch { }
+                f.__previewURL = null
+            }
+        })
+    }
+
+    function resetPostModal() {
+        revokeAllPreviews()
+        postContent.value = ''
+        selectedFiles.value = []
+        selectedImages.value = []
+        selectedHashtags.value = []
+        tempSelectedIds.value = new Set()
+        if (fileInput.value) fileInput.value.value = ''
+    }
+
+    const openModal = () => { 
+        showPostModal.value = true 
+        // 顯示元件
+        Vue.nextTick(() => {
+            const maskEl = document.querySelector('div[v-if="showPostModal"]:first-child')
+            const modalEl = document.querySelector('div[v-if="showPostModal"]:last-child')
+            if (maskEl) maskEl.style.display = ''
+            if (modalEl) modalEl.style.display = ''
+        })
+    }
+    const closeModal = () => { 
+        // 隱藏元件
+        const maskEl = document.querySelector('div[v-if="showPostModal"]:first-child')
+        const modalEl = document.querySelector('div[v-if="showPostModal"]:last-child')
+        if (maskEl) maskEl.style.display = 'none'
+        if (modalEl) modalEl.style.display = 'none'
+        
+        resetPostModal(); 
+        showPostModal.value = false 
+    }
+
+    async function fetchHashtags() {
+        if (allHashtags.value.length > 0) return
+        try {
+            const res = await fetch('/CreatePost/GetHashtags')
+            const raw = await res.json()
+            allHashtags.value = (raw || []).map(x => ({
+                tagId: String(x.tagId ?? x.TagId ?? x.id ?? x.ID),
+                content: String(x.content ?? x.Content ?? x.name ?? x.Name ?? '')
+            }))
+        } catch (err) {
+            console.error('標籤載入失敗', err)
+        }
+    }
+
+    const openHashtagModal = async () => {
+        await fetchHashtags()
+        tempSelectedIds.value = new Set(selectedHashtags.value.map(t => String(t.tagId)))
+        showHashtagModal.value = true
+    }
+    const cancelHashtagModal = () => { showHashtagModal.value = false }
+    const confirmHashtagModal = () => {
+        const set = tempSelectedIds.value
+        if (set.size > maxTags) {
+            alert(`最多只能選擇${maxTags}個標籤`)
+            return
+        }
+        selectedHashtags.value = allHashtags.value.filter(t => set.has(String(t.tagId)))
+        showHashtagModal.value = false
+    }
+    function toggleTempTag(tag, evt) {
+        const id = String(tag.tagId)
+        const set = tempSelectedIds.value
+
+        if (set.has(id)) {
+            set.delete(id)
+            if (evt?.target) evt.target.checked = false
+            return
+        }
+        if (set.size >= maxTags) {
+            alert(`最多只能選擇${maxTags}個標籤`)
+            if (evt?.target) evt.target.checked = false
+            return
+        }
+        set.add(id)
+        if (evt?.target) evt.target.checked = true
+    }
+
+    function setFileInput(type) {
+        fileInputMode.value = type
+        if (!fileInput.value) return
+        fileInput.value.value = ''
+        fileInput.value.accept = (type === 'image')
+            ? 'image/*'
+            : '.pdf,.docx,.doc,.ppt,.pptx,.xls,.xlsx,.txt,.zip,.rar'
+        fileInput.value.click()
+        return true
+    }
+
+    function dedupe(files) {
+        return files.filter((file, idx, arr) =>
+            arr.findIndex(f => f.name === file.name && f.size === file.size) === idx
+        )
+    }
+    function looksLikeImage(file) {
+        const ct = (file.type || '').toLowerCase()
+        const byCT = ct.startsWith('image/')
+
+        const ext = (file.name.split('.').pop() || '').toLowerCase()
+        const byExt = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'heic', 'heif'].includes(ext)
+
+        return byCT || byExt
+    }
+
+    function handleFileChange(e) {
+        const files = Array.from(e.target?.files || []).filter(f => f instanceof File)
+        if (!files.length) return
+
+        for (const f of files) {
+            if (f.size > maxSize) {
+                alert(`檔案 ${f.name} 超過 5MB，請重新選擇`)
+                if (fileInput.value) fileInput.value.value = ''
+                return
+            }
+        }
+
+        const images = files.filter(looksLikeImage)
+        const nonImages = files.filter(f => !looksLikeImage(f))
+
+        if (fileInputMode.value === 'image') {
+            if (nonImages.length) { alert('僅限選擇圖片'); return }
+            if (selectedImages.value.length + images.length > 6) {
+                alert('圖片最多只能上傳 6 張')
+                if (fileInput.value) fileInput.value.value = ''
+                return
+            }
+            selectedImages.value = dedupe([...selectedImages.value, ...images])
+        } else {
+            if (images.length) { alert('僅限選擇檔案'); return }
+            if (selectedFiles.value.length + nonImages.length > 6) {
+                alert('檔案最多只能上傳 6 個')
+                if (fileInput.value) fileInput.value.value = ''
+                return
+            }
+            selectedFiles.value = dedupe([...selectedFiles.value, ...nonImages])
+        }
+
+        if (fileInput.value) fileInput.value.value = ''
+    }
+
+    function afterCreated(article) {
+        try {
+            if (typeof onCreated === 'function') {
+                onCreated(article);
+            } else {
+                window.dispatchEvent(new CustomEvent('post:created', { detail: article }));
+            }
+        }
+        catch (err) {
+            console.error('afterCreated error:', err);
+        }
+    }
+
+    function removeImage(index) {
+        selectedImages.value.splice(index, 1);
+    }
+
+    function removeFile(index) {
+        selectedFiles.value.splice(index, 1);
+    }
+
+    async function submitPost() {
+        if (!postContent.value.trim()) { alert('文章內容不得為空'); return }
+
+        const formData = new FormData()
+        formData.append('Content', htmlToText(postContent.value))
+        formData.append('IsPublic', '0')
+        selectedImages.value.forEach(f => formData.append('Attachments', f))
+        selectedFiles.value.forEach(f => formData.append('Attachments', f))
+        selectedHashtags.value.forEach(tag => formData.append('SelectedHashtags', tag.tagId))
+
+        // 👇 這段把 FormData 內容印出來
+        const dump = []
+        for (const [k, v] of formData.entries()) {
+            dump.push([k, v instanceof File ? `(File:${v.name}, ${v.size}B)` : v])
+        }
+        // console.log('[submit] POST /CreatePost/Create payload =', dump)
+
+        try {
+            const res = await fetch('/CreatePost/Create', { method: 'POST', body: formData })
+            // console.log('[submit] response status =', res.status)
+
+            if (!res.ok) {
+                const txt = await res.text()
+                console.error('[submit] error body =', txt)
+                alert('送出失敗: ' + (txt?.slice(0, 200) || res.status))
+                return
+            }
+
+            const article = await res.json()
+            // console.log('[submit] success article =', article)
+
+            // 觸發貼文列表局部刷新
+            try {
+                // 格式化新貼文數據以符合前端顯示格式
+                const formattedArticle = postListService.formatArticles([article])[0];
+
+                // console.log('準備觸發 post:listRefresh 事件', { formattedArticle });
+
+                // 方法1: 本地事件 - 立即更新發文者自己的列表
+                window.dispatchEvent(new CustomEvent('post:listRefresh', {
+                    detail: {
+                        action: 'prepend',
+                        newArticle: formattedArticle,
+                        rawArticle: article,
+                        source: 'local' // 標記為本地事件
+                    }
+                }));
+
+                // 方法2: SignalR - 通知其他用戶
+                if (window.matrixSignalR && window.matrixSignalR.isConnected) {
+                    const signalRSuccess = await window.matrixSignalR.notifyNewPost({
+                        articleId: article.articleId,
+                        authorId: article.authorId || article.userId,
+                        authorName: article.authorName || article.userName,
+                        content: article.content,
+                        createTime: article.createTime,
+                        formattedArticle: formattedArticle
+                    });
+
+                    if (signalRSuccess) {
+                        // console.log('SignalR 新貼文通知已發送');
+                    } else {
+                        console.warn('SignalR 新貼文通知發送失敗');
+                    }
+                } else {
+                    console.warn('SignalR 連接未建立，無法通知其他用戶');
+                }
+
+                // console.log('post:listRefresh 事件已觸發');
+            } catch (refreshError) {
+                console.warn('刷新貼文列表失敗:', refreshError);
+            }
+
+            afterCreated?.(article)
+            alert('送出成功！')
+            closeModal()
+        } catch (err) {
+            console.error('[submit] network error =', err)
+            alert('網路錯誤：' + err.message)
+        }
+    }
+
+
+    // onMounted(() => {
+    //     const btn = document.querySelector('#openPostBtn')
+    //     if (btn) btn.addEventListener('click', openModal, { once: false })
+    // })
+
+    return {
+        postContent, showPostModal, showHashtagModal,
+        allHashtags, selectedHashtags, tempSelectedIds,
+        selectedImages, selectedFiles, fileInput, fileInputMode,
+        openModal, closeModal,
+        openHashtagModal, cancelHashtagModal, confirmHashtagModal,
+        toggleTempTag,
+        setFileInput, handleFileChange, submitPost,
+        truncateFilename, safeURL,
+        ClassicEditor, editorConfig, onEditorReady,
+        htmlToText, removeImage, removeFile, afterCreated
+    }
+}

@@ -49,17 +49,17 @@ namespace Matrix.Areas.Dashboard.Controllers.Api
         }
 
         //編輯文章
-        [HttpPut("update/{id}")]
-        public async Task<IActionResult> UpdateArticle(Guid id, [FromBody] ArticleDto.UpdateArticleDto dto)
-        {
-            if (string.IsNullOrWhiteSpace(dto.Content))
-                return BadRequest("Content is required");
-            var success = await _articleService.AdminUpdateArticleContentAsync(id, dto.Content);
-            if (!success)
-                return NotFound();
+        //[HttpPut("update/{id}")]
+        //public async Task<IActionResult> UpdateArticle(Guid id, [FromBody] ArticleDto.UpdateArticleDto dto)
+        //{
+        //    if (string.IsNullOrWhiteSpace(dto.Content))
+        //        return BadRequest("Content is required");
+        //    var success = await _articleService.AdminUpdateArticleContentAsync(id, dto.Content);
+        //    if (!success)
+        //        return NotFound();
 
-            return Ok(new { success = true });
-        }
+        //    return Ok(new { success = true });
+        //}
 
         //更改文章狀態
         [HttpPatch("status/{id}")]

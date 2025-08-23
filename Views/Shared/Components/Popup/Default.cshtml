@@ -1,6 +1,6 @@
 ﻿<div id="popup-wrapper" style="display:none;">
     <!-- Universal Popup Modal -->
-    <div id="popup-overlay" v-if=" popupState.isVisible" @@click="closePopup"
+    <div id="popup-overlay" v-if=" popupState.isVisible" @@click="closePopup" style="display:none;"
         class="fixed inset-0 flex h-screen w-screen items-center justify-center bg-black/50" style="z-index: 99999;">
         <div id="popup-container" @@click.stop=""
             class="max-h-[80vh] w-4/5 overflow-hidden rounded-[30px] bg-[#161616] text-white md:w-2/3 lg:w-3/5">
@@ -26,7 +26,7 @@
                 <!-- 遮罩式 Loading -->
                 <div v-if="isLoading"
                     class="absolute inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-                    <span class="loading loading-spinner loading-lg text-white"></span>
+                    <img src="~/static/img/Loading.gif" alt="Loading" class="h-16 w-16" />
                 </div>
 
                 <!-- ✅ loading 結束後顯示內容 -->
@@ -66,7 +66,6 @@
                                 </div>
                                 <div class="flex flex-col items-end space-y-1">
                                     <span class="text-xs text-gray-500">{{ timeAgo(item.sentTime) }}</span>
-                                    <button class="text-sm text-blue-400 hover:underline">Reply</button>
                                 </div>
                             </div>
                         </div>
@@ -130,47 +129,92 @@
                         </div>
                     </div>
 
-
-                    <!-- Search (預留) -->
+                    <!-- Search -->
                     <div v-if="popupState.type == 'Search'" class="popup-data-search">
 
-                        <!-- 🔍 使用者結果 -->
-                        <div v-if="popupData.Search?.Users?.length > 0" class="space-y-4">
+                        <!-- 🔍 使用者結果（滑過展開統計 + 追蹤按鈕） -->
+                        <div v-if="popupData.Search && popupData.Search.Users && popupData.Search.Users.length > 0" class="space-y-4">
                             <h3 class="subTitle">使用者</h3>
-                            <div v-for="(user, index) in popupData.Search.Users" :key="'user-' + index"
-                                class="flex items-center justify-between rounded-lg bg-neutral-800 px-4 py-3 transition hover:bg-neutral-700">
-                                <div class="flex items-center space-x-4">
-                                    <img :src="user.avatarUrl || '/static/img/cute.png'"
-                                        class="h-12 w-12 rounded-full border border-gray-600" />
-                                    <div>
-                                        <p class="title">{{ user.displayName }}</p>
-                                        <p class="subTitle text-sm text-gray-400">{{ user.bio }}</p>
+
+                            <!-- 用 template v-for，確保整塊都在 user 作用域 -->
+                            <template v-for="(user, index) in popupData.Search.Users" :key="'user-' + index">
+
+                                <!-- 外層容器要 overflow-hidden 才有手風琴效果 -->
+                                <div class="overflow-hidden rounded-lg bg-neutral-800 transition hover:bg-neutral-700"
+                                     @@mouseenter="onHoverUser(user)"
+                                     @@mouseleave="user._hover = false">
+
+                                    <!-- 主列 -->
+                                    <div class="flex items-center justify-between px-4 py-3">
+                                        <div class="flex items-center space-x-4">
+                                            <img :src="user.avatarUrl || '/static/img/cute.png'"
+                                                 @@error="$event.target.src='/static/img/cute.png'"
+                                                 class="h-12 w-12 rounded-full border border-gray-600" />
+                                            <div>
+                                                <p class="title">{{ user.displayName }}</p>
+                                                <p class="subTitle text-sm text-gray-400">{{ user.bio }}</p>
+                                            </div>
+                                        </div>
+
+                                        <div class="flex flex-col items-end justify-between space-y-1">
+                                            <a class="cts-btn !text-blue-400 hover:underline"
+                                               :href="`/Profile/${encodeURIComponent(user.username)}`">
+                                                查看
+                                            </a>
+
+
+
+                                        </div>
+                                    </div>
+
+                                    <!-- 展開區：字串 style 綁定（避免 Razor 與物件語法衝突） -->
+                                    <div class="overflow-hidden bg-neutral-900 transition-all duration-300 ease-in-out"
+                                         :style="(user && user._hover) ? 'max-height:96px' : 'max-height:0px'">
+                                        <div class="px-4 py-3">
+                                            <!-- 已載入統計 -->
+                                            <div v-if="user && user.stats" class="grid grid-cols-2 gap-4">
+                                                <div class="text-center">
+                                                    <div class="text-xl font-extrabold">{{ user.stats.following }}</div>
+                                                    <div class="text-xs text-gray-400">追蹤數</div>
+                                                </div>
+                                                <div class="text-center">
+                                                    <div class="text-xl font-extrabold">{{ user.stats.followers }}</div>
+                                                    <div class="text-xs text-gray-400">被追蹤數</div>
+                                                </div>
+                                            </div>
+                                            <!-- 載入中 / 提示 -->
+                                            <div v-else class="text-sm text-gray-400">
+                                                <span v-if="user && user._loadingStats">載入中…</span>
+                                                <span v-else>滑過以載入統計</span>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="flex flex-col items-end justify-between space-y-1">
-                                    <button class="cts-btn !text-blue-400 hover:underline"
-                                        @@click="toggleFollow(user.personId, user.isFollowed)">
-                                        {{ user.isFollowed ? '取消追蹤' : '追蹤' }}
-                                    </button>
-                                </div>
-                            </div>
+                            </template>
                         </div>
 
-                        <!-- 🏷️ Hashtag 結果 -->
-                        <div v-if="popupData.Search?.Hashtags?.length > 0" class="mt-6 space-y-2">
-                            <h3 class="subTitle">標籤</h3>
-                            <div v-for="(tag, index) in popupData.Search.Hashtags" :key="'tag-' + index"
-                                class="rounded-lg bg-neutral-800 px-4 py-3 text-white transition hover:bg-neutral-700">
-                                #{{ tag.content }}
+                        <!-- 🏷️ Hashtag 結果（chip，自適應寬度，可點擊觸發搜尋） -->
+                        <div v-if="popupData.Search && popupData.Search.Hashtags && popupData.Search.Hashtags.length > 0" class="mt-6">
+                            <h3 class="subTitle mb-2">標籤</h3>
+                            <div class="flex flex-wrap gap-2">
+                                <button v-for="(tag, index) in popupData.Search.Hashtags"
+                                        :key="'tag-' + index"
+                                        class="inline-block rounded-full border border-gray-600 bg-neutral-800 px-3 py-2 text-sm whitespace-nowrap text-white transition hover:bg-neutral-700"
+                                        @@click="goTag(tag.content)">
+                                    #{{ tag.content }}
+                                </button>
                             </div>
                         </div>
 
                         <!-- ❌ 沒有任何結果 -->
-                        <div v-if="popupData.Search?.Users?.length === 0 && popupData.Search?.Hashtags?.length === 0 && searchQuery.trim() !== ''"
-                            class="mt-8 text-center text-gray-400">
+                        <div v-if="popupData.Search && popupData.Search.Users && popupData.Search.Hashtags
+                                && popupData.Search.Users.length === 0 && popupData.Search.Hashtags.length === 0
+                                && (searchQuery || '').trim() !== ''"
+                             class="mt-8 text-center text-gray-400">
                             沒有找到符合「{{ searchQuery }}」的使用者或標籤。
                         </div>
                     </div>
+
                 </div>
             </div>
         </div>

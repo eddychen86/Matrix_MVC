@@ -26,7 +26,7 @@ namespace Matrix.Hubs
         public override async Task OnConnectedAsync()
         {
             var auth = Context.GetHttpContext()?.GetAuthInfo();
-            
+
             if (auth != null && auth.IsAuthenticated && auth.UserId != Guid.Empty)
             {
                 try
@@ -37,10 +37,10 @@ namespace Matrix.Hubs
                     {
                         // 加入個人群組（用於個人通知）
                         await Groups.AddToGroupAsync(Context.ConnectionId, $"User_{person.PersonId}");
-                        
+
                         // 加入全體用戶群組（用於系統公告）
                         await Groups.AddToGroupAsync(Context.ConnectionId, "AllUsers");
-                        
+
                         // 管理員額外加入管理員群組
                         if (auth.Role >= 1)
                         {
@@ -106,6 +106,33 @@ namespace Matrix.Hubs
         public async Task Ping()
         {
             await Clients.Caller.SendAsync("Pong", DateTime.UtcNow);
+        }
+
+        /// <summary>
+        /// 通知新貼文發布（廣播給所有用戶，除了發文者）
+        /// </summary>
+        public async Task NotifyNewPost(object postData)
+        {
+            try
+            {
+                var auth = Context.GetHttpContext()?.GetAuthInfo();
+                if (auth != null && auth.IsAuthenticated)
+                {
+                    var person = await _personRepository.GetByUserIdAsync(auth.UserId);
+                    if (person != null)
+                    {
+                        // 廣播給所有用戶，但排除發文者自己
+                        await Clients.GroupExcept("AllUsers", Context.ConnectionId)
+                            .SendAsync("NewPostReceived", postData);
+
+                        _logger.LogInformation("New post notification sent by user {PersonId}", person.PersonId);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error sending new post notification");
+            }
         }
     }
 }
