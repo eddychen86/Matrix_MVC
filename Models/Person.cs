@@ -124,9 +124,9 @@ namespace Matrix.Models
         public ICollection<Report> ReportsResolved { get; set; } = [];
 
         /// <summary>
-        /// 用戶的登入記錄集合
+        /// 用戶的管理員活動記錄集合（原登入記錄擴展）
         /// </summary>
-        public ICollection<LoginRecord> LoginRecords { get; set; } = [];
+        public ICollection<AdminActivityLog> LoginRecords { get; set; } = [];
 
         /// <summary>
         /// 用戶發起的好友關係集合（我加別人）

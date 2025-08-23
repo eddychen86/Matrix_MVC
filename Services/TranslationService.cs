@@ -409,15 +409,18 @@ namespace Matrix.Services
                 #region Config 模組
 
                 ["Config_Title"] = "系統設定",
+                ["Config_Add_Admin"] = "新增管理員",
+                ["Config_Filter"] = "列表篩選",
                 ["Config_ToolsState"] = "功能開關",
                 ["Config_WebLog"] = "網站日誌",
                 ["Config_AdminList"] = "管理員列表",
                 ["Config_AdminList_UserName"] = "帳號",
                 ["Config_AdminList_DisplayName"] = "匿名",
                 ["Config_AdminList_Email"] = "信箱",
-                ["Config_AdminList_SuderAdmin"] = "超級管理員",
+                ["Config_AdminList_Admin"] = "一般管理員",
+                ["Config_AdminList_SuperAdmin"] = "超級管理員",
                 ["Config_AdminList_Status"] = "狀態",
-                
+
                 #endregion
             },
 
@@ -709,7 +712,7 @@ namespace Matrix.Services
                 ["Posts_DeleteError"] = "Delete failed",
                 ["Posts_UpdateError"] = "Status update failed",
                 ["Posts_LoadError"] = "Failed to load list",
-                
+
                 #endregion
 
                 #region Reports Management 模組
@@ -722,7 +725,7 @@ namespace Matrix.Services
                 ["Reports_ModifyTime"] = "Modify Time",
                 ["Reports_Status"] = "Status",
                 ["Reports_Resolver"] = "Resolver",
-                
+
                 #endregion
 
                 #region Overview 模組
@@ -744,19 +747,22 @@ namespace Matrix.Services
                 ["Overview_Storage"] = "Storage",
                 ["Overview_Status_Normal"] = "Normal",
                 ["Overview_Status_InUse"] = "In Use",
-                
+
                 #endregion
 
                 #region Config 模組
 
                 ["Config_Title"] = "Settings",
+                ["Config_Add_Admin"] = "Create Admin",
+                ["Config_Filter"] = "List Filter",
                 ["Config_ToolsState"] = "Tools",
                 ["Config_WebLog"] = "Web logs",
                 ["Config_AdminList"] = "Admin List",
                 ["Config_AdminList_UserName"] = "Account",
                 ["Config_AdminList_DisplayName"] = "Display Name",
                 ["Config_AdminList_Email"] = "Email",
-                ["Config_AdminList_SuderAdmin"] = "Super Admin",
+                ["Config_AdminList_Admin"] = "Admin",
+                ["Config_AdminList_SuperAdmin"] = "Super Admin",
                 ["Config_AdminList_Status"] = "Account State",
 
                 #endregion
@@ -784,7 +790,7 @@ namespace Matrix.Services
                 ["User_BioMaxLength300"] = "Bio length must not exceed 300 characters.",
                 ["User_PrivacyRange0Or1"] = "Privacy must be 0 (public) or 1 (private).",
                 ["User_UserNameAllowedCharsWithChinese"] = "User name may only contain letters, numbers, underscores, and Chinese characters.",
-                
+
                 // Avatar upload
                 ["Avatar"] = "Avatar",
                 ["ClickToUploadAvatar"] = "Click image to upload avatar",

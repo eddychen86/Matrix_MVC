@@ -4,6 +4,7 @@ using Matrix.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Matrix.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250823093316_ExpandLoginRecordsToAdminActivityLog")]
+    partial class ExpandLoginRecordsToAdminActivityLog
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -26,8 +29,7 @@ namespace Matrix.Migrations
                 {
                     b.Property<Guid>("LoginId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier")
-                        .HasDefaultValueSql("NEWSEQUENTIALID()");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("ActionDescription")
                         .IsRequired()
@@ -35,9 +37,7 @@ namespace Matrix.Migrations
                         .HasColumnType("nvarchar(1000)");
 
                     b.Property<DateTime>("ActionTime")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("GETDATE()");
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("ActionType")
                         .IsRequired()
@@ -50,9 +50,7 @@ namespace Matrix.Migrations
                         .HasColumnType("nvarchar(50)");
 
                     b.Property<int>("Duration")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasDefaultValue(0);
+                        .HasColumnType("int");
 
                     b.Property<string>("ErrorMessage")
                         .HasMaxLength(1000)
@@ -64,9 +62,7 @@ namespace Matrix.Migrations
                         .HasColumnType("nvarchar(45)");
 
                     b.Property<bool>("IsSuccessful")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(true);
+                        .HasColumnType("bit");
 
                     b.Property<DateTime?>("LoginTime")
                         .HasColumnType("datetime2");
@@ -80,9 +76,7 @@ namespace Matrix.Migrations
                         .HasColumnType("nvarchar(500)");
 
                     b.Property<int>("Role")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasDefaultValue(1);
+                        .HasColumnType("int");
 
                     b.Property<string>("UserAgent")
                         .IsRequired()
@@ -94,31 +88,9 @@ namespace Matrix.Migrations
 
                     b.HasKey("LoginId");
 
-                    b.HasIndex("ActionTime")
-                        .HasDatabaseName("IX_LoginRecords_ActionTime");
+                    b.HasIndex("UserId");
 
-                    b.HasIndex("ActionType")
-                        .HasDatabaseName("IX_LoginRecords_ActionType");
-
-                    b.HasIndex("IpAddress")
-                        .HasDatabaseName("IX_LoginRecords_IpAddress");
-
-                    b.HasIndex("IsSuccessful")
-                        .HasDatabaseName("IX_LoginRecords_IsSuccessful");
-
-                    b.HasIndex("PagePath")
-                        .HasDatabaseName("IX_LoginRecords_PagePath");
-
-                    b.HasIndex("UserId")
-                        .HasDatabaseName("IX_LoginRecords_UserId");
-
-                    b.HasIndex("ActionType", "ActionTime")
-                        .HasDatabaseName("IX_LoginRecords_ActionType_ActionTime");
-
-                    b.HasIndex("UserId", "ActionTime")
-                        .HasDatabaseName("IX_LoginRecords_UserId_ActionTime");
-
-                    b.ToTable("LoginRecords", (string)null);
+                    b.ToTable("LoginRecords");
                 });
 
             modelBuilder.Entity("Matrix.Models.Article", b =>
@@ -696,7 +668,7 @@ namespace Matrix.Migrations
                     b.HasOne("Matrix.Models.Person", "User")
                         .WithMany("LoginRecords")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("User");

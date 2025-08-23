@@ -18,22 +18,39 @@ window.mountConfigPage = function() {
         avatarFile: null,
         avatarPreview: null
       })
-      const toolStateList = reactive([
-        { id: 0, name: 'Friends', state: false },
-        { id: 0, name: 'ProfileNFTs', state: false },
-        { id: 0, name: 'Config_WebLog', state: false },
-      ])
       const adminList_curPage = ref(1)
       const adminList_pageSize = ref(5)
       const adminList = reactive({
         header: [
           { title: 'Config_AdminList_UserName', class: '', fixed: false, },
           { title: 'Config_AdminList_DisplayName', class: '', fixed: false, },
-          { title: 'Config_AdminList_SuderAdmin', class: '', fixed: false, },
+          { title: 'Config_AdminList_SuperAdmin', class: '', fixed: false, },
           { title: 'Config_AdminList_Status', class: '', fixed: false, },
         ],
         data: []
       })
+      const adminFilterVal = ref({
+        keyword: null,
+        SuperAdmin: null,
+        Status: null
+      })
+      const logFilterVal = ref({
+        error: null,
+        api: [],
+        state: null,
+        time: new Date(),
+      })
+      const adminFilter = ref([
+        { id: 0, title: 'Keyword', type: 'text' },
+        { id: 1, title: 'SuperAdmin', type: 'switch' },
+        { id: 2, title: 'Status', type: 'switch' },
+      ])
+      const logFilter = ref([
+        { id: 0, title: 'Error', type: 'text' },
+        { id: 1, title: 'api', type: 'text' },
+        { id: 2, title: 'State', type: 'Number' },
+        { id: 3, title: 'DateTime', type: 'DateTime' },
+      ])
       //#endregion
 
       //#region data
@@ -133,15 +150,14 @@ window.mountConfigPage = function() {
       }
       
       const resetFormData = () => {
-        formData = {
-          userName: '',
-          email: '',
-          password: '',
-          passwordConfirm: '',
-          role: 1,
-          avatarFile: null,
-          avatarPreview: null ,
-        }
+        // reactive 不能直接賦值，需要更新各個屬性
+        formData.userName = ''
+        formData.email = ''
+        formData.password = ''
+        formData.passwordConfirm = ''
+        formData.role = 1
+        formData.avatarFile = null
+        formData.avatarPreview = null
       }
       
       const triggerFileUpload = () => {
@@ -281,7 +297,6 @@ window.mountConfigPage = function() {
         isLoading,
 
         // Data
-        toolStateList,
         adminList,
         adminList_curPage,
         adminList_pageSize,
@@ -306,6 +321,12 @@ window.mountConfigPage = function() {
         toggleLastPage,
         togglePrevPage,
         toggleNextPage,
+
+        // Filter
+        adminFilterVal,
+        logFilterVal,
+        adminFilter,
+        logFilter,
       }
     }
   })

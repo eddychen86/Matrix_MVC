@@ -707,5 +707,235 @@ namespace Matrix.Services
         }
 
         #endregion
+
+        #region 軟刪除相關方法
+
+        /// <summary>
+        /// 軟刪除使用者（設定 IsDelete = 1）
+        /// </summary>
+        /// <param name="userId">使用者 ID</param>
+        /// <returns>軟刪除是否成功</returns>
+        public async Task<bool> SoftDeleteUserAsync(Guid userId)
+        {
+            try
+            {
+                var success = await _userRepository.SoftDeleteAsync(userId);
+                
+                if (success)
+                {
+                    // 清除相關快取
+                    var userCacheKey = $"user_{userId}";
+                    var profileCacheKey = $"profile_{userId}";
+                    _cache.Remove(userCacheKey);
+                    _cache.Remove(profileCacheKey);
+                    _cache.Remove("user_basics");
+                }
+                
+                return success;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"SoftDeleteUserAsync Error: {ex.Message}");
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// 恢復已軟刪除的使用者（設定 IsDelete = 0）
+        /// </summary>
+        /// <param name="userId">使用者 ID</param>
+        /// <returns>恢復是否成功</returns>
+        public async Task<bool> RestoreUserAsync(Guid userId)
+        {
+            try
+            {
+                var success = await _userRepository.RestoreAsync(userId);
+                
+                if (success)
+                {
+                    // 清除相關快取
+                    var userCacheKey = $"user_{userId}";
+                    var profileCacheKey = $"profile_{userId}";
+                    _cache.Remove(userCacheKey);
+                    _cache.Remove(profileCacheKey);
+                    _cache.Remove("user_basics");
+                }
+                
+                return success;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"RestoreUserAsync Error: {ex.Message}");
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// 取得所有未刪除的使用者
+        /// </summary>
+        /// <returns>未刪除的使用者列表</returns>
+        public async Task<List<UserDto>> GetActiveUsersAsync()
+        {
+            try
+            {
+                var users = await _userRepository.GetActiveUsersAsync();
+                return _mapper.Map<List<UserDto>>(users);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"GetActiveUsersAsync Error: {ex.Message}");
+                return new List<UserDto>();
+            }
+        }
+
+        /// <summary>
+        /// 取得所有已軟刪除的使用者
+        /// </summary>
+        /// <returns>已軟刪除的使用者列表</returns>
+        public async Task<List<UserDto>> GetDeletedUsersAsync()
+        {
+            try
+            {
+                var users = await _userRepository.GetDeletedUsersAsync();
+                return _mapper.Map<List<UserDto>>(users);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"GetDeletedUsersAsync Error: {ex.Message}");
+                return new List<UserDto>();
+            }
+        }
+
+        /// <summary>
+        /// 取得未刪除的管理員列表（分頁）
+        /// </summary>
+        /// <param name="pages">頁數</param>
+        /// <param name="pageSize">每頁筆數</param>
+        /// <returns>未刪除的管理員列表</returns>
+        public async Task<List<AdminDto>> GetActiveAdminsAsync(int pages = 1, int pageSize = 5)
+        {
+            try
+            {
+                return await _userRepository.GetActiveAdminsAsync(pages, pageSize);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"GetActiveAdminsAsync Error: {ex.Message}");
+                return new List<AdminDto>();
+            }
+        }
+
+        /// <summary>
+        /// 取得已軟刪除的管理員列表（分頁）
+        /// </summary>
+        /// <param name="pages">頁數</param>
+        /// <param name="pageSize">每頁筆數</param>
+        /// <returns>已軟刪除的管理員列表</returns>
+        public async Task<List<AdminDto>> GetDeletedAdminsAsync(int pages = 1, int pageSize = 5)
+        {
+            try
+            {
+                return await _userRepository.GetDeletedAdminsAsync(pages, pageSize);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"GetDeletedAdminsAsync Error: {ex.Message}");
+                return new List<AdminDto>();
+            }
+        }
+
+        /// <summary>
+        /// 檢查使用者是否已被軟刪除
+        /// </summary>
+        /// <param name="userId">使用者 ID</param>
+        /// <returns>是否已被軟刪除</returns>
+        public async Task<bool> IsUserDeletedAsync(Guid userId)
+        {
+            try
+            {
+                return await _userRepository.IsUserDeletedAsync(userId);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"IsUserDeletedAsync Error: {ex.Message}");
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// 根據使用者名稱取得未刪除的使用者
+        /// </summary>
+        /// <param name="username">使用者名稱</param>
+        /// <returns>未刪除的使用者資料</returns>
+        public async Task<UserDto?> GetActiveUserByUsernameAsync(string username)
+        {
+            try
+            {
+                var user = await _userRepository.GetActiveByUsernameAsync(username);
+                return user?.Person == null ? null : _mapper.Map<UserDto>(user);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"GetActiveUserByUsernameAsync Error: {ex.Message}");
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// 根據電子郵件取得未刪除的使用者
+        /// </summary>
+        /// <param name="email">電子郵件</param>
+        /// <returns>未刪除的使用者資料</returns>
+        public async Task<UserDto?> GetActiveUserByEmailAsync(string email)
+        {
+            try
+            {
+                var user = await _userRepository.GetActiveByEmailAsync(email);
+                return user?.Person == null ? null : _mapper.Map<UserDto>(user);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"GetActiveUserByEmailAsync Error: {ex.Message}");
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// 檢查使用者名稱是否在未刪除使用者中存在
+        /// </summary>
+        /// <param name="username">使用者名稱</param>
+        /// <returns>是否存在</returns>
+        public async Task<bool> IsActiveUserNameExistsAsync(string username)
+        {
+            try
+            {
+                return await _userRepository.ActiveUsernameExistsAsync(username);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"IsActiveUserNameExistsAsync Error: {ex.Message}");
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// 檢查電子郵件是否在未刪除使用者中存在
+        /// </summary>
+        /// <param name="email">電子郵件</param>
+        /// <returns>是否存在</returns>
+        public async Task<bool> IsActiveEmailExistsAsync(string email)
+        {
+            try
+            {
+                return await _userRepository.ActiveEmailExistsAsync(email);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"IsActiveEmailExistsAsync Error: {ex.Message}");
+                return false;
+            }
+        }
+
+        #endregion
     }
 }

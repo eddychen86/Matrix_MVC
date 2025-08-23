@@ -1,4 +1,6 @@
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Matrix.Models;
 
 namespace Matrix.Data.Configurations
 {
@@ -52,6 +54,11 @@ namespace Matrix.Data.Configurations
                 .IsRequired()
                 .HasDefaultValue(0);
 
+            // 軟刪除欄位配置
+            builder.Property(u => u.IsDelete)
+                .IsRequired()
+                .HasDefaultValue(0);
+
             // 索引配置
             builder.HasIndex(u => u.UserName)
                 .IsUnique()
@@ -66,6 +73,18 @@ namespace Matrix.Data.Configurations
 
             builder.HasIndex(u => u.CreateTime)
                 .HasDatabaseName("IX_Users_CreateTime");
+
+            // 軟刪除相關索引
+            builder.HasIndex(u => u.IsDelete)
+                .HasDatabaseName("IX_Users_IsDelete");
+
+            // 復合索引：常用的查詢組合 (IsDelete, Status)
+            builder.HasIndex(u => new { u.IsDelete, u.Status })
+                .HasDatabaseName("IX_Users_IsDelete_Status");
+
+            // 復合索引：用於管理員查詢 (IsDelete, Role)
+            builder.HasIndex(u => new { u.IsDelete, u.Role })
+                .HasDatabaseName("IX_Users_IsDelete_Role");
 
             // 忽略屬性
             builder.Ignore(u => u.PasswordConfirm);

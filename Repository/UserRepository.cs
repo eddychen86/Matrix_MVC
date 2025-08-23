@@ -21,7 +21,7 @@ namespace Matrix.Repository
         {
             return await _dbSet
                 .AsNoTracking()
-                .Where(u => u.Status != 0 && u.Role == 0) // 在資料庫層篩選
+                .Where(u => u.Status != 0 && u.Role == 0 && u.IsDelete == 0) // 過濾已刪除用戶
                 .Select(u => new UserBasicDto
                 {
                     UserId = u.UserId,
@@ -36,7 +36,7 @@ namespace Matrix.Repository
             return await _dbSet
                 .AsNoTracking()
                 .Include(u => u.Person)
-                .Where(u => u.Status != 0 && u.Role > 0) // 在資料庫層篩選
+                .Where(u => u.Status != 0 && u.Role > 0 && u.IsDelete == 0) // 過濾已刪除管理員
                 .Skip((pages - 1) * pageSize)
                 .Take(pageSize)
                 .Select(u => new AdminDto
@@ -48,6 +48,7 @@ namespace Matrix.Repository
                     Role = u.Role,
                     Email = u.Email,
                     Status = u.Status,
+                    IsDelete = u.IsDelete,
                     AvatarPath = u.Person != null ? u.Person.AvatarPath : null
                 })
                 .ToListAsync();
@@ -137,11 +138,13 @@ namespace Matrix.Repository
 
         public async Task<bool> UsernameExistsAsync(string username)
         {
+            // 檢查所有用戶（包括已刪除），因為已刪除用戶的用戶名仍應視為已被使用
             return await _dbSet.AsNoTracking().AnyAsync(u => u.UserName == username);
         }
 
         public async Task<bool> EmailExistsAsync(string email)
         {
+            // 檢查所有用戶（包括已刪除），因為已刪除用戶的郵箱仍應視為已被使用
             return await _dbSet.AsNoTracking().AnyAsync(u => u.Email == email);
         }
 
@@ -172,6 +175,162 @@ namespace Matrix.Repository
             return Convert.ToBase64String(
                 System.Security.Cryptography.SHA256.HashData(
                     System.Text.Encoding.UTF8.GetBytes(password + "salt")));
+        }
+
+        // === 軟刪除相關方法實作 ===
+
+        /// <summary>
+        /// 軟刪除用戶（設定 IsDelete = 1）
+        /// </summary>
+        public async Task<bool> SoftDeleteAsync(Guid userId)
+        {
+            var user = await _dbSet.FirstOrDefaultAsync(u => u.UserId == userId);
+            if (user == null) return false;
+
+            user.IsDelete = 1;
+            await UpdateAsync(user);
+            await SaveChangesAsync();
+            return true;
+        }
+
+        /// <summary>
+        /// 恢復已刪除的用戶（設定 IsDelete = 0）
+        /// </summary>
+        public async Task<bool> RestoreAsync(Guid userId)
+        {
+            var user = await _dbSet.FirstOrDefaultAsync(u => u.UserId == userId);
+            if (user == null) return false;
+
+            user.IsDelete = 0;
+            await UpdateAsync(user);
+            await SaveChangesAsync();
+            return true;
+        }
+
+        /// <summary>
+        /// 取得所有未刪除的用戶
+        /// </summary>
+        public async Task<List<User>> GetActiveUsersAsync()
+        {
+            return await _dbSet
+                .AsNoTracking()
+                .Include(u => u.Person)
+                .Where(u => u.IsDelete == 0)
+                .ToListAsync();
+        }
+
+        /// <summary>
+        /// 取得所有已刪除的用戶
+        /// </summary>
+        public async Task<List<User>> GetDeletedUsersAsync()
+        {
+            return await _dbSet
+                .AsNoTracking()
+                .Include(u => u.Person)
+                .Where(u => u.IsDelete == 1)
+                .ToListAsync();
+        }
+
+        /// <summary>
+        /// 取得未刪除的管理員列表（分頁）
+        /// </summary>
+        public async Task<List<AdminDto>> GetActiveAdminsAsync(int pages = 1, int pageSize = 5)
+        {
+            return await _dbSet
+                .AsNoTracking()
+                .Include(u => u.Person)
+                .Where(u => u.Status != 0 && u.Role > 0 && u.IsDelete == 0)
+                .Skip((pages - 1) * pageSize)
+                .Take(pageSize)
+                .Select(u => new AdminDto
+                {
+                    UserId = u.UserId,
+                    UserName = u.UserName,
+                    DisplayName = u.Person != null ? u.Person.DisplayName : null,
+                    LastLoginTime = u.LastLoginTime,
+                    Role = u.Role,
+                    Email = u.Email,
+                    Status = u.Status,
+                    IsDelete = u.IsDelete,
+                    AvatarPath = u.Person != null ? u.Person.AvatarPath : null
+                })
+                .ToListAsync();
+        }
+
+        /// <summary>
+        /// 取得已刪除的管理員列表（分頁）
+        /// </summary>
+        public async Task<List<AdminDto>> GetDeletedAdminsAsync(int pages = 1, int pageSize = 5)
+        {
+            return await _dbSet
+                .AsNoTracking()
+                .Include(u => u.Person)
+                .Where(u => u.Role > 0 && u.IsDelete == 1)
+                .Skip((pages - 1) * pageSize)
+                .Take(pageSize)
+                .Select(u => new AdminDto
+                {
+                    UserId = u.UserId,
+                    UserName = u.UserName,
+                    DisplayName = u.Person != null ? u.Person.DisplayName : null,
+                    LastLoginTime = u.LastLoginTime,
+                    Role = u.Role,
+                    Email = u.Email,
+                    Status = u.Status,
+                    IsDelete = u.IsDelete,
+                    AvatarPath = u.Person != null ? u.Person.AvatarPath : null
+                })
+                .ToListAsync();
+        }
+
+        /// <summary>
+        /// 檢查用戶是否已被軟刪除
+        /// </summary>
+        public async Task<bool> IsUserDeletedAsync(Guid userId)
+        {
+            return await _dbSet
+                .AsNoTracking()
+                .AnyAsync(u => u.UserId == userId && u.IsDelete == 1);
+        }
+
+        /// <summary>
+        /// 根據用戶名取得未刪除的用戶
+        /// </summary>
+        public async Task<User?> GetActiveByUsernameAsync(string username)
+        {
+            return await _dbSet
+                .Include(u => u.Person)
+                .FirstOrDefaultAsync(u => u.UserName == username && u.IsDelete == 0);
+        }
+
+        /// <summary>
+        /// 根據電子郵件取得未刪除的用戶
+        /// </summary>
+        public async Task<User?> GetActiveByEmailAsync(string email)
+        {
+            return await _dbSet
+                .Include(u => u.Person)
+                .FirstOrDefaultAsync(u => u.Email == email && u.IsDelete == 0);
+        }
+
+        /// <summary>
+        /// 檢查用戶名是否在未刪除用戶中存在
+        /// </summary>
+        public async Task<bool> ActiveUsernameExistsAsync(string username)
+        {
+            return await _dbSet
+                .AsNoTracking()
+                .AnyAsync(u => u.UserName == username && u.IsDelete == 0);
+        }
+
+        /// <summary>
+        /// 檢查電子郵件是否在未刪除用戶中存在
+        /// </summary>
+        public async Task<bool> ActiveEmailExistsAsync(string email)
+        {
+            return await _dbSet
+                .AsNoTracking()
+                .AnyAsync(u => u.Email == email && u.IsDelete == 0);
         }
     }
 }

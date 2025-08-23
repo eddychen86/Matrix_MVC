@@ -59,6 +59,11 @@ namespace Matrix.DTOs
         public int Status { get; set; }
 
         /// <summary>
+        /// 軟刪除標記，0表示未刪除，1表示已刪除
+        /// </summary>
+        public int IsDelete { get; set; }
+
+        /// <summary>
         /// 關聯的個人資料
         /// </summary>
         public PersonDto? Person { get; set; }
@@ -100,14 +105,29 @@ namespace Matrix.DTOs
         };
 
         /// <summary>
-        /// 判斷帳號是否為有效狀態
+        /// 判斷帳號是否為有效狀態（未刪除且狀態正常）
         /// </summary>
-        public bool IsActive => Status == 0;
+        public bool IsActive => Status == 1 && IsDelete == 0;
 
         /// <summary>
         /// 判斷是否為管理員
         /// </summary>
         public bool IsAdmin => Role >= 1;
+
+        /// <summary>
+        /// 判斷是否已被軟刪除
+        /// </summary>
+        public bool IsDeleted => IsDelete == 1;
+
+        /// <summary>
+        /// 獲取刪除狀態的描述文字
+        /// </summary>
+        public string DeleteStatusText => IsDelete switch
+        {
+            0 => "正常",
+            1 => "已刪除",
+            _ => "未知"
+        };
     }
 
     /// <summary>
@@ -154,6 +174,11 @@ namespace Matrix.DTOs
         /// 帳號狀態
         /// </summary>
         public int Status { get; set; }
+
+        /// <summary>
+        /// 軟刪除標記，0表示未刪除，1表示已刪除
+        /// </summary>
+        public int IsDelete { get; set; }
 
         /// <summary>
         /// 關聯的個人頭像
@@ -240,6 +265,11 @@ namespace Matrix.DTOs
         /// 帳號狀態 (0=未驗證, 1=啟用, 2=停用, 3=封禁)
         /// </summary>
         public int? Status { get; set; }
+
+        /// <summary>
+        /// 軟刪除標記 (0=未刪除, 1=已刪除)
+        /// </summary>
+        public int? IsDelete { get; set; }
     }
 
     /// <summary>

@@ -73,6 +73,11 @@ namespace Matrix.Models
         public int Status { get; set; } = 0;
 
         /// <summary>
+        /// 軟刪除標記，0表示未刪除，1表示已刪除
+        /// </summary>
+        public int IsDelete { get; set; } = 0;
+
+        /// <summary>
         /// 關聯的用戶個人資料
         /// </summary>
         public virtual Person? Person { get; set; }

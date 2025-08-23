@@ -73,6 +73,14 @@ namespace Matrix.Mappings
 
             // ArticleAttachment ↔ ArticleAttachmentDto 映射
             CreateMap<ArticleAttachment, ArticleAttachmentDto>();
+
+            // AdminActivityLog ↔ AdminActivityLogDto 映射
+            CreateMap<AdminActivityLog, AdminActivityLogDto>();
+            
+            CreateMap<CreateActivityLogDto, AdminActivityLog>()
+                .ForMember(dest => dest.LoginId, opt => opt.Ignore())
+                .ForMember(dest => dest.ActionTime, opt => opt.Ignore())
+                .ForMember(dest => dest.User, opt => opt.Ignore());
         }
     }
 }

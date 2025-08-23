@@ -14,38 +14,42 @@
     </template>
     <template v-else>
         <div class="flex flex-col gap-8">
-            <h1 class="text-3xl font-bold text-gray-700" data-i18n="Config_Title">@Localizer["Config_Title"]</h1>
+            <h1 class="text-3xl font-bold text-gray-700 col-span-1 sm:col-span-4" data-i18n="Config_Title">@Localizer["Config_Title"]</h1>
 
-            @* 功能狀態欄 *@
-            <div class="flex flex-col gap-4">
-                <h2 class="title font-semibold" data-i18n="Config_ToolsState">@Localizer["Config_ToolsState"]</h2>
-
-                <ul class="flex flex-col gap-2">
-                    <li v-for="tool in toolStateList" :key="tool.id" class="flex items-center justify-between py-1">
-                        <h5 class="subTitle" :data-i18n="tool.name">{{ tool.name }}</h5>
-                        @* <input type="checkbox" checked="tools.state" class="toggle toggle-md" /> *@
-                        <label class="toggle text-base-content border-secondary">
-                            <input type="checkbox" />
-                            <i data-lucide="check" aria-label="enabled" class="size-4 rounded-full"></i>
-                            <i data-lucide="x" aria-label="disabled" class="size-4 rounded-full"></i>
-                        </label>
-                    </li>
-                </ul>
-            </div>
-
-            <div class="grid grid-cols-4 gap-8">
-                <h3 class="title font-semibold col-span-4" data-i18n="Config_CreateAdmin">@Localizer["Config_AdminList"]</h3>
-                
+            @* 管理員列表 *@
+            <div class="grid grid-cols-1 sm:grid-cols-4 gap-8">
                 <div class="tabs tabs-lift col-span-1">
                     @* 篩選列表 *@
-                    @* <input type="radio" name="config_tabs" class="tab subTitle" aria-label="篩選列表" checked="checked" />
+                    <input type="radio" name="config_tabs" class="tab subTitle" aria-label="@Localizer["Config_Filter"]" checked="checked" />
                     <div class="tab-content border-black/10 p-6">
-                        
-                    </div> *@
+                        @* 管理員 *@
+                        <div class="flex flex-col gap-4">
+                            <h3 class="subTitle font-semibold" data-i18n="Config_AdminList">@Localizer["Config_AdminList"]</h3>
+                            <ul class="flex flex-col gap-4">
+                                <li v-for="tool in adminFilter" :key="tool.id">
+                                    <div v-if="tool.type === 'text'" class="flex flex-col gap-2">
+                                        <h5 class="subTitle" :data-i18n="`Config_AdminList_${tool.title}`">@Localizer["`Config_AdminList_${tool.title}`"]</h5>
+                                        <label class="input">
+                                            <i data-lucide="search" class="h-[1em] opacity-50"></i>
+                                            <input type="search" v-model="adminFilterVal?.[tool.title]" data-i18n-placeholder="" placeholder="@Localizer[""]" />
+                                        </label>
+                                    </div>
+                                    <div v-else-if="tool.type === 'switch'" class="flex items-center justify-between">
+                                        <h5 class="subTitle" :data-i18n="`Config_AdminList_${tool.title}`">@Localizer["`Config_AdminList_${tool.title}`"]</h5>
+                                        <label class="toggle text-base-content">
+                                            <input type="checkbox" v-model="adminFilterVal?.[tool.title]" />
+                                            <i data-lucide="check" class="size-6"></i>
+                                            <i data-lucide="x" class="size-6"></i>
+                                        </label>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
 
                     @* 新增「管理員」 *@
-                    <input type="radio" name="config_tabs" class="tab subTitle" aria-label="新增管理員" />
-                    <div class="tab-content border-black/10 p-6 flex flex-col gap-4">
+                    <input type="radio" name="config_tabs" class="tab subTitle" aria-label="@Localizer["Config_Add_Admin"]" />
+                    <div class="tab-content border-black/10 p-6">
                         <form v-on:submit.prevent="submitCreateAdmin" class="space-y-1">
                             @* 頭像上傳 *@
                             <fieldset class="fieldset">
@@ -53,8 +57,8 @@
                                 <div class="flex items-center text-center gap-4">
                                     <div class="avatar cursor-pointer mask mask-squircle h-16 w-16" @@click="triggerFileUpload">
                                         <img v-if="formData.avatarPreview" :src="formData.avatarPreview" alt="Avatar Preview" />
-                                        <div class="flex items-end justify-center pt-4 px-2 bg-gray-300">
-                                            <i v-else data-lucide="user-round" class="size-12"></i>
+                                        <div v-else class="flex items-end justify-center pt-4 px-2 bg-gray-300">
+                                            <i data-lucide="user-round" class="size-12"></i>
                                         </div>
                                     </div>
                                     <input type="file" ref="fileInput" class="hidden" accept="image/*" @@change="handleAvatarUpload" />
@@ -64,17 +68,12 @@
                             @* 使用者名稱 *@
                             <fieldset class="fieldset">
                                 <legend class="fieldset-legend" data-i18n="UserName">@Localizer["UserName"]</legend>
-                                <label class="input validator">
+                                <label class="input validator rounded-full">
                                     <i data-lucide="user" class="size-4 opacity-50"></i>
-                                    <input type="text" 
-                                        v-model="formData.userName" 
-                                        placeholder="@Localizer["UserNamePlaceholder"]"
-                                        data-i18n-placeholder="UserNamePlaceholder"
-                                        required 
-                                        minlength="3" 
-                                        maxlength="20" 
-                                        pattern="[A-Za-z][A-Za-z0-9\\-]*" 
-                                        title="@Localizer["User_UserNameAllowedChars"]" />
+                                    <input type="text" v-model="formData.userName"
+                                            placeholder="@Localizer["UserNamePlaceholder"]" data-i18n-placeholder="UserNamePlaceholder"
+                                            required minlength="3" maxlength="20" pattern="[A-Za-z][A-Za-z0-9\\-]*" 
+                                            title="@Localizer["User_UserNameAllowedChars"]" />
                                 </label>
                                 <p v-show="formData.userName && !isValidUserName(formData.userName)" class="validator-hint" data-i18n="User_UserNameLength3To20">@Localizer["User_UserNameLength3To20"]</p>
                             </fieldset>
@@ -82,15 +81,12 @@
                             @* Email *@
                             <fieldset class="fieldset">
                                 <legend class="fieldset-legend" data-i18n="Email">@Localizer["Email"]</legend>
-                                <label class="input validator">
+                                <label class="input validator rounded-full">
                                     <i data-lucide="mail" class="size-4 opacity-50"></i>
-                                    <input type="email" 
-                                        v-model="formData.email" 
-                                        placeholder="@Localizer["EmailPlaceholder"]"
-                                        data-i18n-placeholder="EmailPlaceholder"
-                                        required 
-                                        maxlength="100" 
-                                        title="@Localizer["User_EmailInvalid"]" />
+                                    <input type="email" v-model="formData.email" 
+                                            placeholder="@Localizer["EmailPlaceholder"]" data-i18n-placeholder="EmailPlaceholder"
+                                            required maxlength="100" 
+                                            title="@Localizer["User_EmailInvalid"]" />
                                 </label>
                                 <p v-show="formData.email && !isValidEmail(formData.email)" class="validator-hint" data-i18n="User_EmailInvalid">@Localizer["User_EmailInvalid"]</p>
                             </fieldset>
@@ -98,17 +94,12 @@
                             @* 密碼 *@
                             <fieldset class="fieldset">
                                 <legend class="fieldset-legend" data-i18n="Password">@Localizer["Password"]</legend>
-                                <label class="input validator">
+                                <label class="input validator rounded-full">
                                     <i data-lucide="key" class="size-4 opacity-50"></i>
-                                    <input type="password" 
-                                        v-model="formData.password" 
-                                        placeholder="@Localizer["PasswordPlaceholder"]"
-                                        data-i18n-placeholder="PasswordPlaceholder"
-                                        required 
-                                        minlength="8" 
-                                        maxlength="20" 
-                                        pattern="(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[#@@$!%*?&amp;]).{8,}" 
-                                        title="@Localizer["User_PasswordComplexity"]" />
+                                    <input type="password" v-model="formData.password" 
+                                            placeholder="@Localizer["PasswordPlaceholder"]" data-i18n-placeholder="PasswordPlaceholder"
+                                            required minlength="8" maxlength="20" pattern="(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[#@@$!%*?&amp;]).{8,}" 
+                                            title="@Localizer["User_PasswordComplexity"]" />
                                 </label>
                                 <p v-show="formData.password && !isValidPassword(formData.password)" class="validator-hint" data-i18n="User_PasswordComplexity">@Localizer["User_PasswordComplexity"]</p>
                             </fieldset>
@@ -116,24 +107,22 @@
                             @* 確認密碼 *@
                             <fieldset class="fieldset">
                                 <legend class="fieldset-legend" data-i18n="ConfirmPassword">@Localizer["ConfirmPassword"]</legend>
-                                <label class="input validator">
+                                <label class="input validator rounded-full">
                                     <i data-lucide="key" class="size-4 opacity-50"></i>
-                                    <input type="password" 
-                                        v-model="formData.passwordConfirm" 
-                                        placeholder="@Localizer["ConfirmPasswordPlaceholder`"]"
-                                        data-i18n-placeholder="ConfirmPasswordPlaceholder`"
-                                        required 
-                                        title="@Localizer["User_PasswordsMustMatch"]" />
+                                    <input type="password" v-model="formData.passwordConfirm" 
+                                            placeholder="@Localizer["ConfirmPasswordPlaceholder"]" data-i18n-placeholder="ConfirmPasswordPlaceholder"
+                                            required 
+                                            title="@Localizer["User_PasswordsMustMatch"]" />
                                 </label>
                                 <p v-show="formData.passwordConfirm && formData.password !== formData.passwordConfirm" class="validator-hint" data-i18n="User_PasswordsMustMatch">@Localizer["User_PasswordsMustMatch"]</p>
                             </fieldset>
 
                             @* 角色選擇（僅超級管理員可見） *@
                             <fieldset v-if="userPermissions.role === 2" class="fieldset">
-                                <legend class="fieldset-legend" data-i18n="Role">@Localizer["Role"]</legend>
-                                <select v-model="formData.role" class="select select-primary">
-                                    <option value="1">管理員</option>
-                                    <option value="2">超級管理員</option>
+                                <legend class="fieldset-legend" data-i18n="Users_RoleText">@Localizer["Users_RoleText"]</legend>
+                                <select v-model="formData.role" class="select select-primary rounded-full">
+                                    <option value="1" data-i18n="Config_AdminList_Admin">@Localizer["Config_AdminList_Admin"]</option>
+                                    <option value="2" data-i18n="Config_AdminList_SuperAdmin">@Localizer["Config_AdminList_SuperAdmin"]</option>
                                 </select>
                             </fieldset>
 
@@ -155,8 +144,7 @@
                     </div>
                 </div>
 
-
-                <div class="col-span-3">
+                <div class="col-span-1 sm:col-span-3">
                     <div class="overflow-x-auto bg-yellow-50 rounded-2xl border border-black/10 min-h-[500px]">
                         <table class="table table-pin-rows table-pin-cols">
                             <!-- head -->
@@ -187,7 +175,7 @@
                                     <td class="text-center">
                                         <div :data-i18n="item.SuperAdmin === 2 ? 'Yes' : 'No'"></div>
                                     </td>
-                                    <td class="text-center">
+                                    <td class="flex justify-center">
                                         <div class="rounded-full text-center text-white w-20 shadow-xl/30 border-2"
                                                 :class="item.status === 1 ? 'bg-green-500 border-green-300 shadow-green-300' : 'bg-red-500 border-red-300 shadow-red-300'"
                                                 :data-i18n="item.status === 1 ? 'enable' : 'disable'"
@@ -246,24 +234,34 @@
                     </div>
                 </div>
             </div>
-        </div>
 
-        @* Web Log *@
-        <div >
-
+            @* 日誌 *@
+            <div class="grid grid-cols-1 sm:grid-cols-4 gap-8">
+                <div class="flex flex-col gap-4 col-span-1">
+                    <h3 class="subTitle font-semibold" data-i18n="Config_WebLog">@Localizer["Config_WebLog"]</h3>
+                    <ul class="flex flex-col gap-4">
+                        <li v-for="tool in logFilter" :key="tool.id">
+                            <div v-if="tool.type === 'text'" class="flex flex-col gap-2">
+                                <h5 class="subTitle" :data-i18n="`Config_AdminList_${tool.title}`">@Localizer["`Config_AdminList_${tool.title}`"]</h5>
+                                <label class="input">
+                                    <i data-lucide="search" class="h-[1em] opacity-50"></i>
+                                    <input type="search" v-model="logFilterVal?.[tool.title]" data-i18n-placeholder="" placeholder="@Localizer[""]" />
+                                </label>
+                            </div>
+                            <div v-else-if="tool.type === 'switch'" class="flex items-center justify-between">
+                                <h5 class="subTitle" :data-i18n="`Config_AdminList_${tool.title}`">@Localizer["`Config_AdminList_${tool.title}`"]</h5>
+                                <label class="toggle text-base-content">
+                                    <input type="checkbox" v-model="logFilterVal?.[tool.title]" />
+                                    <i data-lucide="check" class="size-6"></i>
+                                    <i data-lucide="x" class="size-6"></i>
+                                </label>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
         </div>
     </template>
-
-    @*
-        所有管理員帳號需經由該頁面 CRUD
-    
-        「NFT 戰略品 (Beta)」開關
-
-        網站 Error Log
-            time   |     api     | state | error message
-        -----------+-------------+-------+--------------
-        2025-08-30 | /api/Users/ |  500  | Error...
-     *@
 </div>
 
 @section Scripts {

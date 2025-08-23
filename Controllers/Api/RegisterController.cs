@@ -10,18 +10,21 @@ namespace Matrix.Controllers.Api
     public class RegisterController : ApiControllerBase
     {
         private readonly IUserRegistrationService _registrationService;
+        private readonly IAdminRegistrationService _adminRegistrationService;
         private readonly ILogger<RegisterController> _logger;
         private readonly IEmailService _emailService;
         private readonly ICustomLocalizer _localizer;
 
         public RegisterController(
             IUserRegistrationService registrationService,
+            IAdminRegistrationService adminRegistrationService,
             ILogger<RegisterController> logger,
             IEmailService emailService,
             ICustomLocalizer localizer
         )
         {
             _registrationService = registrationService;
+            _adminRegistrationService = adminRegistrationService;
             _logger = logger;
             _emailService = emailService;
             _localizer = localizer;
@@ -66,6 +69,41 @@ namespace Matrix.Controllers.Api
                     emailSent = false
                 }, _localizer["SendConfirmEmailError"]);
             }
+        }
+
+        /// <summary>
+        /// 處理管理員註冊 (預設狀態已驗證，不需要點擊驗證信)
+        /// </summary>
+        [HttpPost("Config/Register")]
+        public async Task<IActionResult> AdminRegister([FromBody] AdminRegisterViewModel? model)
+        {
+            if (model == null)
+            {
+                return ApiError(_localizer["Error"], new Dictionary<string, string[]> { { "", [_localizer["Error"]] } });
+            }
+
+            // 使用管理員註冊服務進行驗證和建立用戶
+            var (userId, errors) = await _adminRegistrationService.RegisterUserAsync(model);
+
+            if (userId == null)
+            {
+                // 將錯誤映射到前端欄位
+                var fieldErrors = _adminRegistrationService.MapServiceErrorsToFieldErrors(errors);
+                return ApiError(_localizer["Error"], fieldErrors);
+            }
+
+            // 管理員註冊成功，狀態已設為已驗證，無需發送驗證信
+            _logger.LogInformation("管理員註冊完成: {UserName}, Role: {Role}, 狀態: 已驗證", 
+                model.UserName, model.Role);
+
+            return ApiSuccess(new
+            {
+                userId = userId.Value.ToString(),
+                userName = model.UserName,
+                role = model.Role,
+                status = "已驗證",
+                redirectUrl = "/Config"  // 導回管理員設定頁面
+            }, _localizer["AdminRegisterSuccess"]);
         }
 
         /// <summary>發送確認信</summary>

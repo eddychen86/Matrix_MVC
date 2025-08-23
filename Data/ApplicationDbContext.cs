@@ -30,6 +30,7 @@ namespace Matrix.Data
             modelBuilder.ApplyConfiguration(new FollowConfiguration());
             modelBuilder.ApplyConfiguration(new NFTConfiguration());
             modelBuilder.ApplyConfiguration(new MessageConfiguration());
+            modelBuilder.ApplyConfiguration(new AdminActivityLogConfiguration());
         }
 
         /// <summary>
@@ -73,9 +74,9 @@ namespace Matrix.Data
         public DbSet<Report> Reports { get; set; } = null!;
 
         /// <summary>
-        /// 登入記錄資料表
+        /// 登入記錄資料表（擴展為完整的管理員活動追蹤）
         /// </summary>
-        public DbSet<LoginRecord> LoginRecords { get; set; } = null!;
+        public DbSet<AdminActivityLog> LoginRecords { get; set; } = null!;
 
         /// <summary>
         /// 標籤資料表

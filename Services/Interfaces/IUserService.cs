@@ -184,5 +184,84 @@ namespace Matrix.Services.Interfaces
         /// <param name="userId">使用者 ID</param>
         /// <returns>更新是否成功</returns>
         Task<bool> UpdateLastLoginTimeAsync(Guid userId);
+
+        // === 軟刪除相關方法 ===
+
+        /// <summary>
+        /// 軟刪除使用者（設定 IsDelete = 1）
+        /// </summary>
+        /// <param name="userId">使用者 ID</param>
+        /// <returns>軟刪除是否成功</returns>
+        Task<bool> SoftDeleteUserAsync(Guid userId);
+
+        /// <summary>
+        /// 恢復已軟刪除的使用者（設定 IsDelete = 0）
+        /// </summary>
+        /// <param name="userId">使用者 ID</param>
+        /// <returns>恢復是否成功</returns>
+        Task<bool> RestoreUserAsync(Guid userId);
+
+        /// <summary>
+        /// 取得所有未刪除的使用者
+        /// </summary>
+        /// <returns>未刪除的使用者列表</returns>
+        Task<List<UserDto>> GetActiveUsersAsync();
+
+        /// <summary>
+        /// 取得所有已軟刪除的使用者
+        /// </summary>
+        /// <returns>已軟刪除的使用者列表</returns>
+        Task<List<UserDto>> GetDeletedUsersAsync();
+
+        /// <summary>
+        /// 取得未刪除的管理員列表（分頁）
+        /// </summary>
+        /// <param name="pages">頁數</param>
+        /// <param name="pageSize">每頁筆數</param>
+        /// <returns>未刪除的管理員列表</returns>
+        Task<List<AdminDto>> GetActiveAdminsAsync(int pages = 1, int pageSize = 5);
+
+        /// <summary>
+        /// 取得已軟刪除的管理員列表（分頁）
+        /// </summary>
+        /// <param name="pages">頁數</param>
+        /// <param name="pageSize">每頁筆數</param>
+        /// <returns>已軟刪除的管理員列表</returns>
+        Task<List<AdminDto>> GetDeletedAdminsAsync(int pages = 1, int pageSize = 5);
+
+        /// <summary>
+        /// 檢查使用者是否已被軟刪除
+        /// </summary>
+        /// <param name="userId">使用者 ID</param>
+        /// <returns>是否已被軟刪除</returns>
+        Task<bool> IsUserDeletedAsync(Guid userId);
+
+        /// <summary>
+        /// 根據使用者名稱取得未刪除的使用者
+        /// </summary>
+        /// <param name="username">使用者名稱</param>
+        /// <returns>未刪除的使用者資料</returns>
+        Task<UserDto?> GetActiveUserByUsernameAsync(string username);
+
+        /// <summary>
+        /// 根據電子郵件取得未刪除的使用者
+        /// </summary>
+        /// <param name="email">電子郵件</param>
+        /// <returns>未刪除的使用者資料</returns>
+        Task<UserDto?> GetActiveUserByEmailAsync(string email);
+
+        /// <summary>
+        /// 檢查使用者名稱是否在未刪除使用者中存在
+        /// </summary>
+        /// <param name="username">使用者名稱</param>
+        /// <returns>是否存在</returns>
+        Task<bool> IsActiveUserNameExistsAsync(string username);
+
+        /// <summary>
+        /// 檢查電子郵件是否在未刪除使用者中存在
+        /// </summary>
+        /// <param name="email">電子郵件</param>
+        /// <returns>是否存在</returns>
+        Task<bool> IsActiveEmailExistsAsync(string email);
     }
 }
