@@ -116,11 +116,7 @@
 @section Scripts {
     <script>
         document.addEventListener('click', function (event) {
-            const chatPopup = document.getElementById('chat-popup');
-            if (!chatPopup) return;
-
             const openBtn = event.target.closest('#openChatBtn');
-            const closeBtn = event.target.closest('#closeChatBtn');
 
             if (openBtn) {
                 // Access the profile data from the global Vue app instance
@@ -132,21 +128,17 @@
                         displayName: profileData.displayName // Pass other relevant data if needed
                     });
 
-                    // Explicitly show the chat popup by removing the 'hidden' class
-                    chatPopup.classList.remove('hidden');
-
-                    // Initialize drag functionality only once
-                    if (!chatPopup.dataset.isDraggable) {
-                        makeDraggable(chatPopup);
-                        chatPopup.dataset.isDraggable = 'true';
-                    }
+                    // Initialize drag functionality for the chat popup
+                    Vue.nextTick(() => {
+                        const chatPopup = document.getElementById('chat-popup');
+                        if (chatPopup && !chatPopup.dataset.isDraggable) {
+                            makeDraggable(chatPopup);
+                            chatPopup.dataset.isDraggable = 'true';
+                        }
+                    });
                 } else {
                     console.error("Profile data or userId not available for chat.");
                 }
-            }
-
-            if (closeBtn) {
-                chatPopup.classList.add('hidden');
             }
         });
 

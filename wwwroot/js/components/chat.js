@@ -10,6 +10,7 @@ export const useChat = (currentUser) => {
   
   // 聊天 Popup 狀態
   const isChatPopupOpen = ref(false)
+  const newMessage = ref('')
   
   // SignalR 連接
   let connection = null
@@ -45,18 +46,62 @@ export const useChat = (currentUser) => {
 
   // 發送訊息
   const sendMessage = async (receiverId, content) => {
+    try {
+      const response = await fetch('/api/chat/send', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          receiverId: receiverId,
+          content: content
+        })
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const result = await response.json();
+      
+      // 將新消息添加到消息列表
+      messages.value.push(result);
+      
+      console.log('Message sent successfully:', result);
+      return result;
+    } catch (error) {
+      console.error('Failed to send message:', error);
+      throw error;
+    }
   }
 
   // 載入對話記錄
   const loadConversation = async (userId, page = 1, pageSize = 50) => {
     try {
-        const response = await fetch(`/api/chat/history/${userId}?page=${page}&pageSize=${pageSize}`);
+        console.log(`Loading conversation with user ${userId}...`);
+        const response = await fetch(`/api/chat/history/${userId}?page=${page}&pageSize=${pageSize}`, {
+          credentials: 'include'
+        });
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
         const data = await response.json();
-        messages.value = data.sort((a, b) => new Date(a.createTime) - new Date(b.createTime)); // 按時間排序
+        
+        // 確保 data是一個數組
+        if (Array.isArray(data)) {
+          messages.value = data.sort((a, b) => new Date(a.createTime) - new Date(b.createTime)); // 按時間排序
+        } else {
+          console.warn('Unexpected data format:', data);
+          messages.value = [];
+        }
+        
         console.log('Conversation loaded:', messages.value);
+        
+        // 加載完成後自動滚動到底部
+        Vue.nextTick(() => {
+          scrollToBottom();
+        });
     } catch (error) {
         console.error('Failed to load conversation:', error);
         messages.value = []; // 發生錯誤時清空
@@ -102,6 +147,66 @@ export const useChat = (currentUser) => {
   })
 
   //#endregion
+
+  //#region 輔助功能
+
+  // 格式化消息時間
+  const formatMessageTime = (dateTime) => {
+    if (!dateTime) return ''
+    
+    const messageDate = new Date(dateTime)
+    const now = new Date()
+    const diffInSeconds = Math.floor((now - messageDate) / 1000)
+    
+    if (diffInSeconds < 60) {
+      return '刚刚'
+    } else if (diffInSeconds < 3600) {
+      return `${Math.floor(diffInSeconds / 60)}分钟前`
+    } else if (diffInSeconds < 86400) {
+      return `${Math.floor(diffInSeconds / 3600)}小时前`
+    } else {
+      return messageDate.toLocaleDateString('zh-TW', {
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      })
+    }
+  }
+
+  // 滚動到聊天窗口底部
+  const scrollToBottom = () => {
+    Vue.nextTick(() => {
+      const messagesContainer = document.getElementById('chat-messages')
+      if (messagesContainer) {
+        messagesContainer.scrollTop = messagesContainer.scrollHeight
+      }
+    })
+  }
+
+  // 处理发送消息
+  const handleSendMessage = async () => {
+    if (!newMessage.value.trim() || !currentConversation.value?.userId) {
+      return
+    }
+
+    const messageContent = newMessage.value.trim()
+    newMessage.value = '' // 清空输入框
+
+    try {
+      await sendMessage(currentConversation.value.userId, messageContent)
+      // 消息发送成功后，滚动到最新消息
+      scrollToBottom()
+    } catch (error) {
+      console.error('Failed to send message:', error)
+      // 可以在这里显示错误提示
+      alert('发送消息失败，请稍后再试')
+      // 还原输入内容
+      newMessage.value = messageContent
+    }
+  }
+
+  //#endregion
   
   return {
     // 聊天狀態
@@ -113,6 +218,7 @@ export const useChat = (currentUser) => {
     
     // 聊天 Popup 狀態
     isChatPopupOpen,
+    newMessage,
     openChatPopup,
     closeChatPopup,
     toggleChatPopup,
@@ -124,6 +230,8 @@ export const useChat = (currentUser) => {
     markAsRead,
     markConversationAsRead,
     searchMessages,
+    handleSendMessage,
+    formatMessageTime,
     
     // SignalR 連接
     startConnection,
