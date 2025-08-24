@@ -146,6 +146,9 @@ globalApp({
             stopConnection
         } = chatManager
 
+        // 將 openChatPopup 暴露到全局，以便從非 Vue 環境調用
+        window.openChatPopupGlobal = openChatPopup
+
         //#endregion
 
         const isAppReady = ref(false)

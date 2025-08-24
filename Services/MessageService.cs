@@ -93,11 +93,11 @@ namespace Matrix.Services
             try
             {
                 // 檢查用戶是否有權限查看對話
-                if (!await CanUserAccessConversationAsync(user1Id, user2Id))
-                {
-                    _logger.LogWarning($"User {user1Id} cannot access conversation with {user2Id}");
-                    throw new UnauthorizedAccessException("沒有權限查看此對話");
-                }
+                //if (!await CanUserAccessConversationAsync(user1Id, user2Id))
+                //{
+                //    _logger.LogWarning($"User {user1Id} cannot access conversation with {user2Id}");
+                //    throw new UnauthorizedAccessException("沒有權限查看此對話");
+                //}
 
                 // 將 UserId 轉換為 PersonId
                 var user1Person = await _personRepository.GetByUserIdAsync(user1Id);

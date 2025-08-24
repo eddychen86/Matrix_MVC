@@ -123,16 +123,25 @@
             const closeBtn = event.target.closest('#closeChatBtn');
 
             if (openBtn) {
-                const isHidden = chatPopup.classList.contains('hidden');
-                if (isHidden) {
+                // Access the profile data from the global Vue app instance
+                const profileData = window.globalApp.profile; // Assuming 'profile' is exposed from useProfile
+                if (profileData && profileData.userId) {
+                    // Call the globally exposed openChatPopupGlobal function
+                    window.openChatPopupGlobal({
+                        userId: profileData.userId,
+                        displayName: profileData.displayName // Pass other relevant data if needed
+                    });
+
+                    // Explicitly show the chat popup by removing the 'hidden' class
                     chatPopup.classList.remove('hidden');
+
                     // Initialize drag functionality only once
                     if (!chatPopup.dataset.isDraggable) {
                         makeDraggable(chatPopup);
                         chatPopup.dataset.isDraggable = 'true';
                     }
                 } else {
-                    chatPopup.classList.add('hidden');
+                    console.error("Profile data or userId not available for chat.");
                 }
             }
 
