@@ -248,24 +248,24 @@ export const useChat = (currentUser) => {
     })
   }
 
-  // 处理发送消息
+  // 處理發送消息
   const handleSendMessage = async () => {
     if (!newMessage.value.trim() || !currentConversation.value?.userId) {
       return
     }
 
     const messageContent = newMessage.value.trim()
-    newMessage.value = '' // 清空输入框
+    newMessage.value = '' // 清空輸入框
 
     try {
       await sendMessage(currentConversation.value.userId, messageContent)
-      // 消息发送成功后，滚动到最新消息
+      // 消息發送成功后，滚動到最新消息
       scrollToBottom()
     } catch (error) {
       console.error('Failed to send message:', error)
-      // 可以在这里显示错误提示
-      alert('发送消息失败，请稍后再试')
-      // 还原输入内容
+      // 可以在這裡顯示錯誤提示
+      alert('發送消息失敗，請稍後再試')
+      // 還原輸入內容
       newMessage.value = messageContent
     }
   }
