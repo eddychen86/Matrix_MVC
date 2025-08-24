@@ -64,9 +64,7 @@ export const useChat = (currentUser) => {
       }
       
       const result = await response.json();
-      
-      // 將新消息添加到消息列表
-      messages.value.push(result);
+
       
       console.log('Message sent successfully:', result);
       return result;
@@ -181,7 +179,7 @@ export const useChat = (currentUser) => {
   }
 
   // 實現標記對話已讀
-  const markConversationAsRead = async (senderId) => {
+  const markConversationAsRead = async (sentId) => {
   }
 
   // 搜尋訊息
@@ -191,23 +189,98 @@ export const useChat = (currentUser) => {
   //#region TODO: SignalR 連接管理
 
   // SignalR 連接
-  const startConnection = async () => {
-  }
+    const startConnection = async () => {
+        if (connection && isConnected.value) {
+            console.log("SignalR connection already established.");
+            return;
+        }
+        // 1. 建立 SignalR 連接
+        connection = new signalR.HubConnectionBuilder()
+            .withUrl("/matrixHub") // 請確保這個 Hub 的路徑與您後端設定的一致
+            .withAutomaticReconnect() // 加入自動重新連接機制
+            .build();
 
-  // SignalR 斷開連接
-  const stopConnection = async () => {
-  }
+        // 2. 定義接收訊息的事件監聽
+        connection.on("ReceiveMessage", (message) => {
+            console.log("New message received from SignalR:", message);
+
+            const currentUserId = currentUser?.userId;
+            const otherUserId = currentConversation.value?.userId;
+
+            if (!otherUserId || !currentUserId) {
+                console.warn("Received a message, but no active conversation window. Ignoring UI update.");
+                return;
+            }
+
+            if (!message.sentId || !message.receiverId) {
+                console.error("Received message object is missing sentId or receiverId.", message);
+                return;
+            }
+
+            // 將所有用於比較的 ID 轉換為小寫
+            const msgSenderLower = message.sentId.toLowerCase();
+            const msgReceiverLower = message.receiverId.toLowerCase();
+            const currentUserLower = currentUserId.toLowerCase();
+            const otherUserLower = otherUserId.toLowerCase();
+
+            console.log("Comparing IDs:", {
+                'Msg Sender': msgSenderLower,
+                'Msg Receiver': msgReceiverLower,
+                'Current User (Me)': currentUserLower,
+                'Other User (Chatting with)': otherUserLower
+            });
+
+            // 進行比對
+            const isRelated = (msgSenderLower === currentUserLower && msgReceiverLower === otherUserLower) ||
+                (msgSenderLower === otherUserLower && msgReceiverLower === currentUserLower);
+
+            if (isRelated) {
+                console.log("Message is related to the current conversation. Updating UI.");
+                messages.value.push(message);
+                scrollToBottom();
+            } else {
+                console.log("Message is NOT related to the current conversation. Ignoring UI update.");
+            }
+            // --- 結束偵錯與修正 ---
+
+        });
+        // 3. 啟動連接
+        try {
+            await connection.start();
+            isConnected.value = true;
+            console.log("SignalR Connected successfully.");
+        } catch (err) {
+            console.error("SignalR Connection failed: ", err);
+            // 可設定延遲後重試
+            setTimeout(startConnection, 5000);
+        }
+    };
+
+    // SignalR 斷開連接
+    const stopConnection = async () => {
+        if (connection && isConnected.value) {
+            try {
+                await connection.stop();
+                isConnected.value = false;
+                console.log("SignalR Disconnected.");
+            } catch (err) {
+                console.error("Error stopping SignalR connection: ", err);
+            }
+        }
+    };
 
   //#endregion
 
   //#region 生命週期
   
   // 進入網頁時需初始化的功能
-  onMounted(() => {
+    onMounted(() => {
+        startConnection();
   })
 
   // 卸載時的清理邏輯
-  onUnmounted(() => {
+    onUnmounted(() => {
+        stopConnection();
   })
 
   //#endregion

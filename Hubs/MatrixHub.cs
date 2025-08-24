@@ -36,7 +36,7 @@ namespace Matrix.Hubs
                     if (person != null)
                     {
                         // 加入個人群組（用於個人通知）
-                        await Groups.AddToGroupAsync(Context.ConnectionId, $"User_{person.PersonId}");
+                        await Groups.AddToGroupAsync(Context.ConnectionId, $"User_{auth.UserId}");
                         
                         // 加入全體用戶群組（用於系統公告）
                         await Groups.AddToGroupAsync(Context.ConnectionId, "AllUsers");
@@ -47,7 +47,7 @@ namespace Matrix.Hubs
                             await Groups.AddToGroupAsync(Context.ConnectionId, "Admins");
                         }
 
-                        _logger.LogInformation("User {PersonId} connected to MatrixHub", person.PersonId);
+                        _logger.LogInformation("User {PersonId} connected to MatrixHub", auth.UserId);
                     }
                 }
                 catch (Exception ex)

@@ -88,26 +88,35 @@ namespace Matrix.Controllers.Api
 
             try
             {
+                // 1. service 正常執行，返回的 createdMessage 內部是 PersonId
                 var createdMessage = await _messageService.SendMessageAsync(senderId.Value, dto.ReceiverId, dto.Content);
 
-                await _hubContext.Clients.Group($"User_{dto.ReceiverId}")
-                    .SendAsync("ReceiveMessage", createdMessage);
-                
-                await _hubContext.Clients.Group($"User_{senderId.Value}")
-                    .SendAsync("ReceiveMessage", createdMessage);
+                // 2. [核心修正] 創建一個專門用於 SignalR 廣播的 payload
+                //    確保廣播出去的 ID 是前端和 Hub 群組所使用的 UserId
+                var signalrPayload = new
+                {
+                    MsgId = createdMessage.MsgId,
+                    SentId = senderId.Value, // <-- 使用原始的 senderId (UserId)
+                    ReceiverId = dto.ReceiverId, // <-- 使用原始的 receiverId (UserId)
+                    Content = createdMessage.Content,
+                    CreateTime = createdMessage.CreateTime,
+                    IsRead = createdMessage.IsRead
+                    // 如果前端還需要 displayName 等資訊，也可以在這裡加入
+                };
 
+                // 3. 將新的 payload 廣播出去
+                await _hubContext.Clients.Group($"User_{dto.ReceiverId}")
+                    .SendAsync("ReceiveMessage", signalrPayload);
+
+                await _hubContext.Clients.Group($"User_{senderId.Value}")
+                    .SendAsync("ReceiveMessage", signalrPayload);
+
+                // 4. HTTP 回應仍然可以返回原始的物件，這不影響 SignalR
                 return Ok(createdMessage);
-            }
-            catch (ArgumentException ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                return StatusCode(403, new { message = ex.Message });
             }
             catch (Exception ex)
             {
+                // ... error handling
                 return StatusCode(500, "An internal error occurred.");
             }
         }

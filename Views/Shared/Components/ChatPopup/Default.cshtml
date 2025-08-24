@@ -14,9 +14,9 @@
             </div>
             <div v-else class="space-y-3">
                 <div v-for="message in messages" :key="message.messageId" 
-                     class="flex" :class="message.senderId === currentUser?.userId ? 'justify-end' : 'justify-start'">
+                     class="flex" :class="message.sentId === currentUser?.userId ? 'justify-end' : 'justify-start'">
                     <div class="max-w-xs lg:max-w-md px-4 py-2 rounded-lg text-sm" 
-                         :class="message.senderId === currentUser?.userId 
+                         :class="message.sentId === currentUser?.userId 
                            ? 'bg-blue-500 text-white' 
                            : 'bg-white border border-gray-200'">
                         <p class="break-words">{{ message.content }}</p>
@@ -44,3 +44,5 @@
         </div>
     </div>
 </teleport>
+
+<script src="~/lib/microsoft-signalr/signalr.min.js"></script>
