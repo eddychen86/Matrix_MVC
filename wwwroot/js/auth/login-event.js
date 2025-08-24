@@ -138,7 +138,8 @@ createApp({
             toggleOpen,
             toggleClose,
             togglePasswordVisibility,
-            submitForm
+            submitForm,
+            isSubmitting,
         }
     }
 }).mount('#auth-body')

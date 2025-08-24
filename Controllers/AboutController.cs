@@ -14,7 +14,7 @@ namespace Matrix.Controllers
                     engName = "Eddy",
                     email = "eddychen101020@gmail.com",
                     github = "eddychen86",
-                    img = "eddy.png",
+                    img = "eddy.jpg",
                     level = "組長",
                     description = "擁有 2~3 年前端開發經歷的工程師，正為全端工程師為目標邁進。",
                     skill = new string[] {

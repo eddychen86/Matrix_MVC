@@ -65,9 +65,9 @@
             </div>
 
             @* 註冊按鈕 *@
-            <button type="submit" class="auth-btn subTitle py-2">
-                @* <span class="loading loading-dots loading-lg"></span> *@
-                @Localizer["SubmitBtn"]
+            <button type="submit" class="auth-btn subTitle py-2" :disabled="isSubmitting">
+                <span v-if="isSubmitting" class="loading loading-dots loading-xl text-white"></span>
+                <span v-else>@Localizer["SubmitBtn"]</span>
             </button>
 
             @* 已有帳號 *@
