@@ -1072,10 +1072,98 @@ catch (Exception ex)
 
 ---
 
+## Azure 部署相關問題
+
+### 問題 15: Azure App Service 部署時 npm install 失敗錯誤
+**症狀**: 在 Visual Studio 發布到 Azure App Service 時，出現 npm install 失敗錯誤：
+```
+npm error code ENOENT
+npm error syscall open
+npm error path D:\...\Matrix\package.json
+npm error errno -4058
+npm error enoent Could not read package.json
+```
+
+**原因**: Azure App Service 和 Visual Studio 的部署系統具有**自動檢測機制**，當發現以下文件時會自動認為這是 Node.js 專案並嘗試執行 `npm install`：
+- `tailwind.config.js`
+- `webpack.config.js`
+- `gulpfile.js`
+- `package.json` (如果存在)
+
+但專案中只有 `tailwind.config.js` 而沒有 `package.json`，因此 npm install 會失敗。
+
+**解決方案**:
+
+**方法1: 移除觸發檔案並添加禁用屬性**
+```bash
+# 重命名 tailwind.config.js 以避免自動檢測
+mv tailwind.config.js tailwind.config.js.bak
+```
+
+**方法2: 在 Matrix.csproj 中添加禁用屬性**
+```xml
+<PropertyGroup>
+    <!-- 原有屬性... -->
+    <!-- 明確禁用所有 npm 相關操作 -->
+    <DisableNpmInstall>true</DisableNpmInstall>
+    <EnableNodeJsIntegration>false</EnableNodeJsIntegration>
+    <SkipNodeModules>true</SkipNodeModules>
+</PropertyGroup>
+```
+
+**方法3: 在發布配置文件中禁用構建**
+```xml
+<!-- Properties/PublishProfiles/xxx.pubxml -->
+<PropertyGroup>
+    <!-- 原有屬性... -->
+    <!-- 禁用 Node.js 相關的構建步驟 -->
+    <SCM_DO_BUILD_DURING_DEPLOYMENT>false</SCM_DO_BUILD_DURING_DEPLOYMENT>
+    <WEBSITE_NODE_DEFAULT_VERSION>~18</WEBSITE_NODE_DEFAULT_VERSION>
+</PropertyGroup>
+```
+
+**方法4: 創建最小 package.json (如果需要保留 tailwind.config.js)**
+```json
+{
+  "name": "matrix",
+  "version": "1.0.0",
+  "scripts": {
+    "build": "echo 'No build needed'"
+  },
+  "dependencies": {}
+}
+```
+
+**為什麼 CSS 不會失效**:
+1. **SCSS 已編譯完成**: 編譯好的 CSS 文件存在於 `wwwroot/css/` 目錄
+2. **LibMan 管理前端資源**: 使用 `libman.json` 管理 Vue、Chart.js 等，不依賴 npm
+3. **部署時直接複製**: CSS 文件會直接部署到服務器，無需 npm 處理
+
+**預防措施**:
+- 開發時使用本地工具編譯 SCSS 和 Tailwind CSS
+- 避免在 ASP.NET Core 專案根目錄放置 Node.js 配置文件
+- 使用 CDN 版本的前端庫，或透過 LibMan 管理
+- 如需 Node.js 工具鏈，考慮分離前後端專案結構
+
+**驗證部署成功**:
+```bash
+# 清理並重新發布
+dotnet clean
+dotnet publish --configuration Release
+```
+
+**相關檔案**:
+- `/Matrix.csproj:12-15` (禁用屬性)
+- `/Properties/PublishProfiles/web3matrix - Web Deploy.pubxml:28-30` (發布配置)
+- `/tailwind.config.js` → `/tailwind.config.js.bak` (重命名避免檢測)
+- `/wwwroot/css/tailwind.css` (已編譯的樣式文件)
+
+---
+
 ## 待補充問題
 *後續遇到的問題和解決方案會持續更新到此處*
 
 ---
 
-**最後更新**: 2025-08-23  
-**版本**: v1.11
+**最後更新**: 2025-08-24  
+**版本**: v1.12

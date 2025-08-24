@@ -8,6 +8,7 @@
         <NoDefaultLaunchSettingsFile>True</NoDefaultLaunchSettingsFile>
         <UseSharedCompilation>false</UseSharedCompilation>
         <PreserveCompilationContext>true</PreserveCompilationContext>
+        <Configurations>Debug;Release;Production</Configurations>
     </PropertyGroup>
 
     <ItemGroup>
@@ -47,10 +48,5 @@
         <Folder Include="Areas/BE/Controllers/Api/" />
         <Folder Include="Areas/BE/Views/" />
     </ItemGroup>
-
-    <Target Name="PrepublishScript" BeforeTargets="PrepareForPublish">
-        <Exec Command="npm install" />
-        <Exec Command="npm run build" />
-    </Target>
 
 </Project>
