@@ -84,6 +84,8 @@ namespace Matrix.Services
                 ["WelcomeMessage"] = "歡迎！",
 
                 // 社交功能
+                ["Posts"] = "新增貼文",
+                ["Chat"] = "聊天",
                 ["Comment"] = "留言",
                 ["Praise"] = "讚",
                 ["Follow"] = "追蹤",
@@ -526,6 +528,8 @@ namespace Matrix.Services
                 ["WelcomeMessage"] = "Welcome!",
 
                 // 社交功能
+                ["Posts"] = "Posts",
+                ["Chat"] = "Chat",
                 ["Comment"] = "Comment",
                 ["Praise"] = "Praise",
                 ["Follow"] = "Follow",
