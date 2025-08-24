@@ -108,6 +108,70 @@ export const useChat = (currentUser) => {
     }
   }
 
+  //前端按鈕
+    document.addEventListener('click', function (event) {
+        const openBtn = event.target.closest('#openChatBtn');
+
+        if (openBtn) {
+            // Access the profile data from the global Vue app instance
+            const profileData = window.globalApp.profile; // Assuming 'profile' is exposed from useProfile
+            if (profileData && profileData.userId) {
+                // Call the globally exposed openChatPopupGlobal function
+                window.openChatPopupGlobal({
+                    userId: profileData.userId,
+                    displayName: profileData.displayName // Pass other relevant data if needed
+                });
+
+                // Initialize drag functionality for the chat popup
+                Vue.nextTick(() => {
+                    const chatPopup = document.getElementById('chat-popup');
+                    if (chatPopup && !chatPopup.dataset.isDraggable) {
+                        makeDraggable(chatPopup);
+                        chatPopup.dataset.isDraggable = 'true';
+                    }
+                });
+            } else {
+                console.error("Profile data or userId not available for chat.");
+            }
+        }
+    });
+
+    function makeDraggable(element) {
+        const header = element.querySelector('#chat-header');
+        if (!header) return;
+
+        let isDragging = false;
+        let offsetX, offsetY;
+
+        header.addEventListener('mousedown', (e) => {
+            isDragging = true;
+
+            const rect = element.getBoundingClientRect();
+            offsetX = e.clientX - rect.left;
+            offsetY = e.clientY - rect.top;
+
+            // Ensure position is fixed for proper viewport-relative dragging
+            element.style.position = 'fixed';
+
+            document.addEventListener('mousemove', onMouseMove);
+            document.addEventListener('mouseup', onMouseUp);
+        });
+
+        function onMouseMove(e) {
+            if (!isDragging) return;
+
+            // Set new position based on mouse position minus the initial offset
+            element.style.left = (e.clientX - offsetX) + 'px';
+            element.style.top = (e.clientY - offsetY) + 'px';
+        }
+
+        function onMouseUp() {
+            isDragging = false;
+            document.removeEventListener('mousemove', onMouseMove);
+            document.removeEventListener('mouseup', onMouseUp);
+        }
+    }
+
   // 載入對話列表
   const loadConversations = async (limit = 10) => {
   }
@@ -159,11 +223,11 @@ export const useChat = (currentUser) => {
     const diffInSeconds = Math.floor((now - messageDate) / 1000)
     
     if (diffInSeconds < 60) {
-      return '刚刚'
+      return '剛剛'
     } else if (diffInSeconds < 3600) {
-      return `${Math.floor(diffInSeconds / 60)}分钟前`
+      return `${Math.floor(diffInSeconds / 60)}分鐘前`
     } else if (diffInSeconds < 86400) {
-      return `${Math.floor(diffInSeconds / 3600)}小时前`
+      return `${Math.floor(diffInSeconds / 3600)}小時前`
     } else {
       return messageDate.toLocaleDateString('zh-TW', {
         month: 'short',
