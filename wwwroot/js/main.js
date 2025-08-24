@@ -133,6 +133,7 @@ globalApp({
             
             // 聊天 Popup 狀態
             isChatPopupOpen,
+            newMessage,
             openChatPopup,
             closeChatPopup,
             toggleChatPopup,
@@ -144,11 +145,16 @@ globalApp({
             markAsRead,
             markConversationAsRead,
             searchMessages,
+            handleSendMessage,
+            formatMessageTime,
             
             // SignalR 連接
             startConnection,
             stopConnection
         } = chatManager
+
+        // 將 openChatPopup 暴露到全局，以便從非 Vue 環境調用
+        window.openChatPopupGlobal = openChatPopup
 
         //#endregion
 
@@ -291,12 +297,15 @@ globalApp({
             toggleChatPopup,
             
             // 聊天方法
+            newMessage,
             sendMessage,
             loadConversation,
             loadConversations,
             markAsRead,
             markConversationAsRead,
             searchMessages,
+            handleSendMessage,
+            formatMessageTime,
             
             // SignalR 連接
             startConnection,

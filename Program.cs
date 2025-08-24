@@ -30,6 +30,8 @@ public class Program
         builder.Logging.ClearProviders();
         builder.Logging.AddConsole();
         builder.Logging.AddDebug();
+        builder.Services.AddScoped<IMessageService, MessageService>();
+        builder.Services.AddScoped<IMessageRepository, MessageRepository>();
 
         // 從配置中獲取連接字串 (會自動從 appsettings.json, secrets.json, 環境變數等來源載入)
         // smartASP.NET = DefaultConnection
@@ -45,7 +47,7 @@ public class Program
 
         if (string.IsNullOrEmpty(connectionString))
         {
-            throw new InvalidOperationException($"{connectString.azureString} connection string is not configured.");
+            throw new InvalidOperationException("DefaultConnection connection string is not configured.");
         }
 
         // Add services to the container.
@@ -293,6 +295,7 @@ public class Program
         app.UseStaticFiles();
         app.UseRouting();
         app.UseRequestLocalization();
+
 
         #region JWT 驗證機制
 
