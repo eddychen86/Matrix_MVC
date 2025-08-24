@@ -7,7 +7,7 @@
         <div class="relative flex h-full max-w-[650px] min-w-[450px] flex-col overflow-hidden rounded-[15px] bg-[#161616] p-6 pt-[70px]">
             <template v-if="replyModal.article">
                 <!-- 頭像 -->
-                <img :src="replyModal.article.authorAvatar || '/static/images/default_avatar.png'"
+                <img :src="replyModal.article.authorAvatar || ''"
                      class="absolute top-[25px] left-[24px] h-[32px] w-[34px] rounded-[24px] object-cover object-center"
                      alt="" />
                 <!-- 名稱 -->
@@ -102,10 +102,10 @@
                     <div v-for="reply in replyModal.replies" :key="reply.replyId" class="rounded-lg bg-gray-300 p-3">
                         <div class="flex items-center justify-between">
                             <div class="flex items-center gap-2">
-                                <img :src="reply.authorAvatar || '/static/img/default_avatar.png'"
+                                <img :src="reply.authorAvatar || ''"
                                      class="h-7 w-7 rounded-full object-cover"
                                      alt="avatar"
-                                     v-on:error="e => e.target.src='/static/img/default_avatar.png'" />
+                                     v-on:error="e => e.target.src=''" />
                                 <div class="text-sm font-bold text-black">
                                     {{ reply.authorName || '未知作者' }}
                                 </div>

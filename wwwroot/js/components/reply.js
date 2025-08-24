@@ -28,7 +28,7 @@ export function useReply() {
                 dto.AuthorAvatar ??
                 dto.author?.avatarPath ??
                 dto.Author?.AvatarPath ??
-                '/static/img/default_avatar.png',
+                '',
             createTime:
                 dto.createTime ?? dto.CreateTime ?? dto.replyTime ?? dto.ReplyTime ?? null,
             createTimeFormatted:
