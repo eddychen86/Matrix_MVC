@@ -4,6 +4,7 @@ import { useHome } from '/js/pages/home/home.js'
 import { useProfile } from '/js/pages/profile/profile.js'
 import { useAbout } from '/js/pages/about/about.js'
 import { useReply } from '/js/components/reply.js'
+import { useCreatePost } from '/js/components/create-post.js'
 import loginPopupManager from '/js/auth/login-popup.js'
 
 // 導入新的模組化組件
@@ -196,6 +197,9 @@ globalApp({
         const Profile = LoadingPage(/^\/profile(?:\/|$)/i, useProfile)
         const Reply = (typeof useReply === 'function') ? useReply() : {}  // 全域載入，因為 ReplyPopup 在各頁面都會使用
         const About = LoadingPage(/^\/about(?:\/|$)/i, useAbout)
+        
+        // TODO(human): 全域載入 CreatePost 組件，因為 CreatePostPopup 在各頁面都會使用
+        const CreatePost = (typeof useCreatePost === 'function') ? useCreatePost() : {}
 
         //#endregion
 
@@ -320,7 +324,8 @@ globalApp({
             ...Profile,
             ...Home,
             ...About,
-            ...Reply
+            ...Reply,
+            ...CreatePost
         }
     }
 })

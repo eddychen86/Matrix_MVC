@@ -187,22 +187,52 @@
                                     </td>
                                     <td>{{ item.DisplayName }}</td>
                                     <td class="text-center">
-                                        <div :data-i18n="item.SuperAdmin === 2 ? 'Yes' : 'No'"></div>
+                                        <template v-if="item.isEditing">
+                                            <input
+                                                type="checkbox"
+                                                v-model="item.isSuperAdmin"
+                                                class="toggle border-indigo-600 bg-indigo-500 checked:border-orange-500 checked:bg-orange-400 checked:text-orange-800"
+                                            />
+                                        </template>
+                                        <template v-else>
+                                            <div :data-i18n="item.SuperAdmin === 2 ? 'Yes' : 'No'"></div>
+                                        </template>
                                     </td>
-                                    <td class="flex justify-center">
-                                        <div class="rounded-full text-center text-white w-20 shadow-xl/30 border-2"
-                                                :class="item.status === 1 ? 'bg-green-500 border-green-300 shadow-green-300' : 'bg-red-500 border-red-300 shadow-red-300'"
-                                                :data-i18n="item.status === 1 ? 'enable' : 'disable'"
-                                                ></div>
+                                    <td>
+                                        <div class="flex justify-center items-center">
+                                            <template v-if="item.isEditing">
+                                                <input
+                                                    type="checkbox"
+                                                    v-model="item.isActive"
+                                                    class="toggle border-indigo-600 bg-indigo-500 checked:border-orange-500 checked:bg-orange-400 checked:text-orange-800"
+                                                />
+                                            </template>
+                                            <template v-else>
+                                                <div class="rounded-full text-center text-white w-20 shadow-xl/30 border-2"
+                                                        :class="item.status === 1 ? 'bg-green-500 border-green-300 shadow-green-300' : 'bg-red-500 border-red-300 shadow-red-300'"
+                                                        :data-i18n="item.status === 1 ? 'enable' : 'disable'"
+                                                        ></div>
+                                            </template>
+                                        </div>
                                     </td>
                                     <th class="text-center bg-yellow-50">
                                         <div class="join">
-                                            <button class="btn btn-ghost rounded-md btn-sm px-2 py-1" @@click="editAdmin(item.id)">
-                                                <i data-lucide="pen" class="size-6 text-blue-500 cursor-pointer"></i>
-                                            </button>
-                                            <button class="btn btn-ghost rounded-md btn-sm px-2 py-1" @@click="delAdmin(item.id)">
-                                                <i data-lucide="trash-2" class="size-6 text-red-500 cursor-pointer"></i>
-                                            </button>
+                                            <template v-if="item.isEditing">
+                                                <button class="btn btn-ghost rounded-md btn-sm px-2 py-1" @@click="saveAdmin(item.id)">
+                                                    <i data-lucide="save" class="size-6 text-blue-500 cursor-pointer"></i>
+                                                </button>
+                                                <button class="btn btn-ghost rounded-md btn-sm px-2 py-1" @@click="cancelEdit(item.id)">
+                                                    <i data-lucide="ban" class="size-6 text-red-500 cursor-pointer"></i>
+                                                </button>
+                                            </template>
+                                            <template v-else>
+                                                <button class="btn btn-ghost rounded-md btn-sm px-2 py-1" @@click="editAdmin(item.id)">
+                                                    <i data-lucide="pen" class="size-6 text-blue-500 cursor-pointer"></i>
+                                                </button>
+                                                <button class="btn btn-ghost rounded-md btn-sm px-2 py-1" @@click="delAdmin(item.id)">
+                                                    <i data-lucide="trash-2" class="size-6 text-red-500 cursor-pointer"></i>
+                                                </button>
+                                            </template>
                                         </div>
                                     </th>
                                 </tr>

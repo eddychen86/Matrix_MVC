@@ -7,7 +7,12 @@ export function useReply() {
         submitting: false,
         error: '',
         articleId: null,
-        article: null,
+        article: {
+            authorAvatar: '',
+            authorName: '',
+            content: '',
+            attachments: []
+        },
         replies: [],
         newComment: ''
     })

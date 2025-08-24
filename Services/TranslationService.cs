@@ -409,7 +409,7 @@ namespace Matrix.Services
 
                 #region Config 模組
 
-                ["Config_Title"] = "系統設定",
+                ["Config_Title"] = "管理員",
                 ["Config_Add_Admin"] = "新增管理員",
                 ["Config_Filter"] = "列表篩選",
                 ["Config_ToolsState"] = "功能開關",
@@ -780,7 +780,7 @@ namespace Matrix.Services
 
                 #region Config 模組
 
-                ["Config_Title"] = "Settings",
+                ["Config_Title"] = "Admins",
                 ["Config_Add_Admin"] = "Create Admin",
                 ["Config_Filter"] = "List Filter",
                 ["Config_ToolsState"] = "Tools",

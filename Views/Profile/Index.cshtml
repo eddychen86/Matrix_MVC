@@ -100,18 +100,18 @@
     </ul>
 </section>
 
-<!-- 中間：動態貼文 -->
-<ul class="post-content col-span-5 2xl:col-span-3" id="profilePostsList">
-    @await Component.InvokeAsync("PostList")
-</ul>
+    <!-- 中間：動態貼文 -->
+    <ul class="post-content col-span-5 2xl:col-span-3" id="profilePostsList">
+        @await Component.InvokeAsync("PostList")
+    </ul>
 
 <!-- 好友列表 -->
 @* <aside class="friends-list col-span-2">
     @await Component.InvokeAsync("FriendsList")
 </aside> *@
 
-<!-- 編輯個人檔案 -->
-@await Component.InvokeAsync("EditProfilePopup")
+    <!-- 編輯個人檔案 -->
+    @await Component.InvokeAsync("EditProfilePopup")
 
 <!-- 留言視窗 -->
 @await Component.InvokeAsync("ReplyPopup")

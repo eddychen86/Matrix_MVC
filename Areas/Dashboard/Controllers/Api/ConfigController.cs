@@ -19,7 +19,8 @@ namespace Matrix.Areas.Dashboard.Controllers.Api
         IUserRegistrationService registrationService,
         IAdminPermissionService permissionService,
         ILogger<ConfigController> logger,
-        ICustomLocalizer localizer
+        ICustomLocalizer localizer,
+        IAdminActivityService adminActivityService
     ) : ControllerBase
     {
         private readonly IUserService _userService = userService;
@@ -27,6 +28,7 @@ namespace Matrix.Areas.Dashboard.Controllers.Api
         private readonly IAdminPermissionService _permissionService = permissionService;
         private readonly ILogger<ConfigController> _logger = logger;
         private readonly ICustomLocalizer _localizer = localizer;
+        private readonly IAdminActivityService _adminActivityService = adminActivityService;
 
         // 獲取當前登入用戶資訊
         private async Task<(Guid UserId, int Role)?> GetCurrentUserInfoAsync()
@@ -228,6 +230,32 @@ namespace Matrix.Areas.Dashboard.Controllers.Api
 
             _logger.LogInformation("管理員建立成功: {UserName}, UserId: {UserId}, 角色: {Role}", model.UserName, userId, model.Role);
 
+            // 記錄管理員活動
+            try
+            {
+                var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown";
+                var userAgent = HttpContext.Request.Headers.UserAgent.ToString();
+                
+                await _adminActivityService.LogActionAsync(
+                    currentUser.Value.UserId,
+                    User.Identity?.Name ?? "Unknown",
+                    currentUser.Value.Role,
+                    "CREATE_ADMIN",
+                    $"創建新管理員: {model.UserName} (角色: {model.Role})",
+                    HttpContext.Request.Path,
+                    ipAddress,
+                    userAgent,
+                    true
+                );
+                
+                _logger.LogInformation("Admin creation activity recorded for user {UserName}", User.Identity?.Name);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to record admin creation activity");
+                // 不要因為活動記錄失敗而影響創建流程
+            }
+
             // 管理員帳號不需要發送驗證信，直接建立完成
             return Ok(new
             {
@@ -328,6 +356,38 @@ namespace Matrix.Areas.Dashboard.Controllers.Api
 
                 _logger.LogInformation("管理員資料更新成功: {UserId}", id);
 
+                // 記錄管理員活動
+                try
+                {
+                    var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown";
+                    var userAgent = HttpContext.Request.Headers.UserAgent.ToString();
+                    var actionDescription = $"更新管理員資料: {targetUser.UserName}";
+                    
+                    if (model.Role.HasValue)
+                        actionDescription += $" (角色: {targetUser.Role} → {model.Role.Value})";
+                    if (model.Status.HasValue)
+                        actionDescription += $" (狀態: {targetUser.Status} → {model.Status.Value})";
+                    
+                    await _adminActivityService.LogActionAsync(
+                        currentUser.Value.UserId,
+                        User.Identity?.Name ?? "Unknown",
+                        currentUser.Value.Role,
+                        "UPDATE_ADMIN",
+                        actionDescription,
+                        HttpContext.Request.Path,
+                        ipAddress,
+                        userAgent,
+                        true
+                    );
+                    
+                    _logger.LogInformation("Admin update activity recorded for user {UserName}", User.Identity?.Name);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Failed to record admin update activity");
+                    // 不要因為活動記錄失敗而影響更新流程
+                }
+
                 return Ok(new
                 {
                     success = true,
@@ -396,6 +456,32 @@ namespace Matrix.Areas.Dashboard.Controllers.Api
 
                 _logger.LogInformation("管理員軟刪除成功: {UserId}, 操作者: {OperatorId}", 
                     id, currentUser.Value.UserId);
+
+                // 記錄管理員活動
+                try
+                {
+                    var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown";
+                    var userAgent = HttpContext.Request.Headers.UserAgent.ToString();
+                    
+                    await _adminActivityService.LogActionAsync(
+                        currentUser.Value.UserId,
+                        User.Identity?.Name ?? "Unknown",
+                        currentUser.Value.Role,
+                        "DELETE_ADMIN",
+                        $"軟刪除管理員: {targetUser.UserName} (角色: {targetUser.Role})",
+                        HttpContext.Request.Path,
+                        ipAddress,
+                        userAgent,
+                        true
+                    );
+                    
+                    _logger.LogInformation("Admin deletion activity recorded for user {UserName}", User.Identity?.Name);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Failed to record admin deletion activity");
+                    // 不要因為活動記錄失敗而影響刪除流程
+                }
 
                 return Ok(new
                 {
