@@ -20,9 +20,8 @@
             <div class="grid grid-cols-1 sm:grid-cols-4 gap-8">
                 <div class="tabs tabs-lift col-span-1">
                     @* 篩選列表 *@
-                    <input type="radio" name="config_tabs" class="tab subTitle w-1/2" aria-label="@Localizer["Config_Filter"]" checked="checked" />
+                    <input type="radio" name="config_tabs" class="tab subTitle w-1/2" data-i18n="Config_Filter" aria-label="@Localizer["Config_Filter"]" checked="checked" />
                     <div class="tab-content border-black/10 p-6">
-                        @* 管理員篩選 *@
                         <ul class="flex flex-col gap-4">
                             <li v-for="tool in adminFilter" :key="tool.id">
                                 <!-- 文字搜尋 -->
@@ -41,7 +40,7 @@
 
                                 <!-- 開關選項 -->
                                 <template v-else-if="tool.type === 'switch'">
-                                    <div class="flex items-center justify-between">
+                                    <div class="flex flex-col 2xl:flex-row sm:items-start 2xl:items-center justify-between sm:justify-normal gap-2">
                                         <h5 class="subTitle" :data-i18n="tool.title">{{ tool.title }}</h5>
                                         <div class="tabs tabs-box border border-base-300 rounded-md">
                                             <input type="radio" 
@@ -71,7 +70,7 @@
                     </div>
 
                     @* 新增「管理員」 *@
-                    <input type="radio" name="config_tabs" class="tab subTitle w-1/2" aria-label="@Localizer["Config_Add_Admin"]" />
+                    <input type="radio" name="config_tabs" class="tab subTitle w-1/2" data-i18n="Config_Add_Admin" aria-label="@Localizer["Config_Add_Admin"]" />
                     <div class="tab-content border-black/10 p-6">
                         <form v-on:submit.prevent="submitCreateAdmin" class="space-y-4">
                             @* 頭像上傳 *@
@@ -91,7 +90,7 @@
                             @* 使用者名稱 *@
                             <div class="input-item">
                                 <label for="userName" class="subTitle" data-i18n="UserName">@Localizer["UserName"]</label>
-                                <label class="input validator rounded-full mt-2">
+                                <label class="input validator rounded-full mt-2 w-full">
                                     <i data-lucide="user" class="size-4 opacity-50"></i>
                                     <input type="text" v-model="formData.userName"
                                            placeholder="@Localizer["UserNamePlaceholder"]" data-i18n-placeholder="UserNamePlaceholder" />
@@ -102,7 +101,7 @@
                             @* Email *@
                             <div class="input-item">
                                 <label for="email" class="subTitle" data-i18n="Email">@Localizer["Email"]</label>
-                                <label class="input validator rounded-full mt-2">
+                                <label class="input validator rounded-full mt-2 w-full">
                                     <i data-lucide="mail" class="size-4 opacity-50"></i>
                                     <input type="email" v-model="formData.email"
                                            placeholder="@Localizer["EmailPlaceholder"]" data-i18n-placeholder="EmailPlaceholder" />
@@ -113,7 +112,7 @@
                             @* 密碼 *@
                             <div class="input-item">
                                 <label for="password" class="subTitle" data-i18n="Password">@Localizer["Password"]</label>
-                                <label class="input validator rounded-full mt-2">
+                                <label class="input validator rounded-full mt-2 w-full">
                                     <i data-lucide="key" class="size-4 opacity-50"></i>
                                     <input type="password" v-model="formData.password"
                                            placeholder="@Localizer["PasswordPlaceholder"]" data-i18n-placeholder="PasswordPlaceholder" />
@@ -124,7 +123,7 @@
                             @* 確認密碼 *@
                             <div class="input-item">
                                 <label for="passwordConfirm" class="subTitle" data-i18n="ConfirmPassword">@Localizer["ConfirmPassword"]</label>
-                                <label class="input validator rounded-full mt-2">
+                                <label class="input validator rounded-full mt-2 w-full">
                                     <i data-lucide="key" class="size-4 opacity-50"></i>
                                     <input type="password" v-model="formData.passwordConfirm"
                                            placeholder="@Localizer["ConfirmPasswordPlaceholder"]" data-i18n-placeholder="ConfirmPasswordPlaceholder" />
