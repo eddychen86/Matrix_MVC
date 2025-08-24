@@ -1160,10 +1160,80 @@ dotnet publish --configuration Release
 
 ---
 
+## 資料庫遷移相關問題
+
+### 問題 16: SmartASP.NET 到 Azure SQL Server 的資料庫遷移流程
+**需求**: 將 SmartASP.NET SQL Server 的資料完整遷移到 Azure SQL Server，包含所有資料表結構和資料內容。
+
+**解決方案**: 使用 SSMS 匯入和匯出資料精靈進行跨雲端資料庫遷移
+
+**步驟1: 連接設定**
+```
+來源資料庫 (SmartASP.NET):
+- 資料來源: Microsoft OLE DB Driver for SQL Server
+- 伺服器名稱: SQL1004.site4now.net
+- 驗證: SQL Server 驗證
+- 使用者名稱: db_abbdbb_matrixdb_admin
+- 密碼: !@#2025MatrixDB
+- 資料庫: db_abbdbb_matrixdb
+
+目的地資料庫 (Azure SQL):
+- 資料來源: Microsoft OLE DB Driver for SQL Server
+- 伺服器名稱: azurematrix-1.database.windows.net
+- 驗證: SQL Server 驗證
+- 使用者名稱: rootAccount
+- 密碼: !@#VueDB
+- 資料庫: MatrixDB
+```
+
+**步驟2: 選擇遷移方式**
+- 選擇「複製一個或多個資料表或檢視的資料」
+- 這會同時複製資料表結構和所有資料內容
+
+**步驟3: 處理資料型別相容性問題**
+```
+常見問題: datetime2 vs smalldatetime
+來源: datetime2 (高精度)
+目的地: smalldatetime (低精度)
+
+解決方案:
+1. 修改目的地資料表結構為 datetime2
+2. 或在匯入精靈中編輯對應設定
+3. 或選擇「卸除並重新建立目的地資料表」
+```
+
+**步驟4: 執行選項**
+- 選擇「立即執行」進行一次性遷移
+- SSIS 封裝適合需要重複執行的情況
+
+**注意事項**:
+1. 確保兩端防火牆都允許連接
+2. 大型資料表可能需要分批遷移
+3. 檢查外鍵約束和索引是否正確遷移
+4. 驗證遷移後的資料完整性
+
+**替代方案**:
+- 使用備份與還原（適合相同版本）
+- 使用 SQL Server Data Tools (SSDT)
+- 使用 Azure Database Migration Service
+
+**相關連線字串**:
+```csharp
+// appsettings.Production.json 中的連線設定
+"DefaultConnection": "Server=SQL1004.site4now.net;Database=db_abbdbb_matrixdb;..."
+"AzureConnection": "Server=azurematrix-1.database.windows.net;Database=MatrixDB;..."
+```
+
+**相關檔案**:
+- `/appsettings.Production.json:10-11` (連線字串設定)
+- `/Program.cs:44` (連線字串選擇邏輯)
+
+---
+
 ## 待補充問題
 *後續遇到的問題和解決方案會持續更新到此處*
 
 ---
 
 **最後更新**: 2025-08-24  
-**版本**: v1.12
+**版本**: v1.13
