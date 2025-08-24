@@ -114,7 +114,7 @@ namespace Matrix.Controllers.Api
                 // 4. HTTP 回應仍然可以返回原始的物件，這不影響 SignalR
                 return Ok(createdMessage);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 // ... error handling
                 return StatusCode(500, "An internal error occurred.");
@@ -142,7 +142,7 @@ namespace Matrix.Controllers.Api
             {
                 return StatusCode(403, new { message = ex.Message });
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return StatusCode(500, "An internal error occurred.");
             }
