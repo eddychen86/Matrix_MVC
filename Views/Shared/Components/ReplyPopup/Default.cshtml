@@ -1,8 +1,8 @@
-﻿<div v-cloak v-show="replyModal.visible" class="fixed inset-0 z-[999] flex items-center justify-center" style="display:none;">
+﻿<div v-cloak v-show="replyModal.visible" class="fixed inset-0 z-[999] flex items-center justify-center">
+    <!-- 遮罩 -->
     <div class="absolute inset-0 bg-black/50" v-on:click="closeReply()"></div>
 
     <div class="relative z-[1000] flex h-[80vh] max-h-[800px] min-h-[650px] items-stretch">
-
         <!-- 左側：文章 -->
         <div class="relative flex h-full max-w-[650px] min-w-[450px] flex-col overflow-hidden rounded-[15px] bg-[#161616] p-6 pt-[70px]">
             <template v-if="replyModal.article">
@@ -17,14 +17,19 @@
             </template>
 
             <!-- 關閉 -->
-            <button v-on:click="closeReply()" class="absolute top-[22px] right-[24px] h-[32px] w-[32px] text-white hover:text-gray-300">
+            <button v-on:click="closeReply()"
+                    class="absolute top-[22px] right-[24px] h-[32px] w-[32px] text-white hover:text-gray-300">
                 <svg viewBox="0 0 24 24" class="h-full w-full fill-current">
-                    <path d="M6 6 L18 18 M6 18 L18 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                    <path d="M6 6 L18 18 M6 18 L18 6"
+                          stroke="currentColor"
+                          stroke-width="2"
+                          stroke-linecap="round" />
                 </svg>
             </button>
 
             <!-- 主要內容 -->
             <div class="flex flex-1 flex-col gap-4 pt-[10px] pb-[90px]">
+                <!-- 文章文字 -->
                 <p class="leading-7 break-words whitespace-pre-wrap">
                     {{ replyModal.article?.content }}
                 </p>
@@ -35,12 +40,13 @@
                         <img v-for="img in replyModal.article.attachments.filter(f => f.type === 'image')"
                              :key="img.fileId"
                              :src="img.filePath"
-                             class="rounded-lg max-h-35 max-w-full object-contain">
+                             class="rounded-lg max-h-35 max-w-full object-contain" />
                     </div>
                 </div>
 
                 <!-- 非圖片附件 -->
-                <div v-if="replyModal.article?.attachments?.some(f => f.type !== 'image')" class="flex flex-wrap items-end gap-2">
+                <div v-if="replyModal.article?.attachments?.some(f => f.type !== 'image')"
+                     class="flex flex-wrap items-end gap-2">
                     <a v-for="(file, index) in replyModal.article.attachments.filter(f => f.type !== 'image')"
                        :key="file.fileId || index"
                        :href="file.filePath"
@@ -48,10 +54,15 @@
                        class="relative w-[60px] shrink-0 rounded-[12px] bg-white/5 p-1"
                        :title="file.fileName || (file.filePath || '').split('/').pop()">
                         <div class="flex h-[40px] w-full items-center justify-center rounded-[10px] bg-white">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 24 24">
+                            <svg xmlns="http://www.w3.org/2000/svg"
+                                 class="h-6 w-6"
+                                 viewBox="0 0 24 24">
                                 <path fill="none" d="M0 0h24v24H0z"></path>
                                 <path fill="currentColor"
-                                      d="m20.41 8.41-4.83-4.83c-.37-.37-.88-.58-1.41-.58H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V9.83c0-.53-.21-1.04-.59-1.42zM7 7h7v2H7V7zm10 10H7v-2h10v2zm0-4H7v-2h10v2z">
+                                      d="m20.41 8.41-4.83-4.83c-.37-.37-.88-.58-1.41-.58H5
+                                         c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14
+                                         c1.1 0 2-.9 2-2V9.83c0-.53-.21-1.04-.59-1.42zM7 7h7v2H7V7zm10
+                                         10H7v-2h10v2zm0-4H7v-2h10v2z">
                                 </path>
                             </svg>
                         </div>
@@ -60,34 +71,62 @@
                         </span>
                     </a>
                 </div>
-            </div>
 
-            <!-- hashtag -->
-            <div v-if="replyModal.article?.hashtags?.length"
-                 class="mt-4 flex flex-wrap gap-2">
-                <span v-for="tag in replyModal.article.hashtags"
-                      :key="tag.tagId"
-                      class="rounded-full bg-white/10 px-3 py-1 text-sm whitespace-nowrap text-white">
-                    #{{ tag.name }}
-                </span>
-            </div>
+                <!-- hashtag -->
+                <div v-if="replyModal.article?.hashtags?.length" class="mt-4 flex flex-wrap gap-2">
+                    <span v-for="tag in replyModal.article.hashtags"
+                          :key="tag.tagId"
+                          class="rounded-full bg-white/10 px-3 py-1 text-sm whitespace-nowrap text-white">
+                        #{{ tag.name }}
+                    </span>
+                </div>
 
-            <!-- 按讚&收藏 -->
-            <div class="post-content_state">
-                <button class="text-white/90 hover:text-white">
-                    <i data-lucide="heart" class="size-4"></i>
-                    <span>{{ replyModal.article?.praiseCount || 0 }}</span>
-                </button>
-                <button class="text-white/90 hover:text-white">
-                    <i data-lucide="bookmark" class="size-4"></i>
-                    <span>{{ replyModal.article?.collectCount || 0 }}</span>
-                </button>
+                <!-- 按讚&收藏（固定左側視窗底部，點擊後可變色） -->
+                <div class="post-content_state absolute bottom-0 left-0 right-0 flex items-center gap-6 border-t border-white/10 bg-[#161616]/95 px-6 py-3 backdrop-blur z-[1010]">
+
+                    <!-- 讚 -->
+                    <button :disabled="replyModal.article?._pending"
+                            v-on:click="stateFunc('praise', replyModal.article)">
+                        <span class="inline-flex items-center gap-1"
+                              :class="replyModal.article?.isPraised ? 'text-red-500' : 'text-gray-400'">
+                            <svg xmlns="http://www.w3.org/2000/svg"
+                                 viewBox="0 0 24 24"
+                                 class="size-5"
+                                 stroke="currentColor"
+                                 :fill="replyModal.article?.isPraised ? 'currentColor' : 'none'"
+                                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06 a5.5 5.5 0 1 0-7.78 7.78L12 21.23l8.84-8.84 a5.5 5.5 0 0 0 0-7.78z" />
+                            </svg>
+                            <span class="ml-1">{{ replyModal.article?.praiseCount ?? 0 }}</span>
+                        </span>
+                    </button>
+
+                    <!-- 收藏 -->
+                    <button :disabled="replyModal.article?._pending"
+                            v-on:click="stateFunc('collect', replyModal.article)">
+                        <span class="inline-flex items-center gap-1"
+                              :class="replyModal.article?.isCollected ? 'text-yellow-500' : 'text-gray-400'">
+                            <svg xmlns="http://www.w3.org/2000/svg"
+                                 viewBox="0 0 24 24"
+                                 class="size-5"
+                                 stroke="currentColor"
+                                 :fill="replyModal.article?.isCollected ? 'currentColor' : 'none'"
+                                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M19 21l-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
+                            </svg>
+                            <span class="ml-1">{{ replyModal.article?.collectCount ?? 0 }}</span>
+                        </span>
+                    </button>
+                </div>
+
+
             </div>
         </div>
 
         <!-- 右側：留言 -->
         <div class="relative flex h-full w-[400px] overflow-hidden rounded-[15px] bg-white">
             <div class="flex w-full flex-col">
+                <!-- 標題 -->
                 <div class="flex items-center justify-between border-b border-white/10 px-4 py-3">
                     <div class="text-base font-medium text-black">留言</div>
                 </div>
@@ -98,8 +137,14 @@
                         <img src="~/static/img/Loading.gif" alt="Loading" class="h-12 w-12" />
                         <span>載入中…</span>
                     </div>
-                    <div v-else-if="!replyModal.replies.length" class="text-gray-600">還沒有留言</div>
-                    <div v-for="reply in replyModal.replies" :key="reply.replyId" class="rounded-lg bg-gray-300 p-3">
+
+                    <div v-else-if="!replyModal.replies.length" class="text-gray-600">
+                        還沒有留言
+                    </div>
+
+                    <div v-for="reply in replyModal.replies"
+                         :key="reply.replyId"
+                         class="rounded-lg bg-gray-300 p-3">
                         <div class="flex items-center justify-between">
                             <div class="flex items-center gap-2">
                                 <img :src="reply.authorAvatar || '/static/img/default_avatar.png'"
@@ -114,9 +159,10 @@
                                 {{ reply.createTimeFormatted || formatDate(reply.createTime, 'YYYY-MM-DD HH:mm') }}
                             </div>
                         </div>
-                        <div class="mt-2 text-sm whitespace-pre-wrap text-black">{{ reply.content }}</div>
+                        <div class="mt-2 text-sm whitespace-pre-wrap text-black">
+                            {{ reply.content }}
+                        </div>
                     </div>
-
                 </div>
 
                 <!-- 新增留言 -->
@@ -132,10 +178,12 @@
                             {{ replyModal.submitting ? '送出中…' : '送出' }}
                         </button>
                     </div>
-                    <div v-if="replyModal.error" class="mt-2 text-xs text-red-400">{{ replyModal.error }}</div>
+
+                    <div v-if="replyModal.error" class="mt-2 text-xs text-red-400">
+                        {{ replyModal.error }}
+                    </div>
                 </div>
             </div>
         </div>
-
     </div>
 </div>
