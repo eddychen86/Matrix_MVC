@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Matrix.Repository.Interfaces;
+using Matrix.Services.Interfaces;
 
 namespace Matrix.Controllers.Api
 {
@@ -13,6 +14,7 @@ namespace Matrix.Controllers.Api
         private readonly ILogger<LoginController> _logger;
         private readonly Matrix.Controllers.AuthController _authController;
         private readonly IAuthorizationService _authorizationService;
+        private readonly IAdminActivityService _adminActivityService;
 
         public LoginController(
             IUserService userService,
@@ -20,7 +22,8 @@ namespace Matrix.Controllers.Api
             ICustomLocalizer localizer,
             ILogger<LoginController> logger,
             Matrix.Controllers.AuthController authController,
-            IAuthorizationService authorizationService
+            IAuthorizationService authorizationService,
+            IAdminActivityService adminActivityService
         )
         {
             _userService = userService;
@@ -29,6 +32,7 @@ namespace Matrix.Controllers.Api
             _logger = logger;
             _authController = authController;
             _authorizationService = authorizationService;
+            _adminActivityService = adminActivityService;
         }
 
         /// <summary>處理登入 API 請求</summary>
@@ -110,6 +114,31 @@ namespace Matrix.Controllers.Api
             
             _logger.LogInformation("Login successful for user {UserName} (Role: {Role}), redirecting to: {RedirectUrl}", 
                 userDto.UserName, userDto.Role, redirectUrl);
+
+            // 為管理員用戶記錄登入活動
+            if (userDto.Role >= 1)
+            {
+                try
+                {
+                    var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown";
+                    var userAgent = HttpContext.Request.Headers.UserAgent.ToString();
+                    
+                    await _adminActivityService.LogLoginAsync(
+                        userDto.UserId, 
+                        userDto.UserName ?? "Unknown", 
+                        userDto.Role, 
+                        ipAddress, 
+                        userAgent
+                    );
+                    
+                    _logger.LogInformation("Admin login activity recorded for user {UserName}", userDto.UserName);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Failed to record admin login activity for user {UserName}", userDto.UserName);
+                    // 不要因為活動記錄失敗而影響登入流程
+                }
+            }
 
             // 確保返回正確的 API 格式
             var response = new { redirectUrl };

@@ -1,4 +1,4 @@
-import { useCreatePost } from '/js/components/create-post.js'
+// import { useCreatePost } from '/js/components/create-post.js' // 現在全域載入
 import { usePostActions } from '/js/hooks/usePostActions.js'
 
 export const useHome = () => {
@@ -123,10 +123,11 @@ export const useHome = () => {
         return await postActions.stateFunc(action, item.articleId, item)
     }
 
-    const createPost = useCreatePost()
+    // createPost 現在全域載入，移除本地載入避免重複
+    // const createPost = useCreatePost()
 
     return {
-        ...createPost,
+        // ...createPost, // 移除，現在全域可用
         toggleCreatePost, openCreatePost,
         hotlist, hotCarouselRef, hotPrev, hotNext,
         canPrev, canNext,

@@ -776,6 +776,9 @@ export const useProfile = () => {
 
     const loadProfile = async () => {
         try {
+            // 設置載入狀態
+            isLoading.value = true
+
             // 從網址判斷是否帶入 username：/profile/{username}
             const pathParts = window.location.pathname.split('/').filter(Boolean)
             const isProfilePath = pathParts[0]?.toLowerCase() === 'profile'
@@ -792,7 +795,42 @@ export const useProfile = () => {
             });
 
             if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+                // API 失敗處理
+                if (response.status === 404) {
+                    // 使用者不存在，顯示 alert 並跳轉到首頁
+                    alert('查無此使用者')
+                    window.location.href = '/'
+                    return
+                } else if (response.status === 401 || response.status === 403) {
+                    // 權限問題，建議重新登入
+                    alert('您的登入狀態已過期或無權限查看此頁面，請重新登入')
+                    window.location.href = '/Auth/Login'
+                    return
+                } else if (response.status >= 500) {
+                    // 伺服器錯誤，提供重試選項
+                    const retry = confirm('伺服器暫時無法回應，是否要重新嘗試載入？')
+                    if (retry) {
+                        // 遞迴呼叫重新載入
+                        setTimeout(() => loadProfile(), 1000)
+                        return
+                    } else {
+                        alert('載入失敗，將返回首頁')
+                        window.location.href = '/'
+                        return
+                    }
+                } else if (response.status === 429) {
+                    // 請求過於頻繁
+                    alert('請求過於頻繁，請稍後再試')
+                    setTimeout(() => {
+                        window.location.href = '/'
+                    }, 2000)
+                    return
+                } else {
+                    // 其他未知錯誤
+                    alert(`載入失敗 (錯誤代碼: ${response.status})，將返回首頁`)
+                    window.location.href = '/'
+                    return
+                }
             }
 
             // 重置分頁狀態
@@ -806,6 +844,12 @@ export const useProfile = () => {
             isPublic.value = !data.isPrivate
         } catch (err) {
             console.error('載入 Profile 失敗:', err)
+            // API 錯誤處理，顯示 alert 並跳轉到首頁
+            alert('載入個人資料失敗，請稍後再試')
+            window.location.href = '/'
+        } finally {
+            // 無論成功或失敗都要關閉載入狀態
+            isLoading.value = false
         }
     }
 

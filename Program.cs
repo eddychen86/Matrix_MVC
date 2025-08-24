@@ -306,6 +306,12 @@ public class Program
 
         #endregion
 
+        #region 管理員活動記錄
+
+        app.UseAdminActivityLogging();
+
+        #endregion
+
         app.UseAuthentication();
         app.UseAuthorization();
 
