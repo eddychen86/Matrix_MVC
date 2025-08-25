@@ -7,14 +7,19 @@
             <!-- Header -->
             <div id="popup-header" class="flex w-full items-center justify-between">
                 <h3 class="title w-1/3">{{ popupState.title }}</h3>
+
+                <!-- 右側區塊 -->
                 <div class="flex w-1/3 justify-end gap-4">
-                    <div class="relative w-full">
+                    <!-- ✅ 搜尋框只在 Search 與 Follows 顯示 -->
+                    <div class="relative w-full" v-if="popupState.type === 'Search' || popupState.type === 'Follows'">
                         <input type="text" v-model="searchQuery"
-                            class="para h-12 w-full rounded-full border bg-stone-700 px-4 outline-none">
+                               class="para h-12 w-full rounded-full border bg-stone-700 px-4 outline-none">
                         <button class="absolute top-1/2 right-4 -translate-y-1/2" v-on:click="onSearchClick">
                             <i data-lucide="search" class="icon-base"></i>
                         </button>
                     </div>
+
+                    <!-- 關閉按鈕 -->
                     <button @@click="closePopup">
                         <i data-lucide="x" class="icon-base text-red-300"></i>
                     </button>
