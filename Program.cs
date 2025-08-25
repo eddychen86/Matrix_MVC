@@ -43,7 +43,7 @@ public class Program
             azureString = "AzureConnection"         // Azure SQL Server
         };
 
-        var connectionString = builder.Configuration.GetConnectionString(connectString.defaultString);
+        var connectionString = builder.Configuration.GetConnectionString(connectString.azureString);
 
         if (string.IsNullOrEmpty(connectionString))
         {
