@@ -317,11 +317,9 @@ window.mountConfigPage = function() {
           // 設置 toggle 開關的資料綁定
           admin.isSuperAdmin = admin.SuperAdmin === 2  // 轉換為 boolean
           admin.isActive = admin.status === 1          // 轉換為 boolean
-          
+
           // 備份原始資料以便取消時還原
           admin.originalData = {
-            DisplayName: admin.DisplayName,
-            email: admin.email,
             SuperAdmin: admin.SuperAdmin,
             status: admin.status
           }
@@ -358,8 +356,8 @@ window.mountConfigPage = function() {
         
         try {
           // 將 toggle 開關的 boolean 值轉換回數字格式
-          const newRole = admin.isSuperAdmin ? 2 : 1      // true=2(超級管理員), false=1(一般管理員)
-          const newStatus = admin.isActive ? 1 : 0        // true=1(啟用), false=0(停用)
+          const newRole = admin.isSuperAdmin ? 2 : 1
+          const newStatus = admin.isActive ? 1 : 0
           
           const updateData = {
             userId: admin.id,
@@ -369,7 +367,7 @@ window.mountConfigPage = function() {
             status: newStatus
           }
           
-          const response = await fetch('/api/Config/Update', {
+          const response = await fetch(`/api/Config/Update/${id}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(updateData)
