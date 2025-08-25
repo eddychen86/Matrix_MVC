@@ -60,16 +60,15 @@ namespace Matrix.Controllers.Api
         [HttpGet("images")]
         public IActionResult ListImages([FromQuery] int count = 30, [FromQuery] string? userId = null)
         {
-            // 必須提供 personId 才能知道要讀取哪個資料夾
+            // 2. 判斷條件也跟著改成 userId
             if (string.IsNullOrWhiteSpace(userId))
             {
-                // 改為回傳空陣列，避免前端報錯
                 return Ok(new List<object>());
             }
 
+            // 3. 組合路徑時也使用 userId
             var userDirectory = Path.Combine(NftPhysicalDir, userId);
 
-            // 如果該使用者還沒有上傳過任何圖片 (資料夾不存在)，就回傳空陣列
             if (!Directory.Exists(userDirectory))
             {
                 return Ok(new List<object>());
@@ -82,12 +81,10 @@ namespace Matrix.Controllers.Api
                 .Take(count)
                 .Select(f => new
                 {
-                    // 這裡回傳的資料格式要和前端需要的 userNFTs 物件一致
                     fileId = Path.GetFileNameWithoutExtension(f.Name),
                     fileName = f.Name,
-                    filePath = $"{NftRequestPrefix}/{userId}/{f.Name}".Replace("\\", "/"), // URL 也要包含使用者 ID
-                    // 根據前端 modal 內的 isOwner 判斷，可能需要 user id
-                    // 為了簡化，我們先假設前端 modal 暫時不需要 user id
+                    // 4. 組合公開 URL 時也使用 userId
+                    filePath = $"{NftRequestPrefix}/{userId}/{f.Name}".Replace("\\", "/"),
                 });
 
             return Ok(files);

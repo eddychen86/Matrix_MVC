@@ -32,6 +32,7 @@ public class Program
         builder.Logging.AddDebug();
         builder.Services.AddScoped<IMessageService, MessageService>();
         builder.Services.AddScoped<IMessageRepository, MessageRepository>();
+        builder.Services.AddHttpContextAccessor(); // 為 CustomLocalizer 提供 HttpContext
 
         // 從配置中獲取連接字串 (會自動從 appsettings.json, secrets.json, 環境變數等來源載入)
         // smartASP.NET = DefaultConnection

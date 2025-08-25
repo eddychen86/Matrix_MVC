@@ -77,8 +77,11 @@
             </li>
             <!-- NFT 3x3 Grid -->
             <li class="col-span-1 2xl:col-span-2 grid sm:grid-cols-6 2xl:grid-cols-3 gap-4">
-                <h4 class="col-span-3 subTitle" data-i18n="ProfileNFTs">@Localizer["ProfileNFTs"]</h4>
-                <div class="col-span-3 mb-4 flex items-center justify-between">
+
+                <div class="col-span-full mb-4 flex items-center justify-between">
+
+                    <h4 class="subTitle" data-i18n="ProfileNFTs">@Localizer["ProfileNFTs"]</h4>
+
                     <div class="flex gap-2">
                         <button @@click="uploadNFT" class="btn btn-sm btn-primary flex items-center gap-2">
                             <i data-lucide="upload" class="size-4"></i>
@@ -89,14 +92,16 @@
                             <span data-i18n="More">More</span>
                         </button>
                     </div>
+
                 </div>
+
                 <div v-for="(image, idx) in userNFTs.slice(0, 9)" :key="image.fileId" class="aspect-square col-span-1">
                     <img :src="image.filePath"
-                            :alt="image.fileName"
-                            class="h-full w-full cursor-pointer rounded-lg object-cover shadow-md transition-opacity hover:opacity-80"
-                            @@click="viewNFTDetail(image)" />
+                         :alt="image.fileName"
+                         class="h-full w-full cursor-pointer rounded-lg object-cover shadow-md transition-opacity hover:opacity-80"
+                         @@click="viewNFTDetail(image)" />
                 </div>
-                <!-- Empty placeholder slots if less than 9 images -->
+
                 <div v-for="n in Math.max(0, 9 - userNFTs.filter(f => f.filePath !== '').length)" :key="'empty-' + n" class="aspect-square !col-span-1">
                     <div class="flex h-full w-full cursor-pointer items-center justify-center rounded-lg bg-gray-200 transition-colors hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600">
                         <i data-lucide="plus" class="size-8 text-gray-400 dark:text-gray-500"></i>
