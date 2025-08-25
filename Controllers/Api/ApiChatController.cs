@@ -96,12 +96,11 @@ namespace Matrix.Controllers.Api
                 var signalrPayload = new
                 {
                     MsgId = createdMessage.MsgId,
-                    SentId = senderId.Value, // <-- 使用原始的 senderId (UserId)
-                    ReceiverId = dto.ReceiverId, // <-- 使用原始的 receiverId (UserId)
+                    SentId = senderId.Value,       // <-- 使用原始的 senderId (UserId)
+                    ReceiverId = dto.ReceiverId,   // <-- 使用原始的 receiverId (UserId)
                     Content = createdMessage.Content,
                     CreateTime = createdMessage.CreateTime,
                     IsRead = createdMessage.IsRead
-                    // 如果前端還需要 displayName 等資訊，也可以在這裡加入
                 };
 
                 // 3. 將新的 payload 廣播出去
@@ -114,9 +113,16 @@ namespace Matrix.Controllers.Api
                 // 4. HTTP 回應仍然可以返回原始的物件，這不影響 SignalR
                 return Ok(createdMessage);
             }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return StatusCode(403, new { message = ex.Message });
+            }
             catch (Exception)
             {
-                // ... error handling
                 return StatusCode(500, "An internal error occurred.");
             }
         }

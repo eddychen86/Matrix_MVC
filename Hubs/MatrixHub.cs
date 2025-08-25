@@ -31,28 +31,23 @@ namespace Matrix.Hubs
             {
                 try
                 {
-                    // 查詢用戶資料
-                    var person = await _personRepository.GetByUserIdAsync(auth.UserId);
-                    if (person != null)
+                    // [核心修正] 直接使用 auth.UserId 來加入個人群組
+                    await Groups.AddToGroupAsync(Context.ConnectionId, $"User_{auth.UserId}");
+
+                    // 加入全體用戶群組（用於系統公告）
+                    await Groups.AddToGroupAsync(Context.ConnectionId, "AllUsers");
+
+                    // 管理員額外加入管理員群組
+                    if (auth.Role >= 1)
                     {
-                        // 加入個人群組（用於個人通知）
-                        await Groups.AddToGroupAsync(Context.ConnectionId, $"User_{person.PersonId}");
-
-                        // 加入全體用戶群組（用於系統公告）
-                        await Groups.AddToGroupAsync(Context.ConnectionId, "AllUsers");
-
-                        // 管理員額外加入管理員群組
-                        if (auth.Role >= 1)
-                        {
-                            await Groups.AddToGroupAsync(Context.ConnectionId, "Admins");
-                        }
-
-                        _logger.LogInformation("User {PersonId} connected to MatrixHub", auth.UserId);
+                        await Groups.AddToGroupAsync(Context.ConnectionId, "Admins");
                     }
+
+                    _logger.LogInformation("User {UserId} connected to MatrixHub and joined groups.", auth.UserId);
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "Error adding user to groups on connection");
+                    _logger.LogError(ex, "Error adding user {UserId} to groups on connection", auth.UserId);
                 }
             }
             else
@@ -70,18 +65,18 @@ namespace Matrix.Hubs
         /// </summary>
         public override async Task OnDisconnectedAsync(Exception? exception)
         {
-            if (exception != null)
+            var auth = Context.GetHttpContext()?.GetAuthInfo();
+            if (auth != null && auth.IsAuthenticated && auth.UserId != Guid.Empty)
             {
-                _logger.LogWarning(exception, "User disconnected from MatrixHub with error");
-            }
-            else
-            {
-                _logger.LogInformation("User disconnected from MatrixHub");
+                // 當使用者斷線時，將他從所有相關群組中移除
+                await Groups.RemoveFromGroupAsync(Context.ConnectionId, $"User_{auth.UserId}");
+                _logger.LogInformation("User {UserId} disconnected from MatrixHub.", auth.UserId);
             }
 
             await base.OnDisconnectedAsync(exception);
         }
 
+        
         /// <summary>
         /// 手動加入特定群組（可選功能）
         /// </summary>
