@@ -57,9 +57,16 @@
     </environment>
 
     <script src="~/lib/lucide/dist/umd/lucide.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.5.0/chart.umd.min.js" integrity="sha512-Y51n9mtKTVBh3Jbx5pZSJNDDMyY+yGe77DGtBPzRlgsf/YLCh13kSZ3JmfHGzYFCmOndraf0sQgfM654b7dJ3w==" crossorigin="anonymous" referrerpolicy="no-referrer" asp-append-version="true"></script>
 
     <script src="~/js/dashboard/d_main.js" asp-append-version="true"></script>
+    
+    <!-- 模組腳本放在最後 -->
+    <script type="module" src="~/lib/cally/dist/cally.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.5.0/chart.umd.min.js"
+            integrity="sha512-Y51n9mtKTVBh3Jbx5pZSJNDDMyY+yGe77DGtBPzRlgsf/YLCh13kSZ3JmfHGzYFCmOndraf0sQgfM654b7dJ3w=="
+            crossorigin="anonymous"
+            referrerpolicy="no-referrer"
+            asp-append-version="true"></script>
 
     @await RenderSectionAsync("Scripts", required: false)
 </body>

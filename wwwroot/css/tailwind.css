@@ -40,5 +40,29 @@
 @import "./components.css";
 
 [v-cloak] {
-  display: none;
+    display: none !important;
+}
+
+/* Vue 載入前顯示的載入畫面 */
+#app:not([data-v-app]) {
+    display: none;
+}
+
+/* 在 Vue 尚未載入時顯示的初始載入畫面 */
+.initial-loading {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    background-color: #1a202c; /* bg-primary 的顏色 */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+/* 當 Vue 載入後隱藏初始載入畫面 */
+#app[data-v-app] ~ .initial-loading {
+    display: none;
 }

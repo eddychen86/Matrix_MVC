@@ -6,6 +6,7 @@ import { useAbout } from '/js/pages/about/about.js'
 import { useReply } from '/js/components/reply.js'
 import { useCreatePost } from '/js/components/create-post.js'
 import loginPopupManager from '/js/auth/login-popup.js'
+import { useGlobalLoading } from '/js/utils/loadingManager.js'
 
 // 導入新的模組化組件
 import { useUserManager } from '/js/components/user-manager.js'
@@ -33,6 +34,8 @@ const globalApp = content => {
                     console.warn(msg)
                 }
                 window.globalApp = app.use(window.CKEditor?.default || window.CKEditor).mount('#app')
+                // 標記 Vue 應用程式已載入
+                document.getElementById('app').setAttribute('data-v-app', 'true')
             })
         } else {
             // DOM 已經載入完成
@@ -58,6 +61,18 @@ globalApp({
         const { formatDate, timeAgo } = useFormatting()
 
         //#region 模組化管理器初始化
+
+        // 初始化全域載入管理器
+        const globalLoading = useGlobalLoading()
+        const { 
+            isLoading: globalIsLoading, 
+            pendingRequests, 
+            startLoading, 
+            finishLoading, 
+            fetch: managedFetch, 
+            withLoading, 
+            clearAll: clearAllLoading 
+        } = globalLoading
 
         // 初始化用戶管理器
         const userManager = useUserManager()
@@ -285,6 +300,12 @@ globalApp({
 
         // Global Methods
         window.toggleFunc = (show, type) => show ? openPopup(type) : closePopup()
+        
+        // 暴露全域載入管理器到 window
+        window.startLoading = startLoading
+        window.finishLoading = finishLoading
+        window.managedFetch = managedFetch
+        window.withLoading = withLoading
 
         //#region Lifecycle
 
@@ -312,12 +333,21 @@ globalApp({
 
         // console.log('✅ setup() 成功初始化，searchQuery =', searchQuery.value)
 
-        // 合併所有loading狀態
+        // 合併所有loading狀態 - 使用全域載入管理器
         const isLoading = computed(() =>
-            postListLoading.value || popupLoading.value || searchLoading.value
+            globalIsLoading.value || postListLoading.value || popupLoading.value || searchLoading.value
         )
 
         return {
+            // 全域載入狀態管理
+            globalIsLoading,
+            pendingRequests,
+            startLoading,
+            finishLoading,
+            managedFetch,
+            withLoading,
+            clearAllLoading,
+
             // 用戶相關
             currentUser,
             getCurrentUser,

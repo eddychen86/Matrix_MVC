@@ -122,7 +122,7 @@ namespace Matrix.Services
                 ["Users"] = "用戶管理",
                 ["Posts"] = "貼文管理",
                 ["Reports"] = "檢舉管理",
-                ["Config"] = "管理員管理",
+                ["Config"] = "管理員",
 
                 #endregion
 
