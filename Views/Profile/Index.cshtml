@@ -1,109 +1,127 @@
 ﻿@inject ICustomLocalizer Localizer
 
-<!-- 頂部橫幅與頭像 -->
-<header class="profile-header">
-    <div class="profile-banner_layout">
-        <button v-on:click="updateFile('banner')">
-            <i data-lucide="pen" class="icon-bg text-white"></i>
-        </button>
-        <input type="file" accept="image/*" class="hidden" id="banner-file-input">
-        <img v-if="profile.bannerPath" :src="profile.bannerPath" alt="Profile Banner" />
-        <div v-else class="no-banner bg-accent">
-            <i data-lucide="image" class="size-10 text-stone-200"></i>
+<template v-if="isLoading">
+    <!-- 載入狀態顯示 -->
+    <div class="flex h-[80vh] w-full items-center justify-center col-span-7">
+        <div class="flex flex-col items-center gap-4">
+            <img src="~/static/img/Loading.gif" alt="Loading" class="h-30 w-30" />
+            <span class="text-white title">載入中...</span>
         </div>
     </div>
-    <div class="profile-avatar">
-        <div class="profile-avatar_body">
-            <div class="profile-avatar_img_layout">
-                <button class="edit" v-on:click="updateFile('avatar')">
-                    <i data-lucide="pen" class="icon-bg text-white"></i>
-                </button>
-                <input type="file" accept="image/*" class="hidden" id="avatar-file-input">
-                <img v-if="profile.avatarPath" :src="profile.avatarPath" alt="Profile Avatar" />
-                <div v-else class="no-avatar bg-accent">
-                    <i data-lucide="user-round" class="size-10 text-stone-200"></i>
-                </div>
-            </div>
-            <h3>{{ profile.displayName }}</h3>
-            <i data-lucide="globe" v-if="!profile.isPrivate" class="mb-0 size-4 text-blue-500 sm:size-8 2xl:mb-4 2xl:size-12"></i>
-            <i data-lucide="globe-lock" v-else class="mb-0 size-4 text-blue-500 sm:size-8 2xl:mb-4 2xl:size-12"></i>
-            <i data-lucide="crown" v-show="profile.walletAddress" class="mb-0 size-4 text-yellow-500 sm:size-8 2xl:mb-4 2xl:size-12"></i>
-        </div>
-        <button class="subTitle font-semibold" data-i18n="Create">@Localizer["Create"]</button>
-    </div>
-</header>
+</template>
+<template v-else>
 
-<!-- 左側：個人資訊 -->
-<section class="col-span-7 2xl:col-span-2">
-    <ul class="profile-info bg-accent grid grid-cols-2">
-        <button @@click="startEdit" class="editPen">
-            <i data-lucide="pen" class="size-6"></i>
-        </button>
-        <li class="col-span-2">
-            <div class="flex flex-col gap-4">
-                <h4 class="subTitle" data-i18n="ProfileBio">@Localizer["ProfileBio"]</h4>
-                <p class="para">{{ profile.bio }}</p>
+    <!-- 頂部橫幅與頭像 -->
+    <header class="profile-header">
+        <div class="profile-banner_layout">
+            <button v-on:click="updateFile('banner')">
+                <i data-lucide="pen" class="icon-bg text-white"></i>
+            </button>
+            <input type="file" accept="image/*" class="hidden" id="banner-file-input">
+            <img v-if="profile.bannerPath" :src="profile.bannerPath" alt="Profile Banner" />
+            <div v-else class="no-banner bg-accent">
+                <i data-lucide="image" class="size-10 text-stone-200"></i>
             </div>
-        </li>
-        <li class="col-span-1 2xl:col-span-2">
-            <div class="flex flex-col gap-4">
-                <h4 class="subTitle" data-i18n="ProfileContact">@Localizer["ProfileContact"]</h4>
-                <p>{{ profile.email }}</p>
-            </div>
-            <div class="flex flex-col gap-4">
-                <h4 class="subTitle" data-i18n="ProfileLinks">@Localizer["ProfileLinks"]</h4>
-                <ul class="flex flex-col gap-2">
-                    <li v-for="url in [profile.website1, profile.website2, profile.website3]">
-                        <div>
-                            <a class="para" :href="url" target="_blank" rel="noopener noreferrer">{{ url }}</a>
-                        </div>
-                    </li>
-                </ul>
-            </div>
-        </li>
-        <!-- NFT 3x3 Grid -->
-        <li class="col-span-1 2xl:col-span-2 grid sm:grid-cols-6 2xl:grid-cols-3 gap-4">
-            <div class="col-span-3 mb-4 flex items-center justify-between">
-                <h4 class="subTitle" data-i18n="ProfileNFTs">@Localizer["ProfileNFTs"]</h4>
-                <div class="flex gap-2">
-                    <button @@click="uploadNFT" class="btn btn-sm btn-primary flex items-center gap-2">
-                        <i data-lucide="upload" class="size-4"></i>
-                        <span data-i18n="Upload">Upload</span>
+        </div>
+        <div class="profile-avatar">
+            <div class="profile-avatar_body">
+                <div class="profile-avatar_img_layout">
+                    <button class="edit" v-on:click="updateFile('avatar')">
+                        <i data-lucide="pen" class="icon-bg text-white"></i>
                     </button>
-                    <button @@click="viewAllNFTs" class="btn btn-sm btn-outline flex items-center gap-2">
-                        <i data-lucide="grid-3x3" class="size-4"></i>
-                        <span data-i18n="More">More</span>
-                    </button>
+                    <input type="file" accept="image/*" class="hidden" id="avatar-file-input">
+                    <img v-if="profile.avatarPath" :src="profile.avatarPath" alt="Profile Avatar" />
+                    <div v-else class="no-avatar bg-accent">
+                        <i data-lucide="user-round" class="size-10 text-stone-200"></i>
+                    </div>
                 </div>
+                <h3>{{ profile.displayName }}</h3>
+                <i data-lucide="globe" v-if="!profile.isPrivate" class="mb-0 size-4 text-blue-500 sm:size-8 2xl:mb-4 2xl:size-12"></i>
+                <i data-lucide="globe-lock" v-else class="mb-0 size-4 text-blue-500 sm:size-8 2xl:mb-4 2xl:size-12"></i>
+                <i data-lucide="crown" v-show="profile.walletAddress" class="mb-0 size-4 text-yellow-500 sm:size-8 2xl:mb-4 2xl:size-12"></i>
             </div>
-            <div v-for="(image, idx) in userNFTs.slice(0, 9)" :key="image.fileId" class="aspect-square col-span-1">
-                <img :src="image.filePath"
-                        :alt="image.fileName"
-                        class="h-full w-full cursor-pointer rounded-lg object-cover shadow-md transition-opacity hover:opacity-80"
-                        @@click="viewNFTDetail(image)" />
+            <div class="join rounded-full overflow-hidden">
+                <button class="btn join-item m-0" data-i18n="Posts">@Localizer["Posts"]</button>
+                <button id="openChatBtn" class="btn join-item m-0" data-i18n="Chat">@Localizer["Chat"]</button>
             </div>
-            <!-- Empty placeholder slots if less than 9 images -->
-            <div v-for="n in Math.max(0, 9 - userNFTs.filter(f => f.filePath !== '').length)" :key="'empty-' + n" class="aspect-square !col-span-1">
-                <div class="flex h-full w-full cursor-pointer items-center justify-center rounded-lg bg-gray-200 transition-colors hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600">
-                    <i data-lucide="plus" class="size-8 text-gray-400 dark:text-gray-500"></i>
+        </div>
+    </header>
+
+    <!-- 左側：個人資訊 -->
+    <section class="col-span-7 2xl:col-span-2">
+        <ul class="profile-info bg-accent grid grid-cols-2">
+            <button @@click="startEdit" class="editPen">
+                <i data-lucide="pen" class="size-6"></i>
+            </button>
+            <li class="col-span-2">
+                <div class="flex flex-col gap-4">
+                    <h4 class="subTitle" data-i18n="ProfileBio">@Localizer["ProfileBio"]</h4>
+                    <p class="para">{{ profile.bio }}</p>
                 </div>
-            </div>
-        </li>
+            </li>
+            <li class="col-span-1 2xl:col-span-2">
+                <div class="flex flex-col gap-4">
+                    <h4 class="subTitle" data-i18n="ProfileContact">@Localizer["ProfileContact"]</h4>
+                    <p>{{ profile.email }}</p>
+                </div>
+                <div class="flex flex-col gap-4">
+                    <h4 class="subTitle" data-i18n="ProfileLinks">@Localizer["ProfileLinks"]</h4>
+                    <ul class="flex flex-col gap-2">
+                        <li v-for="url in [profile.website1, profile.website2, profile.website3]">
+                            <div>
+                                <a class="para" :href="url" target="_blank" rel="noopener noreferrer">{{ url }}</a>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </li>
+            <!-- NFT 3x3 Grid -->
+            <li class="col-span-1 2xl:col-span-2 grid sm:grid-cols-6 2xl:grid-cols-3 gap-4">
+                <div class="col-span-3 mb-4 flex items-center justify-between">
+                    <h4 class="subTitle" data-i18n="ProfileNFTs">@Localizer["ProfileNFTs"]</h4>
+                    <div class="flex gap-2">
+                        <button @@click="uploadNFT" class="btn btn-sm btn-primary flex items-center gap-2">
+                            <i data-lucide="upload" class="size-4"></i>
+                            <span data-i18n="Upload">Upload</span>
+                        </button>
+                        <button @@click="viewAllNFTs" class="btn btn-sm btn-outline flex items-center gap-2">
+                            <i data-lucide="grid-3x3" class="size-4"></i>
+                            <span data-i18n="More">More</span>
+                        </button>
+                    </div>
+                </div>
+                <div v-for="(image, idx) in userNFTs.slice(0, 9)" :key="image.fileId" class="aspect-square col-span-1">
+                    <img :src="image.filePath"
+                            :alt="image.fileName"
+                            class="h-full w-full cursor-pointer rounded-lg object-cover shadow-md transition-opacity hover:opacity-80"
+                            @@click="viewNFTDetail(image)" />
+                </div>
+                <!-- Empty placeholder slots if less than 9 images -->
+                <div v-for="n in Math.max(0, 9 - userNFTs.filter(f => f.filePath !== '').length)" :key="'empty-' + n" class="aspect-square !col-span-1">
+                    <div class="flex h-full w-full cursor-pointer items-center justify-center rounded-lg bg-gray-200 transition-colors hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600">
+                        <i data-lucide="plus" class="size-8 text-gray-400 dark:text-gray-500"></i>
+                    </div>
+                </div>
+            </li>
+        </ul>
+    </section>
+
+    <!-- 中間：動態貼文 -->
+    <ul class="post-content col-span-5 2xl:col-span-3" id="profilePostsList">
+        @await Component.InvokeAsync("PostList")
     </ul>
-</section>
 
-<!-- 中間：動態貼文 -->
-<ul class="post-content col-span-5 2xl:col-span-3" id="profilePostsList">
-    @await Component.InvokeAsync("PostList")
-</ul>
+    <!-- 好友列表 -->
+    @* <aside class="friends-list col-span-2">
+        @await Component.InvokeAsync("FriendsList")
+    </aside> *@
 
-<!-- 好友列表 -->
-@* <aside class="friends-list col-span-2">
-    @await Component.InvokeAsync("FriendsList")
-</aside> *@
+    <!-- 編輯個人檔案 -->
+    @await Component.InvokeAsync("EditProfilePopup")
 
-<!-- 編輯個人檔案 -->
-@await Component.InvokeAsync("EditProfilePopup")
+    <!-- 留言視窗 -->
+    @await Component.InvokeAsync("ReplyPopup")
 
-<!-- 留言視窗 -->
-@await Component.InvokeAsync("ReplyPopup")
+    <!-- 聊天室 -->
+    @await Component.InvokeAsync("ChatPopup")
+</template>

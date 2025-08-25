@@ -84,6 +84,8 @@ namespace Matrix.Services
                 ["WelcomeMessage"] = "歡迎！",
 
                 // 社交功能
+                ["Posts"] = "新增貼文",
+                ["Chat"] = "聊天",
                 ["Comment"] = "留言",
                 ["Praise"] = "讚",
                 ["Follow"] = "追蹤",
@@ -409,7 +411,7 @@ namespace Matrix.Services
 
                 #region Config 模組
 
-                ["Config_Title"] = "系統設定",
+                ["Config_Title"] = "管理員",
                 ["Config_Add_Admin"] = "新增管理員",
                 ["Config_Filter"] = "列表篩選",
                 ["Config_ToolsState"] = "功能開關",
@@ -526,6 +528,8 @@ namespace Matrix.Services
                 ["WelcomeMessage"] = "Welcome!",
 
                 // 社交功能
+                ["Posts"] = "Posts",
+                ["Chat"] = "Chat",
                 ["Comment"] = "Comment",
                 ["Praise"] = "Praise",
                 ["Follow"] = "Follow",
@@ -780,7 +784,7 @@ namespace Matrix.Services
 
                 #region Config 模組
 
-                ["Config_Title"] = "Settings",
+                ["Config_Title"] = "Admins",
                 ["Config_Add_Admin"] = "Create Admin",
                 ["Config_Filter"] = "List Filter",
                 ["Config_ToolsState"] = "Tools",

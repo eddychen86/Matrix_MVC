@@ -10,6 +10,7 @@ export const useChat = (currentUser) => {
   
   // 聊天 Popup 狀態
   const isChatPopupOpen = ref(false)
+  const newMessage = ref('')
   
   // SignalR 連接
   let connection = null
@@ -17,11 +18,22 @@ export const useChat = (currentUser) => {
   //#region 聊天 Popup 控制
 
   // 開啟聊天視窗
-  const openChatPopup = () => {
+  const openChatPopup = async (receiver) => {
+    if (!receiver || !receiver.userId) {
+        console.error("Receiver information is missing.");
+        return;
+    }
+    console.log(`Opening chat with:`, receiver);
+    currentConversation.value = receiver;
+    await loadConversation(receiver.userId);
+    isChatPopupOpen.value = true;
   }
 
   // 關閉聊天視窗
   const closeChatPopup = () => {
+    isChatPopupOpen.value = false;
+    currentConversation.value = null;
+    messages.value = []; // 清空訊息
   }
 
   // TODO: 實現切換聊天 Popup 邏輯
@@ -34,11 +46,129 @@ export const useChat = (currentUser) => {
 
   // 發送訊息
   const sendMessage = async (receiverId, content) => {
+    try {
+      const response = await fetch('/api/chat/send', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          receiverId: receiverId,
+          content: content
+        })
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const result = await response.json();
+
+      
+      console.log('Message sent successfully:', result);
+      return result;
+    } catch (error) {
+      console.error('Failed to send message:', error);
+      throw error;
+    }
   }
 
   // 載入對話記錄
-  const loadConversation = async (userId, page = 1, pageSize = 20) => {
+  const loadConversation = async (userId, page = 1, pageSize = 50) => {
+    try {
+        console.log(`Loading conversation with user ${userId}...`);
+        const response = await fetch(`/api/chat/history/${userId}?page=${page}&pageSize=${pageSize}`, {
+          credentials: 'include'
+        });
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        
+        // 確保 data是一個數組
+        if (Array.isArray(data)) {
+          messages.value = data.sort((a, b) => new Date(a.createTime) - new Date(b.createTime)); // 按時間排序
+        } else {
+          console.warn('Unexpected data format:', data);
+          messages.value = [];
+        }
+        
+        console.log('Conversation loaded:', messages.value);
+        
+        // 加載完成後自動滚動到底部
+        Vue.nextTick(() => {
+          scrollToBottom();
+        });
+    } catch (error) {
+        console.error('Failed to load conversation:', error);
+        messages.value = []; // 發生錯誤時清空
+    }
   }
+
+  //前端按鈕
+    document.addEventListener('click', function (event) {
+        const openBtn = event.target.closest('#openChatBtn');
+
+        if (openBtn) {
+            // Access the profile data from the global Vue app instance
+            const profileData = window.globalApp.profile; // Assuming 'profile' is exposed from useProfile
+            if (profileData && profileData.userId) {
+                // Call the globally exposed openChatPopupGlobal function
+                window.openChatPopupGlobal({
+                    userId: profileData.userId,
+                    displayName: profileData.displayName // Pass other relevant data if needed
+                });
+
+                // Initialize drag functionality for the chat popup
+                Vue.nextTick(() => {
+                    const chatPopup = document.getElementById('chat-popup');
+                    if (chatPopup && !chatPopup.dataset.isDraggable) {
+                        makeDraggable(chatPopup);
+                        chatPopup.dataset.isDraggable = 'true';
+                    }
+                });
+            } else {
+                console.error("Profile data or userId not available for chat.");
+            }
+        }
+    });
+
+    function makeDraggable(element) {
+        const header = element.querySelector('#chat-header');
+        if (!header) return;
+
+        let isDragging = false;
+        let offsetX, offsetY;
+
+        header.addEventListener('mousedown', (e) => {
+            isDragging = true;
+
+            const rect = element.getBoundingClientRect();
+            offsetX = e.clientX - rect.left;
+            offsetY = e.clientY - rect.top;
+
+            // Ensure position is fixed for proper viewport-relative dragging
+            element.style.position = 'fixed';
+
+            document.addEventListener('mousemove', onMouseMove);
+            document.addEventListener('mouseup', onMouseUp);
+        });
+
+        function onMouseMove(e) {
+            if (!isDragging) return;
+
+            // Set new position based on mouse position minus the initial offset
+            element.style.left = (e.clientX - offsetX) + 'px';
+            element.style.top = (e.clientY - offsetY) + 'px';
+        }
+
+        function onMouseUp() {
+            isDragging = false;
+            document.removeEventListener('mousemove', onMouseMove);
+            document.removeEventListener('mouseup', onMouseUp);
+        }
+    }
 
   // 載入對話列表
   const loadConversations = async (limit = 10) => {
@@ -49,7 +179,7 @@ export const useChat = (currentUser) => {
   }
 
   // 實現標記對話已讀
-  const markConversationAsRead = async (senderId) => {
+  const markConversationAsRead = async (sentId) => {
   }
 
   // 搜尋訊息
@@ -59,24 +189,159 @@ export const useChat = (currentUser) => {
   //#region TODO: SignalR 連接管理
 
   // SignalR 連接
-  const startConnection = async () => {
-  }
+    const startConnection = async () => {
+        if (connection && isConnected.value) {
+            console.log("SignalR connection already established.");
+            return;
+        }
+        // 1. 建立 SignalR 連接
+        connection = new signalR.HubConnectionBuilder()
+            .withUrl("/matrixHub") // 請確保這個 Hub 的路徑與您後端設定的一致
+            .withAutomaticReconnect() // 加入自動重新連接機制
+            .build();
 
-  // SignalR 斷開連接
-  const stopConnection = async () => {
-  }
+        // 2. 定義接收訊息的事件監聽
+        connection.on("ReceiveMessage", (message) => {
+            console.log("New message received from SignalR:", message);
+
+            const currentUserId = currentUser?.userId;
+            const otherUserId = currentConversation.value?.userId;
+
+            if (!otherUserId || !currentUserId) {
+                console.warn("Received a message, but no active conversation window. Ignoring UI update.");
+                return;
+            }
+
+            if (!message.sentId || !message.receiverId) {
+                console.error("Received message object is missing sentId or receiverId.", message);
+                return;
+            }
+
+            // 將所有用於比較的 ID 轉換為小寫
+            const msgSenderLower = message.sentId.toLowerCase();
+            const msgReceiverLower = message.receiverId.toLowerCase();
+            const currentUserLower = currentUserId.toLowerCase();
+            const otherUserLower = otherUserId.toLowerCase();
+
+            console.log("Comparing IDs:", {
+                'Msg Sender': msgSenderLower,
+                'Msg Receiver': msgReceiverLower,
+                'Current User (Me)': currentUserLower,
+                'Other User (Chatting with)': otherUserLower
+            });
+
+            // 進行比對
+            const isRelated = (msgSenderLower === currentUserLower && msgReceiverLower === otherUserLower) ||
+                (msgSenderLower === otherUserLower && msgReceiverLower === currentUserLower);
+
+            if (isRelated) {
+                console.log("Message is related to the current conversation. Updating UI.");
+                messages.value.push(message);
+                scrollToBottom();
+            } else {
+                console.log("Message is NOT related to the current conversation. Ignoring UI update.");
+            }
+            // --- 結束偵錯與修正 ---
+
+        });
+        // 3. 啟動連接
+        try {
+            await connection.start();
+            isConnected.value = true;
+            console.log("SignalR Connected successfully.");
+        } catch (err) {
+            console.error("SignalR Connection failed: ", err);
+            // 可設定延遲後重試
+            setTimeout(startConnection, 5000);
+        }
+    };
+
+    // SignalR 斷開連接
+    const stopConnection = async () => {
+        if (connection && isConnected.value) {
+            try {
+                await connection.stop();
+                isConnected.value = false;
+                console.log("SignalR Disconnected.");
+            } catch (err) {
+                console.error("Error stopping SignalR connection: ", err);
+            }
+        }
+    };
 
   //#endregion
 
   //#region 生命週期
   
   // 進入網頁時需初始化的功能
-  onMounted(() => {
+    onMounted(() => {
+        startConnection();
   })
 
   // 卸載時的清理邏輯
-  onUnmounted(() => {
+    onUnmounted(() => {
+        stopConnection();
   })
+
+  //#endregion
+
+  //#region 輔助功能
+
+  // 格式化消息時間
+  const formatMessageTime = (dateTime) => {
+    if (!dateTime) return ''
+    
+    const messageDate = new Date(dateTime)
+    const now = new Date()
+    const diffInSeconds = Math.floor((now - messageDate) / 1000)
+    
+    if (diffInSeconds < 60) {
+      return '剛剛'
+    } else if (diffInSeconds < 3600) {
+      return `${Math.floor(diffInSeconds / 60)}分鐘前`
+    } else if (diffInSeconds < 86400) {
+      return `${Math.floor(diffInSeconds / 3600)}小時前`
+    } else {
+      return messageDate.toLocaleDateString('zh-TW', {
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      })
+    }
+  }
+
+  // 滚動到聊天窗口底部
+  const scrollToBottom = () => {
+    Vue.nextTick(() => {
+      const messagesContainer = document.getElementById('chat-messages')
+      if (messagesContainer) {
+        messagesContainer.scrollTop = messagesContainer.scrollHeight
+      }
+    })
+  }
+
+  // 處理發送消息
+  const handleSendMessage = async () => {
+    if (!newMessage.value.trim() || !currentConversation.value?.userId) {
+      return
+    }
+
+    const messageContent = newMessage.value.trim()
+    newMessage.value = '' // 清空輸入框
+
+    try {
+      await sendMessage(currentConversation.value.userId, messageContent)
+      // 消息發送成功后，滚動到最新消息
+      scrollToBottom()
+    } catch (error) {
+      console.error('Failed to send message:', error)
+      // 可以在這裡顯示錯誤提示
+      alert('發送消息失敗，請稍後再試')
+      // 還原輸入內容
+      newMessage.value = messageContent
+    }
+  }
 
   //#endregion
   
@@ -90,6 +355,7 @@ export const useChat = (currentUser) => {
     
     // 聊天 Popup 狀態
     isChatPopupOpen,
+    newMessage,
     openChatPopup,
     closeChatPopup,
     toggleChatPopup,
@@ -101,6 +367,8 @@ export const useChat = (currentUser) => {
     markAsRead,
     markConversationAsRead,
     searchMessages,
+    handleSendMessage,
+    formatMessageTime,
     
     // SignalR 連接
     startConnection,

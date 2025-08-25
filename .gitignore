@@ -75,6 +75,7 @@ TestResults/
 _appsettings.json
 tailwind*.json
 .VSCodeCounter/
+######################
 # OS generated files #
 ######################
 .DS_Store?
@@ -108,3 +109,4 @@ AGENTS.md
 # Data Protection Key files #
 ############################
 DataProtectionKeys/*.xml
+appsettings.Production.json

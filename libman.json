@@ -53,6 +53,11 @@
       "files": [
         "dist/chart.js"
       ]
+    },
+    {
+      "provider": "cdnjs",
+      "library": "microsoft-signalr@9.0.6",
+      "destination": "wwwroot/lib/microsoft-signalr/"
     }
   ]
 }

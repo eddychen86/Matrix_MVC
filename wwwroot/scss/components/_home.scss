@@ -1,98 +1,91 @@
 ﻿@layer components {
-    .home-hots_list {
-        @apply flex flex-col gap-4 h-28 sm:h-48 2xl:h-80;
+  .home-hots_list {
+    @apply flex flex-col gap-4 h-28 sm:h-48 2xl:h-80;
 
-        .title {
-            @apply font-bold;
+    .title {
+      @apply font-bold;
+    }
+
+    .hots_list_carousel {
+      /* 把視覺左右邊距放在外層，避免影響 scroll 範圍 */
+      @apply relative w-full h-full px-1 sm:px-4 2xl:px-8;
+
+      button {
+        @apply absolute top-1/2 z-50 flex -translate-y-1/2 transform items-center justify-center rounded-full bg-white text-black shadow transition cursor-pointer hover:bg-gray-200 focus:outline-none w-6 sm:w-8 2xl:w-10 h-6 sm:h-8 2xl:h-10;
+
+        &:first-of-type {
+          @apply left-0;
         }
 
-        .hots_list_carousel {
-            /* 把視覺左右邊距放在外層，避免影響 scroll 範圍 */
-            @apply relative w-full h-full px-1 sm:px-4 2xl:px-8;
+        &:last-of-type {
+          @apply right-0;
+        }
+      }
 
-            button {
-                @apply absolute top-1/2 z-50 flex -translate-y-1/2 transform items-center justify-center rounded-full bg-white text-black shadow transition cursor-pointer hover:bg-gray-200 focus:outline-none w-6 sm:w-8 2xl:w-10 h-6 sm:h-8 2xl:h-10;
+      .carousel {
+        &_layout {
+          /* 不要再用 mx-* 在這層，避免「左側固定留白」 */
+          @apply h-full flex overflow-x-auto snap-x snap-mandatory text-center gap-7 box-border;
+          -webkit-overflow-scrolling: touch;
+          scrollbar-gutter: stable both-edges;
+          /* 讓最左/最右對齊時留出緩衝，不會被切半 */
+          @apply scroll-pl-6 scroll-pr-6 pr-6;
+          /* ↑ 若你不想左側留緩衝，可移除 scroll-pl-6 */
+        }
 
-                &:first-of-type {
-                    @apply left-0;
-                }
-
-                &:last-of-type {
-                    @apply right-0;
-                }
-            }
-
-            .carousel {
-                &_layout {
-                    /* 不要再用 mx-* 在這層，避免「左側固定留白」 */
-                    @apply h-full flex overflow-x-auto snap-x snap-mandatory text-center gap-7 box-border;
-                    -webkit-overflow-scrolling: touch;
-                    scrollbar-gutter: stable both-edges;
-                    /* 讓最左/最右對齊時留出緩衝，不會被切半 */
-                    @apply scroll-pl-6 scroll-pr-6 pr-6;
-                    /* ↑ 若你不想左側留緩衝，可移除 scroll-pl-6 */
-                }
-
-                &-item_cts {
-                    /* !!! 關鍵：用 calc 依 gap 與顯示張數算寬度，確保整數張 */
-                    @apply h-full overflow-hidden rounded-[30px] snap-start flex-shrink-0;
-
-          /* Mobile: 2 張 → 卡片寬 = (100% - gap*1) / 2 */
-          width: calc((100% - 1.5rem * 1) / 2);
+        &-item_cts {
+          @apply
+            h-full overflow-hidden rounded-[30px] snap-start flex-shrink-0
+            w-1/6 sm:w-1/5 2xl:w-1/4
+          ;
 
           figure {
             @apply h-full w-full;
-            img     { @apply h-full w-full object-cover; }
-            .no-img { @apply text-gray-400 flex h-full w-full items-center justify-center; }
+
+            img {
+              @apply h-full w-full object-cover;
+            }
+            
+            .no-img {
+              @apply text-gray-400 flex h-full w-full items-center justify-center;
+            }
           }
-                }
-                /* sm: 3 張 → (100% - gap*2) / 3 */
-                @media (min-width: 640px) {
-                    &-item_cts {
-                        width: calc((100% - 1.5rem * 2) / 3);
-                    }
-                }
-                /* 2xl: 5 張 → (100% - gap*4) / 5 */
-                @media (min-width: 1536px) {
-                    &-item_cts {
-                        width: calc((100% - 1.5rem * 4) / 5);
-                    }
-                }
+        }
 
-                &-item_body {
-                    .userInfo {
-                        @apply flex items-center gap-2;
+        &-item_body {
+          .userInfo {
+            @apply flex items-center gap-2;
 
-                        img {
-                            @apply h-8 w-8 rounded-full object-cover;
-                        }
-
-                        .no-img {
-                            @apply text-gray-400 flex h-8 w-8 items-center justify-center rounded-full;
-
-                            span {
-                                @apply text-sm font-bold;
-                            }
-                        }
-                    }
-                }
+            img {
+              @apply h-8 w-8 rounded-full object-cover;
             }
-        }
 
-        .no-data {
-            @apply text-gray-400 flex flex-col gap-4 items-center justify-center;
+            .no-img {
+              @apply text-gray-400 flex h-8 w-8 items-center justify-center rounded-full;
+
+              span {
+                @apply text-sm font-bold;
+              }
+            }
+          }
         }
+      }
     }
 
-    .home-posts_list {
-        @apply flex flex-col gap-4;
-
-        .post_editor_app {
-            @apply flex items-center justify-between;
-
-            button {
-                @apply cursor-pointer flex gap-2 items-center bg-white text-black rounded-full px-4 py-2;
-            }
-        }
+    .no-data {
+      @apply text-gray-400 flex flex-col gap-4 items-center justify-center;
     }
+  }
+
+  .home-posts_list {
+    @apply flex flex-col gap-4;
+
+    .post_editor_app {
+      @apply flex items-center justify-between;
+
+      button {
+        @apply cursor-pointer flex gap-2 items-center bg-white text-black rounded-full px-4 py-2;
+      }
+    }
+  }
 }

@@ -313,6 +313,11 @@ window.mountConfigPage = function() {
         if (admin) {
           // 進入編輯模式
           admin.isEditing = true
+          
+          // 設置 toggle 開關的資料綁定
+          admin.isSuperAdmin = admin.SuperAdmin === 2  // 轉換為 boolean
+          admin.isActive = admin.status === 1          // 轉換為 boolean
+          
           // 備份原始資料以便取消時還原
           admin.originalData = {
             DisplayName: admin.DisplayName,
@@ -352,12 +357,16 @@ window.mountConfigPage = function() {
         if (!admin) return
         
         try {
+          // 將 toggle 開關的 boolean 值轉換回數字格式
+          const newRole = admin.isSuperAdmin ? 2 : 1      // true=2(超級管理員), false=1(一般管理員)
+          const newStatus = admin.isActive ? 1 : 0        // true=1(啟用), false=0(停用)
+          
           const updateData = {
             userId: admin.id,
             displayName: admin.DisplayName,
             email: admin.email,
-            role: admin.SuperAdmin,
-            status: admin.status
+            role: newRole,
+            status: newStatus
           }
           
           const response = await fetch('/api/Config/Update', {
@@ -369,10 +378,18 @@ window.mountConfigPage = function() {
           const result = await response.json()
           
           if (response.ok && result.success) {
+            // 更新本地資料模型
+            admin.SuperAdmin = newRole
+            admin.status = newStatus
+            
             alert(result.message || '管理員資料更新成功')
-            // 退出編輯模式
+            
+            // 退出編輯模式並清理暫時屬性
             admin.isEditing = false
             delete admin.originalData
+            delete admin.isSuperAdmin
+            delete admin.isActive
+            
             // 重新載入管理員列表以確保資料一致性
             await getAdminsAsync()
           } else {
@@ -392,9 +409,12 @@ window.mountConfigPage = function() {
           admin.email = admin.originalData.email
           admin.SuperAdmin = admin.originalData.SuperAdmin
           admin.status = admin.originalData.status
-          // 退出編輯模式
+          
+          // 退出編輯模式並清理所有暫時屬性
           admin.isEditing = false
           delete admin.originalData
+          delete admin.isSuperAdmin  // 清理 toggle 屬性
+          delete admin.isActive      // 清理 toggle 屬性
         }
       }
 

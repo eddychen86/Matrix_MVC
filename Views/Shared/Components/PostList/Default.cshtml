@@ -3,7 +3,7 @@
     <article class="bg-accent">
         @* 文章標題區 *@
         <div class="post-content_header">
-            <div class="author-info flex items-center gap-4">
+            <div class="author-info" @@click="gotoUserPrpfile(item.authorId)">
                 <div class="author-avatar">
                     <img v-if="item?.authorAvatar" :src="item.authorAvatar" :alt="item?.authorName">
                     <span v-else class="bg-secondary">{{ item?.authorName?.slice(0,1).toUpperCase() }}</span>
@@ -13,7 +13,7 @@
                     <p class="text-sm text-gray-400">{{ item.createTime }}</p>
                 </div>
             </div>
-            <div class="flex items-center gap-2 text-sm text-gray-400">
+            <div class="posts-state">
                 <i data-lucide="heart" class="h-4 w-4"></i>
                 <span>{{ item.praiseCount }}</span>
                 <i data-lucide="bookmark" class="ml-2 h-4 w-4"></i>
@@ -28,15 +28,20 @@
 
         @* 文章附件區 *@
         <div class="post-content_attachments" v-if="item.attachments && item.attachments.length > 0">
-            <div class="post-content_attachments_images" v-if="item.attachments.filter(f => f.type.toLowerCase() === 'image').length > 0">
-                <div class="img_layout" v-for="img in item.attachments.filter(f => f.type.toLowerCase() === 'image')" :key="img.fileId">
+            <div class="post-content_attachments_images"
+                v-if="item.attachments.filter(f => f.type.toLowerCase() === 'image').length > 0">
+                <div class="img_layout" v-for="img in item.attachments.filter(f => f.type.toLowerCase() === 'image')"
+                    :key="img.fileId">
                     <img :src="img.filePath" :alt="img.fileName" />
                 </div>
             </div>
 
-            <div class="post-content_attachments_files" v-if="item.attachments.filter(f => f.type.toLowerCase() === 'file').length > 0">
-                <div v-for="file in item.attachments.filter(f => f.type.toLowerCase() === 'file')" :key="file.fileId" class="rounded-md p-2 text-white cursor-pointer transition-colors" style="background: #555;">
-                    <a :href="file.filePath" :download="file.fileName" target="_blank" rel="noopener noreferrer" class="flex gap-1 items-center">
+            <div class="post-content_attachments_files"
+                v-if="item.attachments.filter(f => f.type.toLowerCase() === 'file').length > 0">
+                <div v-for="file in item.attachments.filter(f => f.type.toLowerCase() === 'file')" :key="file.fileId"
+                    class="rounded-md p-2 text-white cursor-pointer transition-colors" style="background: #555;">
+                    <a :href="file.filePath" :download="file.fileName" target="_blank" rel="noopener noreferrer"
+                        class="flex gap-1 items-center">
                         <i data-lucide="file-text" class="size-6 text-stone-300"></i>
                         {{ file.fileName }}
                     </a>
@@ -46,17 +51,13 @@
 
         @* 文章操作列（需登入） *@
         <div class="post-content_state" v-if="currentUser?.isAuthenticated">
-            <button :disabled="item._busy"
-                    v-on:click="stateFunc('praise', item)">
-                <span class="inline-flex items-center gap-1"
-                      :class="item.isPraised ? 'text-red-500' : 'text-gray-400'">
-                    <svg xmlns="http://www.w3.org/2000/svg"
-                         viewBox="0 0 24 24"
-                         class="size-4"
-                         stroke="currentColor"
-                         :fill="item.isPraised ? 'currentColor' : 'none'"
-                         stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 1 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z" />
+            <button :disabled="item._busy" v-on:click="stateFunc('praise', item)">
+                <span class="inline-flex items-center gap-1" :class="item.isPraised ? 'text-red-500' : 'text-gray-400'">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="size-4" stroke="currentColor"
+                        :fill="item.isPraised ? 'currentColor' : 'none'" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path
+                            d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 1 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z" />
                     </svg>
                     <span data-i18n="Praise">@Localizer["Praise"]</span>
                     <span class="ml-1">{{ item.praiseCount }}</span>
@@ -69,13 +70,10 @@
 
             <button :disabled="item._busy" v-on:click="stateFunc('collect', item)">
                 <span class="inline-flex items-center gap-1"
-                      :class="item.isCollected ? 'text-yellow-500' : 'text-gray-400'">
-                    <svg xmlns="http://www.w3.org/2000/svg"
-                         viewBox="0 0 24 24"
-                         class="size-4"
-                         stroke="currentColor"
-                         :fill="item.isCollected ? 'currentColor' : 'none'"
-                         stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    :class="item.isCollected ? 'text-yellow-500' : 'text-gray-400'">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="size-4" stroke="currentColor"
+                        :fill="item.isCollected ? 'currentColor' : 'none'" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
                         <path d="M19 21l-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
                     </svg>
                     <span data-i18n="Collect">@Localizer["Collect"]</span>

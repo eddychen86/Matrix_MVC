@@ -47,7 +47,7 @@ namespace Matrix.Hubs
                             await Groups.AddToGroupAsync(Context.ConnectionId, "Admins");
                         }
 
-                        _logger.LogInformation("User {PersonId} connected to MatrixHub", person.PersonId);
+                        _logger.LogInformation("User {PersonId} connected to MatrixHub", auth.UserId);
                     }
                 }
                 catch (Exception ex)
