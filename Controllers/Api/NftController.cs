@@ -3,14 +3,26 @@ using System.Text.RegularExpressions;
 
 namespace Matrix.Controllers.Api
 {
+
+
     [Route("api/[controller]")]
     [ApiController]
+
     public class NftController : ControllerBase
     {
-        private const string NftPhysicalDir = @"C:\Users\lin05\OneDrive\Desktop\Matrix\wwwroot\public\NFTimgs";
+        private readonly IWebHostEnvironment _env;
+        private readonly string _nftPhysicalDir; //改為欄位,不是常數
         private const string NftRequestPrefix = "/public/NFTimgs";
         private static readonly HashSet<string> AllowedExt = new(StringComparer.OrdinalIgnoreCase)
             { ".jpg", ".jpeg", ".png", ".gif", ".webp", ".bmp" };
+
+        public NftController(IWebHostEnvironment env)
+        {
+            _env = env;
+            // 動態組合出 wwwroot/public/NFTimgs 的實體路徑
+            // _env.WebRootPath 會自動指向部署後網站的 wwwroot 資料夾
+            _nftPhysicalDir = Path.Combine(_env.WebRootPath, "public", "NFTimgs");
+        }
 
         /// <summary>
         /// 上傳 NFT 圖片 (純資料夾方案)
@@ -26,7 +38,6 @@ namespace Matrix.Controllers.Api
             if (string.IsNullOrWhiteSpace(ext) || !AllowedExt.Contains(ext))
                 return BadRequest(new { success = false, message = "只支援圖片檔" });
 
-            // 1. 從後端獲取當前登入者 ID，用來決定要存到哪個資料夾
             var userIdFromContext = HttpContext.Items["UserId"] as Guid?;
             if (!userIdFromContext.HasValue)
             {
@@ -34,11 +45,10 @@ namespace Matrix.Controllers.Api
             }
             var currentUserIdStr = userIdFromContext.Value.ToString();
 
-            // 2. 建立使用者專屬的資料夾路徑
-            var userDirectory = Path.Combine(NftPhysicalDir, currentUserIdStr);
-            Directory.CreateDirectory(userDirectory); // 如果資料夾不存在，就建立它
+            // 使用動態產生的 _nftPhysicalDir 路徑
+            var userDirectory = Path.Combine(_nftPhysicalDir, currentUserIdStr);
+            Directory.CreateDirectory(userDirectory);
 
-            // 3. 產生唯一檔名並儲存檔案到該使用者的資料夾
             var safeBase = Regex.Replace(Path.GetFileNameWithoutExtension(file.FileName), @"[^a-zA-Z0-9_\-]+", "_");
             var uniqueFileName = $"{safeBase}_{DateTime.UtcNow:yyyyMMddHHmmssfff}_{Guid.NewGuid():N}{ext}";
             var physicalPath = Path.Combine(userDirectory, uniqueFileName);
@@ -48,7 +58,6 @@ namespace Matrix.Controllers.Api
                 await file.CopyToAsync(fs);
             }
 
-            // 4. 產生可供前端讀取的公開路徑 (URL)
             var publicPath = $"{NftRequestPrefix}/{currentUserIdStr}/{uniqueFileName}".Replace("\\", "/");
 
             return Ok(new { success = true, data = new { filePath = publicPath, fileName = uniqueFileName } });
@@ -67,7 +76,7 @@ namespace Matrix.Controllers.Api
             }
 
             // 3. 組合路徑時也使用 userId
-            var userDirectory = Path.Combine(NftPhysicalDir, userId);
+            var userDirectory = Path.Combine(_nftPhysicalDir, userId);
 
             if (!Directory.Exists(userDirectory))
             {
@@ -105,7 +114,7 @@ namespace Matrix.Controllers.Api
             var currentUserIdStr = userIdFromContext.Value.ToString();
 
             // 2. 組合出檔案在該使用者資料夾內的完整路徑
-            var physicalPath = Path.Combine(NftPhysicalDir, currentUserIdStr, fileName);
+            var physicalPath = Path.Combine(_nftPhysicalDir, currentUserIdStr, fileName);
 
             if (!System.IO.File.Exists(physicalPath))
             {
