@@ -106,6 +106,7 @@
         try {
             await loadModules()
             setupBackwardCompatibility()
+            lucide.createIcons()
             // console.log('🎉 Dashboard 初始化完成')
         } catch (error) {
             handleInitializationError(error)
@@ -122,5 +123,4 @@
     // 暴露重構版本標識
     window.__DASHBOARD_REFACTORED__ = true
     window.__DASHBOARD_VERSION__ = '2.0.0'
-
 })();
