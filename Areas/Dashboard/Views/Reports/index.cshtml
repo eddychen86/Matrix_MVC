@@ -2,12 +2,12 @@
 @{
     ViewData["Title"] = Localizer["Reports_Title"];
 }
-<div id="reports-app" class="flex flex-col 2xl:flex-row 2xl:grid h-full w-full grid-cols-4 gap-4">
+<div id="reports-app" class="flex h-full w-full grid-cols-4 flex-col gap-4 2xl:grid 2xl:flex-row">
     <h2 class="col-span-4 text-3xl font-bold text-gray-700" data-i18n="Reports_Title">@Localizer["Reports_Title"]</h2>
     <!--  -->
-    <aside class="col-span-1 grid grid-cols-3 2xl:flex flex-row 2xl:flex-col gap-8 border-r border-gray-200 bg-white">
+    <aside class="col-span-1 grid grid-cols-3 flex-row gap-8 border-r border-gray-200 bg-white 2xl:flex 2xl:flex-col">
         <!-- Keyword -->
-        <div class="flex justify-end gap-4 col-span-1">
+        <div class="col-span-1 flex justify-end gap-4">
             <div class="relative w-full">
                 <input name="keyword" type="text"
                        v-model="keyword"
@@ -65,7 +65,7 @@
             </div>
         </div>
         <!-- Modify time（常駐日曆） -->
-        <div class="h-40 w-full hidden 2xl:block">
+        <div class="hidden h-40 w-full 2xl:block">
             <calendar-date class="cally bg-base-100 border-base-300 rounded-box w-full border shadow-lg" onchange="window.setReportDate && window.setReportDate(this.value)">
                 <svg aria-label="Previous" class="size-4 fill-current text-[#161616]" slot="previous" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="currentColor" d="M15.75 19.5 8.25 12l7.5-7.5"></path></svg>
                 <svg aria-label="Next" class="size-4 fill-current text-[#161616]" slot="next" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="currentColor" d="m8.25 4.5 7.5 7.5-7.5 7.5"></path></svg>
@@ -97,7 +97,8 @@
                         <td>{{ item.reporter }}</td>
                         <td>{{ item.type }}</td>
                         <td class="max-w-[200px] truncate" :title="item.target">{{ item.target }}</td>
-                        <td>{{ item.modifyTime ? formatDate(item.modifyTime) : '-' }}<!-- ⬇⬇ 新增：Status 欄（未處理顯示下拉、已處理顯示標籤） -->
+                        <td>
+                            {{ item.modifyTime ? formatDate(item.modifyTime || item.processTime) : '-' }}<!-- ⬇⬇ 新增：Status 欄（未處理顯示下拉、已處理顯示標籤） -->
                         </td>
                             <td>
                             <!-- 未處理顯示下拉 -->
