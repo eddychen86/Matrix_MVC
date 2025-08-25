@@ -258,7 +258,7 @@ export const useProfile = () => {
             }
 
             // Refresh user images after upload
-            await GetNTFImages(profile?.personId, 30)
+            await GetNTFImages(profile?.userId, 30)
         })
 
         document.body.appendChild(input)
@@ -268,18 +268,27 @@ export const useProfile = () => {
 
     const userNFTs = Vue.ref([])
 
-    async function GetNTFImages(personId, count = 30) {
-        const params = new URLSearchParams({ count: String(count) })
-        if (personId) params.append('personId', personId)
-        const response = await fetch(`/api/Nft/images?${params.toString()}`, {
-            method: "GET",
-            credentials: "include",
-            cache: "no-store"
-        })
-        if (!response.ok) throw new Error(`Http${response.status}`)
-        const nfts = await response.json();
-        userNFTs.value = nfts
-        return nfts
+    // --- 修正後 ---
+    async function GetNTFImages(userId, count = 9) { //  參數名稱改為 userId
+        if (!userId) {
+            userNFTs.value = [];
+            return;
+        }
+        const params = new URLSearchParams({ count: String(count), userId: userId }); //  這裡也改用 userId
+        try {
+            const response = await fetch(`/api/Nft/images?${params.toString()}`, {
+                method: "GET",
+                credentials: "include",
+                cache: "no-store"
+            });
+            if (!response.ok) throw new Error(`Http${response.status}`);
+            const nfts = await response.json();
+            userNFTs.value = nfts;
+            return nfts;
+        } catch (error) {
+            console.error("Failed to fetch user NFTs:", error);
+            userNFTs.value = [];
+        }
     }
 
     const handleNFTUpload = async (file) => {
@@ -340,24 +349,23 @@ export const useProfile = () => {
 
     // ====== More 視窗 ======
     const showNFTGallery = () => {
-        ensureGalleryStyles()
+        ensureGalleryStyles();
 
-        const modal = document.createElement('div')
-        modal.className = 'nft-backdrop'
+        const modal = document.createElement('div');
+        modal.className = 'nft-backdrop';
         modal.innerHTML = `
     <div class="nft-grid-shell">
       <div id="nft-gallery-grid" class="nft-grid"></div>
     </div>
-  `
-        document.body.appendChild(modal)
+    `;
+        document.body.appendChild(modal);
 
-        // 用下面改好的 loadAllNFTs 來塞縮圖
-        loadAllNFTs(modal.querySelector('#nft-gallery-grid'))
+        // 關鍵！把當前 profile 的 personId 傳遞給 loadAllNFTs
+        loadAllNFTs(modal.querySelector('#nft-gallery-grid'), profile.personId);
 
-        // 點背景關閉
         modal.addEventListener('click', (e) => {
-            if (e.target === modal) modal.remove()
-        })
+            if (e.target === modal) modal.remove();
+        });
     }
     const ensureGalleryStyles = () => {
         if (document.getElementById('nft-gallery-inline-css')) return
@@ -541,7 +549,7 @@ export const useProfile = () => {
 
                         // 3) 權威刷新（避免快取、確保跨裝置一致）
                         if (typeof GetNTFImages === 'function') {
-                            await GetNTFImages(profile?.personId, 30)
+                            await GetNTFImages(profile?.userId, 9)
                         }
                         if (typeof loadUserImages === 'function') {
                             await loadUserImages()
@@ -562,47 +570,53 @@ export const useProfile = () => {
 
 
     // ====== 載入縮圖（純 CSS 正方形卡片；點了放大，X 在右上角） ======
-    const loadAllNFTs = async (container) => {
+    const loadAllNFTs = async (container, userId) => { // 1. 增加 personId 參數
+        // 防呆：如果沒有 personId，直接返回
+        if (!personId) {
+            container.innerHTML = '<div class="nft-empty">缺少使用者資訊</div>';
+            return;
+        }
+
         try {
-            const response = await fetch('/api/Nft/images?count=100', {
+            // 2. 在 API 請求中帶上 personId
+            const params = new URLSearchParams({ count: '100', personId: userId });
+            const response = await fetch(`/api/Nft/images?${params.toString()}`, {
                 method: 'GET',
                 credentials: 'include'
-            })
-            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`)
+            });
 
-            const images = await response.json()
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
 
+            const images = await response.json();
+
+            // --- 後續的 DOM 操作程式碼不變 ---
             if (!Array.isArray(images) || images.length === 0) {
-                container.innerHTML = '<div class="nft-empty">尚無 NFT 作品</div>'
-                return
+                container.innerHTML = '<div class="nft-empty">尚無 NFT 作品</div>';
+                return;
             }
 
-            // 先清空，再逐張建立卡片（不用 inline onclick，避免全域命名/快取問題）
-            container.textContent = ''
+            container.textContent = '';
             images.forEach((img) => {
-                const card = document.createElement('button')
-                card.type = 'button'
-                card.className = 'nft-card'
+                const card = document.createElement('button');
+                card.type = 'button';
+                card.className = 'nft-card';
 
-                const im = document.createElement('img')
-                im.src = img.filePath
-                im.alt = img.fileName || ''
-                card.appendChild(im)
+                const im = document.createElement('img');
+                im.src = img.filePath;
+                im.alt = img.fileName || '';
+                card.appendChild(im);
 
-                // 點縮圖 → （只有 X）
                 card.addEventListener('click', (e) => {
-                    e.stopPropagation()
-                    showNFTDetailModal(img)
-                })
+                    e.stopPropagation();
+                    showNFTDetailModal(img);
+                });
 
-                container.appendChild(card)
-            })
+                container.appendChild(card);
+            });
 
-            // 若其他地方需要用到清單
-            window._nftGalleryImages = images
         } catch (err) {
-            console.error('Failed to load all NFTs:', err)
-            container.innerHTML = '<div class="nft-empty" style="color:#f66">載入失敗</div>'
+            console.error('Failed to load all NFTs:', err);
+            container.innerHTML = '<div class="nft-empty" style="color:#f66">載入失敗</div>';
         }
     }
 
@@ -922,7 +936,7 @@ export const useProfile = () => {
         await loadUserImages()
         manualLoadFunctions = setupManualLoad()
 
-        await GetNTFImages(profile?.personId, 30)
+        await GetNTFImages(profile?.userId, 30)
 
         // 設置無限滾動（Profile 頁面）
         Vue.nextTick(() => {
