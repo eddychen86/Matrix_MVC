@@ -1,144 +1,127 @@
-using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Mvc;
+using System.Text.RegularExpressions;
 
 namespace Matrix.Controllers.Api
 {
-    /// <summary>
-    /// NFT 相關的 API Controller
-    /// CRUD NFT 資訊
-    /// </summary>
     [Route("api/[controller]")]
     [ApiController]
     public class NftController : ControllerBase
     {
-        // 你指定的實體路徑與對外讀取路徑
         private const string NftPhysicalDir = @"C:\Users\lin05\OneDrive\Desktop\Matrix\wwwroot\public\NFTimgs";
         private const string NftRequestPrefix = "/public/NFTimgs";
-
         private static readonly HashSet<string> AllowedExt = new(StringComparer.OrdinalIgnoreCase)
             { ".jpg", ".jpeg", ".png", ".gif", ".webp", ".bmp" };
 
         /// <summary>
-        /// 上傳 NFT 圖片
-        /// POST /api/Nft/upload
+        /// 上傳 NFT 圖片 (純資料夾方案)
         /// </summary>
         [HttpPost("upload")]
         [RequestSizeLimit(30_000_000)]
-        public async Task<IActionResult> Upload([FromForm] IFormFile? file, [FromForm] string? personId)
+        public async Task<IActionResult> Upload([FromForm] IFormFile? file)
         {
             if (file == null || file.Length == 0)
                 return BadRequest(new { success = false, message = "檔案不存在" });
 
             var ext = Path.GetExtension(file.FileName);
             if (string.IsNullOrWhiteSpace(ext) || !AllowedExt.Contains(ext))
-                return BadRequest(new { success = false, message = "只支援圖片檔（jpg、png、gif、webp、bmp）" });
+                return BadRequest(new { success = false, message = "只支援圖片檔" });
 
-            if (string.IsNullOrWhiteSpace(file.ContentType) ||
-                !file.ContentType.StartsWith("image/", StringComparison.OrdinalIgnoreCase))
-                return BadRequest(new { success = false, message = "Content-Type 必須為 image/*" });
+            // 1. 從後端獲取當前登入者 ID，用來決定要存到哪個資料夾
+            var userIdFromContext = HttpContext.Items["UserId"] as Guid?;
+            if (!userIdFromContext.HasValue)
+            {
+                return Unauthorized(new { success = false, message = "用戶未認證，無法上傳" });
+            }
+            var currentUserIdStr = userIdFromContext.Value.ToString();
 
+            // 2. 建立使用者專屬的資料夾路徑
+            var userDirectory = Path.Combine(NftPhysicalDir, currentUserIdStr);
+            Directory.CreateDirectory(userDirectory); // 如果資料夾不存在，就建立它
 
-
-            Directory.CreateDirectory(NftPhysicalDir);
-
+            // 3. 產生唯一檔名並儲存檔案到該使用者的資料夾
             var safeBase = Regex.Replace(Path.GetFileNameWithoutExtension(file.FileName), @"[^a-zA-Z0-9_\-]+", "_");
-            if (safeBase.Length > 80) safeBase = safeBase[..80];
-            var unique = $"{safeBase}_{DateTime.UtcNow:yyyyMMddHHmmssfff}_{Guid.NewGuid():N}{ext}";
-            var path = Path.Combine(NftPhysicalDir, unique);
+            var uniqueFileName = $"{safeBase}_{DateTime.UtcNow:yyyyMMddHHmmssfff}_{Guid.NewGuid():N}{ext}";
+            var physicalPath = Path.Combine(userDirectory, uniqueFileName);
 
-            using (var fs = System.IO.File.Create(path))
+            await using (var fs = System.IO.File.Create(physicalPath))
             {
                 await file.CopyToAsync(fs);
             }
 
-            var fi = new FileInfo(path);
-            var publicPath = $"{NftRequestPrefix}/{unique}".Replace("\\", "/");
+            // 4. 產生可供前端讀取的公開路徑 (URL)
+            var publicPath = $"{NftRequestPrefix}/{currentUserIdStr}/{uniqueFileName}".Replace("\\", "/");
 
-            return Ok(new
-            {
-                success = true,
-                data = new
-                {
-                    fileName = unique,
-                    filePath = publicPath,
-                    fileSize = fi.Length,
-                    contentType = file.ContentType,
-                    createTime = fi.CreationTimeUtc
-                }
-            });
+            return Ok(new { success = true, data = new { filePath = publicPath, fileName = uniqueFileName } });
         }
 
         /// <summary>
-        /// 取得圖片清單
-        /// GET /api/Nft/images
+        /// 取得圖片清單 (純資料夾方案)
         /// </summary>
         [HttpGet("images")]
-        public IActionResult List([FromQuery] int count = 10, [FromQuery] string? PersonId = null)
+        public IActionResult ListImages([FromQuery] int count = 30, [FromQuery] string? userId = null)
         {
-            if (!Directory.Exists(NftPhysicalDir))
-                return Ok(Array.Empty<object>());
+            // 2. 判斷條件也跟著改成 userId
+            if (string.IsNullOrWhiteSpace(userId))
+            {
+                return Ok(new List<object>());
+            }
 
-            var files = Directory.EnumerateFiles(NftPhysicalDir, "*.*", SearchOption.TopDirectoryOnly)
+            // 3. 組合路徑時也使用 userId
+            var userDirectory = Path.Combine(NftPhysicalDir, userId);
+
+            if (!Directory.Exists(userDirectory))
+            {
+                return Ok(new List<object>());
+            }
+
+            var files = Directory.EnumerateFiles(userDirectory, "*.*")
                 .Where(p => AllowedExt.Contains(Path.GetExtension(p)))
                 .Select(p => new FileInfo(p))
                 .OrderByDescending(f => f.CreationTimeUtc)
-                .Take(Math.Max(1, count))
+                .Take(count)
                 .Select(f => new
                 {
                     fileId = Path.GetFileNameWithoutExtension(f.Name),
                     fileName = f.Name,
-                    filePath = $"{NftRequestPrefix}/{f.Name}",
-                    fileSize = f.Length,
-                    createTime = f.CreationTimeUtc
+                    // 4. 組合公開 URL 時也使用 userId
+                    filePath = $"{NftRequestPrefix}/{userId}/{f.Name}".Replace("\\", "/"),
                 });
 
             return Ok(files);
         }
-        //刪除圖片
-        // Delete   /api/Nft/{fileName}
+
+        /// <summary>
+        /// 刪除圖片 (純資料夾方案)
+        /// </summary>
         [HttpDelete("{fileName}")]
-
-        public IActionResult DeleteNFT([FromRoute]String fileName)
+        public IActionResult DeleteNFT(string fileName)
         {
-            if (string.IsNullOrWhiteSpace(fileName)) 
+            // 1. 取得當前登入者 ID，用來確認他只能刪除自己資料夾內的檔案
+            var userIdFromContext = HttpContext.Items["UserId"] as Guid?;
+            if (!userIdFromContext.HasValue)
             {
-                return Ok(new
-                {
-                    Ok = false,
-                    message = "刪除失敗!"
-                });
+                return Unauthorized(new { success = false, message = "用戶未認證" });
             }
+            var currentUserIdStr = userIdFromContext.Value.ToString();
 
-            var fullPath = Path.Combine(NftPhysicalDir, fileName);
-            if (!System.IO.File.Exists(fullPath)) 
+            // 2. 組合出檔案在該使用者資料夾內的完整路徑
+            var physicalPath = Path.Combine(NftPhysicalDir, currentUserIdStr, fileName);
+
+            if (!System.IO.File.Exists(physicalPath))
             {
-                return Ok(new
-                {
-                    Ok = false,
-                    message = "刪除失敗!!"
-                });
+                return NotFound(new { success = false, message = "找不到檔案或無權限刪除" });
             }
 
             try
             {
-                System.IO.File.Delete(fullPath);
-                return Ok(new
-                {
-                    Ok = true,
-                    message = "刪除成功!"
-                });
+                System.IO.File.Delete(physicalPath);
+                return Ok(new { success = true, message = "刪除成功" });
             }
-            catch (Exception ex) 
+            catch (Exception ex)
             {
-                return Ok(new
-                {
-                    Ok = false,
-                    message = $"刪除失敗:{ex.Message}"
-                });
+                // 可以記錄 Log
+                return StatusCode(500, new { success = false, message = $"刪除失敗: {ex.Message}" });
             }
-
-
         }
-        
     }
 }

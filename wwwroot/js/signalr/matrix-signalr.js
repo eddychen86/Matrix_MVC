@@ -17,7 +17,7 @@ class MatrixSignalR {
    */
   async initialize() {
     if (this.connection) {
-      console.log('SignalR 連接已存在');
+      //console.log('SignalR 連接已存在');
       return;
     }
 
