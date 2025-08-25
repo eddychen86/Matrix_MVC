@@ -122,7 +122,8 @@ globalApp({
             cleanupInfiniteScroll,
             initializeHomePosts,
             setupPostRefreshListener,
-            postListLoading
+            postListLoading,
+            gotoUserPrpfile
         } = postManager
 
         // 初始化聊天管理器
@@ -329,6 +330,7 @@ globalApp({
             loadPosts,
             setupInfiniteScroll,
             cleanupInfiniteScroll,
+            gotoUserPrpfile,
 
             // 彈窗相關
             popupState,

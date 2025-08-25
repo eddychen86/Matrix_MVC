@@ -18,9 +18,8 @@ export const usePostManager = (currentUser) => {
     let infiniteScrollObserver = null
 
     // 跳轉到對象個人頁面
-    const gotoUserPrpfile = id => {
-
-        // window.herf = `/Profile/${}`
+    const gotoUserPrpfile = authorName => {
+        window.herf = `/Profile/${authorName}`
     }
 
     // PostList 相關的方法 - 使用統一的文章操作 hook

@@ -3,7 +3,7 @@
     <article class="bg-accent">
         @* 文章標題區 *@
         <div class="post-content_header">
-            <div class="author-info" @@click="gotoUserPrpfile(item.authorId)">
+            <a class="author-info" :href="`/Profile/${item?.authorName}`">
                 <div class="author-avatar">
                     <img v-if="item?.authorAvatar" :src="item.authorAvatar" :alt="item?.authorName">
                     <span v-else class="bg-secondary">{{ item?.authorName?.slice(0,1).toUpperCase() }}</span>
@@ -12,7 +12,7 @@
                     <h3 class="font-medium text-white">{{ item.authorName || @Localizer["GuestAccount"] }}</h3>
                     <p class="text-sm text-gray-400">{{ item.createTime }}</p>
                 </div>
-            </div>
+            </a>
             <div class="posts-state">
                 <i data-lucide="heart" class="h-4 w-4"></i>
                 <span>{{ item.praiseCount }}</span>
@@ -87,8 +87,6 @@
 
 
         </div>
-
-
 
         @* 未登入狀態：顯示提示 *@
         <div class="post-content_state" v-else>
