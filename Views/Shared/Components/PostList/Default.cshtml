@@ -80,14 +80,7 @@
                     <span class="ml-1">{{ item.collectCount }}</span>
                 </span>
             </button>
-            <button :disabled="item._busy"
-                    v-on:click="
-                       stateFunc(
-                         'report',
-                         { articleId: item.articleId, authorId: (item.authorPersonId || item.personId || item.authorId) },
-                         item
-                       )
-                     ">
+            <button :disabled="item._busy" v-on:click="stateFunc('report', item)">
                 <i data-lucide="flag" class="size-4"></i>
                 <span>Report</span>
             </button>

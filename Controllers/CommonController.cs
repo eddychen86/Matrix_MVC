@@ -16,7 +16,7 @@ namespace Matrix.Controllers
             var displayUserName = safeUserName.Length > 8 ? safeUserName.Substring(0, 8) + "..." : safeUserName;
 
             // 安全處理 AvatarPath
-            var safeAvatarPath = string.IsNullOrWhiteSpace(auth.AvatarPath) ? "/static/img/default-avatar.png" : auth.AvatarPath;
+            var safeAvatarPath = string.IsNullOrWhiteSpace(auth.AvatarPath) ? "" : auth.AvatarPath;
 
             return new MenuViewModel
             {

@@ -14,7 +14,8 @@
             @if (Model.IsAuthenticated)
             {
                 <a asp-controller="Profile" asp-action="Index" aria-current="page" class="cts-btn">
-                    <img src="@(!string.IsNullOrEmpty(Model.UserImg) ? Model.UserImg : "/static/img/default-avatar.png")" alt="" class="icon-lg border-2 border-white object-cover object-center" />
+                    <img src="@(!string.IsNullOrEmpty(Model.UserImg) ? Model.UserImg : "")" alt=""
+                        class="icon-lg border-2 border-white object-cover object-center" />
                     <span class="title">@Model.UserName</span>
                 </a>
             }
@@ -32,20 +33,21 @@
         <li>
             @if (Model.UserRole >= 1)
             {
-                <button :class="isCollapsed ? 'sidebar-btn-none-text' : ''" class="cts-btn" v-on:click="handleDashboardMainClick()">
+                <button :class="isCollapsed ? 'sidebar-btn-none-text' : ''" class="cts-btn"
+                    v-on:click="handleDashboardMainClick()">
                     <i data-lucide="layout-dashboard" class="icon-base"></i>
                     <span data-i18n="Dashboard" class="title">@Localizer["Dashboard"]</span>
                 </button>
             }
             @foreach (var item in Model.Bottoms)
             {
-                <button v-on:click="handleMenuClick('@item.Click')" :class="isCollapsed ? 'sidebar-btn-none-text' : ''" class="cts-btn">
+                <button v-on:click="handleMenuClick('@item.Click')" :class="isCollapsed ? 'sidebar-btn-none-text' : ''"
+                    class="cts-btn">
                     <i data-lucide="@item.Icon" class="icon-base"></i>
                     <span class="title" data-i18n="@item.Title">@Localizer[item.Title]</span>
                 </button>
             }
         </li>
     </ul>
-    
-</aside>
 
+</aside>

@@ -13,7 +13,7 @@
                     <!-- ✅ 搜尋框只在 Search 與 Follows 顯示 -->
                     <div class="relative w-full" v-if="popupState.type === 'Search' || popupState.type === 'Follows'">
                         <input type="text" v-model="searchQuery"
-                               class="para h-12 w-full rounded-full border bg-stone-700 px-4 outline-none">
+                            class="para h-12 w-full rounded-full border bg-stone-700 px-4 outline-none">
                         <button class="absolute top-1/2 right-4 -translate-y-1/2" v-on:click="onSearchClick">
                             <i data-lucide="search" class="icon-base"></i>
                         </button>
@@ -39,17 +39,15 @@
                     <!-- Collects -->
                     <div v-if="popupState.type === 'Collects'">
                         <div class="popup-data grid auto-rows-min grid-cols-3 gap-4">
-                            <div v-for="item in popupData.Collects"
-                                 :key="item.articleId"
-                                 class="relative cursor-pointer overflow-hidden rounded-xl bg-black/20 transition hover:opacity-90"
-                                 v-on:click="goArticle(item.articleId)"
-                                 role="button" tabindex="0"
-                                 v-on:keydown.enter="goArticle(item.articleId)">
+                            <div v-for="item in popupData.Collects" :key="item.articleId"
+                                class="relative cursor-pointer overflow-hidden rounded-xl bg-black/20 transition hover:opacity-90"
+                                v-on:click="goArticle(item.articleId)" role="button" tabindex="0"
+                                v-on:keydown.enter="goArticle(item.articleId)">
 
                                 <!-- 圖片區 -->
                                 <img class="block h-40 w-full object-cover"
-                                     :src="item.imageUrl || '/static/img/Cute.png'"
-                                     :alt="item.title || 'article cover'" />
+                                    :src="item.imageUrl || '/static/img/Cute.png'"
+                                    :alt="item.title || 'article cover'" />
 
                                 <!-- 資訊區：改成圖片下方 -->
                                 <div class="bg-black/40 p-4 text-white">
@@ -57,10 +55,8 @@
                                     <h2 class="text-base font-semibold">{{ item.title }}</h2>
                                     <div class="mt-1 flex items-center gap-2">
                                         <!-- 如果有頭像 -->
-                                        <img v-if="item.authorAvatar"
-                                             :src="item.authorAvatar"
-                                             class="h-6 w-6 rounded-full object-cover"
-                                             alt="author avatar" />
+                                        <img v-if="item.authorAvatar" :src="item.authorAvatar"
+                                            class="h-6 w-6 rounded-full object-cover" alt="author avatar" />
                                         <span class="text-sm">{{ item.authorName }}</span>
                                     </div>
                                 </div>
@@ -70,7 +66,7 @@
 
 
                     <!-- Article -->
-                    
+
                     <div v-if="popupState.type === 'Article'">
                         <div class="relative p-4">
                             <!-- 載入中 -->
@@ -87,21 +83,21 @@
 
                                 <!-- 作者 + 時間 -->
                                 <div class="mb-4 text-sm text-gray-400">
-                                    {{ popupData.Article.authorName || '未知作者' }} · {{ formatDate(popupData.Article.createTime) }}
+                                    {{ popupData.Article.authorName || '未知作者' }} · {{
+                                    formatDate(popupData.Article.createTime) }}
                                 </div>
 
                                 <!-- 內文：若是純文字就用 {{ }}，若包含 HTML 要用 v-html -->
                                 <div class="prose prose-invert max-w-none break-words whitespace-pre-line"
-                                     v-html="popupData.Article.content">
+                                    v-html="popupData.Article.content">
                                 </div>
 
                                 <!-- 圖片附件（依你的 DTO 欄位命名調整） -->
-                                <div v-if="popupData.Article.attachments && popupData.Article.attachments.length" class="mt-4 grid grid-cols-2 gap-2">
+                                <div v-if="popupData.Article.attachments && popupData.Article.attachments.length"
+                                    class="mt-4 grid grid-cols-2 gap-2">
                                     <img v-for="att in popupData.Article.attachments.filter(a => a.type?.toLowerCase() === 'image')"
-                                         :key="att.id || att.filePath"
-                                         :src="att.filePath"
-                                         class="w-full rounded"
-                                         :alt="att.fileName || 'image'" />
+                                        :key="att.id || att.filePath" :src="att.filePath" class="w-full rounded"
+                                        :alt="att.fileName || 'image'" />
                                 </div>
                             </div>
 
@@ -109,12 +105,12 @@
                             <div v-else class="py-12 text-center text-gray-500">
                                 載入失敗或文章不存在
                             </div>
-                            <button class="absolute right-0 -bottom-4 cursor-pointer rounded-lg bg-white px-4 py-2 font-medium text-black shadow transition hover:bg-gray-100"
-                                    v-on:click="backFromArticle"
-                                    aria-label="Back">
+                            <button
+                                class="absolute right-0 -bottom-4 cursor-pointer rounded-lg bg-white px-4 py-2 font-medium text-black shadow transition hover:bg-gray-100"
+                                v-on:click="backFromArticle" aria-label="Back">
                                 返回
                             </button>
-                        </div>                    
+                        </div>
                     </div>
 
 
@@ -147,7 +143,7 @@
                             <div v-for="(user, index) in popupData.Search.Users" :key="'search-user-' + index"
                                 class="flex items-center justify-between rounded-lg bg-neutral-800 px-4 py-3 transition hover:bg-neutral-700">
                                 <div class="flex items-center space-x-4">
-                                    <img :src="user.avatarUrl || '/static/img/default-avatar.png'"
+                                    <img :src="user.avatarUrl || ''"
                                         class="h-12 w-12 rounded-full border border-gray-600" />
                                     <div>
                                         <p class="title">{{ user.displayName }}</p>
@@ -156,8 +152,8 @@
                                 </div>
                                 <div class="flex flex-col items-end space-y-1">
                                     <button class="cts-btn hover:underline"
-                                            :class="user.isFollowed ? '!text-red-400' : '!text-blue-400'"
-                                            @@click="toggleFollow(user.personId, user.isFollowed)">
+                                        :class="user.isFollowed ? '!text-red-400' : '!text-blue-400'"
+                                        @@click="toggleFollow(user.personId, user.isFollowed)">
                                         {{ user.isFollowed ? '取消追蹤' : '追蹤' }}
                                     </button>
 
@@ -166,8 +162,8 @@
                         </div>
 
                         <!-- 如果沒有搜尋結果且有關鍵字，顯示沒有結果 -->
-                        <div v-else-if="popupData.Search?.Users?.length === 0 && searchQuery.trim() !== ''" 
-                             class="py-8 text-center text-gray-400">
+                        <div v-else-if="popupData.Search?.Users?.length === 0 && searchQuery.trim() !== ''"
+                            class="py-8 text-center text-gray-400">
                             沒有找到符合「{{ searchQuery }}」的使用者。
                         </div>
 
@@ -177,7 +173,7 @@
                             <div v-for="(follow, index) in popupData.Follows" :key="'follow-' + index"
                                 class="flex items-center justify-between rounded-lg bg-neutral-800 px-4 py-3 transition hover:bg-neutral-700">
                                 <div class="flex items-center space-x-4">
-                                    <img :src="follow.senderAvatarUrl || '/static/img/default-avatar.png'"
+                                    <img :src="follow.senderAvatarUrl || ''"
                                         class="h-12 w-12 rounded-full border border-gray-600" />
                                     <div>
                                         <p class="title">{{ follow.senderName }}</p>
@@ -203,7 +199,8 @@
                     <div v-if="popupState.type == 'Search'" class="popup-data-search">
 
                         <!-- 🔍 使用者結果（滑過展開統計 + 追蹤按鈕） -->
-                        <div v-if="popupData.Search && popupData.Search.Users && popupData.Search.Users.length > 0" class="space-y-4">
+                        <div v-if="popupData.Search && popupData.Search.Users && popupData.Search.Users.length > 0"
+                            class="space-y-4">
                             <h3 class="subTitle">使用者</h3>
 
                             <!-- 用 template v-for，確保整塊都在 user 作用域 -->
@@ -211,15 +208,14 @@
 
                                 <!-- 外層容器要 overflow-hidden 才有手風琴效果 -->
                                 <div class="overflow-hidden rounded-lg bg-neutral-800 transition hover:bg-neutral-700"
-                                     @@mouseenter="onHoverUser(user)"
-                                     @@mouseleave="user._hover = false">
+                                    @@mouseenter="onHoverUser(user)" @@mouseleave="user._hover = false">
 
                                     <!-- 主列 -->
                                     <div class="flex items-center justify-between px-4 py-3">
                                         <div class="flex items-center space-x-4">
                                             <img :src="user.avatarUrl || '/static/img/cute.png'"
-                                                 @@error="$event.target.src='/static/img/cute.png'"
-                                                 class="h-12 w-12 rounded-full border border-gray-600" />
+                                                @@error="$event.target.src='/static/img/cute.png'"
+                                                class="h-12 w-12 rounded-full border border-gray-600" />
                                             <div>
                                                 <p class="title">{{ user.displayName }}</p>
                                                 <p class="subTitle text-sm text-gray-400">{{ user.bio }}</p>
@@ -228,7 +224,7 @@
 
                                         <div class="flex flex-col items-end justify-between space-y-1">
                                             <a class="cts-btn !text-blue-400 hover:underline"
-                                               :href="`/Profile/${encodeURIComponent(user.username)}`">
+                                                :href="`/Profile/${encodeURIComponent(user.username)}`">
                                                 查看
                                             </a>
 
@@ -239,7 +235,7 @@
 
                                     <!-- 展開區：字串 style 綁定（避免 Razor 與物件語法衝突） -->
                                     <div class="overflow-hidden bg-neutral-900 transition-all duration-300 ease-in-out"
-                                         :style="(user && user._hover) ? 'max-height:96px' : 'max-height:0px'">
+                                        :style="(user && user._hover) ? 'max-height:96px' : 'max-height:0px'">
                                         <div class="px-4 py-3">
                                             <!-- 已載入統計 -->
                                             <div v-if="user && user.stats" class="grid grid-cols-2 gap-4">
@@ -264,13 +260,13 @@
                         </div>
 
                         <!-- 🏷️ Hashtag 結果（chip，自適應寬度，可點擊觸發搜尋） -->
-                        <div v-if="popupData.Search && popupData.Search.Hashtags && popupData.Search.Hashtags.length > 0" class="mt-6">
+                        <div v-if="popupData.Search && popupData.Search.Hashtags && popupData.Search.Hashtags.length > 0"
+                            class="mt-6">
                             <h3 class="subTitle mb-2">標籤</h3>
                             <div class="flex flex-wrap gap-2">
-                                <button v-for="(tag, index) in popupData.Search.Hashtags"
-                                        :key="'tag-' + index"
-                                        class="inline-block rounded-full border border-gray-600 bg-neutral-800 px-3 py-2 text-sm whitespace-nowrap text-white transition hover:bg-neutral-700"
-                                        @@click="goTag(tag.content)">
+                                <button v-for="(tag, index) in popupData.Search.Hashtags" :key="'tag-' + index"
+                                    class="inline-block rounded-full border border-gray-600 bg-neutral-800 px-3 py-2 text-sm whitespace-nowrap text-white transition hover:bg-neutral-700"
+                                    @@click="goTag(tag.content)">
                                     #{{ tag.content }}
                                 </button>
                             </div>
@@ -279,8 +275,7 @@
                         <!-- ❌ 沒有任何結果 -->
                         <div v-if="popupData.Search && popupData.Search.Users && popupData.Search.Hashtags
                                 && popupData.Search.Users.length === 0 && popupData.Search.Hashtags.length === 0
-                                && (searchQuery || '').trim() !== ''"
-                             class="mt-8 text-center text-gray-400">
+                                && (searchQuery || '').trim() !== ''" class="mt-8 text-center text-gray-400">
                             沒有找到符合「{{ searchQuery }}」的使用者或標籤。
                         </div>
                     </div>

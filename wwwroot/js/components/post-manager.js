@@ -19,7 +19,8 @@ export const usePostManager = (currentUser) => {
 
     // 跳轉到對象個人頁面
     const gotoUserPrpfile = id => {
-        console.log(id)
+
+        // window.herf = `/Profile/${}`
     }
 
     // PostList 相關的方法 - 使用統一的文章操作 hook

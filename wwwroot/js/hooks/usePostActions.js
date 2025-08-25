@@ -226,10 +226,8 @@ export function usePostActions() {
                 case 'comment': return await openReply(articleId)
                 case 'share': return await shareArticle(articleId, row)
                 case 'report': {
-                    // 從第二參數與 row 把作者 PersonId 解出來
-                    const providedAuthor = (typeof articleIdOrPayload === 'object') ? articleIdOrPayload.authorId : null
-                    const pid = resolveAuthorPersonId(row, providedAuthor)
-                    return await openReport(articleId, pid, row)
+                    const { articleId, authorId } = item
+                    return await openReport(articleId, authorId, row)
                 }
                 default: return false
             }

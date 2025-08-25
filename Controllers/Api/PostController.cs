@@ -185,6 +185,7 @@ namespace Matrix.Controllers.Api
                     articles = articles.Select(a => new
                     {
                         articleId = a.ArticleId,
+                        authorId = a.AuthorId,
                         content = a.Content,
                         createTime = a.CreateTime,
                         praiseCount = a.PraiseCount,
