@@ -21,7 +21,8 @@ export const usePopupManager = (clearSearchCallback = null) => {
         },
         Notify: [],
         Follows: [],
-        Collects: []
+        Collects: [],
+        Article:null
     })
 
     const isLoading = ref(false)
@@ -32,10 +33,97 @@ export const usePopupManager = (clearSearchCallback = null) => {
             'Search': '搜尋',
             'Notify': '通知',
             'Follows': '追蹤',
-            'Collects': '收藏'
+            'Collects': '收藏',
+            'Article': '文章'
         }
 
         return titles[type] || '視窗'
+    }
+
+
+    // 依網址參數決定是否要打開文章彈窗
+    const handlePostFromUrl = () => {
+        const id = new URL(window.location.href).searchParams.get('post')
+        if (id) openArticle(id)
+        else if (popupState.type === 'Article') closePopup()
+    }
+
+    // 進入頁面檢查一次
+    handlePostFromUrl()
+
+    // 使用者按返回/前進時，同步彈窗狀態
+    window.addEventListener('popstate', handlePostFromUrl)
+
+    // 打 /api/post/{id} 並顯示到彈窗
+    const openArticle = async (articleId) => {
+        if (!articleId) return
+        popupState.type = 'Article'
+        popupState.title = getPopupTitle('Article')
+        popupState.isVisible = true
+        isLoading.value = true
+        try {
+            const res = await fetch(`/api/post/${articleId}`, { credentials: 'include' })
+            const json = await res.json()
+            popupData.Article = json?.article ?? null   // 對應你的 API 回傳 { success, article }
+        } catch (e) {
+            console.error('❌ 讀取文章失敗', e)
+            popupData.Article = null
+        } finally {
+            isLoading.value = false
+        }
+    }
+    // 點收藏卡片 → 進文章
+    const goArticle = (articleId) => {
+        if (!articleId) return
+
+        // 記住當前彈窗（可能是 'Collects'）
+        lastPopupType.value = popupState.type || lastPopupType.value
+        rememberPopupScroll()
+
+        // 寫入參數，但不離開頁面
+        const url = new URL(window.location.href)
+        url.searchParams.set('post', articleId)
+        history.pushState({}, '', url)
+
+        openArticle(articleId)
+    }
+
+    // 文章內的「返回」按鈕
+    const backFromArticle = () => {
+        // 1) 先拿掉網址的 post 參數（用 replaceState 不觸發 popstate）
+        const url = new URL(window.location.href)
+        if (url.searchParams.has('post')) {
+            url.searchParams.delete('post')
+            history.replaceState({}, '', url)
+        }
+
+        // 2) 切回上一個彈窗型態（例如 'Collects'），而不是關閉
+        if (lastPopupType.value) {
+            popupData.Article = null
+            popupState.type = lastPopupType.value
+            popupState.title = getPopupTitle(lastPopupType.value)
+            popupState.isVisible = true
+            restorePopupScroll()
+        } else {
+            // 沒記錄就保險關掉
+            closePopup()
+        }
+    }
+    // === 新增：記錄上一篇彈窗類型（用來返回時還原） ===
+    const lastPopupType = Vue.ref(null)
+    // （可選）記錄清單捲動位置
+    const lastPopupScrollTop = Vue.ref(0)
+
+    const rememberPopupScroll = () => {
+        const el = document.querySelector('.popup-data')
+        if (el) lastPopupScrollTop.value = el.scrollTop || 0
+    }
+
+    const restorePopupScroll = () => {
+        Vue.nextTick(() => {
+            const el = document.querySelector('.popup-data')
+            if (el) el.scrollTop = lastPopupScrollTop.value || 0
+        })
     }
 
     //--------Notify------
@@ -123,6 +211,7 @@ export const usePopupManager = (clearSearchCallback = null) => {
     // Popup click
     const openPopup = async type => {
         // 每次打開 popup 都清空搜尋欄位
+        if (type) lastPopupType.value = type
         if (typeof clearSearchCallback === 'function') {
             clearSearchCallback()
         }
@@ -200,7 +289,11 @@ export const usePopupManager = (clearSearchCallback = null) => {
         openPopup,
         closePopup,
         toggleFunc,
-        
+
+        openArticle,
+        goArticle,
+        backFromArticle,
+
         // 向後兼容的別名
         isOpen: Vue.computed(() => popupState.isVisible),
         closeCollectModal: closePopup

@@ -58,6 +58,7 @@ namespace Matrix.Controllers
                 
                 var collectViewModels = collectDtos.Select(dto => new CollectItemViewModel
                 {
+                    ArticleId = dto.ArticleId,
                     Title = dto.Title,
                     ImageUrl = dto.ImageUrl,
                     AuthorName = dto.AuthorName,

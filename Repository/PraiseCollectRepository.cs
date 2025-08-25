@@ -45,13 +45,16 @@ namespace Matrix.Repository
                 .ToListAsync();
         }
 
-        public async Task<IEnumerable<PraiseCollect>> GetUserCollectionsAsync(Guid userId, int page = 1, int pageSize = 20)
+        public async Task<IEnumerable<PraiseCollect>> GetUserCollectionsAsync(
+                                Guid userId, int page = 1, int pageSize = 20)
         {
             return await _dbSet
-                .Include(pc => pc.Article)
-                .ThenInclude(a => a!.Attachments)
-                .Include(pc => pc.User)
+                .AsNoTracking()
                 .Where(pc => pc.UserId == userId && pc.Type == CollectType)
+                .Include(pc => pc.Article)
+                    .ThenInclude(a => a.Author)       // ✅ 一起撈作者
+                .Include(pc => pc.Article)
+                    .ThenInclude(a => a.Attachments)  // 圖片
                 .OrderByDescending(pc => pc.CreateTime)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
