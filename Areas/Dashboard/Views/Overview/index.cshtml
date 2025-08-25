@@ -13,32 +13,41 @@
         </div>
     </template>
     <template v-else>
+        <h1 data-i18n="Overview_Title" class="text-3xl font-bold text-secondary">@Localizer["Overview_Title"]</h1>
         <div class="ov-content">
-            <div class="ov-content_header">
-                <h1 data-i18n="">管理儀表板</h1>
-                <p class="para">歡迎使用 Matrix 後台管理系統</p>
-            </div>
-
             <!-- 統計卡片 -->
-            <div class="ov-content_body">
+            <div class="ov-content_body col-span-3 sm:col-span-1">
                 <div v-for="t in total" :key="t.id" class="ov-content_body_group">
-                    <div class="flex items-center">
-                        <div :class="`bg-opacity-10 bg-${t.color}-500`">
-                            <i :class="`text-${t.color}-500`"></i>
+                    <div class="flex items-center gap-4">
+                        <div class="h-20">
+                            <i :data-lucide="t.icon" class="size-full" :class="`text-${t.color}-500`"></i>
                         </div>
                         <div>
-                            <h2 v-if="t.id === 0" class="para" data-i18n="Overview_TotalUsers">@Localizer["Overview_TotalUsers"]</h2>
-                            <h2 v-else-if="t.id === 1" class="para" data-i18n="Overview_TotalPosts">@Localizer["Overview_TotalPosts"]</h2>
-                            <h2 v-else-if="t.id === 2" class="para" data-i18n="Overview_PendingReports">@Localizer["Overview_PendingReports"]</h2>
-                            <h2 v-else class="para" data-i18n="Overview_TodayActive">@Localizer["Overview_TodayActive"]</h2>
-                            <p>{{ t.result }}</p>
+                            <h2 v-if="t.id === 0" class="subTitle" data-i18n="Overview_TotalUsers">@Localizer["Overview_TotalUsers"]</h2>
+                            <h2 v-else-if="t.id === 1" class="subTitle" data-i18n="Overview_TotalPosts">@Localizer["Overview_TotalPosts"]</h2>
+                            <h2 v-else-if="t.id === 2" class="subTitle" data-i18n="Overview_PendingReports">@Localizer["Overview_PendingReports"]</h2>
+                            <h2 v-else class="subTitle" data-i18n="Overview_TodayActive">@Localizer["Overview_TodayActive"]</h2>
+                            <p class="para">{{ t.result }}</p>
                         </div>
                     </div>
                 </div>
             </div>
 
+            <!-- HashTag Count -->
+            <div class="col-span-3 sm:col-span-2">
+                <div class="w-full">
+                    <h3 class="title font-semibold text-center mb-4" data-i18n="Overview_HashtagChart">@Localizer["Overview_HashtagChart"]</h3>
+                    <div class="relative w-full max-w-lg mx-auto">
+                        <canvas ref="totalTag" id="hashtagChart" width="700" height="600" ></canvas>
+                    </div>
+                    <div v-if="hashtagsData.totalHashtags === 0" class="text-center text-gray-500 mt-4" data-i18n="Overview_NoData">
+                        @Localizer["Overview_NoData"]
+                    </div>
+                </div>
+            </div>
+
             <!-- 系統狀態 -->
-            <div class="ov-content_status">
+            <div class="col-span-3 ov-content_status">
                 <h3 class="subTitle">系統狀態</h3>
                 <div>
                     <div>
@@ -56,12 +65,6 @@
                         <span>郵件服務</span>
                         <span :class="systemStatus.SMTPStatus ? 'text-green-600' : 'text-red-600'" class="font-medium">
                             {{ systemStatus.SMTPStatus ? '正常' : '異常' }}
-                        </span>
-                    </div>
-                    <div>
-                        <span>儲存空間</span>
-                        <span class="font-medium" :class="getStorageStatusColor(systemStatus.Storage)">
-                            {{ systemStatus.Storage }}
                         </span>
                     </div>
                 </div>

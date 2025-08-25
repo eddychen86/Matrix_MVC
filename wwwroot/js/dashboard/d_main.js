@@ -106,7 +106,6 @@
         try {
             await loadModules()
             setupBackwardCompatibility()
-            lucide.createIcons()
             // console.log('🎉 Dashboard 初始化完成')
         } catch (error) {
             handleInitializationError(error)

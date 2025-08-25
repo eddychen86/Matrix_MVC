@@ -122,7 +122,7 @@ namespace Matrix.Services
                 ["Users"] = "用戶管理",
                 ["Posts"] = "貼文管理",
                 ["Reports"] = "檢舉管理",
-                ["Config"] = "網站設置",
+                ["Config"] = "管理員管理",
 
                 #endregion
 
@@ -389,7 +389,7 @@ namespace Matrix.Services
 
                 #region Overview 模組
 
-                ["Overview_Title"] = "管理儀表板",
+                ["Overview_Title"] = "儀表板",
                 ["Overview_WelcomeMsg"] = "歡迎使用 Matrix 後台管理系統",
                 ["Overview_TotalUsers"] = "總用戶數",
                 ["Overview_TotalPosts"] = "文章總數",
@@ -406,6 +406,7 @@ namespace Matrix.Services
                 ["Overview_Storage"] = "儲存空間",
                 ["Overview_Status_Normal"] = "正常",
                 ["Overview_Status_InUse"] = "使用中",
+                ["Overview_HashtagChart"] = "標籤分析",
 
                 #endregion
 
@@ -445,7 +446,7 @@ namespace Matrix.Services
                 ["Config_LoginList_ActionType_UPDATE"] = "更新",
                 ["Config_LoginList_ActionType_DELETE"] = "刪除",
                 ["Config_LoginList_ActionType_ERROR"] = "錯誤",
-                
+
                 // 共用按鈕和操作
                 ["Apply"] = "套用",
                 ["Clear"] = "清除",
@@ -566,7 +567,7 @@ namespace Matrix.Services
                 ["Users"] = "Users",
                 ["Posts"] = "Posts",
                 ["Reports"] = "Reports",
-                ["Config"] = "Settings",
+                ["Config"] = "Admins",
 
                 #endregion
 
@@ -619,7 +620,7 @@ namespace Matrix.Services
 
                 #region Admin 模組
 
-                ["DashboardTitle"] = "Admin Dashboard",
+                ["DashboardTitle"] = "Dashboard",
                 ["TotalUsers"] = "Total Users",
                 ["TotalRecords"] = "Total Records",
                 ["TotalReports"] = "Total Reports",
@@ -762,7 +763,7 @@ namespace Matrix.Services
 
                 #region Overview 模組
 
-                ["Overview_Title"] = "Admin Dashboard",
+                ["Overview_Title"] = "Dashboard",
                 ["Overview_WelcomeMsg"] = "Welcome to Matrix Admin Management System",
                 ["Overview_TotalUsers"] = "Total Users",
                 ["Overview_TotalPosts"] = "Total Posts",
@@ -779,6 +780,7 @@ namespace Matrix.Services
                 ["Overview_Storage"] = "Storage",
                 ["Overview_Status_Normal"] = "Normal",
                 ["Overview_Status_InUse"] = "In Use",
+                ["Overview_HashtagChart"] = "Hashtag Analyze",
 
                 #endregion
 

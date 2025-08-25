@@ -9,9 +9,9 @@ namespace Matrix.Services.Interfaces
     public interface IUserService : ISearchableService<UserDto>, IStatusManageable<Guid>
     {
         /// <summary>
-        /// 獲取基本使用者資訊（UserId, UserName, LastLoginTime）
+        /// 獲取基本使用者資訊（總用戶數, 今日登入數）
         /// </summary>
-        Task<List<UserBasicDto>> GetUserBasicsAsync();
+        Task<(int totalUsers, int totalTodayLogin)> GetUserBasicsAsync();
 
         /// <summary>
         /// 獲取系統管理員資訊

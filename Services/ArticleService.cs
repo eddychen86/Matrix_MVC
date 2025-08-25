@@ -501,20 +501,11 @@ namespace Matrix.Services
         /// </summary>
         /// <param name="onlyPublic">是否只計算公開文章</param>
         /// <returns>文章總數</returns>
-        public async Task<int> GetTotalArticlesCountAsync(bool onlyPublic = true)
+        public async Task<int> GetTotalArticlesCountAsync()
         {
-            var query = _context.Articles.AsNoTracking();
-
-            if (onlyPublic)
-            {
-                query = query.Where(a => a.IsPublic == 0 && a.Status == 1); // 公開且正常狀態
-            }
-            else
-            {
-                query = query.Where(a => a.Status == 1); // 只排除已刪除的
-            }
-
-            return await query.CountAsync();
+            return await _context.Articles
+                .AsNoTracking()
+                .CountAsync();
         }
     }
 }

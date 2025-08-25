@@ -52,9 +52,9 @@ namespace Matrix.Repository
                 .AsNoTracking()
                 .Where(pc => pc.UserId == userId && pc.Type == CollectType)
                 .Include(pc => pc.Article)
-                    .ThenInclude(a => a.Author)       // ✅ 一起撈作者
+                    .ThenInclude(a => a!.Author)       // ✅ 一起撈作者
                 .Include(pc => pc.Article)
-                    .ThenInclude(a => a.Attachments)  // 圖片
+                    .ThenInclude(a => a!.Attachments)  // 圖片
                 .OrderByDescending(pc => pc.CreateTime)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)

@@ -17,18 +17,18 @@ namespace Matrix.Repository
             _passwordHasher = passwordHasher;
         }
 
-        public async Task<List<UserBasicDto>> GetAllWithUserAsync()
+        public async Task<(int totalUsers, int totalTodayLogin)> GetAllWithUserAsync()
         {
-            return await _dbSet
+            var users = await _dbSet
                 .AsNoTracking()
-                .Where(u => u.Status != 0 && u.Role == 0 && u.IsDelete == 0) // 過濾已刪除用戶
-                .Select(u => new UserBasicDto
-                {
-                    UserId = u.UserId,
-                    UserName = u.UserName,
-                    LastLoginTime = u.LastLoginTime
-                })
+                .Where(u => u.Status != 0 && u.Role == 0 && u.IsDelete == 0)
                 .ToListAsync();
+
+            var todayStart = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 0, 0, 0);
+            var totalTodayLogin = users.Count(u => u.LastLoginTime > todayStart);
+            var totalUsers = users.Count;
+
+            return (totalUsers, totalTodayLogin);
         }
 
         public async Task<List<AdminDto>> GetAllWithAdminAsync(int pages = 1, int pageSize = 5)

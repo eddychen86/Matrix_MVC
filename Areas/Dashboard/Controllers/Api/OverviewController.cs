@@ -26,13 +26,9 @@ namespace Matrix.Areas.Dashboard.Controllers.Api
         [HttpGet("GetUserState")]
         public async Task<IActionResult> GetTotalUsers()
         {
-            var users = await _userService.GetUserBasicsAsync() ?? [];
+            var (totalUsers, totalTodayLogin) = await _userService.GetUserBasicsAsync();
 
-            var result = new
-            {
-                totalUsers = users.Count,  // 使用 Count 屬性而不是 Count() 方法
-                users
-            };
+            var result = new { totalUsers, totalTodayLogin };
 
             return Ok(result);
         }
@@ -65,12 +61,9 @@ namespace Matrix.Areas.Dashboard.Controllers.Api
             try
             {
                 // 使用 ArticleService 獲取文章總數
-                var totalPosts = await _articleService.GetTotalArticlesCountAsync(onlyPublic: true);
+                var totalPosts = await _articleService.GetTotalArticlesCountAsync();
 
-                var result = new
-                {
-                    totalPosts = totalPosts
-                };
+                var result = new { totalPosts };
 
                 return Ok(result);
             }

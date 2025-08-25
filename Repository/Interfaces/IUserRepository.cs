@@ -8,7 +8,7 @@ namespace Matrix.Repository.Interfaces
     public interface IUserRepository : IRepository<User>
     {
         /// <summary>取得所有用戶</summary>
-        Task<List<UserBasicDto>> GetAllWithUserAsync();
+        Task<(int totalUsers, int totalTodayLogin)> GetAllWithUserAsync();
 
         /// <summary>取得系統管理員</summary>
         Task<List<AdminDto>> GetAllWithAdminAsync(int pages, int pageSize);

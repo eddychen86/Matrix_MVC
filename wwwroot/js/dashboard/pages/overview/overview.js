@@ -1,4 +1,4 @@
-const { createApp, ref, reactive, onMounted } = Vue
+const { createApp, ref, reactive, onMounted, nextTick } = Vue
 
 window.mountOverviewPage = function() {
   const app = createApp({
@@ -6,11 +6,13 @@ window.mountOverviewPage = function() {
       //#region 變數
 
       const isLoading = ref(true)
+      const totalTag = ref(null)
+      let hashtagChart = null
       const total = reactive([
-        /* 總用戶數       */ { id: 0, title: 'user', result: 0, color: 'blue',  },
-        /* 文章總數       */ { id: 1, title: 'post', result: 0, color: 'green', },
-        /* 待處理檢舉     */ { id: 2, title: 'reports', result: 0, color: 'yellow', },
-        /* 今日活躍使用者 */ { id: 3, title: 'todayLoginUsers', result: 0, color: 'purple', },
+        /* 總用戶數       */ { id: 0, title: 'user', result: 0, color: 'blue', icon: 'user-round'  },
+        /* 文章總數       */ { id: 1, title: 'post', result: 0, color: 'green', icon: 'scroll-text' },
+        /* 待處理檢舉     */ { id: 2, title: 'reports', result: 0, color: 'yellow', icon: 'flag' },
+        /* 今日活躍使用者 */ { id: 3, title: 'todayLoginUsers', result: 0, color: 'purple', icon: 'users' },
       ])
       const systemStatus = reactive({
         /* 系統運行時間   */ totelRunTime: '載入中...',
@@ -154,13 +156,14 @@ window.mountOverviewPage = function() {
         try {
           // 先嘗試從 cookie 讀取加密數據
           const cachedData = loadEncryptedData(USERS_DATA_KEY)
+
           if (cachedData) {
             // console.log('Users data: 從 cookie 讀取數據')
             
             // 更新 total 陣列中對應的項目
             const userItem = total.find(item => item.title === 'user')
             const todayLoginItem = total.find(item => item.title === 'todayLoginUsers')
-            
+
             if (userItem) userItem.result = cachedData.totalUsersCount || 0
             if (todayLoginItem) todayLoginItem.result = cachedData.todayLoginUsersCount || 0
             return
@@ -171,36 +174,20 @@ window.mountOverviewPage = function() {
 
           if (response.ok) {
             const data = await response.json()
-            
-            // 計算總用戶數
-            const totalUsersCount = data.totalUsers || 0
-            
-            // 計算今日登入用戶數
-            const today = new Date()
-            const todayDateString = today.toLocaleDateString() // 格式: "Fri Aug 16 2025"
-            
-            const todayLoginUsersCount = data.users.filter(user => {
-              if (!user.lastLoginTime) return false
-              
-              const loginDate = new Date(user.lastLoginTime)
-              // 修正時區問題：為登入日期加1天
-              loginDate.setDate(loginDate.getDate() + 1)
-              return loginDate.toLocaleDateString() === todayDateString
-            }).length
 
             // 儲存數據到加密 cookie（24小時過期）
             const dataToSave = {
-              totalUsersCount,
-              todayLoginUsersCount
+              totalUsersCount: data.totalUsers || 0,
+              todayLoginUsersCount: data.totalTodayLogin || 0
             }
             saveEncryptedData(USERS_DATA_KEY, dataToSave, 24)
 
             // 更新 total 陣列中對應的項目
             const userItem = total.find(item => item.title === 'user')
             const todayLoginItem = total.find(item => item.title === 'todayLoginUsers')
-            
-            if (userItem) userItem.result = totalUsersCount
-            if (todayLoginItem) todayLoginItem.result = todayLoginUsersCount
+
+            if (userItem) userItem.result = data.totalUsers || 0
+            if (todayLoginItem) todayLoginItem.result = data.totalTodayLogin || 0
           } else {
             console.error('API request failed:', response.status)
           }
@@ -300,6 +287,10 @@ window.mountOverviewPage = function() {
             hashtagsData.totalHashtags = cachedData.totalHashtags || 0
             hashtagsData.hashtags = cachedData.hashtags || []
             
+            // 在下一個 tick 初始化圖表，確保 DOM 已渲染
+            await nextTick()
+            setTimeout(() => initHashtagChart(), 50)
+            
             // console.log('Hashtags loaded from cache:', hashtagsData.totalHashtags, 'tags')
             return
           }
@@ -309,6 +300,8 @@ window.mountOverviewPage = function() {
           
           if (response.ok) {
             const data = await response.json()
+
+            console.log(data)
             
             // 儲存數據到加密 cookie（24小時過期）
             const dataToSave = {
@@ -321,6 +314,10 @@ window.mountOverviewPage = function() {
             hashtagsData.totalHashtags = data.totalHashtags || 0
             hashtagsData.hashtags = data.hashtags || []
             
+            // 在下一個 tick 初始化圖表，確保 DOM 已渲染
+            await nextTick()
+            setTimeout(() => initHashtagChart(), 50)
+            
             // console.log('Hashtags loaded from API:', hashtagsData.totalHashtags, 'tags')
           } else {
             console.error('Failed to fetch hashtags state:', response.status)
@@ -328,6 +325,125 @@ window.mountOverviewPage = function() {
         } catch (err) {
           console.error('Failed to fetch hashtags:', err)
         }
+      }
+
+      const initHashtagChart = () => {
+        // console.log('初始化圖表...')
+        // console.log('totalTag.value:', totalTag.value)
+        // console.log('hashtagsData:', hashtagsData)
+        // console.log('Chart:', typeof Chart !== 'undefined' ? 'loaded' : 'not loaded')
+        
+        // 嘗試通過 ref 或直接 DOM 查詢獲取 canvas
+        let canvas = totalTag.value
+        if (!canvas) {
+          console.log('ref 中沒有 canvas，嘗試直接查詢 DOM')
+          canvas = document.getElementById('hashtagChart')
+        }
+        
+        if (!canvas) {
+          console.log('canvas 元素不存在')
+          return
+        }
+        
+        // console.log('找到 canvas 元素:', canvas)
+        
+        if (!hashtagsData.hashtags.length) {
+          // console.log('沒有標籤資料，使用測試資料')
+          // 創建測試資料以確保圖表可以顯示
+          const testData = {
+            labels: ['測試標籤1', '測試標籤2', '測試標籤3'],
+            data: [10, 20, 15],
+            backgroundColor: ['#3B82F6', '#10B981', '#F59E0B'],
+          }
+          
+          const ctx = canvas.getContext('2d')
+          hashtagChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+              labels: testData.labels,
+              datasets: [{
+                label: '使用次數',
+                data: testData.data,
+                backgroundColor: testData.backgroundColor,
+                borderWidth: 2,
+                borderColor: '#ffffff'
+              }]
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: {
+                legend: {
+                  position: 'right',
+                  labels: {
+                    padding: 20,
+                    usePointStyle: true
+                  }
+                },
+                title: {
+                  display: false
+                }
+              }
+            }
+          })
+          // console.log('測試圖表建立成功:', hashtagChart)
+          return
+        }
+        
+        // 銷毀現有圖表
+        if (hashtagChart) {
+          hashtagChart.destroy()
+          // console.log('銷毀舊圖表')
+        }
+        
+        // 準備圖表資料
+        const labels = hashtagsData.hashtags.slice(0, 10).map(h => h.name)
+        const data = hashtagsData.hashtags.slice(0, 10).map(h => h.usageCount)
+        const colors = [
+          '#3B82F6', // blue-500
+          '#10B981', // green-500  
+          '#F59E0B', // yellow-500
+          '#8B5CF6', // purple-500
+          '#EF4444'  // red-500
+        ]
+        
+        // console.log('圖表資料:', { labels, data })
+        
+        const ctx = totalTag.value.getContext('2d')
+        hashtagChart = new Chart(ctx, {
+          type: 'doughnut',
+          data: {
+            labels: labels,
+            datasets: [{
+              label: '使用次數',
+              data: data,
+              backgroundColor: colors.slice(0, labels.length),
+              borderWidth: 2,
+              borderColor: '#ffffff'
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                position: 'right',
+                labels: {
+                  padding: 20,
+                  usePointStyle: true,
+                  font: {
+                    size: 16
+                  }
+                }
+              },
+              title: {
+                display: false
+              }
+            }
+          }
+        })
+        
+        // console.log('圖表建立成功:', hashtagChart)
       }
 
       //#endregion
@@ -566,6 +682,13 @@ window.mountOverviewPage = function() {
           
           // 啟動系統狀態定時器
           setupSystemStatusTimers()
+          
+          // 等待 DOM 完全渲染後再初始化圖表
+          await nextTick()
+          // 多等幾個 tick 確保 Vue ref 綁定完成
+          setTimeout(() => {
+            initHashtagChart()
+          }, 100)
         } finally {
           isLoading.value = false
         }
@@ -596,6 +719,9 @@ window.mountOverviewPage = function() {
 
       return {
         isLoading,
+
+        // Refs
+        totalTag,
 
         // Data
         total,

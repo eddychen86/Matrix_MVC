@@ -12,7 +12,7 @@
 
     .ov {
       &-content {
-        @apply container mx-auto px-4 py-8 flex flex-col gap-8;
+        @apply container mx-auto px-4 py-8 grid grid-cols-3 gap-8;
 
         &_header {
           @apply flex flex-col gap-2;
@@ -27,7 +27,7 @@
         }
 
         &_body {
-          @apply grid grid-cols-4 gap-8;
+          @apply flex flex-col gap-8;
 
           &_group {
             @apply bg-white rounded-lg shadow-md p-6;

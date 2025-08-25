@@ -47,21 +47,21 @@ namespace Matrix.Services
         }
 
         /// <summary>
-        /// 獲取基本使用者資訊（UserId, UserName, LastLoginTime）含快取
+        /// 獲取基本使用者資訊（總用戶數, 今日登入數）含快取
         /// </summary>
-        public async Task<List<UserBasicDto>> GetUserBasicsAsync()
+        public async Task<(int totalUsers, int totalTodayLogin)> GetUserBasicsAsync()
         {
             // 快取鍵
             var cacheKey = "user_basics";
 
             // 嘗試從快取讀取
-            if (_cache.TryGetValue(cacheKey, out List<UserBasicDto>? cachedUsers))
+            if (_cache.TryGetValue(cacheKey, out (int totalUsers, int totalTodayLogin)? cachedResult))
             {
-                return cachedUsers ?? new List<UserBasicDto>();
+                return cachedResult ?? (0, 0);
             }
 
             // 快取未命中，從資料庫查詢
-            var users = await _userRepository.GetAllWithUserAsync();
+            var result = await _userRepository.GetAllWithUserAsync();
 
             // 存入快取，8分鐘過期（基本資訊更新頻率較高）
             var cacheEntryOptions = new MemoryCacheEntryOptions
@@ -71,9 +71,9 @@ namespace Matrix.Services
                 Priority = CacheItemPriority.High // 儀表板常用資料
             };
 
-            _cache.Set(cacheKey, users, cacheEntryOptions);
+            _cache.Set(cacheKey, result, cacheEntryOptions);
 
-            return users;
+            return result;
         }
 
         /// <summary>

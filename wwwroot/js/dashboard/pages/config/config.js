@@ -1,4 +1,4 @@
-const { createApp, ref, reactive, onMounted } = Vue
+const { createApp, ref, reactive, onMounted, nextTick } = Vue
 
 window.mountConfigPage = function() {
   const app = createApp({
@@ -320,8 +320,16 @@ window.mountConfigPage = function() {
 
           // 備份原始資料以便取消時還原
           admin.originalData = {
+            DisplayName: admin.DisplayName,
+            email: admin.email,
             SuperAdmin: admin.SuperAdmin,
             status: admin.status
+          }
+
+          // 等待 DOM 更新後重新初始化 Lucide icons
+          await nextTick()
+          if (typeof lucide !== 'undefined' && lucide.createIcons) {
+            lucide.createIcons()
           }
         }
       }

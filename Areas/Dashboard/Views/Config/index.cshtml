@@ -187,7 +187,7 @@
                                     </td>
                                     <td>{{ item.DisplayName }}</td>
                                     <td class="text-center">
-                                        <template v-if="item.isEditing">
+                                        <template v-if="item.isEditing && item.SuperAdmin === 2">
                                             <label class="toggle text-base-content toggle-xl toggle-error checked:toggle-success">
                                                 <input type="checkbox" v-model="item.isSuperAdmin" />
                                                 <svg aria-label="disabled" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
