@@ -4,9 +4,9 @@
  */
 
 export function usePostActions() {
-    
+
     const getToken = () => localStorage.getItem('access_token') || ''
-    
+
     /**
      * 檢查用戶是否已登入
      */
@@ -32,9 +32,9 @@ export function usePostActions() {
         try {
             const res = await fetch('/api/PostState/praise', {
                 method: 'POST',
-                headers: { 
-                    'Content-Type': 'application/json', 
-                    ...(getToken() ? { Authorization: `Bearer ${getToken()}` } : {}) 
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...(getToken() ? { Authorization: `Bearer ${getToken()}` } : {})
                 },
                 credentials: 'include',
                 body: JSON.stringify({ articleId })
@@ -76,9 +76,9 @@ export function usePostActions() {
         try {
             const res = await fetch('/api/PostState/collect', {
                 method: 'POST',
-                headers: { 
-                    'Content-Type': 'application/json', 
-                    ...(getToken() ? { Authorization: `Bearer ${getToken()}` } : {}) 
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...(getToken() ? { Authorization: `Bearer ${getToken()}` } : {})
                 },
                 credentials: 'include',
                 body: JSON.stringify({ articleId })
@@ -143,7 +143,7 @@ export function usePostActions() {
     const shareArticle = async (articleId, item = null) => {
         try {
             const url = `${window.location.origin}/article/${articleId}`
-            
+
             if (navigator.share) {
                 // 使用 Web Share API（移動裝置）
                 await navigator.share({
@@ -174,14 +174,14 @@ export function usePostActions() {
         console.log(articleId)
 
         if (!articleId) return false
-        
+
         // 防重複請求
         if (item?._busy) return false
         if (item) item._busy = true
 
         try {
             let result = false
-            
+
             switch (action) {
                 case 'praise':
                     result = await togglePraise(articleId, item)
@@ -190,7 +190,16 @@ export function usePostActions() {
                     result = await toggleCollect(articleId, item)
                     break
                 case 'comment':
-                    result = await openReply(articleId)
+                    if (window.globalApp?.openReplyWithAuth) {
+                        const currentUser = window.globalApp.currentUser || window.currentUser
+                        // 傳 seed item，讓彈窗沿用同一參照
+                        result = await window.globalApp.openReplyWithAuth(articleId, currentUser, item)
+                    } else if (window.globalApp?.openReply) {
+                        result = await window.globalApp.openReply(articleId, item)
+                    } else {
+                        // 備援：直接用 hook 的 openReply
+                        result = await openReply(articleId, item)
+                    }
                     break
                 case 'share':
                     result = await shareArticle(articleId, item)
