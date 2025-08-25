@@ -40,12 +40,24 @@
 **關鍵字**: Vue, 編輯模式, template, v-if, 條件渲染  
 **相關檔案**: `Config/index.cshtml:191-193,199-201`, `config.js:311-396`
 
+### 問題 20: Tailwind CSS 響應式佈局衝突
+**檔案**: [`tailwind-resp.md`](./tailwind-resp.md)  
+**描述**: 解決 Tailwind CSS 中 flex/block 與 flexbox 屬性的響應式衝突問題  
+**關鍵字**: Tailwind, CSS, 響應式, flexbox, 佈局衝突  
+**相關檔案**: `Areas/Dashboard/Views/Config/index.cshtml:43-48`
+
+### 問題 21: Tailwind CSS Grid Col-Span 響應式設定無效
+**檔案**: [`grid-colspan.md`](./grid-colspan.md)  
+**描述**: 解決 Grid col-span 響應式設定中某個斷點失效的問題  
+**關鍵字**: Tailwind, CSS Grid, col-span, 響應式, 斷點  
+**相關檔案**: `Views/Profile/Index.cshtml:51,115`, `Views/Shared/_Layout.cshtml:42`
+
 ---
 
 ## 🔍 快速搜尋
 
 ### 難度分級
-- **初級**: 問題 7 (屬性未定義), 問題 19 (編輯模式UI)
+- **初級**: 問題 7 (屬性未定義), 問題 19 (編輯模式UI), 問題 20 (CSS佈局), 問題 21 (Grid響應式)
 - **中級**: 問題 6 (響應式重置), 問題 11 (v-model 語法)
 - **高級**: 問題 12 (v-for 優化), 問題 18 (跨頁面組件)
 
@@ -55,11 +67,13 @@
 - **模板語法**: 問題 11, 12, 19
 - **架構設計**: 問題 18
 - **UI 互動**: 問題 19
+- **CSS 佈局**: 問題 20, 21
 
 ## 📊 統計
 
-- **總問題數**: 6
-- **已解決**: 6
+- **總問題數**: 8
+- **已解決**: 8
 - **Vue 2 相關**: 0
 - **Vue 3 相關**: 6
+- **CSS 相關**: 2
 - **最後更新**: 2025-08-25

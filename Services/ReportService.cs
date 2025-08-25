@@ -162,6 +162,7 @@ namespace Matrix.Services
                  .ThenByDescending(r => r.ReportId);
 
             var list = await q
+                .OrderBy(o=>o.Status)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
                 .AsNoTracking()

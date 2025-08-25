@@ -226,8 +226,31 @@ export function usePostActions() {
                 case 'comment': return await openReply(articleId)
                 case 'share': return await shareArticle(articleId, row)
                 case 'report': {
-                    const { articleId, authorId } = item
-                    return await openReport(articleId, authorId, row)
+                    // 從 row (已處理過的 item) 或 articleIdOrPayload 中解構所需資料
+                    let reportArticleId = articleId
+                    let authorId = null
+                    
+                    // 如果 row 存在且包含必要資訊，優先使用 row
+                    if (row && row.articleId) {
+                        reportArticleId = row.articleId
+                        authorId = row.authorId || row.authorName // 嘗試獲取 authorId 或 authorName
+                    }
+                    // 如果 articleIdOrPayload 是物件且包含 authorId，則使用它
+                    else if (typeof articleIdOrPayload === 'object' && articleIdOrPayload.authorId) {
+                        reportArticleId = articleIdOrPayload.articleId
+                        authorId = articleIdOrPayload.authorId
+                    }
+                    
+                    if (!reportArticleId) {
+                        console.error('report action requires articleId')
+                        return false
+                    }
+                    if (!authorId) {
+                        console.error('report action requires authorId or authorName')
+                        return false
+                    }
+                    
+                    return await openReport(reportArticleId, authorId, row)
                 }
                 default: return false
             }

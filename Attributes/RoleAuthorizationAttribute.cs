@@ -112,4 +112,16 @@ namespace Matrix.Attributes
     {
         public AdminAuthorizationAttribute() : base(1) { }
     }
+
+    /// <summary>
+    /// 允許訪客存取的屬性（無權限要求）
+    /// </summary>
+    public class AllowGuestAttribute : ActionFilterAttribute
+    {
+        // 此屬性不執行任何權限檢查，允許所有用戶（包括未登入）訪問
+        public override void OnActionExecuting(ActionExecutingContext context)
+        {
+            base.OnActionExecuting(context);
+        }
+    }
 }

@@ -10,6 +10,12 @@
 **關鍵字**: PermissionService, 物件, 函數, 錯誤  
 **相關檔案**: `config.js:274`
 
+### 問題 2: JavaScript 解構賦值 null 物件錯誤
+**檔案**: [`destruct-null.md`](./destruct-null.md)  
+**描述**: 解決嘗試對 null 物件進行解構賦值時的 TypeError  
+**關鍵字**: 解構賦值, destructuring, null, TypeError, 防護檢查  
+**相關檔案**: `wwwroot/js/hooks/usePostActions.js:228-235`
+
 ### 問題 18: Vue 組件屬性跨頁面可用性問題
 **檔案**: [`comp-prop.md`](./comp-prop.md)  
 **描述**: 解決 Vue 組件在不同頁面使用時屬性未定義的問題  
@@ -21,12 +27,14 @@
 ## 🔍 快速搜尋
 
 - **服務物件相關**: 問題 1
+- **解構賦值相關**: 問題 2
 - **Vue 組件相關**: 問題 18
 - **函數調用錯誤**: 問題 1
 - **屬性未定義**: 問題 18
+- **TypeError**: 問題 2
 
 ## 📊 統計
 
-- **總問題數**: 2
-- **已解決**: 2
+- **總問題數**: 3
+- **已解決**: 3
 - **最後更新**: 2025-08-25

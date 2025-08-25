@@ -3,7 +3,7 @@ using Matrix.Attributes;
 
 namespace Matrix.Controllers
 {
-    [MemberAuthorization] // 需要一般會員權限 (Role >= 0)
+    // [MemberAuthorization] // 允許未登入用戶訪問個人資料頁面
     public class ProfileController : Controller
     {
         [HttpGet]
