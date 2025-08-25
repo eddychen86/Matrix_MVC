@@ -798,7 +798,7 @@ export const useProfile = () => {
         Vue.nextTick(() => {
             if (typeof lucide !== 'undefined') {
                 lucide.createIcons();
-                console.log("Lucide icons refreshed."); // 你可以在主控台看到此訊息，表示成功執行
+                //console.log("Lucide icons refreshed."); // 你可以在主控台看到此訊息，表示成功執行
             } else {
                 console.warn("Lucide library not found. Icons will not be rendered.");
             }
