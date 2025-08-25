@@ -32,24 +32,87 @@
                 <!-- ✅ loading 結束後顯示內容 -->
                 <div v-if="!isLoading">
                     <!-- Collects -->
-                    <div v-if="popupState.type == 'Collects'">
-                        <div class="popup-data">
-                            <div v-for="item in popupData[popupState.type]" :key="item.Id">
-                                <div class="card">
-                                    <img :src="item.imageUrl" alt="" />
-                                    <div class="card-body">
-                                        <div class="absolute bottom-0 left-0 z-10 flex flex-col gap-2 p-4">
-                                            <div class="user">
-                                                <img src="" alt="" />
-                                                <h2 class="card-title title">{{ item.authorName }}</h2>
-                                            </div>
-                                            <p class="para">{{ formatDate(item.collectedAt) }}</p>
-                                        </div>
+                    <div v-if="popupState.type === 'Collects'">
+                        <div class="popup-data grid auto-rows-min grid-cols-3 gap-4">
+                            <div v-for="item in popupData.Collects"
+                                 :key="item.articleId"
+                                 class="relative cursor-pointer overflow-hidden rounded-xl bg-black/20 transition hover:opacity-90"
+                                 v-on:click="goArticle(item.articleId)"
+                                 role="button" tabindex="0"
+                                 v-on:keydown.enter="goArticle(item.articleId)">
+
+                                <!-- 圖片區 -->
+                                <img class="block h-40 w-full object-cover"
+                                     :src="item.imageUrl || '/static/img/Cute.png'"
+                                     :alt="item.title || 'article cover'" />
+
+                                <!-- 資訊區：改成圖片下方 -->
+                                <div class="bg-black/40 p-4 text-white">
+                                    <h3 class="text-sm opacity-90">{{ formatDate(item.collectedAt) }}</h3>
+                                    <h2 class="text-base font-semibold">{{ item.title }}</h2>
+                                    <div class="mt-1 flex items-center gap-2">
+                                        <!-- 如果有頭像 -->
+                                        <img v-if="item.authorAvatar"
+                                             :src="item.authorAvatar"
+                                             class="h-6 w-6 rounded-full object-cover"
+                                             alt="author avatar" />
+                                        <span class="text-sm">{{ item.authorName }}</span>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
+
+
+                    <!-- Article -->
+                    
+                    <div v-if="popupState.type === 'Article'">
+                        <div class="relative p-4">
+                            <!-- 載入中 -->
+                            <div v-if="isLoading" class="py-12 text-center text-gray-400">
+                                讀取中…
+                            </div>
+
+                            <!-- 文章內容 -->
+                            <div v-else-if="popupData.Article">
+                                <!-- 標題（若你的文章沒有標題就拿掉） -->
+                                <h2 class="mb-2 text-lg font-semibold">
+                                    {{ popupData.Article.title || '貼文' }}
+                                </h2>
+
+                                <!-- 作者 + 時間 -->
+                                <div class="mb-4 text-sm text-gray-400">
+                                    {{ popupData.Article.authorName || '未知作者' }} · {{ formatDate(popupData.Article.createTime) }}
+                                </div>
+
+                                <!-- 內文：若是純文字就用 {{ }}，若包含 HTML 要用 v-html -->
+                                <div class="prose prose-invert max-w-none break-words whitespace-pre-line"
+                                     v-html="popupData.Article.content">
+                                </div>
+
+                                <!-- 圖片附件（依你的 DTO 欄位命名調整） -->
+                                <div v-if="popupData.Article.attachments && popupData.Article.attachments.length" class="mt-4 grid grid-cols-2 gap-2">
+                                    <img v-for="att in popupData.Article.attachments.filter(a => a.type?.toLowerCase() === 'image')"
+                                         :key="att.id || att.filePath"
+                                         :src="att.filePath"
+                                         class="w-full rounded"
+                                         :alt="att.fileName || 'image'" />
+                                </div>
+                            </div>
+
+                            <!-- 失敗或無資料 -->
+                            <div v-else class="py-12 text-center text-gray-500">
+                                載入失敗或文章不存在
+                            </div>
+                            <button class="absolute right-0 -bottom-4 cursor-pointer rounded-lg bg-white px-4 py-2 font-medium text-black shadow transition hover:bg-gray-100"
+                                    v-on:click="backFromArticle"
+                                    aria-label="Back">
+                                返回
+                            </button>
+                        </div>                    
+                    </div>
+
+
 
                     <!-- Notify -->
                     <div v-if="popupState.type == 'Notify'">

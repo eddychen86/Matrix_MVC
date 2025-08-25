@@ -86,7 +86,10 @@ globalApp({
             openPopup,
             closePopup,
             fetchFollows,
-            isLoading: popupLoading
+            isLoading: popupLoading,
+            goArticle,        // 👈 加這個
+            openArticle,       // 👈 想要從其他地方直接開文章彈窗時可用（可選）
+            backFromArticle,
         } = popupManager
 
         // 重新設定搜尋服務的 popupData 和 popupState
@@ -396,6 +399,11 @@ globalApp({
             ...Home,
             ...About,
             ...Reply,
+
+            // 🔥 讓模板可以用 <div @click="goArticle(id)">
+            goArticle,
+            openArticle,
+            backFromArticle,
             ...CreatePost
         }
     }

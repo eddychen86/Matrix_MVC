@@ -3,6 +3,7 @@
     public class CollectItemViewModel
     {
         //public Guid Id { get; set; }
+        public Guid ArticleId { get; set; }
         public string Title { get; set; } = null!;
         public string ImageUrl { get; set; } = null!;
         public string AuthorName { get; set; } = null!;

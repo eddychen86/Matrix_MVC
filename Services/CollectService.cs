@@ -29,9 +29,11 @@ namespace Matrix.Services
                 
                 return collects.Select(p => new CollectItemDto
                 {
+                    ArticleId = p.ArticleId,
                     Title = p.Article?.Content?.Substring(0, Math.Min(10, p.Article.Content?.Length ?? 0)) ?? "",
                     ImageUrl = p.Article?.Attachments?.Where(a => a.Type == "image").Select(a => a.FilePath).FirstOrDefault() ?? "/static/img/cute.png",
-                    AuthorName = p.User?.DisplayName ?? "匿名",
+                    AuthorName = p.Article?.Author?.DisplayName ?? "未知作者",
+                    //AuthorAvatar = p.Article?.Author?.AvatarPath,
                     CollectedAt = p.CreateTime
                 });
             }
