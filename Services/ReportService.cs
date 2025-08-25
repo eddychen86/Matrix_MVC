@@ -17,6 +17,16 @@ namespace Matrix.Services
 
         public async Task<bool> CreateReportAsync(Guid reporterId, Guid reportedUserId, Guid? articleId, string reason, string? description = null)
         {
+            // 防重複（未處理中的同人同標的）
+            var targetId = articleId ?? reportedUserId;
+            var duplicate = await _context.Reports.AsNoTracking().AnyAsync(r =>
+                r.ReporterId == reporterId &&
+                r.TargetId == targetId &&
+                r.Type == (articleId.HasValue ? (int)ReportType.Article : (int)ReportType.User) &&
+                r.Status == (int)ReportStatus.Pending &&
+                r.ProcessTime == null);
+            if (duplicate) return true; // 視為成功，前端顯示已收到即可
+
             var report = new Report
             {
                 ReporterId = reporterId,
@@ -190,9 +200,24 @@ namespace Matrix.Services
             if (r is null) return false;
 
             r.Status = status;
-            // 沒有 Report.ModifyTime 欄位就不寫；ProcessTime 僅在處理/駁回時更新
+
+            // 若設為 Processed/Rejected，補上處理時間（若尚未有）
+            if (status == (int)ReportStatus.Processed || status == (int)ReportStatus.Rejected)
+            {
+                if (!r.ProcessTime.HasValue)
+                    r.ProcessTime = DateTime.UtcNow;
+                // （此方法沒有 adminId 參數，所以不動 ResolverId）
+            }
+            // 若改回 Pending，順便清掉處理資訊
+            else if (status == (int)ReportStatus.Pending)
+            {
+                r.ProcessTime = null;
+                r.ResolverId = null;
+            }
+
             return await _context.SaveChangesAsync() > 0;
         }
+
 
         public async Task<Dictionary<string, int>> GetReportStatsAsync()
         {

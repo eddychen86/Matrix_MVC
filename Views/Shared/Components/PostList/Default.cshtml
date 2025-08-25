@@ -41,7 +41,7 @@
                 <div v-for="file in item.attachments.filter(f => f.type.toLowerCase() === 'file')" :key="file.fileId"
                     class="rounded-md p-2 text-white cursor-pointer transition-colors" style="background: #555;">
                     <a :href="file.filePath" :download="file.fileName" target="_blank" rel="noopener noreferrer"
-                        class="flex gap-1 items-center">
+                        class="flex items-center gap-1">
                         <i data-lucide="file-text" class="size-6 text-stone-300"></i>
                         {{ file.fileName }}
                     </a>
@@ -80,6 +80,19 @@
                     <span class="ml-1">{{ item.collectCount }}</span>
                 </span>
             </button>
+            <button :disabled="item._busy"
+                    v-on:click="
+                       stateFunc(
+                         'report',
+                         { articleId: item.articleId, authorId: (item.authorPersonId || item.personId || item.authorId) },
+                         item
+                       )
+                     ">
+                <i data-lucide="flag" class="size-4"></i>
+                <span>Report</span>
+            </button>
+
+
         </div>
 
 

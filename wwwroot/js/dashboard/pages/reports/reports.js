@@ -161,6 +161,7 @@ window.mountReportsPage = function() {
               statusText = 'Processed'
             }
 
+              const pt = r.processTime ?? r.modifyTime ?? r.ProcessTime ?? r.ModifyTime ?? null
             return {
               ...r,
               // 🔧 修改：改用上面算出的三態
@@ -172,7 +173,8 @@ window.mountReportsPage = function() {
               resolverId: r.resolverId || r.adminId || r.managerId || null,
 
               // 🔧 修改：處理時間欄位統一
-              processTime: r.processTime || r.modifyTime || null,
+                processTime: pt,
+                modifyTime: pt,
             }
           })
 
@@ -247,7 +249,10 @@ window.mountReportsPage = function() {
             item.resolverName = item.resolverName || 'Admin'
           }
 
-          if (result.processTime) item.processTime = result.processTime
+            if (result.processTime) {
+                item.processTime = result.processTime
+                item.modifyTime = result.processTime
+            }
 
           // （可選）再拉一次列表，確保與後端一致
           // await loadReports()

@@ -155,10 +155,12 @@
                                     </div>
                                 </div>
                                 <div class="flex flex-col items-end space-y-1">
-                                    <button class="cts-btn !text-blue-400 hover:underline"
-                                        @@click="toggleFollow(user.personId, user.isFollowed)">
+                                    <button class="cts-btn hover:underline"
+                                            :class="user.isFollowed ? '!text-red-400' : '!text-blue-400'"
+                                            @@click="toggleFollow(user.personId, user.isFollowed)">
                                         {{ user.isFollowed ? '取消追蹤' : '追蹤' }}
                                     </button>
+
                                 </div>
                             </div>
                         </div>

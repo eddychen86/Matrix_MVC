@@ -23,85 +23,31 @@ export const useSearchService = (initialPopupData, initialPopupState) => {
     }
 
     // ------- 新增：點 hashtag 相關 -------
+    //let onTagClickHandler = null
+    //const setTagClickHandler = (fn) => { onTagClickHandler = fn }
+
+    // ------- 點 hashtag：只關閉彈窗 + 通知外層 handler -------
     let onTagClickHandler = null
     const setTagClickHandler = (fn) => { onTagClickHandler = fn }
 
-    // 點 hashtag：關閉搜尋彈窗、清空清單、載入第 1 頁，再綁無限滾動
     const goTag = async (tag) => {
         if (!tag) return
-        
+
         // 關閉搜尋彈窗
         if (popupState) {
             popupState.isVisible = false
             popupState.type = ''
         }
 
-        // 重置文章清單
-        posts.value = []
-        currentPage.value = 1
-        hasMorePosts.value = true
-
-        // 直接呼叫 Search 區的端點（不動 Post 區）
-        const res = await fetch(`/api/search/tags/${encodeURIComponent(tag)}/posts?page=1&pageSize=10`, {
-            credentials: 'include'
-        })
-        const json = await res.json()
-        const list = Array.isArray(json?.articles) ? json.articles : []
-
-        // 用你現有的格式化器（若沒載入也能 fallback）
-        const { postListService } = await import('/js/components/PostListService.js')
-        const firstPage = postListService?.formatArticles
-            ? postListService.formatArticles(list)
-            : list
-
-        posts.value = firstPage
-        hasMorePosts.value = firstPage.length === 10
-
-        // 設定以 tag 為條件的無限滾動
-        nextTick(() => setupInfiniteScrollForTag(tag))
+        // 交給外層（main.js/post-manager）處理載文與無限滾動
+        if (typeof onTagClickHandler === 'function') {
+            await onTagClickHandler(tag)
+        } else {
+            // 後備方案：直接換頁
+            window.location.href = `/?tag=${encodeURIComponent(tag)}`
+        }
     }
-
-    const setupInfiniteScrollForTag = (tag) => {
-        // 清掉舊的 observer
-        cleanupInfiniteScroll()
-
-        const trigger = document.querySelector('.infinite-scroll-trigger')
-        if (!trigger) return
-
-        infiniteScrollObserver = new IntersectionObserver(async entries => {
-            for (const e of entries) {
-                if (!e.isIntersecting || !hasMorePosts.value || postListLoading.value) continue
-                postListLoading.value = true
-                try {
-                    const next = currentPage.value + 1
-                    const res = await fetch(`/api/search/tags/${encodeURIComponent(tag)}/posts?page=${next}&pageSize=10`, {
-                        credentials: 'include'
-                    })
-                    const json = await res.json()
-                    const list = Array.isArray(json?.articles) ? json.articles : []
-
-                    const { postListService } = await import('/js/components/PostListService.js')
-                    const more = postListService?.formatArticles
-                        ? postListService.formatArticles(list)
-                        : list
-
-                    if (more.length) {
-                        posts.value = [...posts.value, ...more]
-                        currentPage.value = next
-                        hasMorePosts.value = more.length === 10
-                    } else {
-                        hasMorePosts.value = false
-                    }
-                } finally {
-                    postListLoading.value = false
-                }
-            }
-        }, { root: null, rootMargin: '200px', threshold: 0.1 })
-
-        infiniteScrollObserver.observe(trigger)
-    }
-
-    // ------- 新增：點 hashtag 相關 END -------
+    // ------- 點 hashtag：END -------
 
     // 通用搜尋功能
     const manualSearch = async () => {
@@ -131,6 +77,7 @@ export const useSearchService = (initialPopupData, initialPopupState) => {
 
             popupData.Search.Users = users.data.map(user => ({
                 personId: user.personId,
+                username: user.username || user.userName || '',   // 供「查看」連結用
                 displayName: user.displayName,
                 avatarUrl: user.avatarPath,
                 bio: user.bio || '這位使用者尚未填寫個人簡介。',

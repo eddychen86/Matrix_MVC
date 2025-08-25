@@ -164,6 +164,77 @@ globalApp({
 
         const isAppReady = ref(false)
 
+        // ==== 在 setup() 內，postManager 解構之後加上這段 ====
+
+        // 供我們自己的 tag 無限捲動用的 observer（避免干擾 postManager 內建的）
+        let tagObserver = null
+
+        searchService.setTagClickHandler(async (tag) => {
+            // 1) 停掉既有的無限滾動（postManager 那條）
+            cleanupInfiniteScroll()
+
+            // 2) 清空並載入第 1 頁
+            posts.value = []
+            currentPage.value = 1
+            hasMorePosts.value = true
+
+            const res = await fetch(`/api/search/tags/${encodeURIComponent(tag)}/posts?page=1&pageSize=10`, {
+                credentials: 'include'
+            })
+            const json = await res.json()
+            const raw = Array.isArray(json?.articles) ? json.articles : []
+
+            const { postListService } = await import('/js/components/PostListService.js')
+            const firstPage = postListService?.formatArticles
+                ? postListService.formatArticles(raw)
+                : raw
+
+            posts.value = firstPage
+            hasMorePosts.value = firstPage.length === 10
+
+            // 3) 綁定「以該 tag 繼續載入」的無限滾動（我們自己這邊管理一支 observer）
+            if (tagObserver) {
+                tagObserver.disconnect()
+                tagObserver = null
+            }
+            Vue.nextTick(() => {
+                const trigger = document.querySelector('.infinite-scroll-trigger')
+                if (!trigger) return
+
+                tagObserver = new IntersectionObserver(async entries => {
+                    for (const e of entries) {
+                        if (!e.isIntersecting || !hasMorePosts.value || postListLoading.value) continue
+                        postListLoading.value = true
+                        try {
+                            const next = currentPage.value + 1
+                            const res2 = await fetch(`/api/search/tags/${encodeURIComponent(tag)}/posts?page=${next}&pageSize=10`, {
+                                credentials: 'include'
+                            })
+                            const json2 = await res2.json()
+                            const rawMore = Array.isArray(json2?.articles) ? json2.articles : []
+                            const more = postListService?.formatArticles
+                                ? postListService.formatArticles(rawMore)
+                                : rawMore
+
+                            if (more.length) {
+                                posts.value = [...posts.value, ...more]
+                                currentPage.value = next
+                                hasMorePosts.value = more.length === 10
+                            } else {
+                                hasMorePosts.value = false
+                            }
+                        } finally {
+                            postListLoading.value = false
+                        }
+                    }
+                }, { root: null, rootMargin: '200px', threshold: 0.1 })
+
+                tagObserver.observe(trigger)
+            })
+        })
+
+
+
         onMounted(() => {
             isAppReady.value = true
 

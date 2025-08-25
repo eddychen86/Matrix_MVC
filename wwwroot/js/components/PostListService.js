@@ -4,23 +4,9 @@ export class PostListService {
         this.baseUrl = '/api/Post';
     }
 
-    /**
-     * 獲取文章列表
-     * @param {number} page - 頁碼 (從 1 開始，預設為 1)
-     * @param {number} pageSize - 每頁文章數量 (預設為 10)
-     * @param {string|null} uid - 用戶ID (可選，用於個人檔案頁面)
-     * @param {boolean} isProfilePage - 是否為個人檔案頁面
-     * @returns {Promise} 返回文章數據
-     */
     async getPosts(page = 1, pageSize = 10, uid = null, isProfilePage = false) {
         try {
-            // 準備 POST body 數據
-            const requestData = {
-                page: page - 1, // 轉換為 0-based 給後端
-                pageSize: pageSize
-            };
-
-            // 建構 URL，如果有 uid 則添加查詢參數
+            const requestData = { page: page - 1, pageSize };
             let url = this.baseUrl;
             if (uid !== null && uid !== undefined) {
                 const params = new URLSearchParams({ uid: uid });
@@ -29,17 +15,14 @@ export class PostListService {
 
             const response = await fetch(url, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',
-                body: JSON.stringify(requestData)
+                body: JSON.stringify(requestData),
             });
 
-            // 特別處理訪客第二次請求的 403，避免在前端噴錯
             if (response.status === 403) {
                 let data = null;
-                try { data = await response.json(); } catch { /* ignore */ }
+                try { data = await response.json(); } catch { }
                 return {
                     success: false,
                     requireLogin: true,
@@ -49,9 +32,7 @@ export class PostListService {
                 };
             }
 
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
 
             const data = await response.json();
             return {
@@ -60,59 +41,59 @@ export class PostListService {
                 totalCount: data.totalCount || 0
             };
         } catch (error) {
-            // 其它非 403 錯誤再記錄
             console.error('Error fetching posts:', error);
-            return {
-                success: false,
-                articles: [],
-                totalCount: 0,
-                error: error.message
-            };
+            return { success: false, articles: [], totalCount: 0, error: error.message };
         }
     }
 
     /**
-     * 格式化文章數據以符合前端需求
-     * @param {Array} articles - 原始文章數據
-     * @returns {Array} 格式化後的文章數據
+     * 這裡補上：作者 PersonId、修正 avatar 拼字、保留相容欄位
      */
     formatArticles(articles) {
-        return articles.map(article => ({
-            articleId: article.articleId,
-            content: article.content,
-            createTime: this.formatDate(article.createTime),
-            praiseCount: article.praiseCount || 0,
-            collectCount: article.collectCount || 0,
-            authorName: article.authorName || 'Unknown',
-            authorAvator: article.authorAvatar || null,
-            attachments: (article.attachments || []).map(att => ({
-                fileId: att.fileId,
-                fileName: att.fileName,
-                filePath: att.filePath,
-                type: att.type.toLowerCase()
-            })),
-            isPraised: !!article.isPraised,
-            isCollected: !!article.isCollected
-        }));
+        return (articles || []).map(a => {
+            // 從後端原始欄位推斷「作者的 PersonId」
+            const authorPersonId =
+                a.authorPersonId || a.personId || a.author?.personId || a.authorId || null;
+
+            return {
+                articleId: a.articleId,
+                content: a.content,
+                createTime: this.formatDate(a.createTime),
+
+                praiseCount: a.praiseCount || 0,
+                collectCount: a.collectCount || 0,
+
+                authorName: a.authorName || a.author?.name || 'Unknown',
+
+                // ✅ 修正拼字，前端用的是 authorAvatar
+                authorAvatar: a.authorAvatar || a.author?.avatarPath || null,
+
+                // ✅ 最關鍵：把 PersonId 映射到前端物件
+                authorPersonId,          // 給新程式用（report 會用這個）
+                authorId: authorPersonId, // 相容舊模板（你 CSHTML 用到 item.authorId）
+
+                attachments: (a.attachments || []).map(att => ({
+                    fileId: att.fileId,
+                    fileName: att.fileName,
+                    filePath: att.filePath,
+                    type: (att.type || '').toLowerCase(),
+                })),
+
+                isPraised: !!a.isPraised,
+                isCollected: !!a.isCollected,
+            };
+        });
     }
 
-    /**
-     * 格式化日期
-     * @param {string} dateString - 日期字符串
-     * @returns {string} 格式化後的日期
-     */
     formatDate(dateString) {
         if (!dateString) return '';
         const date = new Date(dateString);
         return date.toLocaleString('zh-TW', {
-            year: 'numeric',
-            month: '2-digit',
-            day: '2-digit',
-            hour: '2-digit',
-            minute: '2-digit'
+            year: 'numeric', month: '2-digit', day: '2-digit',
+            hour: '2-digit', minute: '2-digit'
         });
     }
 }
-// 導出單例
+
 export const postListService = new PostListService();
 export default postListService;
