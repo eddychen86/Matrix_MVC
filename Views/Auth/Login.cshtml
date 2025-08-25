@@ -47,8 +47,8 @@
                     <input type="checkbox" asp-for="RememberMe" class="auth-checkbox order-indigo-600" />
                     <span class="subTitle text-white" data-i18n="RememberMeLabel">@Localizer["RememberMeLabel"]</span>
                 </label>
-                <button type="button" class="cursor-pointer subTitle" v-on:click="toggleOpen"
-                    data-i18n="ForgotPasswordLabel">@Localizer["ForgotPasswordLabel"]</button>
+                @* <button type="button" class="cursor-pointer subTitle" v-on:click="toggleOpen"
+                    data-i18n="ForgotPasswordLabel">@Localizer["ForgotPasswordLabel"]</button> *@
             </div>
 
             @* 登入按鈕 *@
@@ -64,7 +64,7 @@
     </div>
 
     @* 忘記密碼 pop-up *@
-    <transition name="fade" class="hidden" :class="isForgot ? 'block' : 'hidden'">
+    <transition name="fade" :class="isForgot ? 'block' : 'hidden'">
         <div id="auth-layout_forgot" v-on:click="toggleClose">
             <form method="POST" action="/login/forgot">
                 <h1 class="title" data-i18n="ForgotPasswordTitle">@Localizer["ForgotPasswordTitle"]</h1>
@@ -75,7 +75,7 @@
                 <div class="ctn-input">
                     <input type="email" class="text-secondary" placeholder="@Localizer["EmailPlaceholder"]"
                         data-i18n-placeholder="EmailPlaceholder" />
-                    <button type="button" class="subTitle" data-i18n="SubmitBtn">@Localizer[""]</button>
+                    <button type="button" class="subTitle" data-i18n="SubmitBtn">@Localizer["SubmitBtn"]</button>
                 </div>
             </form>
         </div>
