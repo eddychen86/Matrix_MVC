@@ -471,9 +471,112 @@ namespace Matrix.Services
             throw new NotImplementedException("此方法需要重構");
         }
 
-        public Task<bool> ResetPasswordAsync(string email, string newPassword)
+        public async Task<bool> SetForgotPasswordTokenAsync(string email, string token)
         {
-            throw new NotImplementedException("此方法需要重構");
+            try
+            {
+                Console.WriteLine($"SetForgotPasswordTokenAsync: Searching for email {email}");
+                
+                // 使用現有的 GetByEmailAsync 方法
+                var user = await _userRepository.GetByEmailAsync(email);
+                
+                if (user == null)
+                {
+                    Console.WriteLine($"SetForgotPasswordTokenAsync: User not found for email {email}");
+                    return false;
+                }
+                
+                if (user.IsDelete != 0)
+                {
+                    Console.WriteLine($"SetForgotPasswordTokenAsync: User {email} is deleted (IsDelete={user.IsDelete})");
+                    return false;
+                }
+
+                Console.WriteLine($"SetForgotPasswordTokenAsync: Found user {user.UserName} (ID: {user.UserId})");
+
+                // 加密並存儲 token
+                var hashedToken = _passwordHasher.HashPassword(user, token);
+                Console.WriteLine($"SetForgotPasswordTokenAsync: Original token: {token}");
+                Console.WriteLine($"SetForgotPasswordTokenAsync: Hashed token: {hashedToken.Substring(0, Math.Min(20, hashedToken.Length))}...");
+                
+                user.ForgotPwdToken = hashedToken;
+                
+                Console.WriteLine($"SetForgotPasswordTokenAsync: Token assigned to user {user.UserName}");
+                Console.WriteLine($"SetForgotPasswordTokenAsync: User.ForgotPwdToken is now: {user.ForgotPwdToken?.Substring(0, Math.Min(20, user.ForgotPwdToken.Length))}...");
+                
+                await _userRepository.UpdateAsync(user);
+                await _userRepository.SaveChangesAsync(); // 重要：保存變更到資料庫
+                Console.WriteLine($"SetForgotPasswordTokenAsync: UpdateAsync and SaveChanges called for user {user.UserName}");
+                
+                // 驗證是否真的保存成功
+                var updatedUser = await _userRepository.GetByEmailAsync(email);
+                if (updatedUser?.ForgotPwdToken != null)
+                {
+                    Console.WriteLine($"SetForgotPasswordTokenAsync: Verification successful - token exists in DB");
+                }
+                else
+                {
+                    Console.WriteLine($"SetForgotPasswordTokenAsync: Verification failed - token NOT found in DB");
+                }
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"SetForgotPasswordTokenAsync error: {ex.Message}");
+                Console.WriteLine($"SetForgotPasswordTokenAsync stack trace: {ex.StackTrace}");
+                return false;
+            }
+        }
+
+        public async Task<bool> ResetPasswordAsync(string email, string newPassword)
+        {
+            try
+            {
+                Console.WriteLine($"ResetPasswordAsync: Searching for email {email}");
+                
+                // 使用現有的 GetByEmailAsync 方法
+                var user = await _userRepository.GetByEmailAsync(email);
+                
+                if (user == null)
+                {
+                    Console.WriteLine($"ResetPasswordAsync: User not found for email {email}");
+                    return false;
+                }
+                
+                if (user.IsDelete != 0)
+                {
+                    Console.WriteLine($"ResetPasswordAsync: User {email} is deleted (IsDelete={user.IsDelete})");
+                    return false;
+                }
+
+                Console.WriteLine($"ResetPasswordAsync: Found user {user.UserName} (ID: {user.UserId})");
+
+                // 加密新密碼
+                var oldPassword = user.Password;
+                user.Password = _passwordHasher.HashPassword(user, newPassword);
+                
+                Console.WriteLine($"ResetPasswordAsync: Password hashed for user {user.UserName}");
+                
+                // TODO: 設置強制密碼修改標記 - 需要先創建資料庫遷移
+                // user.ForcePasswordChange = true;
+                
+                await _userRepository.UpdateAsync(user);
+                Console.WriteLine($"ResetPasswordAsync: Password updated successfully for user {user.UserName}");
+                
+                // 測試新密碼是否能驗證成功
+                var testValidation = await _userRepository.ValidateUserAsync(user.UserName, newPassword);
+                Console.WriteLine($"ResetPasswordAsync: Test validation result: {testValidation}");
+                Console.WriteLine($"ResetPasswordAsync: New password hash starts with: {user.Password.Substring(0, Math.Min(10, user.Password.Length))}");
+                
+                return true;
+            }
+            catch (Exception ex)
+            {
+                // 記錄詳細錯誤
+                Console.WriteLine($"ResetPasswordAsync error: {ex.Message}");
+                Console.WriteLine($"ResetPasswordAsync stack trace: {ex.StackTrace}");
+                return false;
+            }
         }
 
         public async Task<(List<UserDto> Users, int TotalCount)> GetUsersAsync(int page = 1, int pageSize = 20, string? searchKeyword = null)

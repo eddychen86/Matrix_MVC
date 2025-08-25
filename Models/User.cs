@@ -78,6 +78,11 @@ namespace Matrix.Models
         public int IsDelete { get; set; } = 0;
 
         /// <summary>
+        /// 忘記密碼令牌（加密存儲）
+        /// </summary>
+        public string? ForgotPwdToken { get; set; }
+
+        /// <summary>
         /// 關聯的用戶個人資料
         /// </summary>
         public virtual Person? Person { get; set; }

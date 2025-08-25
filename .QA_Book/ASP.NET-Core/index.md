@@ -52,6 +52,12 @@
 **關鍵字**: 載入狀態, 錯誤處理, HTTP狀態碼, 重試機制  
 **相關檔案**: `profile.js:777-827`, `Profile/Index.cshtml:3-16`
 
+### 問題 19: 實現基於 Token 的忘記密碼功能
+**檔案**: [`pwd-reset.md`](./pwd-reset.md)  
+**描述**: 使用 token 方式實現安全的密碼重置功能，包含郵件發送、token 管理和登入驗證  
+**關鍵字**: 忘記密碼, Token, 郵件發送, PasswordHasher, 安全驗證  
+**相關檔案**: `ForgotPasswordController.cs`, `UserService.cs`, `UserRepository.cs`, `GmailService.cs`
+
 ---
 
 ## 🔍 快速搜尋
@@ -75,9 +81,10 @@
 
 ## 📊 統計
 
-- **總問題數**: 8
-- **已解決**: 8
-- **Controller 相關**: 4
-- **Service 相關**: 3
+- **總問題數**: 9
+- **已解決**: 9
+- **Controller 相關**: 5
+- **Service 相關**: 4
 - **錯誤修復**: 3
+- **安全功能**: 1
 - **最後更新**: 2025-08-25

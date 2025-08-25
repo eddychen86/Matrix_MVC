@@ -102,11 +102,28 @@ namespace Matrix.Controllers.Api
                 _logger.LogInformation("Updated last login time for user {UserName}", userDto.UserName);
             }
 
+            // TODO: 檢查是否需要強制修改密碼 - 需要先創建資料庫遷移
+            // var userEntity = await _userRepository.GetByIdAsync(userDto.UserId);
+            // if (userEntity?.ForcePasswordChange == true)
+            // {
+            //     // 仍然需要設定 JWT 和 Cookie 以便用戶能夠修改密碼
+            //     var token = _authController.GenerateJwtToken(userDto);
+            //     _authController.SetAuthCookie(Response, token, model.RememberMe);
+            //     
+            //     _logger.LogInformation("User {UserName} requires password change", userDto.UserName);
+            //     
+            //     // 返回特殊響應表示需要強制修改密碼
+            //     return ApiSuccess(new { 
+            //         forcePasswordChange = true,
+            //         redirectUrl = userDto.Role >= 1 ? "/dashboard/overview/index" : "/home/index"
+            //     }, "需要修改密碼");
+            // }
+
             // 產生 JWT 並設定 Cookie
-            var token = _authController.GenerateJwtToken(userDto);
-            _logger.LogInformation("Generated JWT token for user {UserName}, token length: {TokenLength}", userDto.UserName, token.Length);
+            var normalToken = _authController.GenerateJwtToken(userDto);
+            _logger.LogInformation("Generated JWT token for user {UserName}, token length: {TokenLength}", userDto.UserName, normalToken.Length);
             
-            _authController.SetAuthCookie(Response, token, model.RememberMe);
+            _authController.SetAuthCookie(Response, normalToken, model.RememberMe);
             _logger.LogInformation("Set auth cookie for user {UserName}, RememberMe: {RememberMe}", userDto.UserName, model.RememberMe);
 
             // 根據用戶角色決定跳轉目標
@@ -189,24 +206,6 @@ namespace Matrix.Controllers.Api
             });
         }
 
-        /// <summary>忘記密碼功能</summary>
-        [HttpPost("api/login/forgot")]
-        public IActionResult ForgotPassword([FromBody] LoginViewModel model)
-        {
-            // 基本格式驗證
-            var validationErrors = new Dictionary<string, string[]>();
-            
-            if (model == null || string.IsNullOrWhiteSpace(model.UserName))
-                validationErrors["UserName"] = [_localizer["UserNameInvalid"]];
-                
-            if (validationErrors.Count > 0)
-            {
-                return ApiError(_localizer["Error"], validationErrors);
-            }
-
-            // TODO: 實作忘記密碼功能
-            return ApiError(_localizer["ForgotPasswordMsg"]);
-        }
 
         /// <summary>用帳號或信箱找用戶</summary>
         private async Task<UserDto?> GetUserByIdentifierAsync(string Name_Or_Email)

@@ -72,6 +72,66 @@ namespace Matrix.Services
             }
         }
 
+        public async Task<bool> SendPasswordResetEmailAsync(string toEmail, string userName, string temporaryPassword)
+        {
+            try
+            {
+                string subject = "Matrix - 密碼重置";
+                string htmlBody = $@"
+                <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;'>
+                    <div style='background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; text-align: center; border-radius: 10px 10px 0 0;'>
+                        <h1 style='color: white; margin: 0; font-size: 28px;'>Matrix</h1>
+                        <p style='color: #f0f0f0; margin: 10px 0 0 0; font-size: 16px;'>密碼重置通知</p>
+                    </div>
+                    
+                    <div style='background: #f8f9fa; padding: 30px; border-radius: 0 0 10px 10px; border: 1px solid #e9ecef;'>
+                        <h2 style='color: #333; margin-top: 0;'>您好，{userName}</h2>
+                        
+                        <p style='color: #666; font-size: 16px; line-height: 1.6;'>
+                            我們已收到您的密碼重置請求。您的新臨時密碼是：
+                        </p>
+                        
+                        <div style='background: #fff; border: 2px dashed #667eea; padding: 20px; margin: 20px 0; text-align: center; border-radius: 8px;'>
+                            <h3 style='color: #667eea; font-family: monospace; font-size: 24px; margin: 0; letter-spacing: 2px;'>
+                                {temporaryPassword}
+                            </h3>
+                        </div>
+                        
+                        <div style='background: #fff3cd; border: 1px solid #ffeaa7; padding: 15px; border-radius: 8px; margin: 20px 0;'>
+                            <h4 style='color: #856404; margin-top: 0;'>⚠️ 重要提醒</h4>
+                            <ul style='color: #856404; margin: 10px 0; padding-left: 20px;'>
+                                <li>請使用此臨時密碼登入系統</li>
+                                <li>登入後系統會要求您立即修改密碼</li>
+                                <li>為了您的帳戶安全，請盡快完成密碼修改</li>
+                            </ul>
+                        </div>
+                        
+                        <p style='color: #666; font-size: 14px; margin-top: 30px;'>
+                            如果您沒有申請密碼重置，請忽略此郵件或聯繫我們的客服團隊。
+                        </p>
+                        
+                        <p style='color: #666; font-size: 14px; margin-top: 20px;'>
+                            祝您使用愉快！<br>
+                            Matrix 團隊
+                        </p>
+                    </div>
+                    
+                    <div style='text-align: center; margin-top: 20px; color: #999; font-size: 12px;'>
+                        <p>此郵件由系統自動發送，請勿直接回覆</p>
+                        <p>© 2024 Matrix. All rights reserved.</p>
+                    </div>
+                </div>";
+
+                await SendEmailAsync(toEmail, userName, subject, htmlBody);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to send password reset email to {Email}", toEmail);
+                return false;
+            }
+        }
+
         /*
         // =================================================================================
         // 以下為使用已過時 System.Net.Mail.SmtpClient 的舊有實作

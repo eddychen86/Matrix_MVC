@@ -91,6 +91,14 @@ namespace Matrix.Services.Interfaces
         Task<bool> ValidateUserAsync(string email, string password);
 
         /// <summary>
+        /// 設置忘記密碼 token
+        /// </summary>
+        /// <param name="email">電子郵件</param>
+        /// <param name="token">重置 token</param>
+        /// <returns>設置是否成功</returns>
+        Task<bool> SetForgotPasswordTokenAsync(string email, string token);
+
+        /// <summary>
         /// 重設使用者密碼
         /// </summary>
         /// <param name="email">電子郵件</param>

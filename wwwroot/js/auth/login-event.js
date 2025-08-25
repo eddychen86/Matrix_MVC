@@ -6,6 +6,10 @@ createApp({
         const isForgot = ref(false)
         const showPassword = ref(false)
         const isSubmitting = ref(false)
+        const forgotEmail = ref('')
+        const isForgotSubmitting = ref(false)
+        const forgotMessage = ref('')
+        const forgotMessageType = ref('success')
         const loginForm = ref({
             UserName: '',
             Password: '',
@@ -14,6 +18,65 @@ createApp({
 
         // 切換忘記密碼彈窗
         const toggleOpen = () => isForgot.value = true
+
+        const submitForgotPassword = async (event) => {
+            console.log('submitForgotPassword called', event)
+            event.preventDefault()
+            
+            console.log('isForgot.value:', isForgot.value)
+            console.log('forgotEmail.value:', forgotEmail.value)
+            
+            if (!isForgot.value) {
+                console.log('Forgot password modal not open, returning')
+                return
+            }
+            
+            if (!forgotEmail.value) {
+                console.log('No email provided')
+                forgotMessage.value = '請輸入電子郵件'
+                forgotMessageType.value = 'error'
+                return
+            }
+            
+            console.log('Starting forgot password request...')
+            isForgotSubmitting.value = true
+            forgotMessage.value = ''
+            
+            try {
+                console.log('Sending request to API...')
+                const response = await fetch('/api/ForgotPassword/reset', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        Email: forgotEmail.value
+                    })
+                })
+                
+                console.log('Response received:', response.status, response.statusText)
+                const result = await response.json()
+                console.log('Result:', result)
+                
+                if (result.success) {
+                    forgotMessage.value = result.message
+                    forgotMessageType.value = 'success'
+                    forgotEmail.value = ''
+                    console.log('Success message set')
+                } else {
+                    forgotMessage.value = result.message || '重置失敗'
+                    forgotMessageType.value = 'error'
+                    console.log('Error message set:', result.message)
+                }
+            } catch (error) {
+                console.error('Forgot password error:', error)
+                forgotMessage.value = '發送失敗，請稍後再試'
+                forgotMessageType.value = 'error'
+            } finally {
+                isForgotSubmitting.value = false
+                console.log('Request completed')
+            }
+        }
 
         const toggleClose = (event) => {
             if (event.target === event.currentTarget) isForgot.value = false
@@ -83,20 +146,27 @@ createApp({
                 })
 
                 if (!response.ok) {
+                    // 讀取錯誤響應內容
+                    const errorText = await response.text()
+                    console.error('Login API error response:', errorText)
                     throw new Error(`HTTP error! status: ${response.status}`)
                 }
 
                 const result = await response.json()
 
                 if (result.success) {
-                    if (result.data?.redirectUrl) {
-                        // 成功時保持 loading 狀態直到頁面跳轉
-                        // console.log(
-                        //     'Redirecting to:', result.data.redirectUrl,
-                        //     "window.location.href", window.location.origin
-                        // )
+                    // 檢查是否需要強制修改密碼
+                    if (result.data?.forcePasswordChange) {
+                        // 停止載入狀態並顯示修改密碼提醒
+                        isSubmitting.value = false
+                        alert('您的密碼已重置，請立即修改密碼以確保帳號安全！')
+                        // 可以在這裡添加跳轉到修改密碼頁面的邏輯
                         setTimeout(() => {
-                            // history.pushState(null, '', '/dashboard/overview/index')
+                            window.location.href = result.data.redirectUrl
+                        }, 1000)
+                    } else if (result.data?.redirectUrl) {
+                        // 正常登入流程
+                        setTimeout(() => {
                             window.location.href = result.data.redirectUrl
                         }, 5000)
                     } else {
@@ -132,6 +202,7 @@ createApp({
         })
 
         return {
+            submitForgotPassword,
             isForgot,
             showPassword,
             loginForm,
@@ -140,6 +211,10 @@ createApp({
             togglePasswordVisibility,
             submitForm,
             isSubmitting,
+            forgotEmail,
+            isForgotSubmitting,
+            forgotMessage,
+            forgotMessageType
         }
     }
 }).mount('#auth-body')

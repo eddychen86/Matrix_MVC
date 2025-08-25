@@ -47,8 +47,8 @@
                     <input type="checkbox" asp-for="RememberMe" class="auth-checkbox order-indigo-600" />
                     <span class="subTitle text-white" data-i18n="RememberMeLabel">@Localizer["RememberMeLabel"]</span>
                 </label>
-                @* <button type="button" class="cursor-pointer subTitle" v-on:click="toggleOpen"
-                    data-i18n="ForgotPasswordLabel">@Localizer["ForgotPasswordLabel"]</button> *@
+                <button type="button" class="cursor-pointer subTitle" v-on:click="toggleOpen"
+                    data-i18n="ForgotPasswordLabel">@Localizer["ForgotPasswordLabel"]</button>
             </div>
 
             @* 登入按鈕 *@
@@ -66,7 +66,7 @@
     @* 忘記密碼 pop-up *@
     <transition name="fade" :class="isForgot ? 'block' : 'hidden'">
         <div id="auth-layout_forgot" v-on:click="toggleClose">
-            <form method="POST" action="/login/forgot">
+            <form v-on:submit.prevent="submitForgotPassword">
                 <h1 class="title" data-i18n="ForgotPasswordTitle">@Localizer["ForgotPasswordTitle"]</h1>
                 <button type="button" class="subTitle" v-on:click="toggleClose">
                     <i data-lucide="x" class="close-btn text-error"></i>
@@ -74,9 +74,15 @@
                 <p class="para" data-i18n="ForgotPasswordMsg">@Localizer["ForgotPasswordMsg"]</p>
                 <div class="ctn-input">
                     <input type="email" class="text-secondary" placeholder="@Localizer["EmailPlaceholder"]"
-                        data-i18n-placeholder="EmailPlaceholder" />
-                    <button type="button" class="subTitle" data-i18n="SubmitBtn">@Localizer["SubmitBtn"]</button>
+                        data-i18n-placeholder="EmailPlaceholder" v-model="forgotEmail" :disabled="isForgotSubmitting" required />
+                    <button type="submit" class="subTitle" data-i18n="SubmitBtn" :disabled="isForgotSubmitting">
+                        <span v-if="isForgotSubmitting">發送中...</span>
+                        <span v-else>@Localizer["SubmitBtn"]</span>
+                    </button>
                 </div>
+                <p v-if="forgotMessage" :class="forgotMessageType === 'success' ? 'text-green-400' : 'text-red-400'" class="para mt-2">
+                    {{ forgotMessage }}
+                </p>
             </form>
         </div>
     </transition>

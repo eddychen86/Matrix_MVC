@@ -83,6 +83,23 @@ namespace Matrix.Repository
 
             if (user == null || string.IsNullOrEmpty(user.Password)) return false;
 
+            // 首先檢查是否使用 ForgotPwdToken 登入
+            if (!string.IsNullOrEmpty(user.ForgotPwdToken))
+            {
+                var tokenResult = _passwordHasher.VerifyHashedPassword(user, user.ForgotPwdToken, password);
+                if (tokenResult == PasswordVerificationResult.Success)
+                {
+                    Console.WriteLine($"ValidateUserAsync: User {user.UserName} logged in with token");
+                    
+                    // 清空 ForgotPwdToken（token 只能使用一次）
+                    user.ForgotPwdToken = null;
+                    await this.UpdateAsync(user);
+                    await this.SaveChangesAsync();
+                    
+                    return true;
+                }
+            }
+
             // 判斷密碼是新格式還是舊格式
             // Identity V3 的雜湊值以 AQAAAA== 開頭
             bool isNewHash = user.Password.StartsWith("AQAAAA");
