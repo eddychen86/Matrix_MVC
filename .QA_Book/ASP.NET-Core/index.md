@@ -64,6 +64,12 @@
 **關鍵字**: 授權, 重定向, MemberAuthorization, ActionFilter, 訪客存取  
 **相關檔案**: `Controllers/ProfileController.cs:6`, `Attributes/RoleAuthorizationAttribute.cs:33-46`
 
+### 問題 21: macOS 上的 NuGet 包路徑解析錯誤
+**檔案**: [`nuget-path.md`](./nuget-path.md)  
+**描述**: 修復 macOS 上因 NuGet 配置錯誤導致的 Windows 路徑解析問題  
+**關鍵字**: NuGet, 路徑錯誤, macOS, 跨平台, 包源配置  
+**相關檔案**: `~/.nuget/NuGet/NuGet.Config`
+
 ---
 
 ## 🔍 快速搜尋
@@ -89,11 +95,12 @@
 
 ## 📊 統計
 
-- **總問題數**: 10
-- **已解決**: 10
+- **總問題數**: 11
+- **已解決**: 11
 - **Controller 相關**: 6
 - **Service 相關**: 4
-- **錯誤修復**: 3
+- **錯誤修復**: 4
 - **安全功能**: 2
 - **授權機制**: 1
-- **最後更新**: 2025-08-25
+- **跨平台問題**: 1
+- **最後更新**: 2025-08-26
