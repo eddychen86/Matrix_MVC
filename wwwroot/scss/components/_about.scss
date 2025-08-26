@@ -86,11 +86,11 @@
     }
 
     &-link {
-      @apply flex items-center justify-center bg-white text-secondary rounded-full p-1;
+      @apply flex items-center justify-center bg-white text-secondary rounded-full p-2;
     }
 
     &-icon {
-      @apply size-5;
+      @apply size-6 sm:size-8 2xl:size-10;
     }
 
     &-skills {

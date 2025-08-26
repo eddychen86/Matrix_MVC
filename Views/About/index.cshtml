@@ -21,10 +21,10 @@
                         <img src="~/static/img/image-top.png" />
                     }
                     <div class="team-info">
-                        <h2 class="team-name text-2xl">@mb.twName</h2>
-                        <h3 class="subTitle h-7">@mb.engName</h3>
+                        <h2 class="team-name text-3xl">@mb.twName</h2>
+                        <h3 class="title h-7">@mb.engName</h3>
                         <hr>
-                        <h4 class="team-level">@mb.level</h4>
+                        <h4 class="title">@mb.level</h4>
                         <br>
                         <div class="team-links">
                             <a href="mailto:@mb.email" target="_blank" class="team-link">
@@ -43,8 +43,11 @@
                         <h2 class="text-2xl font-bold mb-4">技術 | Skills</h2>
                         <ul class="team-skills">
                             @foreach (var sk in mb.skill) {
-                                <li class="team-skill">
+                                @* <li class="team-skill">
                                     <p class="team-skill-text subTitle">@sk</p>
+                                </li> *@
+                                <li class="flex items-center justify-between min-w-max">
+                                    <img src="~/static/teams/skills/@(sk).png" alt="@sk" class="w-16  object-contain " />
                                 </li>
                             }
                         </ul>
@@ -54,18 +57,18 @@
                         <div class="team-works_layout">
                             <div class="green-dot"></div>
                             <div class="flex flex-col gap-4 w-full">
-                                <ul class="team-works">
+                                <ul class="team-works flex flex-col gap-2">
                                     @foreach (var wk in mb.works.envs) {
                                         <li class="team-work-item">
-                                            <p class="m-0 p-0 para">@wk</p>
+                                            <p class="m-0 p-0 subTitle">@wk</p>
                                         </li>
                                     }
                                 </ul>
                                 <hr>
-                                <ul class="team-works">
+                                <ul class="team-works flex flex-col gap-2">
                                     @foreach (var wk in mb.works.pages) {
                                         <li class="team-work-item">
-                                            <p class="m-0 p-0 para">@wk</p>
+                                            <p class="m-0 p-0 subTitle">@wk</p>
                                         </li>
                                     }
                                 </ul>
@@ -77,3 +80,15 @@
         }
     </ul>
 </div>
+
+@section Scripts {
+    <script src="~/js/pages/about/about.js" asp-append-version="true" type="module"></script>
+    <script>
+        // 初始化 Lucide icons
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof lucide !== 'undefined' && lucide.createIcons) {
+                lucide.createIcons();
+            }
+        });
+    </script>
+}

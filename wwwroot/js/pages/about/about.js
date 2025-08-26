@@ -48,6 +48,11 @@ export const useAbout = () => {
     if (defaultExpandedCard) {
       expandedCard.value = defaultExpandedCard
     }
+    
+    // 初始化 Lucide icons
+    if (typeof lucide !== 'undefined' && lucide.createIcons) {
+      lucide.createIcons()
+    }
   })
 
   return {

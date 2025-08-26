@@ -52,12 +52,18 @@
 **關鍵字**: Tailwind, CSS Grid, col-span, 響應式, 斷點  
 **相關檔案**: `Views/Profile/Index.cshtml:51,115`, `Views/Shared/_Layout.cshtml:42`
 
+### 問題 22: Lucide Icons 無法顯示問題
+**檔案**: [`lucide-icons.md`](./lucide-icons.md)  
+**描述**: 解決頁面中 Lucide icons 無法正常顯示的初始化問題  
+**關鍵字**: Lucide, icons, createIcons, 初始化, data-lucide  
+**相關檔案**: `Views/About/index.cshtml:81-91`, `wwwroot/js/pages/about/about.js:52-55`
+
 ---
 
 ## 🔍 快速搜尋
 
 ### 難度分級
-- **初級**: 問題 7 (屬性未定義), 問題 19 (編輯模式UI), 問題 20 (CSS佈局), 問題 21 (Grid響應式)
+- **初級**: 問題 7 (屬性未定義), 問題 19 (編輯模式UI), 問題 20 (CSS佈局), 問題 21 (Grid響應式), 問題 22 (Icons初始化)
 - **中級**: 問題 6 (響應式重置), 問題 11 (v-model 語法)
 - **高級**: 問題 12 (v-for 優化), 問題 18 (跨頁面組件)
 
@@ -68,12 +74,14 @@
 - **架構設計**: 問題 18
 - **UI 互動**: 問題 19
 - **CSS 佈局**: 問題 20, 21
+- **Icons 系統**: 問題 22
 
 ## 📊 統計
 
-- **總問題數**: 8
-- **已解決**: 8
+- **總問題數**: 9
+- **已解決**: 9
 - **Vue 2 相關**: 0
 - **Vue 3 相關**: 6
 - **CSS 相關**: 2
+- **Icons 相關**: 1
 - **最後更新**: 2025-08-25
