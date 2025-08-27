@@ -327,6 +327,11 @@ globalApp({
             // if (document.querySelector('.friends-list')) {
             //     loadFriends(1, 20, null, friendsStatus.value)
             // }
+
+            // 初始化 Lucide icons，確保 SSR 載入的組件圖標能正常顯示
+            if (typeof lucide !== 'undefined' && lucide.createIcons) {
+                lucide.createIcons()
+            }
         })
 
         //#endregion

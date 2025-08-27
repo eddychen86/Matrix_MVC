@@ -42,7 +42,7 @@ namespace Matrix.DTOs
         /// <summary>
         /// 回覆的建立時間
         /// </summary>
-        public DateTime CreateTime { get; set; }
+        public DateTime ReplyTime { get; set; } = DateTime.Now;
 
         /// <summary>
         /// 回覆獲得的讚數量
@@ -165,7 +165,7 @@ namespace Matrix.DTOs
         /// <summary>
         /// 獲取回覆者的回覆時間
         /// </summary>
-        public string CreateTimeFormatted => CreateTime.ToString("yyyy-MM-dd HH:mm");
+        public string CreateTimeFormatted => ReplyTime.ToString("yyyy-MM-dd HH:mm");
 
         /// <summary>
         /// 獲取回覆的完整顯示文字

@@ -102,7 +102,6 @@
                             <tr>
                                 @* <th></th> *@
                                 <th data-i18n="Users_Name">@Localizer["Users_Name"]</th>
-                                <th data-i18n="Users_RoleText">@Localizer["Users_RoleText"]</th>
                                 <th data-i18n="Users_Email">@Localizer["Users_Email"]</th>
                                 <th data-i18n="Users_Status">@Localizer["Users_Status"]</th>
                                 <th data-i18n="Users_CreateTime">@Localizer["Users_CreateTime"]</th>
@@ -115,7 +114,6 @@
                             <tr v-for="(item,idx) in pagedUsers" :key="item.userId">
                                 @* <td>{{ (pageIndex - 1) * pageSize + idx + 1 }}</td> *@
                                 <td>{{item.userName}}</td>
-                                <td>{{roleTextI18n(item)}}</td>
                                 <td>{{item.email}}</td>
                                 <td>
                                     @* <template v-if="editingId === item.userId">

@@ -41,7 +41,7 @@ namespace Matrix.Mappings
             // Reply ↔ ReplyDto 映射
             CreateMap<Reply, ReplyDto>()
                 .ForMember(dest => dest.AuthorId, opt => opt.MapFrom(src => src.UserId))
-                .ForMember(dest => dest.CreateTime, opt => opt.MapFrom(src => src.ReplyTime))
+                .ForMember(dest => dest.ReplyTime, opt => opt.MapFrom(src => src.ReplyTime))
                 .ForMember(dest => dest.Author, opt => opt.MapFrom(src => src.User));
 
             CreateMap<CreateReplyDto, Reply>()

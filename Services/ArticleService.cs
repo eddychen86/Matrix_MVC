@@ -53,6 +53,11 @@ namespace Matrix.Services
         public async Task<ArticleDto?> GetArticleDetailAsync(Guid articleId)
         {
             return await _context.Set<Article>()
+                .Include(a => a.Author)
+                .Include(a => a.Attachments!)
+                .Include(a => a.Replies!)
+                    .ThenInclude(r => r.User!)
+                        .ThenInclude(p => p.User)
                 .AsNoTracking()
                 .Where(a => a.ArticleId == articleId)
                 .Select(a => new ArticleDto
@@ -65,6 +70,34 @@ namespace Matrix.Services
                     CreateTime = a.CreateTime,
                     PraiseCount = a.PraiseCount,
                     CollectCount = a.CollectCount,
+                    Replies = a.Replies!
+                        .Select(r => new ReplyDto
+                        {
+                            ReplyId = r.ReplyId,
+                            ArticleId = r.ArticleId,
+                            AuthorId = r.UserId,
+                            Content = r.Content,
+                            ReplyTime = r.ReplyTime,
+                            Status = 0,
+                            PraiseCount = 0,
+                            Author = r.User == null ? null : new PersonDto
+                            {
+                                PersonId = r.User.PersonId,
+                                UserId = r.User.UserId,
+                                DisplayName = r.User.DisplayName,
+                                AvatarPath = r.User.AvatarPath,
+                                User = r.User.User == null ? null : new UserDto
+                                {
+                                    UserId = r.User.User.UserId,
+                                    UserName = r.User.User.UserName,
+                                    Email = r.User.User.Email,
+                                    Role = r.User.User.Role,
+                                    CreateTime = r.User.User.CreateTime
+                                }
+                            }
+                        })
+                        .OrderBy(r => r.ReplyTime)
+                        .ToList(),
 
                     Author = a.Author == null ? null : new PersonDto
                     {

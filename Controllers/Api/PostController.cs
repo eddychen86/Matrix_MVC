@@ -278,11 +278,19 @@ namespace Matrix.Controllers.Api
                     authorName = article.Author?.DisplayName,
                     authorAvatar = article.Author?.AvatarPath,
                     attachments = article.Attachments ?? new List<ArticleAttachmentDto>(),
-                    replies = article.Replies ?? new List<ReplyDto>(),
+                    replies = (article.Replies ?? new List<ReplyDto>()).Select(r => new
+                    {
+                        authorId = r.AuthorId,
+                        content = r.Content,
+                        replyTime = r.ReplyTime,
+                        authorAvatar = r.Author?.AvatarPath,
+                        authorName = r.Author?.DisplayName,
+                        userName = r.Author?.User?.UserName
+                    }).ToList(),
                     hashtags = article.Hashtags ?? new List<HashtagDto>()
                 };
 
-                return Ok(new { success = true, article = response });
+                return Ok(new { success = true, article = response, });
             }
             catch (Exception ex)
             {

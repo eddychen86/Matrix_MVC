@@ -35,6 +35,7 @@ export class PostListService {
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
 
             const data = await response.json();
+
             return {
                 success: true,
                 articles: data.articles || [],
@@ -81,6 +82,9 @@ export class PostListService {
 
                 isPraised: !!a.isPraised,
                 isCollected: !!a.isCollected,
+                
+                // ✅ 頭像錯誤狀態追蹤
+                _avatarError: [],
             };
         });
     }
