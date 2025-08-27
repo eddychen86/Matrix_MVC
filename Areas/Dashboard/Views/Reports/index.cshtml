@@ -40,6 +40,11 @@
                         @@click ="setStatus(1)">
                     Processed
                 </button>
+                <button class="rounded-full px-3 py-1 text-sm font-semibold text-blue-600 transition"
+                        :class="{ 'bg-blue-700 text-white shadow': isStatusActive(2) }"
+                        @@click="setStatus(2)">
+                    Rejected
+                </button>
             </div>
         </div>
 
@@ -122,7 +127,7 @@
                             </div>
 
                             <!-- 已處理顯示標籤 -->
-                            <span v-else class="badge badge-success">{{ item.statusText }}</span>
+                            <span v-else class="badge" :class="item.statusCode === 1 ? 'badge-success' : (item.statusCode === 2 ? 'badge-error' : 'badge-ghost')">{{ item.statusText }}</span>
                         </td>
 
 

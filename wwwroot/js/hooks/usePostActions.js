@@ -155,54 +155,174 @@ export function usePostActions() {
         }
     }
 
+    // =========================================================================================
+    // ⭐ 新增：簡單的「原生 <dialog>」檢舉 UI（避免 prompt，改成彈窗）
+    // =========================================================================================
+    function createReportDialogIfNeed() {
+        let dlg = document.getElementById('report-dialog')
+        if (dlg) return dlg._controller
+
+        const wrapper = document.createElement('div')
+                    wrapper.innerHTML = `
+            <dialog id="report-dialog">
+              <form method="dialog" id="report-form"
+                    style="width:min(800px,96vw)"  /* 直寫 style 保證寬度，不靠 Tailwind 編譯 */
+                    class="flex flex-col gap-3 rounded-2xl p-5
+                           bg-neutral-900/95 text-white shadow-2xl ring-1 ring-white/10">
+                <h3 class="font-bold text-lg">檢舉</h3>
+            
+                <fieldset class="flex items-center gap-4">
+                  <label class="inline-flex items-center gap-2">
+                    <input type="radio" name="type" value="1" checked>
+                    <span>檢舉文章</span>
+                  </label>
+                  <label class="inline-flex items-center gap-2 opacity-95" id="report-radio-user">
+                    <input type="radio" name="type" value="0">
+                    <span>檢舉使用者</span>
+                  </label>
+                </fieldset>
+            
+                <label class="flex flex-col gap-2">
+                  <span>檢舉理由</span>
+                  <textarea name="reason" rows="5" maxlength="500"
+                    class="rounded-xl p-3 bg-neutral-800 text-gray-100 border border-neutral-700 outline-none
+                           focus:border-blue-500 focus:ring-2 focus:ring-blue-500/30"
+                    placeholder="請輸入 1–500 字"></textarea>
+                  <small class="self-end text-gray-400"><span id="report-count">0</span>/500</small>
+                </label>
+            
+                <menu class="flex justify-end gap-3">
+                  <!-- 兩顆都 submit，用 e.submitter 分辨 -->
+                  <button type="submit" value="cancel" class="px-4 py-2 rounded-xl bg-neutral-700 hover:bg-neutral-600">取消</button>
+                  <button type="submit" value="submit" class="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-500">送出</button>
+                </menu>
+            
+                <input type="hidden" name="articleId">
+                <input type="hidden" name="authorPersonId">
+              </form>
+            </dialog>`.trim()
+
+        document.body.appendChild(wrapper.firstElementChild)
+
+        // 元素
+        dlg = document.getElementById('report-dialog')
+        const form = document.getElementById('report-form')
+        const radioUser = document.getElementById('report-radio-user')
+        const count = document.getElementById('report-count')
+
+        // 置中（讓 <dialog> 只當容器，外觀放在 form）
+        dlg.style.position = 'fixed'
+        dlg.style.top = '50%'; dlg.style.left = '50%'
+        dlg.style.transform = 'translate(-50%, -50%)'
+        dlg.style.padding = '0'
+        dlg.style.border = 'none'
+        dlg.style.background = 'transparent'
+        dlg.style.maxWidth = '96vw'
+        dlg.style.zIndex = '1000'
+
+        // ::backdrop（用 <style> 注入控制）
+        const style = document.createElement('style')
+        style.textContent = `
+    #report-dialog::backdrop{
+      backdrop-filter: blur(3px);
+      background: rgba(0,0,0,.60);
+    }`
+        document.head.appendChild(style)
+
+        // 字數計數（加防呆）
+        form.elements['reason'].addEventListener('input', e => {
+            if (count) count.textContent = String(e.target.value.length)
+        })
+
+        // 關閉時重置
+        dlg.addEventListener('close', () => form.reset())
+
+        const controller = {
+            open({ articleId, authorPersonId }) {
+                form.elements['articleId'].value = articleId || ''
+                form.elements['authorPersonId'].value = authorPersonId || ''
+                // 沒作者 id 就禁用「檢舉使用者」
+                const ru = radioUser.querySelector('input')
+                ru.disabled = !authorPersonId
+                radioUser.style.opacity = authorPersonId ? '1' : '.4'
+                form.elements['type'].value = 1
+                form.elements['reason'].value = ''
+                if (count) count.textContent = '0'
+                dlg.showModal()
+            },
+            submit(postJson) {
+                return new Promise((resolve, reject) => {
+                    form.onsubmit = async (e) => {
+                        e.preventDefault()
+
+                        // ⬅ 取消：一定要 resolve(false)，避免外層 await 卡住
+                        if (e.submitter && e.submitter.value === 'cancel') {
+                            dlg.close()
+                            return resolve(false)
+                        }
+
+                        const type = Number(form.elements['type'].value)
+                        const reason = (form.elements['reason'].value || '').trim()
+                        const articleId = form.elements['articleId'].value
+                        const authorPersonId = form.elements['authorPersonId'].value
+
+                        if (!(reason.length >= 1 && reason.length <= 500)) return alert('請輸入 1–500 字')
+                        if (type === 0 && !authorPersonId) return alert('找不到作者 Id，無法檢舉使用者')
+                        if (type === 1 && !articleId) return alert('找不到文章 Id')
+
+                        const payload = {
+                            type,
+                            targetId: type === 0 ? authorPersonId : articleId,
+                            reportedUserId: type === 1 ? authorPersonId : null,
+                            reason
+                        }
+
+                        try {
+                            const res = await postJson('/api/reports', payload)
+                            if (!res.ok) {
+                                try { const j = await res.json(); alert(j.message || '檢舉失敗') }
+                                catch { alert('檢舉失敗') }
+                                return reject(new Error('report failed'))
+                            }
+                            const data = await res.json()
+                            alert(data.message || '已收到你的檢舉，感謝回報！')
+                            dlg.close()
+                            resolve(true)
+                        } catch (err) {
+                            console.error('report submit failed', err)
+                            alert('檢舉失敗')
+                            reject(err)
+                        }
+                    }
+                })
+            }
+        }
+
+        dlg._controller = controller
+        return controller
+    }
+    // =========================================================================================
+
     /** 檢舉 */
+    /** 檢舉（只呼叫上面的 dialog，不再內嵌 template） */
     const openReport = async (articleId, authorPersonId, row = null) => {
         if (!(await checkAuth())) return false
 
         const resolvedAuthorId = resolveAuthorPersonId(row, authorPersonId)
+        const ui = createReportDialogIfNeed()
 
-        const typeInput = window.prompt('請選擇：0=檢舉使用者、1=檢舉文章', '1')
-        if (typeInput === null) return false
-        const type = Number(typeInput)
-        if (![0, 1].includes(type)) { alert('檢舉類型不正確'); return false }
+        const postJson = (url, body) => fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                ...(getToken() ? { Authorization: `Bearer ${getToken()}` } : {})
+            },
+            credentials: 'include',
+            body: JSON.stringify(body)
+        })
 
-        if (type === 0 && !resolvedAuthorId) {
-            console.debug('[report] row for debug =', row)
-            alert('找不到文章作者 Id（PersonId），無法送出「檢舉使用者」。')
-            return false
-        }
-
-        const payload = {
-            type,
-            targetId: type === 0 ? resolvedAuthorId : articleId,
-            reportedUserId: type === 1 ? resolvedAuthorId : null,
-            reason: (window.prompt('請輸入檢舉理由（1~500字）', '') || '').trim()
-        }
-        if (!payload.reason || payload.reason.length > 500) { alert('請輸入 1~500 字'); return false }
-
-        try {
-            const res = await fetch('/api/reports', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    ...(getToken() ? { Authorization: `Bearer ${getToken()}` } : {})
-                },
-                credentials: 'include',
-                body: JSON.stringify(payload)
-            })
-            const text = await res.text()
-            if (!res.ok) {
-                try { const j = JSON.parse(text); alert(j.message || '檢舉失敗') } catch { alert('檢舉失敗') }
-                return false
-            }
-            const data = JSON.parse(text || '{}')
-            alert(data.message || '已收到你的檢舉，感謝回報！')
-            return true
-        } catch (e) {
-            console.error('openReport failed:', e)
-            alert('檢舉失敗')
-            return false
-        }
+        ui.open({ articleId, authorPersonId: resolvedAuthorId })
+        try { await ui.submit(postJson); return true } catch { return false }
     }
 
     /** 統一的 stateFunc（自動把第二個參數當 payload 或 articleId；也會把 row（item）帶進去） */
