@@ -130,13 +130,16 @@ export function useCreatePost({ onCreated } = {}) {
     }
 
     const openModal = () => { 
-        showPostModal.value = true 
-        // 顯示元件
+        showPostModal.value = true
+        
+        // 移除防止 Vue 未載入時顯示的 display: none 樣式
         Vue.nextTick(() => {
-            const maskEl = document.querySelector('div[v-if="showPostModal"]:first-child')
-            const modalEl = document.querySelector('div[v-if="showPostModal"]:last-child')
-            if (maskEl) maskEl.style.display = ''
-            if (modalEl) modalEl.style.display = ''
+            const elementsToShow = document.querySelectorAll('*[style*="display: none"]')
+            elementsToShow.forEach((el) => {
+                if (el.classList.contains('z-[1000]') || el.classList.contains('z-[1010]')) {
+                    el.style.display = ''
+                }
+            })
         })
     }
     const closeModal = () => { 

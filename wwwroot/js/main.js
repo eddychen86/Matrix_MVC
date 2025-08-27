@@ -64,14 +64,14 @@ globalApp({
 
         // 初始化全域載入管理器
         const globalLoading = useGlobalLoading()
-        const { 
-            isLoading: globalIsLoading, 
-            pendingRequests, 
-            startLoading, 
-            finishLoading, 
-            fetch: managedFetch, 
-            withLoading, 
-            clearAll: clearAllLoading 
+        const {
+            isLoading: globalIsLoading,
+            pendingRequests,
+            startLoading,
+            finishLoading,
+            fetch: managedFetch,
+            withLoading,
+            clearAll: clearAllLoading
         } = globalLoading
 
         // 初始化用戶管理器
@@ -150,14 +150,14 @@ globalApp({
             unreadCount,
             currentConversation,
             isConnected,
-            
+
             // 聊天 Popup 狀態
             isChatPopupOpen,
             newMessage,
             openChatPopup,
             closeChatPopup,
             toggleChatPopup,
-            
+
             // 聊天方法
             sendMessage,
             loadConversation,
@@ -167,7 +167,7 @@ globalApp({
             searchMessages,
             handleSendMessage,
             formatMessageTime,
-            
+
             // SignalR 連接
             startConnection,
             stopConnection
@@ -287,7 +287,7 @@ globalApp({
         const Profile = LoadingPage(/^\/profile(?:\/|$)/i, useProfile)
         const Reply = (typeof useReply === 'function') ? useReply() : {}  // 全域載入，因為 ReplyPopup 在各頁面都會使用
         const About = LoadingPage(/^\/about(?:\/|$)/i, useAbout)
-        
+
         // TODO(human): 全域載入 CreatePost 組件，因為 CreatePostPopup 在各頁面都會使用
         const CreatePost = (typeof useCreatePost === 'function') ? useCreatePost() : {}
 
@@ -300,7 +300,7 @@ globalApp({
 
         // Global Methods
         window.toggleFunc = (show, type) => show ? openPopup(type) : closePopup()
-        
+
         // 暴露全域載入管理器到 window
         window.startLoading = startLoading
         window.finishLoading = finishLoading
@@ -315,6 +315,17 @@ globalApp({
             window.currentUser = currentUser
 
             await getCurrentUser()
+
+            // Vue 載入完成後，移除 CreatePostPopup 的 display: none 樣式
+            // 這是為了防止 Vue 未載入時視窗意外顯示的安全措施
+            setTimeout(() => {
+                const elementsWithDisplayNone = document.querySelectorAll('*[style*="display: none"]')
+                elementsWithDisplayNone.forEach((el) => {
+                    if (el.classList.contains('z-[1000]') || el.classList.contains('z-[1010]')) {
+                        el.style.display = ''
+                    }
+                })
+            }, 100)
 
             // 如果是首頁，初始化文章列表
             if (isHomePage) {
@@ -343,7 +354,15 @@ globalApp({
             globalIsLoading.value || postListLoading.value || popupLoading.value || searchLoading.value
         )
 
+
         return {
+            // Global state
+            isAppReady,
+            currentPath,
+            isHomePage,
+            isProfilePage,
+            isAboutPage,
+
             // 全域載入狀態管理
             globalIsLoading,
             pendingRequests,
@@ -357,7 +376,37 @@ globalApp({
             currentUser,
             getCurrentUser,
 
-            // 文章列表相關
+            // 搜尋相關
+            searchQuery,
+            manualSearch,
+            onSearchClick,
+            onHoverUser,
+            clearSearch,
+            manualFollowSearch,
+            goTag,
+            searchLoading,
+
+            // 彈窗管理
+            popupState,
+            popupData,
+            openPopup,
+            closePopup,
+            fetchFollows,
+            popupLoading,
+            getPopupTitle: popupManager.getPopupTitle,
+            isOpen: computed(() => popupState.isVisible),
+            closeCollectModal: closePopup,
+
+            // 好友管理
+            friends,
+            friendsLoading,
+            friendsTotal,
+            friendsStatus,
+            loadFriends,
+            changeFriendsStatus,
+            toggleFollow: handleToggleFollow,
+
+            // 文章管理
             posts,
             hasMorePosts,
             currentPage,
@@ -365,52 +414,24 @@ globalApp({
             loadPosts,
             setupInfiniteScroll,
             cleanupInfiniteScroll,
+            initializeHomePosts,
+            setupPostRefreshListener,
+            postListLoading,
             gotoUserPrpfile,
 
-            // 彈窗相關
-            popupState,
-            popupData,
-            isLoading,
-            getPopupTitle: popupManager.getPopupTitle,
-            openPopup,
-            closePopup,
-            fetchFollows,
-
-            // 向後相容
-            isOpen: computed(() => popupState.isVisible),
-            closeCollectModal: closePopup,
-            isAppReady,
-
-            // 搜尋相關
-            searchQuery,
-            onSearchClick,
-            manualFollowSearch,
-            goTag,
-            onHoverUser,
-            manualSearch,
-
-            // 好友相關
-            toggleFollow: handleToggleFollow,
-            // friends,
-            // friendsLoading,
-            // friendsTotal,
-            // friendsStatus,
-            // loadFriends,
-            // changeFriendsStatus,
-
-            // 聊天相關
+            // 聊天管理
             messages,
             conversations,
             unreadCount,
             currentConversation,
             isConnected,
-            
+
             // 聊天 Popup 控制
             isChatPopupOpen,
             openChatPopup,
             closeChatPopup,
             toggleChatPopup,
-            
+
             // 聊天方法
             newMessage,
             sendMessage,
@@ -421,10 +442,13 @@ globalApp({
             searchMessages,
             handleSendMessage,
             formatMessageTime,
-            
+
             // SignalR 連接
             startConnection,
             stopConnection,
+
+            // 合併 loading 狀態
+            isLoading,
 
             // hooks
             formatDate,
