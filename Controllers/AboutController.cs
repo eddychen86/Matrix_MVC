@@ -114,6 +114,7 @@ namespace Matrix.Controllers
                         },
                         pages = new string[] {
                             "「動態消息」頁面製作",
+                            "「發文」功能製作",
                             "「留言」功能製作",
                             "「好友列表（已棄用）」製作"
                         }

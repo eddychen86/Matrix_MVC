@@ -23,7 +23,7 @@ export const useChat = (currentUser) => {
         console.error("Receiver information is missing.");
         return;
     }
-    console.log(`Opening chat with:`, receiver);
+    // console.log(`Opening chat with:`, receiver);
     currentConversation.value = receiver;
     await loadConversation(receiver.userId);
     isChatPopupOpen.value = true;
@@ -66,7 +66,7 @@ export const useChat = (currentUser) => {
       const result = await response.json();
 
       
-      console.log('Message sent successfully:', result);
+      // console.log('Message sent successfully:', result);
       return result;
     } catch (error) {
       console.error('Failed to send message:', error);
@@ -77,7 +77,7 @@ export const useChat = (currentUser) => {
   // 載入對話記錄
   const loadConversation = async (userId, page = 1, pageSize = 50) => {
     try {
-        console.log(`Loading conversation with user ${userId}...`);
+        // console.log(`Loading conversation with user ${userId}...`);
         const response = await fetch(`/api/chat/history/${userId}?page=${page}&pageSize=${pageSize}`, {
           credentials: 'include'
         });
@@ -94,7 +94,7 @@ export const useChat = (currentUser) => {
           messages.value = [];
         }
         
-        console.log('Conversation loaded:', messages.value);
+        // console.log('Conversation loaded:', messages.value);
         
         // 加載完成後自動滚動到底部
         Vue.nextTick(() => {
@@ -191,7 +191,7 @@ export const useChat = (currentUser) => {
   // SignalR 連接
     const startConnection = async () => {
         if (connection && isConnected.value) {
-            console.log("SignalR connection already established.");
+            // console.log("SignalR connection already established.");
             return;
         }
         // 1. 建立 SignalR 連接
@@ -202,7 +202,7 @@ export const useChat = (currentUser) => {
 
         // 2. 定義接收訊息的事件監聽
         connection.on("ReceiveMessage", (message) => {
-            console.log("New message received from SignalR:", message);
+            // console.log("New message received from SignalR:", message);
 
             const currentUserId = currentUser?.userId;
             const otherUserId = currentConversation.value?.userId;
@@ -223,19 +223,19 @@ export const useChat = (currentUser) => {
             const currentUserLower = currentUserId.toLowerCase();
             const otherUserLower = otherUserId.toLowerCase();
 
-            console.log("Comparing IDs:", {
-                'Msg Sender': msgSenderLower,
-                'Msg Receiver': msgReceiverLower,
-                'Current User (Me)': currentUserLower,
-                'Other User (Chatting with)': otherUserLower
-            });
+            // console.log("Comparing IDs:", {
+            //     'Msg Sender': msgSenderLower,
+            //     'Msg Receiver': msgReceiverLower,
+            //     'Current User (Me)': currentUserLower,
+            //     'Other User (Chatting with)': otherUserLower
+            // });
 
             // 進行比對
             const isRelated = (msgSenderLower === currentUserLower && msgReceiverLower === otherUserLower) ||
                 (msgSenderLower === otherUserLower && msgReceiverLower === currentUserLower);
 
             if (isRelated) {
-                console.log("Message is related to the current conversation. Updating UI.");
+                // console.log("Message is related to the current conversation. Updating UI.");
                 messages.value.push(message);
                 scrollToBottom();
             } else {
@@ -248,7 +248,7 @@ export const useChat = (currentUser) => {
         try {
             await connection.start();
             isConnected.value = true;
-            console.log("SignalR Connected successfully.");
+            // console.log("SignalR Connected successfully.");
         } catch (err) {
             console.error("SignalR Connection failed: ", err);
             // 可設定延遲後重試
@@ -262,7 +262,7 @@ export const useChat = (currentUser) => {
             try {
                 await connection.stop();
                 isConnected.value = false;
-                console.log("SignalR Disconnected.");
+                // console.log("SignalR Disconnected.");
             } catch (err) {
                 console.error("Error stopping SignalR connection: ", err);
             }
