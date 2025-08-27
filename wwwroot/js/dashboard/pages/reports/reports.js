@@ -5,7 +5,9 @@ const { createApp, ref, reactive, computed, watch, onMounted, onUnmounted } = Vu
 window.mountReportsPage = function() {
   const app = createApp({
     setup() {
-      const isLoading = ref(true)
+          const isLoading = ref(true)
+          const selectedDate = ref(null) // 'YYYY-MM-DD' 或 null
+
       
       // 引入格式化功能
       const { formatDate, timeAgo } = useFormatting()
@@ -123,6 +125,17 @@ window.mountReportsPage = function() {
       }
       //#endregion
 
+     function clearCalendarUI() {
+         const callyEl = document.querySelector('calendar-date')
+         if (callyEl) {
+             callyEl.start = null
+             callyEl.end = null
+             // 部分版本有 value 屬性，保險起見一併清掉
+             try { if ('value' in callyEl) callyEl.value = '' } catch { }
+         }
+     }
+
+
       //#region 分頁功能
       function goPage(p) {
         if (typeof p !== 'number') return
@@ -158,7 +171,7 @@ window.mountReportsPage = function() {
               statusText = 'Processed'
             } else if (n === 2 || s === 'rejected' || s === 'reject' || s === 'denied') { // ✅ 新增：Rejected 分支
               statusCode = 2
-              statusText = 'Processed'
+              statusText = 'Rejected'
             }
 
               const pt = r.processTime ?? r.modifyTime ?? r.ProcessTime ?? r.ModifyTime ?? null
@@ -200,10 +213,13 @@ window.mountReportsPage = function() {
         const id = item.reportId
         if (!id) return
 
-        if (action !== 'process' && action !== 'reject') {
-          console.error('Invalid action:', action)
-          return
-        }
+          if (action === 'process') {
+              item.statusCode = 1
+              item.statusText = 'Processed'
+          } else if (action === 'reject') {
+              item.statusCode = 2
+              item.statusText = 'Rejected'
+          }
 
         if (rowBusy[id]) return
         rowBusy[id] = true
@@ -232,8 +248,7 @@ window.mountReportsPage = function() {
           const result = await res.json().catch(() => ({}))
 
           // ✅ 前端立即更新畫面
-          item.statusCode = 1
-          item.statusText = 'Processed'
+
 
           // ✅ 管理員名字：優先用後端回傳；其次用 resolverId 去查；最後用預設字樣
           if (result.resolverName) {
@@ -283,35 +298,49 @@ window.mountReportsPage = function() {
           // 設置清除日期按鈕事件
           const clearBtn = document.getElementById('btn-clear-date');
           if (clearBtn) {
-            clearBtn.addEventListener('click', () => {
-              from.value = '';
-              to.value = '';
-              // 如果有 cally 的話，同步清空 UI
-              const callyEl = document.querySelector('calendar-date');
-              if (callyEl) {
-                callyEl.start = null;
-                callyEl.end = null;
-              }
-              loadReports(); // 重新載入資料
-            })
+              clearBtn.addEventListener('click', () => {
+                  selectedDate.value = null
+                  from.value = null
+                  to.value = null
+                  clearCalendarUI()
+                  page.value = 1
+                  loadReports()
+              })
           }
 
-          // === Cally 單日：以 ModifyTime(ProcessTime) 篩選 ===
-          window.setReportDate = (val) => {
-            const v = String(val || '').trim()       // "YYYY-MM-DD"
-            from.value = v                            // 單日 → from = to
-            to.value = v
-            page.value = 1
-            loadReports()
-            document.getElementById('popover-date')?.hidePopover?.()
-          }
-          window.clearReportDate = () => {
-            from.value = null
-            to.value = null
-            page.value = 1
-            loadReports()
-            document.getElementById('popover-date')?.hidePopover?.()
-          }
+            // === Cally 單日：以 ModifyTime(ProcessTime) 篩選 ===
+            window.setReportDate = (val) => {
+                const v = String(val || '').trim() // "YYYY-MM-DD"
+
+                // 再按一次同一天 → 清除篩選
+                if (selectedDate.value === v) {
+                    selectedDate.value = null
+                    from.value = null
+                    to.value = null
+                    page.value = 1
+                    loadReports()
+                    clearCalendarUI()
+                } else {
+                    // 選到新的一天 → 套用單日篩選
+                    selectedDate.value = v
+                    from.value = v
+                    to.value = v
+                    page.value = 1
+                    loadReports()
+                }
+
+                document.getElementById('popover-date')?.hidePopover?.()
+            }
+
+            window.clearReportDate = () => {
+                selectedDate.value = null
+                from.value = null
+                to.value = null
+                page.value = 1
+                loadReports()
+                clearCalendarUI()
+                document.getElementById('popover-date')?.hidePopover?.()
+            }
 
           // 如果目前頁面存在 Reports 的容器，就自動載入
           if (document.getElementById('reports-app')) {
