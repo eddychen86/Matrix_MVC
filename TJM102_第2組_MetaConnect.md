@@ -1167,3 +1167,189 @@ erDiagram
 	Person||--o{Report:"makes"
 	Person||--o{Report:"resolves"
 ```
+
+# 資料庫結構說明
+
+以下為系統中各個資料表的詳細結構說明，包含欄位名稱、資料型別、預設值及欄位說明。
+
+## (一) Users 資料表
+**與其他表的關係：一對一 (Users → Persons)**
+
+| 欄位名稱 | 資料型別 | 預設值 | 欄位說明 |
+|---------|---------|--------|----------|
+| UserId | Guid | Guid.NewGuid() | 用戶的唯一識別碼
+| Role | int | 0 | 用戶的權限等級
+|  |  |  | 0表示一般用戶，其他值表示不同權限等級
+| UserName | string(50) | null | 用戶的顯示名稱，用於登入和顯示
+| Email | string(100) | null | 用戶的電子郵件地址，用於登入和通知
+| Password | string | null | 用戶的密碼（加密儲存）
+| PasswordConfirm | string | null | 確認密碼欄位，僅用於表單驗證
+|  |  |  | 不儲存到資料庫
+| Country | string | null | 用戶所在的國家
+| Gender | int | null | 用戶的性別，可能的值取決於系統設定
+| CreateTime | DateTime | DateTime.Now | 帳號的建立時間
+| LastLoginTime | DateTime | null | 用戶最後一次登入的時間
+| Status | int | 0 | 帳號狀態
+|  |  |  | 0表示未確認，1表示已確認，2表示被封禁
+| IsDelete | int | 0 | 軟刪除標記
+|  |  |  | 0表示未刪除，1表示已刪除
+| ForgotPwdToken | string | null | 忘記密碼令牌（加密存儲）
+
+## (二) Persons 資料表
+**與其他表的關係：一對一 (Users ← Persons)、一對多 (Persons → Articles, Replies, PraiseCollects, Follows, Notifications, Reports, NFTs)**
+
+| 欄位名稱 | 資料型別 | 預設值 | 欄位說明 |
+|---------|---------|--------|----------|
+| PersonId | Guid | Guid.NewGuid() | 個人資料的 ID
+| UserId | Guid | - | 關聯用戶的 UserId，外鍵連接到 Users
+| DisplayName | string(50) | null | 用戶的顯示名稱，最大長度為50個字元
+| Bio | string(300) | null | 用戶的個人簡介，最大長度為300個字元
+| AvatarPath | string(2048) | null | 用戶頭像的檔案路徑
+| BannerPath | string(2048) | null | 用戶個人頁面橫幅的檔案路徑
+| Website1 | string(2048) | null | 用戶的外部網站連結 1
+| Website2 | string(2048) | null | 用戶的外部網站連結 2
+| Website3 | string(2048) | null | 用戶的外部網站連結 3
+| IsPrivate | int | 0 | 用戶的隱私設定
+|  |  |  | 0表示公開，1表示私人
+| WalletAddress | string | null | 用戶的區塊鏈錢包地址
+| ModifyTime | DateTime | null | 個人資料的最後修改時間
+
+## (三) Articles 資料表
+**與其他表的關係：多對一 (Articles ← Persons)、一對多 (Articles → Replies, PraiseCollects, ArticleAttachments)、多對多 (Articles ↔ Hashtags through ArticleHashtag)**
+
+| 欄位名稱 | 資料型別 | 預設值 | 欄位說明 |
+|---------|---------|--------|----------|
+| ArticleId | Guid | Guid.NewGuid() | 文章的 ID
+| AuthorId | Guid | - | 文章作者的 PersonId
+| Content | string(4000) | - | 文章的內容文字
+| IsPublic | int | 0 | 文章的公開狀態
+|  |  |  | 0表示公開，1表示私人
+| Status | int | 0 | 文章的狀態
+|  |  |  | 0表示正常，其他值表示不同狀態（如刪除、審核中等）
+| CreateTime | DateTime | - | 文章的建立時間
+| PraiseCount | int | 0 | 文章獲得的讚數量
+| CollectCount | int | 0 | 文章被收藏的次數
+| RowVersion | byte[] | - | 併發控制版本號，用於樂觀鎖定
+
+## (四) Hashtags 資料表
+**與其他表的關係：多對多 (Hashtags ↔ Articles through ArticleHashtag)**
+
+| 欄位名稱 | 資料型別 | 預設值 | 欄位說明 |
+|---------|---------|--------|----------|
+| TagId | Guid | Guid.NewGuid() | 標籤的唯一識別碼
+| Content | string(10) | - | 標籤的文字內容，最大長度為10個字元
+| Status | int | 0 | 標籤的狀態
+|  |  |  | 0表示正常，其他值表示不同狀態
+
+## (五) ArticleHashtag 資料表
+**與其他表的關係：多對多中間表 (Articles ↔ Hashtags)**
+
+| 欄位名稱 | 資料型別 | 預設值 | 欄位說明 |
+|---------|---------|--------|----------|
+| ArticleId | Guid | - | 關聯文章的 ID，作為複合主鍵的一部分
+| TagId | Guid | - | 關聯標籤的唯一識別碼
+|  |  |  | 作為複合主鍵的一部分
+
+## (六) ArticleAttachments 資料表
+**與其他表的關係：多對一 (ArticleAttachments ← Articles)**
+
+| 欄位名稱 | 資料型別 | 預設值 | 欄位說明 |
+|---------|---------|--------|----------|
+| FileId | Guid | Guid.NewGuid() | 附件檔案的 ID
+| ArticleId | Guid | - | 關聯文章的 ArticleId
+| FilePath | string | "" | 附件檔案的儲存路徑
+| Type | string | "" | 附件的類型，例如 "image" 或 "file"
+| FileName | string | null | 附件的原始檔案名稱
+| MimeType | string | null | 附件的MIME類型
+|  |  |  | 用於確定檔案的格式和類型
+
+## (七) Replies 資料表
+**與其他表的關係：多對一 (Replies ← Persons, Replies ← Articles)**
+
+| 欄位名稱 | 資料型別 | 預設值 | 欄位說明 |
+|---------|---------|--------|----------|
+| ReplyId | Guid | Guid.NewGuid() | 回覆的唯一識別碼
+| UserId | Guid | - | 發表回覆的 UserId
+| ArticleId | Guid | - | 被回覆的 ArticleId
+| Content | string(1000) | - | 回覆的內容文字，最大長度為1000個字元
+| ReplyTime | DateTime | - | 回覆的發表時間
+
+## (八) PraiseCollects 資料表
+**與其他表的關係：多對一 (PraiseCollects ← Persons, PraiseCollects ← Articles)**
+
+| 欄位名稱 | 資料型別 | 預設值 | 欄位說明 |
+|---------|---------|--------|----------|
+| EventId | Guid | Guid.NewGuid() | 讚或收藏事件的 ID
+| Type | int | - | 操作類型
+|  |  |  | 例如：0表示讚，1表示收藏
+| UserId | Guid | - | 執行操作的 UserId
+| ArticleId | Guid | - | 被讚或收藏的 ArticleId
+| CreateTime | DateTime | - | 操作的建立時間
+
+## (九) Follows 資料表
+**與其他表的關係：多對一 (Follows ← Persons)**
+
+| 欄位名稱 | 資料型別 | 預設值 | 欄位說明 |
+|---------|---------|--------|----------|
+| FollowId | Guid | Guid.NewGuid() | 關注記錄的唯一識別碼
+| UserId | Guid | - | 關注者的 UserId
+| FollowedId | Guid | - | 被關注對象的 UserId
+| Type | int | - | 關注類型，用於區分不同種類的關注關係
+|  |  |  | 0: 文章、1: 使用者
+| FollowTime | DateTime | - | 關注的時間
+
+## (十) Notifications 資料表
+**與其他表的關係：多對一 (Notifications ← Persons x2)**
+
+| 欄位名稱 | 資料型別 | 預設值 | 欄位說明 |
+|---------|---------|--------|----------|
+| NotifyId | Guid | Guid.NewGuid() | 通知的 ID
+| GetId | Guid | - | 接收通知的 UserId
+| SendId | Guid | - | 發送通知的 UserId
+| Type | int | - | 通知的類型，用於區分不同種類的通知
+|  |  |  | 0表示文章留言，1表示使用者私信
+| IsRead | int | 0 | 通知的閱讀狀態
+|  |  |  | 0表示未讀，1表示已讀
+| SentTime | DateTime | - | 通知發送的時間
+| IsReadTime | DateTime | null | 通知被閱讀的時間
+
+## (十一) Reports 資料表
+**與其他表的關係：多對一 (Reports ← Persons x2)**
+
+| 欄位名稱 | 資料型別 | 預設值 | 欄位說明 |
+|---------|---------|--------|----------|
+| ReportId | Guid | Guid.NewGuid() | 舉報的唯一識別碼
+| ReporterId | Guid | - | 提交舉報的 UserId
+| TargetId | Guid | - | 被舉報的 ArticleId / UserId
+| Type | int | - | 舉報的類型，用於區分不同種類的舉報
+| Reason | string(500) | - | 舉報的原因說明，最大長度為500個字元
+| Status | int | 0 | 舉報的處理狀態
+|  |  |  | 0表示待處理，其他值表示不同處理狀態
+| ResolverId | Guid | null | 處理舉報的 Admin UserId
+| ProcessTime | DateTime | null | 舉報的處理時間
+
+## (十二) Messages 資料表
+**與其他表的關係：多對一 (Messages ← Persons)**
+
+| 欄位名稱 | 資料型別 | 預設值 | 欄位說明 |
+|---------|---------|--------|----------|
+| MsgId | Guid | Guid.NewGuid() | 訊息的唯一識別碼
+| SentId | Guid | - | 發送訊息的 UserId
+| ReceiverId | Guid | - | 接收訊息的 UserId
+| Content | string(300) | - | 訊息內容，最大長度為300個字元
+| CreateTime | DateTime | DateTime.Now | 發送時間
+| IsRead | int | 0 | 是否已讀
+|  |  |  | 0: 未讀, 1: 已讀
+
+## (十三) NFTs 資料表
+**與其他表的關係：多對一 (NFTs ← Persons)**
+
+| 欄位名稱 | 資料型別 | 預設值 | 欄位說明 |
+|---------|---------|--------|----------|
+| NftId | Guid | Guid.NewGuid() | NFT ID
+| OwnerId | Guid | - | 擁有者 ID（PersonId）
+| FileName | string | "" | NFT 名稱
+| FilePath | string | "" | 檔案儲存路徑
+| CollectTime | DateTime | - | NFT 購買時間（不是系統新增時間）
+| Currency | string | "" | 幣別
+| Price | decimal | - | 價格
