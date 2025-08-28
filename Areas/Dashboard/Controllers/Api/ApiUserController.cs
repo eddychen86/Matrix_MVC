@@ -50,7 +50,7 @@ namespace Matrix.Areas.Dashboard.Controllers.Api
 
             var users = query
                 .OrderByDescending(u => u.CreateTime)
-                .Where(w => w.Role == 0)    // role 為 1、2 的使用者在 ConfigController 中管理
+                .Where(w => w.Role == 0 && w.IsDelete == 0)    // role 為 1、2 的使用者在 ConfigController 中管理，且只顯示未刪除的用戶
                 .Select(u => new UserDto
                 {
                     UserId = u.UserId,
@@ -68,18 +68,21 @@ namespace Matrix.Areas.Dashboard.Controllers.Api
 
         //Delete
         [HttpDelete("{id}")]
-
         public async Task<IActionResult> DeleteUser(Guid id)
         {
             try
             {
-                var deleteuser = await _context.Users.FindAsync(id);
+                var deleteuser = await _context.Users
+                    .FirstOrDefaultAsync(u => u.UserId == id && u.IsDelete == 0);
+                
                 if (deleteuser == null)
                 {
-                    return NotFound();
+                    return NotFound(new { message = "找不到指定的用戶或該用戶已被刪除" });
                 }
 
-                _context.Users.Remove(deleteuser);
+                // 軟刪除：將 IsDelete 欄位設為 1，Status 設為 2（被封禁）
+                deleteuser.IsDelete = 1;
+                deleteuser.Status = 2;
                 await _context.SaveChangesAsync();
 
                 return NoContent();

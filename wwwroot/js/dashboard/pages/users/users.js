@@ -186,7 +186,7 @@ window.mountUsersPage = function () {
             const deleteUser = (id) => {
                 if (!confirm("你確定要刪除嗎?要不要再考慮一下")) return;
 
-                fetch(`/api/ApiUser/${id}`, {
+                fetch(`/api/DB_Users/${id}`, {
                     method: 'DELETE'
                 })
                     .then(response => {
