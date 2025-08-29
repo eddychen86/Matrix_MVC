@@ -372,12 +372,6 @@ export function useCreatePost({ onCreated } = {}) {
         }
     }
 
-
-    // onMounted(() => {
-    //     const btn = document.querySelector('#openPostBtn')
-    //     if (btn) btn.addEventListener('click', openModal, { once: false })
-    // })
-
     return {
         postContent, showPostModal, showHashtagModal,
         allHashtags, selectedHashtags, tempSelectedIds,

@@ -8,69 +8,37 @@
     </style>
 }
 
-    <!-- 遮罩 -->
-<div v-if="showPostModal" class="fixed inset-0 z-[1000] bg-white opacity-20" style="display:none;"></div>
+<div v-if="!showPostModal" class="fixed top-0 left-0 w-screen h-screen z-50">
+    <div class="relative h-full w-full">
+        <!-- 遮罩 -->
+        <div class="h-full w-full bg-white/30"></div>
 
-<!-- 編輯發文容器 -->
-<div v-if="showPostModal" class="fixed inset-0 z-[1010] flex items-center justify-center" style="display:none;">
-    <div class="relative flex overflow-hidden overflow-y-auto max-h-[800px] min-h-[450px] w-[600px] flex-col rounded-[15px] bg-[#161616] p-6 pt-[70px]">
-        <!-- 頭像和名字 -->
-        @* <img src="@ViewBag.CurrentUser.Avatar"
-             class="absolute top-[25px] left-[24px] h-[32px] w-[34px] rounded-[24px] object-cover object-center"
-             alt="@ViewBag.CurrentUser.DisplayName" />
-        <div class="absolute top-[30px] left-[69px] text-white text-[18px] font-['Roboto'] font-normal leading-[22px]">
-            @ViewBag.CurrentUser.DisplayName
-        </div>*@
-        <button v-on:click="closeModal" class="absolute top-[22px] right-[24px] h-[32px] w-[32px] text-white hover:text-gray-300">
-            <svg viewBox="0 0 24 24" class="h-full w-full fill-current">
-                <path d="M6 6 L18 18 M6 18 L18 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
-            </svg> 
-        </button>
-
-        <!-- 主要內容 -->
-        <div class="flex flex-1 flex-col gap-4 pt-[10px] pb-[90px] text-black">
-            <div>
-                <ckeditor ref="ckeditor" v-model="postContent" :editor="ClassicEditor" :config="editorConfig" @@ready="onEditorReady" class="ck_cts"></ckeditor>
+        <!-- 編輯發文容器 -->
+        <div class="absolute z-[60] top-1/2 left-1/2 -translate-1/2 h-[800px] w-[600px] bg-[#161616] rounded-[30px] overflow-hidden p-6">
+            <!-- 使用者 -->
+            <div class="flex gap-2 items-center">
+                <img :src="" class="h-10 w-10 rounded-full object-cover object-center" />
+                <h3 class="text-white subTitle">{{  }}</h3>
             </div>
 
-            <!-- 圖片預覽區域 -->
-            <div class="flex flex-wrap items-end gap-2">
-                <div v-for="(img, index) in selectedImages"
-                     :key="index"
-                     class="relative h-20 w-20 shrink-0 overflow-hidden rounded">
-                    <img :src="safeURL(img)" :alt="img.name" class="h-full w-full object-cover" />
+            <!-- 文字編輯器 -->
+            @* <ckeditor /> *@
+
+            <!-- 附件 -->
+            <div class="flex gap-2 items-center">
+                <div v-for="(img, index) in selectedImages" class="relative shrink-0 overflow-hidden">
+                    <img :src="safeURL(img)" :alt="img.name" class="h-20 w-20 rounded-md object-cover" />
                     <button type="button"
                             v-on:click="removeImage(index)"
-                            class="absolute top-0 right-0 z-10 rounded-full bg-black/60 p-1 text-white hover:bg-black/80 focus:ring-2"
-                            style="position:absolute; top:0; right:0;">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14"
-                             viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                             stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                             class="lucide lucide-x">
-                            <path d="M18 6 6 18" />
-                            <path d="m6 6 12 12" />
-                        </svg>
+                            class="absolute top-0 right-0 z-10 rounded-full bg-black/60 p-1 text-white hover:bg-black/80 focus:ring-2">
+                        <i data-lucide="x" class="h-5 w-5"></i>
                     </button>
                 </div>
             </div>
-
-            <!-- 檔案預覽區域 -->
-            <div class="flex flex-wrap items-end gap-2">
-                <div v-for="(file, index) in selectedFiles"
-                     :key="index"
-                     class="relative w-[60px] shrink-0 rounded-[12px] bg-white/5 p-1"
-                     :title="file.name">
-                    <button type="button"
-                            v-on:click="removeFile(index)"
-                            class="absolute top-0 right-0 z-10 rounded-full bg-black/60 p-[2px] text-white hover:bg-black/80 focus:ring-2"
-                            style="position:absolute; top:0; right:0;">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12"
-                             viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                             stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                             class="lucide lucide-x">
-                            <path d="M18 6 6 18" />
-                            <path d="m6 6 12 12" />
-                        </svg>
+            <div class="flex gap-2 items-center">
+                <div v-for="(file, index) in selectedFiles" :key="index" :title="file.name" class="relative w-[60px] shrink-0 rounded-[12px] bg-white/5 p-1">
+                    <button type="button" v-on:click="removeFile(index)" class="absolute top-0 right-0 z-10 rounded-full bg-black/60 p-[2px] text-white hover:bg-black/80 focus:ring-2">
+                        <i data-lucide="x" class="h-5 w-5"></i>
                     </button>
                     <div class="flex h-[40px] w-full items-center justify-center rounded-[10px] bg-white">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 24 24">
@@ -80,74 +48,28 @@
                             </path>
                         </svg>
                     </div>
-                    <span class="mt-1 block max-w-full text-center break-words text-[11px]">
+                    <span class="mt-1 block max-w-full text-center break-words para">
                         {{ truncateFilename(file.name) }}
                     </span>
                 </div>
             </div>
-        </div>
 
-        <!-- hashtag顯示區 + 三個小按鈕 + 送出 -->
-        <div class="flex w-full flex-col px-6 pb-6">
-            <div class="mb-2 flex flex-wrap gap-2">
-                <div class="mb-2 flex max-h-[72px] flex-wrap gap-2 overflow-y-auto">
-                    <span v-for="t in selectedHashtags" :key="t.tagId"
-                          class="min-h-[32px] min-w-[40px] rounded-full bg-[#ffda78] px-3 py-1 text-[14px] text-[#333]">
-                        {{ t.content }}
-                    </span>
-                </div>
-            </div>
-
-            <input type="file" ref="fileInput" class="hidden" multiple @@change="handleFileChange" />
-
-            <div class="flex items-end justify-between">
+            <!-- 底部按鈕 -->
+            <div class="flex items-center justify-between">
                 <div class="flex gap-3">
-                    <button type="button" v-on:click="setFileInput('file')"
-                            class="h-[32px] w-[32px] text-[#a2a2a2] hover:text-[#c2c2c2]">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-[24px] w-[24px] fill-current" viewBox="0 0 24 24">
-                            <path d="M0 0h24v24H0z" fill="none"></path>
-                            <path d="M16.5 6v11.5c0 2.21-1.79 4-4 4s-4-1.79-4-4V5a2.5 2.5 0 0 1 5 0v10.5c0 .55-.45 1-1 1s-1-.45-1-1V6H10v9.5a2.5 2.5 0 0 0 5 0V5c0-2.21-1.79-4-4-4S7 2.79 7 5v12.5c0 3.04 2.46 5.5 5.5 5.5s5.5-2.46 5.5-5.5V6h-1.5z"></path>
-                        </svg>
+                    <button type="button" v-on:click="setFileInput('file')">
+                        <i data-lucide="paperclip" class="size-8 text-[#a2a2a2] hover:text-[#c2c2c2]"></i>
                     </button>
-                    <button type="button" v-on:click="setFileInput('image')"
-                            class="h-[32px] w-[32px] text-[#ff7f3e] hover:text-[#ff9f66]">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-[24px] w-[24px] fill-current" viewBox="0 0 24 24">
-                            <path d="M0 0h24v24H0z" fill="none"></path>
-                            <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"></path>
-                        </svg>
+                    <button type="button" v-on:click="setFileInput('image')">
+                        <i data-lucide="image" class="size-8 text-[#ff7f3e] hover:text-[#ff9f66]"></i>
                     </button>
-                    <button type="button" v-on:click="openHashtagModal"
-                            class="h-[32px] w-[32px] text-[#ffda78] hover:text-[#ffe8a8]">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-[24px] w-[24px] fill-current" viewBox="0 0 448 512">
-                            <path d="M48 32H197.5C214.5 32 230.7 38.74 242.7 50.75L418.7 226.7C443.7 251.7 443.7 292.3 418.7 317.3L285.3 450.7C260.3 475.7 219.7 475.7 194.7 450.7L18.75 274.7C6.743 262.7 0 246.5 0 229.5V80C0 53.49 21.49 32 48 32L48 32zM112 176C129.7 176 144 161.7 144 144C144 126.3 129.7 112 112 112C94.33 112 80 126.3 80 144C80 161.7 94.33 176 112 176z"></path>
-                        </svg>
+                    <button type="button" v-on:click="openHashtagModal">
+                        <i data-lucide="tag" class="size-8 text-[#ffda78] hover:text-[#ffe8a8]"></i>
                     </button>
                 </div>
-                <button v-on:click="submitPost" class="flex h-[50px] w-[50px] items-center justify-center rounded-[32px] border-0 bg-[#2a629a] text-white hover:bg-[#3476bd]">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="h-[24px] w-[24px] fill-current text-white">
-                        <path d="M0 0h24v24H0z" fill="none" />
-                        <path d="M2.01 21 23 12 2.01 3 2 10l15 2-15 2z" />
-                    </svg>
+                <button v-on:click="submitPost" class="size-16 flex items-center justify-center rounded-full bg-blue-700  hover:bg-blue-900">
+                    <i data-lucide="send-horizontal" class="text-white size-10"></i>
                 </button>
-            </div>
-        </div>
-
-        <!-- hashtag Modal -->
-        <div v-if="showHashtagModal" class="fixed inset-0 z-[1020] flex items-center justify-center bg-black/40">
-            <div style="height: 500px; width: 350px;" class="flex flex-col rounded-xl bg-[#161616] p-4 text-white shadow-lg">
-                <h3 class="mb-4 text-xl font-semibold">選擇 Hashtag</h3>
-                <div class="mb-4 flex-1 overflow-y-auto">
-                    <label v-for="tag in allHashtags" :key="tag.tagId" class="mb-2 block cursor-pointer">
-                        <input type="checkbox"
-                               :checked="tempSelectedIds.has(String(tag.tagId))"
-                               @@change ="toggleTempTag(tag, $event)" />
-                        {{ tag.content }}
-                    </label>
-                </div>
-                <div class="flex justify-end gap-2">
-                    <button v-on:click="confirmHashtagModal" class="rounded bg-blue-500 px-4 py-1 text-white">確定</button>
-                    <button v-on:click="cancelHashtagModal" class="rounded bg-gray-500 px-4 py-1 text-white">取消</button>
-                </div>
             </div>
         </div>
     </div>
