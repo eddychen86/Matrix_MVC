@@ -33,7 +33,16 @@ export function useCreatePost({ onCreated } = {}) {
                 'undo', 'redo'
             ]
         },
-
+        // 設定編輯器高度和滾動
+        ui: {
+            viewportOffset: {
+                top: 0,
+                right: 0,
+                bottom: 0,
+                left: 0
+            }
+        },
+        
         removePlugins: [
             // 'ImageUpload',
             'CKFinder', 'CKFinderUploadAdapter',
@@ -60,10 +69,8 @@ export function useCreatePost({ onCreated } = {}) {
         // 外框 (含工具列)
         editor.ui.view.element.classList.add('my-editor-frame');
 
-        // 內容區（真正輸入的地方）
+        // 內容區（真正輸入的地方）- 移除高度相關 class，讓 CSS 控制
         editor.ui.view.editable.element.classList.add(
-            'min-h-[150px]',
-            'max-h-[467px]',
             'rounded-[10px]',
             'bg-transparent'
         );

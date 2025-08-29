@@ -22,6 +22,12 @@
 **關鍵字**: Vue, 組件, 屬性, 跨頁面, 全域載入  
 **相關檔案**: `main.js`, `home.js`, `*.cshtml`
 
+### 問題 3: CKEditor 自訂樣式被覆蓋且 overflow 無效
+**檔案**: [`ckeditor-style.md`](./ckeditor-style.md)  
+**描述**: 解決 CKEditor 自訂樣式被預設樣式覆蓋及滾動控制問題  
+**關鍵字**: CKEditor, CSS, 樣式覆蓋, overflow, 權重, !important  
+**相關檔案**: Views/Shared/Components/CreatePostPopup/Default.cshtml
+
 ---
 
 ## 🔍 快速搜尋
@@ -29,12 +35,14 @@
 - **服務物件相關**: 問題 1
 - **解構賦值相關**: 問題 2
 - **Vue 組件相關**: 問題 18
+- **CKEditor 相關**: 問題 3
 - **函數調用錯誤**: 問題 1
 - **屬性未定義**: 問題 18
 - **TypeError**: 問題 2
+- **CSS 樣式覆蓋**: 問題 3
 
 ## 📊 統計
 
-- **總問題數**: 3
-- **已解決**: 3
-- **最後更新**: 2025-08-25
+- **總問題數**: 4
+- **已解決**: 4
+- **最後更新**: 2025-08-29

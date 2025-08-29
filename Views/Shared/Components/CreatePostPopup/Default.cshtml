@@ -1,9 +1,19 @@
-﻿    <!-- 遮罩 -->
+﻿@section Styles {
+    <style>
+        .ck.ck-editor__editable[role="textbox"] {
+            min-height: 130px !important;
+            max-height: 480px !important;
+            overflow-y: auto !important;
+        }
+    </style>
+}
+
+    <!-- 遮罩 -->
 <div v-if="showPostModal" class="fixed inset-0 z-[1000] bg-white opacity-20" style="display:none;"></div>
 
 <!-- 編輯發文容器 -->
 <div v-if="showPostModal" class="fixed inset-0 z-[1010] flex items-center justify-center" style="display:none;">
-    <div class="relative flex max-h-[800px] min-h-[450px] w-[600px] flex-col rounded-[15px] bg-[#161616] p-6 pt-[70px]">
+    <div class="relative flex overflow-hidden overflow-y-auto max-h-[800px] min-h-[450px] w-[600px] flex-col rounded-[15px] bg-[#161616] p-6 pt-[70px]">
         <!-- 頭像和名字 -->
         @* <img src="@ViewBag.CurrentUser.Avatar"
              class="absolute top-[25px] left-[24px] h-[32px] w-[34px] rounded-[24px] object-cover object-center"
@@ -19,14 +29,9 @@
 
         <!-- 主要內容 -->
         <div class="flex flex-1 flex-col gap-4 pt-[10px] pb-[90px] text-black">
-            <ckeditor ref="ckeditor"
-                        v-model="postContent"
-                        :editor="ClassicEditor"
-                        :config="editorConfig"
-                        @@ready="onEditorReady"
-                        @* class="max-h-[467px] min-h-[150px] w-full rounded-[10px] bg-transparent" *@
-            >
-            </ckeditor>
+            <div>
+                <ckeditor ref="ckeditor" v-model="postContent" :editor="ClassicEditor" :config="editorConfig" @@ready="onEditorReady" class="ck_cts"></ckeditor>
+            </div>
 
             <!-- 圖片預覽區域 -->
             <div class="flex flex-wrap items-end gap-2">

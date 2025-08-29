@@ -12,7 +12,7 @@
     <title>Matrix</title>
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/components.css" asp-append-version="true" />
-    
+    @await RenderSectionAsync("Styles", required: false)
     <!-- 防止 Vue 載入前的閃爍 -->
     <style>
         
