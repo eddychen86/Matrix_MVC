@@ -82,6 +82,12 @@ export class PostListService {
 
                 isPraised: !!a.isPraised,
                 isCollected: !!a.isCollected,
+                hashtags: Array.isArray(a.hashtags)
+                    ? a.hashtags.map(t => ({
+                        tagId: t.tagId || t.TagId,
+                        name: t.name || t.Name
+                    }))
+                    : [],
                 
                 // ✅ 頭像錯誤狀態追蹤
                 _avatarError: [],

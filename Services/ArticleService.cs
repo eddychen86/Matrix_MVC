@@ -185,33 +185,54 @@ namespace Matrix.Services
         {
             try
             {
-                Console.WriteLine($"GetArticlesAsync called - Page: {page}, PageSize: {pageSize}, AuthorId: {authorId}");
-
-                var query = BuildArticleQuery(searchKeyword, authorId, status, onlyPublic, dateFrom, dateTo);
-                Console.WriteLine($"Query built successfully");
+                 var query = BuildArticleQuery(searchKeyword, authorId, status, onlyPublic, dateFrom, dateTo);
 
                 var totalCount = await query.CountAsync();
-                Console.WriteLine($"Total count: {totalCount}");
 
+                // 直接用 Select 投影 -> 避免 N+1，且把 Hashtags/Attachments/Author 一次帶回
                 var articles = await query
                     .OrderByDescending(a => a.CreateTime)
                     .Skip((page - 1) * pageSize)
                     .Take(pageSize)
+                    .Select(a => new ArticleDto
+                    {
+                        ArticleId = a.ArticleId,
+                        AuthorId = a.AuthorId,
+                        Content = a.Content,
+                        IsPublic = a.IsPublic,
+                        Status = a.Status,
+                        CreateTime = a.CreateTime,
+                        PraiseCount = a.PraiseCount,
+                        CollectCount = a.CollectCount,
+
+                        Author = a.Author == null ? null : new PersonDto
+                        {
+                            PersonId = a.Author.PersonId,
+                            UserId = a.Author.UserId,
+                            DisplayName = a.Author.DisplayName,
+                            AvatarPath = a.Author.AvatarPath
+                        },
+
+                        Attachments = a.Attachments!.Select(att => new ArticleAttachmentDto
+                        {
+                            FileId = att.FileId,
+                            FilePath = att.FilePath,
+                            FileName = att.FileName,
+                            Type = att.Type
+                        }).ToList(),
+
+                        Hashtags = a.ArticleHashtags!
+                            .Where(ah => ah.Hashtag != null)
+                            .Select(ah => new HashtagDto
+                            {
+                                TagId = ah.TagId,
+                                Name = ah.Hashtag!.Content
+                            }).ToList()
+                    })
+                    .AsNoTracking()
                     .ToListAsync();
 
-                Console.WriteLine($"Articles fetched: {articles.Count}");
-
-                var articleDtos = _mapper.Map<List<ArticleDto>>(articles);
-                Console.WriteLine($"Articles mapped successfully: {articleDtos.Count}");
-
-                // 載入文章附件
-                foreach (var articleDto in articleDtos)
-                {
-                    var attachments = await _attachmentRepository.GetByArticleIdAsync(articleDto.ArticleId);
-                    articleDto.Attachments = _mapper.Map<List<ArticleAttachmentDto>>(attachments);
-                }
-
-                return (articleDtos, totalCount);
+                return (articles, totalCount);
             }
             catch (Exception ex)
             {

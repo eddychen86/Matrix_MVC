@@ -198,7 +198,7 @@ namespace Matrix.Controllers.Api
                         // 直接用集合判斷
                         isPraised = currentPersonId.HasValue && praisedSet.Contains(a.ArticleId),
                         isCollected = currentPersonId.HasValue && collectedSet.Contains(a.ArticleId),
-                        hashtags = a.Hashtags ?? []
+                        hashtags = a.Hashtags ?? new List<HashtagDto>()
                     }).ToList(),
                     totalCount
                 };
