@@ -20,4 +20,10 @@ namespace Matrix.ViewModels
         public string Click { get; set; } = string.Empty;
         public string Key { get; set; } = string.Empty; // 用於路由的英文鍵值
     }
+
+    public class CreatePostPopupViewModel
+    {
+        public string UserName { get; set; } = string.Empty;
+        public string UserImg { get; set; } = string.Empty;
+    }
 }

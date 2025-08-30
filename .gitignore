@@ -25,6 +25,8 @@ tailwindcss
 ###############
 wwwroot/css/*
 !wwwroot/css/tailwind.css
+!wwwroot/css/ckeditor.css
+!wwwroot/css/customVue.css
 wwwroot/lib/*
 !wwwroot/lib/jquery*
 !wwwroot/lib/daisyui*

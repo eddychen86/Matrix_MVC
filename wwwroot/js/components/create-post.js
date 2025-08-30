@@ -1,7 +1,7 @@
 import { postListService } from './PostListService.js'
 
 export function useCreatePost({ onCreated } = {}) {
-    const { ref, reactive } = Vue
+    const { ref, reactive, computed } = Vue
 
     const URL_API = (typeof window !== 'undefined')
         ? (window.URL || window.webkitURL || null)
@@ -22,81 +22,17 @@ export function useCreatePost({ onCreated } = {}) {
     const maxSize = 5 * 1024 * 1024
     const maxTags = 6
 
-    const ClassicEditor = window.ClassicEditor
-    const editorConfig = reactive({
-        placeholder: 'Write your post here...',
-        toolbar: {
-            items: [
-                'heading', '|',
-                'bold', 'italic', 'link', '|',
-                'bulletedList', 'numberedList', 'blockQuote', '|',
-                'undo', 'redo'
-            ]
-        },
-        // 設定編輯器高度和滾動
-        ui: {
-            viewportOffset: {
-                top: 0,
-                right: 0,
-                bottom: 0,
-                left: 0
-            }
-        },
-        
-        removePlugins: [
-            // 'ImageUpload',
-            'CKFinder', 'CKFinderUploadAdapter',
-            'CKBox', 'EasyImage',
-            'AutoImage', 'ImageInsert',
-            'MediaEmbed', 'MediaEmbedToolbar'
-        ]
-    })
-
+    // 備用的 htmlToText 函數，當 ckEditorManager 未初始化時使用
     function htmlToText(html) {
-        const el = document.createElement('div');
-        el.innerHTML = html || '';
+        const el = document.createElement('div')
+        el.innerHTML = html || ''
         const withBreaks = el.innerHTML
             .replace(/<\/p>\s*<p>/gi, '\n\n')
             .replace(/<br\s*\/?>/gi, '\n')
-            .replace(/<\/?p[^>]*>/gi, '');
-        el.innerHTML = withBreaks;
-        return el.textContent || '';
+            .replace(/<\/?p[^>]*>/gi, '')
+        el.innerHTML = withBreaks
+        return el.textContent || ''
     }
-
-    function onEditorReady(editor) {
-
-
-        // 外框 (含工具列)
-        editor.ui.view.element.classList.add('my-editor-frame');
-
-        // 內容區（真正輸入的地方）- 移除高度相關 class，讓 CSS 控制
-        editor.ui.view.editable.element.classList.add(
-            'rounded-[10px]',
-            'bg-transparent'
-        );
-
-        editor.editing.view.document.on('clipboardInput', (evt, data) => {
-            const dt = data.dataTransfer
-            if (dt && (dt.files?.length || 0) > 0) {
-                evt.stop()
-            }
-        })
-
-        const editable = editor.ui.getEditableElement()
-        if (!editable) return
-
-        editable.addEventListener('dragover', (e) => {
-            const hasFile = Array.from(e.dataTransfer?.items || []).some(i => i.kind === 'file')
-            if (hasFile) e.preventDefault()
-        })
-
-        editable.addEventListener('drop', (e) => {
-            if ((e.dataTransfer?.files?.length || 0) > 0) {
-                e.preventDefault()
-            }
-        })
-    }
-
 
     function truncateFilename(name) {
         const hasChinese = /[^\x00-\x7F]/.test(name)
@@ -136,26 +72,25 @@ export function useCreatePost({ onCreated } = {}) {
         if (fileInput.value) fileInput.value.value = ''
     }
 
-    const openModal = () => { 
+    const openModal = async () => { 
         showPostModal.value = true
         
-        // 移除防止 Vue 未載入時顯示的 display: none 樣式
-        Vue.nextTick(() => {
-            const elementsToShow = document.querySelectorAll('*[style*="display: none"]')
-            elementsToShow.forEach((el) => {
-                if (el.classList.contains('z-[1000]') || el.classList.contains('z-[1010]')) {
-                    el.style.display = ''
+        // 確保 ckEditorManager 已初始化
+        if (!window.ckEditorManager) {
+            try {
+                const { createCKEditor } = await import('/js/components/ckeditor5.js')
+                if (typeof createCKEditor === 'function') {
+                    window.ckEditorManager = createCKEditor()
+                    console.log('CKEditor 管理器已在開啟彈窗時初始化')
                 }
-            })
-        })
+            } catch (error) {
+                console.error('CKEditor 管理器初始化失敗:', error)
+            }
+        }
+        
+        // Vue 的 v-if 會自動控制顯示狀態，不需要手動移除 display: none
     }
     const closeModal = () => { 
-        // 隱藏元件
-        const maskEl = document.querySelector('div[v-if="showPostModal"]:first-child')
-        const modalEl = document.querySelector('div[v-if="showPostModal"]:last-child')
-        if (maskEl) maskEl.style.display = 'none'
-        if (modalEl) modalEl.style.display = 'none'
-        
         resetPostModal(); 
         showPostModal.value = false 
     }
@@ -294,7 +229,9 @@ export function useCreatePost({ onCreated } = {}) {
         if (!postContent.value.trim()) { alert('文章內容不得為空'); return }
 
         const formData = new FormData()
-        formData.append('Content', htmlToText(postContent.value))
+        // 優先使用 ckEditorManager 中的 htmlToText，否則使用備用函數
+        const textConverter = window.ckEditorManager?.htmlToText || htmlToText
+        formData.append('Content', textConverter(postContent.value))
         formData.append('IsPublic', '0')
         selectedImages.value.forEach(f => formData.append('Attachments', f))
         selectedFiles.value.forEach(f => formData.append('Attachments', f))
@@ -372,6 +309,7 @@ export function useCreatePost({ onCreated } = {}) {
         }
     }
 
+
     return {
         postContent, showPostModal, showHashtagModal,
         allHashtags, selectedHashtags, tempSelectedIds,
@@ -381,7 +319,13 @@ export function useCreatePost({ onCreated } = {}) {
         toggleTempTag,
         setFileInput, handleFileChange, submitPost,
         truncateFilename, safeURL,
-        ClassicEditor, editorConfig, onEditorReady,
-        htmlToText, removeImage, removeFile, afterCreated
+        
+        removeImage, removeFile, afterCreated,
+        
+        // TODO(human): CKEditor 相關屬性需要暴露給模板使用
+        // 從 window.ckEditorManager 獲取，如果不存在則提供預設值
+        ClassicEditor: computed(() => window.ckEditorManager?.ClassicEditor || window.ClassicEditor || null),
+        editorConfig: computed(() => window.ckEditorManager?.editorConfig || null),
+        onEditorReady: computed(() => window.ckEditorManager?.onEditorReady || (() => {}))
     }
 }

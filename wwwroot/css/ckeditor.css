@@ -1,0 +1,55 @@
+:root {
+  /* UI 主要顏色覆蓋 */
+  --ck-color-base-foreground: hsl(255, 3%, 18%) !important;
+  --ck-color-base-background: hsl(270, 1%, 29%) !important;
+  --ck-color-base-border: hsl(240, 4%, 24%) !important;
+  --ck-color-focus-border: hsl(208, 90%, 62%) !important;
+  --ck-color-shadow-drop: hsla(0, 0%, 0%, 0.2) !important;
+  --ck-color-shadow-inner: hsla(0, 0%, 0%, 0.1) !important;
+  --ck-content-font-color: hsl(0, 0%, 98%) !important;
+  --ck-color-text: hsl(0, 0%, 98%) !important;
+
+  /* 按鈕、工具列等（可依喜好調整） */
+  --ck-color-button-default-hover-background: hsl(270, 1%, 22%) !important;
+  --ck-color-button-on-background: var(--ck-custom-foreground) !important;
+  --ck-color-toolbar-border: var(--ck-custom-border) !important;
+  --ck-color-tooltip-background: hsl(252, 7%, 14%) !important;
+  --ck-color-tooltip-text: hsl(0, 0%, 93%) !important;
+
+  /* 內容區塊內的細節（程式碼框、連結等） */
+  --ck-content-color-image-caption-background: hsl(0, 0%, 97%) !important;
+  --ck-content-color-image-caption-text: hsl(0, 0%, 20%) !important;
+  --ck-color-link-default: hsl(190, 100%, 75%) !important;
+}
+
+/* 內容背景與文字對比 */
+.ck.ck-editor__main > .ck-editor__editable,
+.ck-content {
+  background: #1b1b1b !important;
+  color: var(--ck-content-font-color) !important;
+}
+
+.ck-content a {
+    color: hsl(210, 100%, 63%) !important;
+}
+.ck-content pre {
+    color: #e8e8e8 !important;
+    border-color: #c4c4c4 !important;
+}
+
+/* 編輯器主容器 */
+.ck.ck-editor {
+    max-height: 300px !important;
+}
+
+/* 文字編輯區域 */
+.ck.ck-editor__editable_inline,
+.ck.ck-editor__editable {
+    min-height: 200px !important;
+    max-height: 250px !important;
+    height: 200px !important;
+    overflow-y: auto !important;
+    resize: none !important;
+    color: #ffffff !important;
+    background: transparent !important;
+}

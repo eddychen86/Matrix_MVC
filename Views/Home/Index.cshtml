@@ -78,9 +78,10 @@
         await Component.InvokeAsync("FriendsList")
     </aside>
 -->
+@if (ViewBag.IsAuthenticated) {
+    @* Create Post Popup Component *@
+    @await Component.InvokeAsync("CreatePostPopup")
 
-@* Create Post Popup Component *@
-@await Component.InvokeAsync("CreatePostPopup")
-
-<!-- 留言視窗 -->
-@await Component.InvokeAsync("ReplyPopup")
+    <!-- 留言視窗 -->
+    @await Component.InvokeAsync("ReplyPopup")
+}

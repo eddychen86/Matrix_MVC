@@ -5,6 +5,7 @@ import { useProfile } from '/js/pages/profile/profile.js'
 import { useAbout } from '/js/pages/about/about.js'
 import { useReply } from '/js/components/reply.js'
 import { useCreatePost } from '/js/components/create-post.js'
+import { createCKEditor } from '/js/components/ckeditor5.js'
 import loginPopupManager from '/js/auth/login-popup.js'
 import { useGlobalLoading } from '/js/utils/loadingManager.js'
 
@@ -26,10 +27,18 @@ const globalApp = content => {
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', () => {
                 const app = Vue.createApp(content)
-                // 配置警告處理器來忽略 script/style 標籤警告
+                // 配置警告處理器來忽略特定警告
                 app.config.warnHandler = (msg) => {
-                    if (msg.includes('Tags with side effect') && msg.includes('are ignored in client component templates')) {
-                        return // 忽略這類警告
+                    // 忽略常見的無害警告
+                    const ignoredWarnings = [
+                        'Tags with side effect',
+                        'are ignored in client component templates',
+                        'CKEditor',
+                        'ClassicEditor'
+                    ]
+                    
+                    if (ignoredWarnings.some(warning => msg.includes(warning))) {
+                        return // 忽略這些警告
                     }
                     console.warn(msg)
                 }
@@ -40,10 +49,18 @@ const globalApp = content => {
         } else {
             // DOM 已經載入完成
             const app = Vue.createApp(content)
-            // 配置警告處理器來忽略 script/style 標籤警告
+            // 配置警告處理器來忽略特定警告
             app.config.warnHandler = (msg) => {
-                if (msg.includes('Tags with side effect') && msg.includes('are ignored in client component templates')) {
-                    return // 忽略這類警告
+                // 忽略常見的無害警告
+                const ignoredWarnings = [
+                    'Tags with side effect',
+                    'are ignored in client component templates',
+                    'CKEditor',
+                    'ClassicEditor'
+                ]
+                
+                if (ignoredWarnings.some(warning => msg.includes(warning))) {
+                    return // 忽略這些警告
                 }
                 console.warn(msg)
             }
@@ -57,7 +74,7 @@ window.loginPopupManager = loginPopupManager
 
 globalApp({
     setup() {
-        const { ref, computed, onMounted } = Vue
+        const { ref, computed, onMounted, watch } = Vue
         const { formatDate, timeAgo } = useFormatting()
 
         //#region 模組化管理器初始化
@@ -106,12 +123,6 @@ globalApp({
             openArticle,       // 👈 想要從其他地方直接開文章彈窗時可用（可選）
             backFromArticle,
         } = popupManager
-
-        // 重新設定搜尋服務的 popupData 和 popupState
-        setPopupData(popupData, popupState)
-
-        // 設置搜尋監聽器
-        setupSearchWatcher(fetchFollows)
 
         // 初始化好友管理器
         const friendsManager = useFriendsManager(currentUser)
@@ -172,6 +183,12 @@ globalApp({
             startConnection,
             stopConnection
         } = chatManager
+
+        // 重新設定搜尋服務的 popupData 和 popupState
+        setPopupData(popupData, popupState)
+
+        // 設置搜尋監聽器
+        setupSearchWatcher(fetchFollows)
 
         // 將 openChatPopup 暴露到全局，以便從非 Vue 環境調用
         window.openChatPopupGlobal = openChatPopup
@@ -249,8 +266,6 @@ globalApp({
             })
         })
 
-
-
         onMounted(() => {
             isAppReady.value = true
 
@@ -288,8 +303,11 @@ globalApp({
         const Reply = (typeof useReply === 'function') ? useReply() : {}  // 全域載入，因為 ReplyPopup 在各頁面都會使用
         const About = LoadingPage(/^\/about(?:\/|$)/i, useAbout)
 
-        // TODO(human): 全域載入 CreatePost 組件，因為 CreatePostPopup 在各頁面都會使用
+        // 全域載入 CreatePost 組件，因為 CreatePostPopup 在各頁面都會使用
         const CreatePost = (typeof useCreatePost === 'function') ? useCreatePost() : {}
+        
+        // CKEditor 管理器
+        let ckEditorManager = null
 
         //#endregion
 
@@ -316,16 +334,24 @@ globalApp({
 
             await getCurrentUser()
 
-            // Vue 載入完成後，移除 CreatePostPopup 的 display: none 樣式
-            // 這是為了防止 Vue 未載入時視窗意外顯示的安全措施
-            setTimeout(() => {
-                const elementsWithDisplayNone = document.querySelectorAll('*[style*="display: none"]')
-                elementsWithDisplayNone.forEach((el) => {
-                    if (el.classList.contains('z-[1000]') || el.classList.contains('z-[1010]')) {
-                        el.style.display = ''
+            // 如果在 Home 頁面且有 CreatePost 模組，監聽 showPostModal 狀態
+            if (isHomePage && CreatePost.showPostModal) {
+                watch(CreatePost.showPostModal, (newValue) => {
+                    if (newValue && !ckEditorManager && typeof createCKEditor === 'function') {
+                        try {
+                            // 當 showPostModal 為 true 且尚未初始化 CKEditor 時，創建實例
+                            ckEditorManager = createCKEditor()
+                            // 將 CKEditor 管理器暴露到全域
+                            window.ckEditorManager = ckEditorManager
+                            console.log('CKEditor 管理器已初始化並暴露到全域')
+                        } catch (error) {
+                            console.error('CKEditor 管理器初始化失敗:', error)
+                        }
                     }
-                })
-            }, 100)
+                }, { immediate: true })
+            }
+
+            // Vue 的 v-if 指令會自動控制彈窗的顯示狀態
 
             // 如果是首頁，初始化文章列表
             if (isHomePage) {
@@ -334,25 +360,14 @@ globalApp({
                 setupPostRefreshListener()
             }
 
-            // 若頁面包含好友列表區塊，載入好友
-            // if (document.querySelector('.friends-list')) {
-            //     loadFriends(1, 20, null, friendsStatus.value)
-            // }
-
             // 初始化 Lucide icons，確保 SSR 載入的組件圖標能正常顯示
-            if (typeof lucide !== 'undefined' && lucide.createIcons) {
-                lucide.createIcons()
-            }
+            if (typeof lucide !== 'undefined' && lucide.createIcons) lucide.createIcons()
         })
 
         //#endregion
 
-        // console.log('✅ setup() 成功初始化，searchQuery =', searchQuery.value)
-
         // 合併所有loading狀態 - 使用全域載入管理器
-        const isLoading = computed(() =>
-            globalIsLoading.value || postListLoading.value || popupLoading.value || searchLoading.value
-        )
+        const isLoading = computed(() => globalIsLoading.value || postListLoading.value || popupLoading.value || searchLoading.value)
 
 
         return {
@@ -454,17 +469,20 @@ globalApp({
             formatDate,
             timeAgo,
 
+            // 讓模板可以用 <div @click="goArticle(id)">
+            goArticle,
+            openArticle,
+            backFromArticle,
+            
+            // CKEditor 管理器
+            ckEditorManager,
+            
             // 頁面組件
             ...Menu,
             ...Profile,
             ...Home,
             ...About,
             ...Reply,
-
-            // 🔥 讓模板可以用 <div @click="goArticle(id)">
-            goArticle,
-            openArticle,
-            backFromArticle,
             ...CreatePost
         }
     }

@@ -1,31 +1,38 @@
-﻿@section Styles {
-    <style>
-        .ck.ck-editor__editable[role="textbox"] {
-            min-height: 130px !important;
-            max-height: 480px !important;
-            overflow-y: auto !important;
-        }
-    </style>
-}
+@model Matrix.ViewModels.CreatePostPopupViewModel
 
-<div v-if="!showPostModal" class="fixed top-0 left-0 w-screen h-screen z-50">
+<div v-if="showPostModal" class="fixed top-0 left-0 w-screen h-screen z-50">
     <div class="relative h-full w-full">
         <!-- 遮罩 -->
         <div class="h-full w-full bg-white/30"></div>
 
         <!-- 編輯發文容器 -->
-        <div class="absolute z-[60] top-1/2 left-1/2 -translate-1/2 h-[800px] w-[600px] bg-[#161616] rounded-[30px] overflow-hidden p-6">
-            <!-- 使用者 -->
-            <div class="flex gap-2 items-center">
-                <img :src="" class="h-10 w-10 rounded-full object-cover object-center" />
-                <h3 class="text-white subTitle">{{  }}</h3>
+        <div class="absolute z-[60] top-1/2 left-1/2 -translate-1/2 max-h-[800px] w-[600px] bg-[#161616] rounded-[30px] overflow-hidden p-6 flex flex-col gap-8">
+            <div class="flex justify-between">
+                <!-- 使用者 -->
+                <div class="flex gap-2 items-center">
+                    <img src="@Model.UserImg" class="h-10 w-10 rounded-full object-cover object-center" />
+                    <h3 class="text-white subTitle">@Model.UserName</h3>
+                </div>
+
+                <button v-on:click="closeModal" class="cursor-pointer">
+                    <i data-lucide="x" class="size-8 text-red-300"></i>
+                </button>
             </div>
 
+
             <!-- 文字編輯器 -->
-            @* <ckeditor /> *@
+            <div class="max-h-[300px] h-full overflow-y-auto rounded-md text-white">
+                <ckeditor
+                    ref="ckeditor"
+                    v-model="postContent"
+                    :editor="ClassicEditor"
+                    :config="editorConfig"
+                    @@ready="onEditorReady"
+                ></ckeditor>
+            </div>
 
             <!-- 附件 -->
-            <div class="flex gap-2 items-center">
+            <div class="flex gap-2 items-center" v-if="selectedImages.length > 0">
                 <div v-for="(img, index) in selectedImages" class="relative shrink-0 overflow-hidden">
                     <img :src="safeURL(img)" :alt="img.name" class="h-20 w-20 rounded-md object-cover" />
                     <button type="button"
@@ -35,7 +42,7 @@
                     </button>
                 </div>
             </div>
-            <div class="flex gap-2 items-center">
+            <div class="flex gap-2 items-center" v-if="selectedFiles.length > 0">
                 <div v-for="(file, index) in selectedFiles" :key="index" :title="file.name" class="relative w-[60px] shrink-0 rounded-[12px] bg-white/5 p-1">
                     <button type="button" v-on:click="removeFile(index)" class="absolute top-0 right-0 z-10 rounded-full bg-black/60 p-[2px] text-white hover:bg-black/80 focus:ring-2">
                         <i data-lucide="x" class="h-5 w-5"></i>
@@ -57,21 +64,38 @@
             <!-- 底部按鈕 -->
             <div class="flex items-center justify-between">
                 <div class="flex gap-3">
-                    <button type="button" v-on:click="setFileInput('file')">
+                    <button type="button" v-on:click="setFileInput('file')" class="cursor-pointer">
                         <i data-lucide="paperclip" class="size-8 text-[#a2a2a2] hover:text-[#c2c2c2]"></i>
                     </button>
-                    <button type="button" v-on:click="setFileInput('image')">
+                    <button type="button" v-on:click="setFileInput('image')" class="cursor-pointer">
                         <i data-lucide="image" class="size-8 text-[#ff7f3e] hover:text-[#ff9f66]"></i>
                     </button>
-                    <button type="button" v-on:click="openHashtagModal">
+                    <button type="button" v-on:click="openHashtagModal" class="cursor-pointer">
                         <i data-lucide="tag" class="size-8 text-[#ffda78] hover:text-[#ffe8a8]"></i>
                     </button>
                 </div>
-                <button v-on:click="submitPost" class="size-16 flex items-center justify-center rounded-full bg-blue-700  hover:bg-blue-900">
-                    <i data-lucide="send-horizontal" class="text-white size-10"></i>
+                <button v-on:click="submitPost" class="cursor-pointer h-16 w-16 flex items-center justify-center rounded-full bg-blue-700  hover:bg-blue-900">
+                    <i data-lucide="send-horizontal" class="text-white size-8"></i>
                 </button>
             </div>
         </div>
+    </div>
+</div>
+
+<div v-if="showHashtagModal" class="fixed inset-0 z-[1020] flex items-center justify-center bg-black/40">
+    <div style="height: 500px; width: 350px;" class="flex flex-col rounded-xl bg-[#161616] p-4 text-white shadow-lg">
+      <h3 class="mb-4 text-xl font-semibold">選擇 Hashtag</h3>
+      <div class="mb-4 flex-1 overflow-y-auto">
+        <label v-for="tag in allHashtags" :key="tag.tagId" class="mb-2 block cursor-pointer">
+          <input type="checkbox" :checked="tempSelectedIds.has(String(tag.tagId))"
+            @@change="toggleTempTag(tag, $event)" />
+          {{ tag.content }}
+        </label>
+      </div>
+      <div class="flex justify-end gap-2">
+        <button v-on:click="confirmHashtagModal" class="rounded bg-blue-500 px-4 py-1 text-white">確定</button>
+        <button v-on:click="cancelHashtagModal" class="rounded bg-gray-500 px-4 py-1 text-white">取消</button>
+      </div>
     </div>
 </div>
 
