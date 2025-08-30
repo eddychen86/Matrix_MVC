@@ -1,5 +1,5 @@
 export const createCKEditor = () => {
-  const { ref, reactive, onMounted, onBeforeUnmount } = Vue
+  const { ref, reactive } = Vue
 
   const editorHost = ref(null)           // 編輯器掛載的 DOM
   const editorInstance = ref(null)       // 保存 editor 實例
@@ -30,7 +30,6 @@ export const createCKEditor = () => {
     },
     // Lark Theme 相關設定
     language: 'zh-tw',
-    
     removePlugins: [
       'CKFinder', 'CKFinderUploadAdapter',
       'CKBox', 'EasyImage',
@@ -102,12 +101,14 @@ export const createCKEditor = () => {
     })
   }
 
-  onMounted(async () => {
-    if (!editorHost.value) return
+  const initEditor = async (hostElement) => {
+    if (!hostElement) return
     if (!ClassicEditor) {
       console.warn('ClassicEditor 未載入，跳過 CKEditor 初始化')
       return
     }
+
+    editorHost.value = hostElement
 
     // 建一個可編輯元素，避免在 .cshtml 寫任何參數
     const mountPoint = document.createElement('div')
@@ -145,13 +146,14 @@ export const createCKEditor = () => {
     } catch (error) {
       console.error('CKEditor 初始化失敗:', error)
     }
-  })
+  }
 
-  onBeforeUnmount(() => {
+  const destroyEditor = () => {
     if (editorInstance.value) {
       editorInstance.value.destroy().catch(() => {})
+      editorInstance.value = null
     }
-  })
+  }
 
   return { 
     editorHost, 
@@ -161,7 +163,9 @@ export const createCKEditor = () => {
     ClassicEditor, 
     editorConfig, 
     onEditorReady, 
-    htmlToText 
+    htmlToText,
+    initEditor,
+    destroyEditor
   }
 }
 

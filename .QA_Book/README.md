@@ -38,12 +38,13 @@
 - 問題 3: CKEditor 自訂樣式被覆蓋且 overflow 無效 → `ckeditor-style.md`
 - 問題 18: Vue 組件屬性跨頁面可用性問題 → `comp-prop.md`
 
-### Vue.js (5 個問題)
+### Vue.js (6 個問題)
 - 問題 6: Vue 3 響應式物件重置錯誤 → `react-rst.md`
 - 問題 7: Vue 元件屬性未定義錯誤 → `prop-undef.md`
 - 問題 11: Vue v-model 使用可選鏈結運算子導致錯誤 → `vmodel-opt.md`
 - 問題 12: 配置管理頁面 v-for 優化 → `config-vfor.md`
 - 問題 18: 組件屬性跨頁面可用性 → `cross-page.md`
+- 問題 23: CKEditor Vue 3 生命週期函數調用錯誤 → `ckeditor-lifecycle.md`
 
 ### ASP.NET Core (12 個問題)
 - 問題 2: Claims 資訊調試 → `claims-dbg.md`
@@ -90,11 +91,11 @@
 
 ## 📊 統計資訊
 
-- **總問題數量**: 24 個
+- **總問題數量**: 25 個
 - **程式語言**: JavaScript, C#
 - **框架技術**: Vue.js, ASP.NET Core
 - **工具系統**: Git
-- **最後更新**: 2025-08-29
+- **最後更新**: 2025-08-30
 - **版本**: v2.2 (新增 NuGet 跨平台問題解決方案)
 
 ## 🔄 從原版本遷移

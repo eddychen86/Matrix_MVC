@@ -244,7 +244,7 @@ public class CreateArticleDto
     /// 驗證：必填，長度限制 1-4000 個字元
     /// </summary>
     [Required(ErrorMessage = "Article_ContentRequired")]
-    [StringLength(4000, MinimumLength = 1, ErrorMessage = "Article_ContentLength1To4000")]
+    [StringLength(4000, MinimumLength = 1)]
     public string Content { get; set; } = string.Empty;
 
     /// <summary>

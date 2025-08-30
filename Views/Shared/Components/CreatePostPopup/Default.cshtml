@@ -6,8 +6,10 @@
         <div class="h-full w-full bg-white/30"></div>
 
         <!-- 編輯發文容器 -->
-        <div class="absolute z-[60] top-1/2 left-1/2 -translate-1/2 max-h-[800px] w-[600px] bg-[#161616] rounded-[30px] overflow-hidden p-6 flex flex-col gap-8">
+        <div
+            class="absolute z-[60] top-1/2 left-1/2 -translate-1/2 max-h-[800px] w-[600px] bg-[#161616] rounded-[30px] overflow-hidden p-6 flex flex-col gap-8">
             <div class="flex justify-between">
+
                 <!-- 使用者 -->
                 <div class="flex gap-2 items-center">
                     <img src="@Model.UserImg" class="h-10 w-10 rounded-full object-cover object-center" />
@@ -19,45 +21,49 @@
                 </button>
             </div>
 
-
             <!-- 文字編輯器 -->
             <div class="max-h-[300px] h-full overflow-y-auto rounded-md text-white">
-                <ckeditor
-                    ref="ckeditor"
-                    v-model="postContent"
-                    :editor="ClassicEditor"
-                    :config="editorConfig"
-                    @@ready="onEditorReady"
-                ></ckeditor>
+                <ckeditor ref="ckeditor" v-model="postContent" :editor="ClassicEditor" :config="editorConfig"
+                    @@ready="onEditorReady"></ckeditor>
             </div>
+            <p itemid="wordCount"></p>
 
             <!-- 附件 -->
             <div class="flex gap-2 items-center" v-if="selectedImages.length > 0">
                 <div v-for="(img, index) in selectedImages" class="relative shrink-0 overflow-hidden">
                     <img :src="safeURL(img)" :alt="img.name" class="h-20 w-20 rounded-md object-cover" />
-                    <button type="button"
-                            v-on:click="removeImage(index)"
-                            class="absolute top-0 right-0 z-10 rounded-full bg-black/60 p-1 text-white hover:bg-black/80 focus:ring-2">
-                        <i data-lucide="x" class="h-5 w-5"></i>
+                    <button type="button" v-on:click="removeImage(index)">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M18 6 6 18" />
+                            <path d="m6 6 12 12" />
+                        </svg>
                     </button>
                 </div>
             </div>
-            <div class="flex gap-2 items-center" v-if="selectedFiles.length > 0">
-                <div v-for="(file, index) in selectedFiles" :key="index" :title="file.name" class="relative w-[60px] shrink-0 rounded-[12px] bg-white/5 p-1">
-                    <button type="button" v-on:click="removeFile(index)" class="absolute top-0 right-0 z-10 rounded-full bg-black/60 p-[2px] text-white hover:bg-black/80 focus:ring-2">
-                        <i data-lucide="x" class="h-5 w-5"></i>
-                    </button>
-                    <div class="flex h-[40px] w-full items-center justify-center rounded-[10px] bg-white">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 24 24">
-                            <path fill="none" d="M0 0h24v24H0z"></path>
-                            <path fill="currentColor"
-                                  d="m20.41 8.41-4.83-4.83c-.37-.37-.88-.58-1.41-.58H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V9.83c0-.53-.21-1.04-.59-1.42zM7 7h7v2H7V7zm10 10H7v-2h10v2zm0-4H7v-2h10v2z">
-                            </path>
+            <div class="grid grid-cols-3 gap-2 items-center" v-if="selectedFiles.length > 0">
+                <div v-for="(file, index) in selectedFiles" :key="index" :title="file.name"
+                    class="col-span-1 rounded-[12px] bg-white/30 p-2 flex items-center justify-between">
+                    <span class="break-words para">{{ truncateFilename(file.name) }}</span>
+                    <button type="button" v-on:click="removeFile(index)" class="cursor-pointer">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M18 6 6 18" />
+                            <path d="m6 6 12 12" />
                         </svg>
-                    </div>
-                    <span class="mt-1 block max-w-full text-center break-words para">
-                        {{ truncateFilename(file.name) }}
-                    </span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 選中的 Hashtags -->
+            <div class="flex flex-wrap gap-2 items-center" v-if="selectedHashtags.length > 0">
+                <div v-for="(tag, index) in selectedHashtags" :key="tag.tagId"
+                    class="rounded-full bg-[#ffda78] px-3 py-1 text-sm text-[#333] flex items-center gap-1">
+                    <span>{{ tag.content }}</span>
+                    <button type="button" v-on:click="removeHashtag(index)"
+                        class="cursor-pointer h-6 w-6 flex items-center justify-center text-stone-900">
+                        <i data-lucide="x" class="h-3 w-3"></i>
+                    </button>
                 </div>
             </div>
 
@@ -74,29 +80,34 @@
                         <i data-lucide="tag" class="size-8 text-[#ffda78] hover:text-[#ffe8a8]"></i>
                     </button>
                 </div>
-                <button v-on:click="submitPost" class="cursor-pointer h-16 w-16 flex items-center justify-center rounded-full bg-blue-700  hover:bg-blue-900">
+                <button v-on:click="submitPost"
+                    class="cursor-pointer h-16 w-16 flex items-center justify-center rounded-full bg-blue-700  hover:bg-blue-900">
                     <i data-lucide="send-horizontal" class="text-white size-8"></i>
                 </button>
             </div>
+
         </div>
     </div>
 </div>
 
 <div v-if="showHashtagModal" class="fixed inset-0 z-[1020] flex items-center justify-center bg-black/40">
     <div style="height: 500px; width: 350px;" class="flex flex-col rounded-xl bg-[#161616] p-4 text-white shadow-lg">
-      <h3 class="mb-4 text-xl font-semibold">選擇 Hashtag</h3>
-      <div class="mb-4 flex-1 overflow-y-auto">
-        <label v-for="tag in allHashtags" :key="tag.tagId" class="mb-2 block cursor-pointer">
-          <input type="checkbox" :checked="tempSelectedIds.has(String(tag.tagId))"
-            @@change="toggleTempTag(tag, $event)" />
-          {{ tag.content }}
-        </label>
-      </div>
-      <div class="flex justify-end gap-2">
-        <button v-on:click="confirmHashtagModal" class="rounded bg-blue-500 px-4 py-1 text-white">確定</button>
-        <button v-on:click="cancelHashtagModal" class="rounded bg-gray-500 px-4 py-1 text-white">取消</button>
-      </div>
+        <h3 class="mb-4 text-xl font-semibold">選擇 Hashtag</h3>
+        <div class="mb-4 flex-1 overflow-y-auto">
+            <label v-for="tag in allHashtags" :key="tag.tagId" class="mb-2 block cursor-pointer">
+                <input type="checkbox" :checked="tempSelectedIds.has(String(tag.tagId))"
+                    @@change="toggleTempTag(tag, $event)" />
+                {{ tag.content }}
+            </label>
+        </div>
+        <div class="flex justify-end gap-2">
+            <button v-on:click="confirmHashtagModal" class="rounded bg-blue-500 px-4 py-1 text-white">確定</button>
+            <button v-on:click="cancelHashtagModal" class="rounded bg-gray-500 px-4 py-1 text-white">取消</button>
+        </div>
     </div>
 </div>
+
+<!-- 隱藏的檔案上傳輸入框 -->
+<input ref="fileInput" type="file" multiple style="display: none;" @@change="handleFileChange" />
 
 @* JavaScript is now loaded from ~/js/pages/home/create-post.js *@

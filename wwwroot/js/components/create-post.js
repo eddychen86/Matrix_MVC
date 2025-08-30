@@ -1,7 +1,7 @@
 import { postListService } from './PostListService.js'
 
 export function useCreatePost({ onCreated } = {}) {
-    const { ref, reactive, computed } = Vue
+    const { ref, reactive, computed, onMounted, onBeforeUnmount } = Vue
 
     const URL_API = (typeof window !== 'undefined')
         ? (window.URL || window.webkitURL || null)
@@ -54,7 +54,7 @@ export function useCreatePost({ onCreated } = {}) {
     }
 
     function revokeAllPreviews() {
-        ;[...selectedImages.value, ...selectedFiles.value].forEach(f => {
+        [...selectedImages.value, ...selectedFiles.value].forEach(f => {
             if (f && f.__previewURL && URL_API?.revokeObjectURL) {
                 try { URL_API.revokeObjectURL(f.__previewURL) } catch { }
                 f.__previewURL = null
@@ -72,24 +72,6 @@ export function useCreatePost({ onCreated } = {}) {
         if (fileInput.value) fileInput.value.value = ''
     }
 
-    const openModal = async () => { 
-        showPostModal.value = true
-        
-        // 確保 ckEditorManager 已初始化
-        if (!window.ckEditorManager) {
-            try {
-                const { createCKEditor } = await import('/js/components/ckeditor5.js')
-                if (typeof createCKEditor === 'function') {
-                    window.ckEditorManager = createCKEditor()
-                    console.log('CKEditor 管理器已在開啟彈窗時初始化')
-                }
-            } catch (error) {
-                console.error('CKEditor 管理器初始化失敗:', error)
-            }
-        }
-        
-        // Vue 的 v-if 會自動控制顯示狀態，不需要手動移除 display: none
-    }
     const closeModal = () => { 
         resetPostModal(); 
         showPostModal.value = false 
@@ -113,6 +95,12 @@ export function useCreatePost({ onCreated } = {}) {
         await fetchHashtags()
         tempSelectedIds.value = new Set(selectedHashtags.value.map(t => String(t.tagId)))
         showHashtagModal.value = true
+        
+        // 等待 DOM 更新後初始化 Lucide icons
+        await Vue.nextTick()
+        if (typeof window.lucide?.createIcons === 'function') {
+            window.lucide.createIcons()
+        }
     }
     const cancelHashtagModal = () => { showHashtagModal.value = false }
     const confirmHashtagModal = () => {
@@ -121,6 +109,7 @@ export function useCreatePost({ onCreated } = {}) {
             alert(`最多只能選擇${maxTags}個標籤`)
             return
         }
+
         selectedHashtags.value = allHashtags.value.filter(t => set.has(String(t.tagId)))
         showHashtagModal.value = false
     }
@@ -150,6 +139,7 @@ export function useCreatePost({ onCreated } = {}) {
             ? 'image/*'
             : '.pdf,.docx,.doc,.ppt,.pptx,.xls,.xlsx,.txt,.zip,.rar'
         fileInput.value.click()
+
         return true
     }
 
@@ -225,8 +215,16 @@ export function useCreatePost({ onCreated } = {}) {
         selectedFiles.value.splice(index, 1);
     }
 
+    function removeHashtag(index) {
+        selectedHashtags.value.splice(index, 1);
+    }
+
     async function submitPost() {
         if (!postContent.value.trim()) { alert('文章內容不得為空'); return }
+        if (postContent.value.replace('<p>', '').replace('</p>', '').length > 2000) {
+            alert('文章內容不得超過 2000 字')
+            return
+        }
 
         const formData = new FormData()
         // 優先使用 ckEditorManager 中的 htmlToText，否則使用備用函數
@@ -249,7 +247,7 @@ export function useCreatePost({ onCreated } = {}) {
             // console.log('[submit] response status =', res.status)
 
             if (!res.ok) {
-                const txt = await res.text()
+                let txt = await res.text()
                 console.error('[submit] error body =', txt)
                 alert('送出失敗: ' + (txt?.slice(0, 200) || res.status))
                 return
@@ -309,6 +307,49 @@ export function useCreatePost({ onCreated } = {}) {
         }
     }
 
+    // 處理 CKEditor 生命週期
+    let ckEditorManager = null
+    let editorInitialized = false
+    
+    const openModal = async () => { 
+        showPostModal.value = true
+        
+        // 在彈窗開啟時初始化 CKEditor
+        if (!editorInitialized) {
+            await initializeCKEditor()
+        }
+        
+        // 等待 DOM 更新後初始化 Lucide icons
+        await Vue.nextTick()
+        if (typeof window.lucide?.createIcons === 'function') {
+            window.lucide.createIcons()
+        }
+    }
+    
+    const initializeCKEditor = async () => {
+        if (!window.ckEditorManager) {
+            try {
+                const { createCKEditor } = await import('/js/components/ckeditor5.js')
+                if (typeof createCKEditor === 'function') {
+                    ckEditorManager = createCKEditor()
+                    window.ckEditorManager = ckEditorManager
+                    console.log('CKEditor 管理器已在彈窗開啟時初始化')
+                }
+            } catch (error) {
+                console.error('CKEditor 管理器初始化失敗:', error)
+                return
+            }
+        } else {
+            ckEditorManager = window.ckEditorManager
+        }
+        editorInitialized = true
+    }
+    
+    onBeforeUnmount(() => {
+        if (ckEditorManager && ckEditorManager.destroyEditor) {
+            ckEditorManager.destroyEditor()
+        }
+    })
 
     return {
         postContent, showPostModal, showHashtagModal,
@@ -320,7 +361,7 @@ export function useCreatePost({ onCreated } = {}) {
         setFileInput, handleFileChange, submitPost,
         truncateFilename, safeURL,
         
-        removeImage, removeFile, afterCreated,
+        removeImage, removeFile, removeHashtag, afterCreated,
         
         // TODO(human): CKEditor 相關屬性需要暴露給模板使用
         // 從 window.ckEditorManager 獲取，如果不存在則提供預設值

@@ -4,39 +4,123 @@
 @plugin "../lib/daisyui/daisyui.js";
 
 @plugin "../lib/daisyui/daisyui-theme.js" {
-  name: "Default";
-  default: true;
-  prefersdark: true;
-  color-scheme: "dark";
-  --color-base-100: oklch(100% 0 0);
-  --color-base-200: oklch(98% 0 0);
-  --color-base-300: oklch(95% 0 0);
-  --color-base-content: oklch(21% 0.006 285.885);
-  --color-primary: #161616;
-  --color-primary-content: oklch(93% 0.034 272.788);
-  --color-secondary: #162534;
-  --color-secondary-content: oklch(94% 0.028 342.258);
-  --color-accent: #323232;
-  --color-accent-content: oklch(98% 0.003 247.858);
-  --color-neutral: oklch(98% 0.003 247.858);
-  --color-neutral-content: oklch(21% 0.006 285.885);
-  --color-info: #2a629a;
-  --color-info-content: oklch(98% 0.003 247.858);
-  --color-success: #4cd964;
-  --color-success-content: oklch(98% 0.003 247.858);
-  --color-warning: #ffda78;
-  --color-warning-content: oklch(41% 0.112 45.904);
-  --color-error: #ff7f3e;
-  --color-error-content: oklch(27% 0.105 12.094);
-  --radius-selector: 0.5rem;
-  --radius-field: 0.25rem;
-  --radius-box: 1rem;
-  --size-selector: 0.25rem;
-  --size-field: 0.25rem;
-  --border: 1px;
-  --depth: 1;
+    name: "Default";
+    default: true;
+    prefersdark: true;
+    color-scheme: "dark";
+    --color-base-100: oklch(100% 0 0);
+    --color-base-200: oklch(98% 0 0);
+    --color-base-300: oklch(95% 0 0);
+    --color-base-content: oklch(21% 0.006 285.885);
+    --color-primary: #161616;
+    --color-primary-content: oklch(93% 0.034 272.788);
+    --color-secondary: #162534;
+    --color-secondary-content: oklch(94% 0.028 342.258);
+    --color-accent: #323232;
+    --color-accent-content: oklch(98% 0.003 247.858);
+    --color-neutral: oklch(98% 0.003 247.858);
+    --color-neutral-content: oklch(21% 0.006 285.885);
+    --color-info: #2a629a;
+    --color-info-content: oklch(98% 0.003 247.858);
+    --color-success: #4cd964;
+    --color-success-content: oklch(98% 0.003 247.858);
+    --color-warning: #ffda78;
+    --color-warning-content: oklch(41% 0.112 45.904);
+    --color-error: #ff7f3e;
+    --color-error-content: oklch(27% 0.105 12.094);
+    --radius-selector: 0.5rem;
+    --radius-field: 0.25rem;
+    --radius-box: 1rem;
+    --size-selector: 0.25rem;
+    --size-field: 0.25rem;
+    --border: 1px;
+    --depth: 1;
 }
 
 @import "./components.css";
-@import "./ckeditor.css"
-@import "./customVue.css"
+/* @import "./ckeditor.css"
+@import "./customVue.css" */
+
+:root {
+    /* UI 主要顏色覆蓋 */
+    --ck-color-base-foreground: hsl(255, 3%, 18%) !important;
+    --ck-color-base-background: hsl(270, 1%, 29%) !important;
+    --ck-color-base-border: hsl(240, 4%, 24%) !important;
+    --ck-color-focus-border: hsl(208, 90%, 62%) !important;
+    --ck-color-shadow-drop: hsla(0, 0%, 0%, 0.2) !important;
+    --ck-color-shadow-inner: hsla(0, 0%, 0%, 0.1) !important;
+    --ck-content-font-color: hsl(0, 0%, 98%) !important;
+    --ck-color-text: hsl(0, 0%, 98%) !important;
+
+    /* 按鈕、工具列等（可依喜好調整） */
+    --ck-color-button-default-hover-background: hsl(270, 1%, 22%) !important;
+    --ck-color-button-on-background: var(--ck-custom-foreground) !important;
+    --ck-color-toolbar-border: var(--ck-custom-border) !important;
+    --ck-color-tooltip-background: hsl(252, 7%, 14%) !important;
+    --ck-color-tooltip-text: hsl(0, 0%, 93%) !important;
+
+    /* 內容區塊內的細節（程式碼框、連結等） */
+    --ck-content-color-image-caption-background: hsl(0, 0%, 97%) !important;
+    --ck-content-color-image-caption-text: hsl(0, 0%, 20%) !important;
+    --ck-color-link-default: hsl(190, 100%, 75%) !important;
+}
+
+/* 內容背景與文字對比 */
+.ck.ck-editor__main>.ck-editor__editable,
+.ck-content {
+    background: #1b1b1b !important;
+    color: var(--ck-content-font-color) !important;
+}
+
+.ck-content a {
+    color: hsl(210, 100%, 63%) !important;
+}
+
+.ck-content pre {
+    color: #e8e8e8 !important;
+    border-color: #c4c4c4 !important;
+}
+
+/* 編輯器主容器 */
+.ck.ck-editor {
+    max-height: 300px !important;
+}
+
+/* 文字編輯區域 */
+.ck.ck-editor__editable_inline,
+.ck.ck-editor__editable {
+    max-height: 250px !important;
+    overflow-y: auto !important;
+    resize: none !important;
+    color: #ffffff !important;
+    background: transparent !important;
+}
+
+[v-cloak] {
+    display: none !important;
+}
+
+/* Vue 載入前顯示的載入畫面 */
+#app:not([data-v-app]) {
+    display: none;
+}
+
+/* 在 Vue 尚未載入時顯示的初始載入畫面 */
+.initial-loading {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    background-color: #1a202c;
+    /* bg-primary 的顏色 */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+/* 當 Vue 載入後隱藏初始載入畫面 */
+#app[data-v-app]~.initial-loading {
+    display: none;
+}
