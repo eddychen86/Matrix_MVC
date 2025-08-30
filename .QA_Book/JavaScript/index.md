@@ -28,6 +28,12 @@
 **關鍵字**: CKEditor, CSS, 樣式覆蓋, overflow, 權重, !important  
 **相關檔案**: Views/Shared/Components/CreatePostPopup/Default.cshtml
 
+### 問題 4: 熱門文章輪播按鈕無法正確滾動到最後一個項目
+**檔案**: [`carousel-scroll.md`](./carousel-scroll.md)  
+**描述**: 解決輪播組件中 hotNext 按鈕無法讓最後一個項目居中顯示的問題  
+**關鍵字**: 輪播, carousel, 滾動, 元素選擇器, getStep, getMaxIndex  
+**相關檔案**: wwwroot/js/pages/home/home.js, Views/Home/Index.cshtml
+
 ---
 
 ## 🔍 快速搜尋
@@ -36,13 +42,15 @@
 - **解構賦值相關**: 問題 2
 - **Vue 組件相關**: 問題 18
 - **CKEditor 相關**: 問題 3
+- **輪播滾動相關**: 問題 4
 - **函數調用錯誤**: 問題 1
 - **屬性未定義**: 問題 18
 - **TypeError**: 問題 2
 - **CSS 樣式覆蓋**: 問題 3
+- **元素選擇器錯誤**: 問題 4
 
 ## 📊 統計
 
-- **總問題數**: 4
-- **已解決**: 4
-- **最後更新**: 2025-08-29
+- **總問題數**: 5
+- **已解決**: 5
+- **最後更新**: 2025-08-30

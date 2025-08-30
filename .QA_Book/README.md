@@ -32,10 +32,11 @@
 
 ## 🔍 快速導航
 
-### JavaScript (4 個問題)
+### JavaScript (5 個問題)
 - 問題 1: PermissionService 不是函數錯誤 → `perm-err.md`
 - 問題 2: JavaScript 解構賦值 null 物件錯誤 → `destruct-null.md`
 - 問題 3: CKEditor 自訂樣式被覆蓋且 overflow 無效 → `ckeditor-style.md`
+- 問題 4: 熱門文章輪播按鈕無法正確滾動到最後一個項目 → `carousel-scroll.md`
 - 問題 18: Vue 組件屬性跨頁面可用性問題 → `comp-prop.md`
 
 ### Vue.js (6 個問題)
@@ -93,12 +94,12 @@
 
 ## 📊 統計資訊
 
-- **總問題數量**: 27 個
+- **總問題數量**: 28 個
 - **程式語言**: JavaScript, C#
 - **框架技術**: Vue.js, ASP.NET Core
 - **工具系統**: Git
 - **最後更新**: 2025-08-30
-- **版本**: v2.3 (新增忘記密碼流程知識)
+- **版本**: v2.4 (新增輪播滾動修復知識)
 
 ## 🔄 從原版本遷移
 

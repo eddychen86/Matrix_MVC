@@ -27,17 +27,45 @@ export const useHome = () => {
 
     function getStep(el) {
         const list = el
-        const item = list.querySelector('.carousel-item_cts')
+        const item = list.querySelector('li')  // 直接查找第一個 li 元素
         if (!item) return list.clientWidth
         const itemWidth = item.getBoundingClientRect().width
         const csList = getComputedStyle(list)
-        // 使用固定的 gap 值 (1.75rem = 28px)
-        const gap = parseFloat(csList.gap || '28')
+        // 使用固定的 gap 值，與 Tailwind 的 gap-x-4 對應 (1rem = 16px)
+        const gap = 16  // gap-x-4 = 1rem = 16px
         return Math.round(itemWidth + gap)
     }
 
     function snapToIndex(el, index) {
         const step = getStep(el)
+        const maxIndex = getMaxIndex(el)
+        
+        // 如果是最後一個索引，計算讓最後一個項目居中的滾動位置
+        if (index === maxIndex && maxIndex > 0) {
+            const items = el.querySelectorAll('li')
+            const itemCount = items.length
+            
+            if (itemCount > 0) {
+                const containerWidth = el.clientWidth
+                const lastItem = items[itemCount - 1]
+                const lastItemRect = lastItem.getBoundingClientRect()
+                const containerRect = el.getBoundingClientRect()
+                
+                // 計算最後一個項目當前相對於容器左側的位置
+                const lastItemRelativeLeft = lastItemRect.left - containerRect.left + el.scrollLeft
+                const lastItemWidth = lastItemRect.width
+                
+                // 計算讓最後項目居中的滾動位置
+                const centerPosition = lastItemRelativeLeft - (containerWidth - lastItemWidth) / 2
+                const maxScrollLeft = Math.max(0, el.scrollWidth - el.clientWidth)
+                const targetScrollLeft = Math.min(centerPosition, maxScrollLeft)
+                
+                el.scrollTo({ left: targetScrollLeft, behavior: 'smooth' })
+                return
+            }
+        }
+        
+        // 正常情況下的滾動
         el.scrollTo({ left: index * step, behavior: 'smooth' })
     }
 
@@ -49,9 +77,9 @@ export const useHome = () => {
     function getMaxIndex(el) {
         const step = getStep(el)
         if (!step) return 0
-        // 考慮 padding-right，確保最後一個 item 可以完全顯示
-        const paddingRight = parseFloat(getComputedStyle(el).paddingRight || '0')
-        const maxLeft = Math.max(0, el.scrollWidth - el.clientWidth + paddingRight)
+        
+        // 使用原始的滾動範圍計算方法
+        const maxLeft = Math.max(0, el.scrollWidth - el.clientWidth)
         return Math.max(0, Math.floor(maxLeft / step))
     }
 

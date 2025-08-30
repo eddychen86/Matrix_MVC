@@ -2,7 +2,9 @@
   "name": "matrix",
   "version": "1.0.0",
   "scripts": {
-    "build": "echo 'No build needed'"
+    "build": "echo 'No build needed'",
+    "css:mac": "sass ./wwwroot/scss/main.scss ./wwwroot/css/components.css --no-source-map && ./tailwindcss -i wwwroot/css/tailwind.css -o wwwroot/css/site.css",
+    "css:win": "sass .\\wwwroot\\scss\\main.scss .\\wwwroot\\css\\components.css --no-source-map && .\\tailwindcss.exe -i wwwroot\\css\\tailwind.css -o wwwroot\\css\\site.css"
   },
   "dependencies": {}
 }

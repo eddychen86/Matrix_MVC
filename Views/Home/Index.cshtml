@@ -6,7 +6,7 @@
 <div class="col-span-7 flex flex-col gap-8 2xl:col-span-4 2xl:col-start-2">
 
     @* 熱門文章輪播（僅登入可見） *@
-    <section class="home-hots_list overflow-hidden !h-[300px]">
+    <section class="home-hots_list">
         <h1 class="title">Hot</h1>
         <div class="hots_list_carousel">
             <button v-on:click="hotPrev">
@@ -16,34 +16,33 @@
                 <i data-lucide="chevron-right" class="size-6"></i>
             </button>
 
-            <ul ref="hotCarouselRef" class="carousel carousel-center carousel-end carousel_layout gap-x-4" v-if="hotlist && hotlist.length">
-                <li class="carousel-item carousel-item_cts !max-h-[250px] !max-w-[200px]" v-for="(item, idx) in hotlist" :key="item.articleId">
-                    <div class="card image-full shadow-sm w-full">
+            <ul ref="hotCarouselRef" v-if="hotlist && hotlist.length" class="h-64 flex gap-x-4 overflow-x-auto">
+                <li v-for="item in hotlist" :key="item.articleId" class="min-w-1/4 h-full bg-accent rounded-[30px]">
+                    <div class="card image-full shadow-sm size-full relative">
                         <figure>
-                            <img v-if="item.image && item.image.filePath" :src="item.image.filePath" class="!bg-accent" />
+                            <img v-if="item.image && item.image.filePath" :src="item.image.filePath" />
                             <div v-else class="no-img bg-accent size-full flex items-center justify-center">
-                                <i data-lucide="image" class="size-12"></i>
+                                <i data-lucide="image" class="size-24 text-stone-600"></i>
                             </div>
                         </figure>
-                        <div class="card-body carousel-item_body">
-                            <div class="card-actions text-white h-[170px] overflow-hidden">
-                                <p class="SubTitle !text-start">{{ item.content.length > 100 ? `${item.content.slice(0, 100)}...` : item.content }}</p>
-                            </div>
-                            <div class="userInfo">
-                                <a :href="`/Profile/${item.authorName.replace(/\s+/g, '')}`">
-                                    <img v-if="item.authorAvatar" :src="item.authorAvatar" :alt="item.authorName" />
-                                    <div v-else class="no-img border-2 border-white bg-secondary">
+
+                        <div class="absolute top-0 left-0 card-actions size-full flex flex-col justify-between gap-4 p-6 !select-none">
+                            <p class="SubTitle text-white">
+                                {{ item.content.length > 50 ? `${item.content.slice(0, 50)}...` : item.content }}
+                            </p>
+
+                            <a :href="`/Profile/${item.authorName.replace(/\s+/g, '')}`" class="flex justify-between gap-4">
+                                <div class="size-10 rounded-full overflow-hidden border-2 border-white ">
+                                    <img v-if="item.authorAvatar" :src="item.authorAvatar" :alt="item.authorName" class="size-full" />
+                                    <div v-else class="no-img bg-secondary size-full flex items-center justify-center">
                                         <span>{{ (item.authorName || '').slice(0, 1).toUpperCase() }}</span>
                                     </div>
-                                </a>
-                                <a :href="`/Profile/${item.authorName.replace(/\s+/g, '')}`">
-                                    <h2 class="card-title text-sm text-white">{{ item.authorName || '' }}</h2>
-                                </a>
-                            </div>
+                                </div>
+                                <h2 class="card-title text-sm text-white">{{ item.authorName }}</h2>
+                            </a>
                         </div>
                     </div>
                 </li>
-                <li class="w-96"></li>
             </ul>
 
             <div class="no-data" v-else>
