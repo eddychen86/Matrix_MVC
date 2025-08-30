@@ -77,26 +77,46 @@ namespace Matrix.Repository
 
         public async Task<bool> ValidateUserAsync(string username, string password)
         {
+            Console.WriteLine($"ValidateUserAsync: 嘗試驗證用戶 '{username}'");
+            
             var user = await _dbSet
                 // .AsNoTracking()      <== 驗證屬更新，不該加上禁止追蹤的功能
                 .FirstOrDefaultAsync(u => u.UserName == username || u.Email == username);
 
-            if (user == null || string.IsNullOrEmpty(user.Password)) return false;
+            if (user == null)
+            {
+                Console.WriteLine($"ValidateUserAsync: 找不到用戶 '{username}'");
+                return false;
+            }
+
+            if (string.IsNullOrEmpty(user.Password))
+            {
+                Console.WriteLine($"ValidateUserAsync: 用戶 '{user.UserName}' 沒有設置密碼");
+                return false;
+            }
+
+            Console.WriteLine($"ValidateUserAsync: 找到用戶 '{user.UserName}'");
+            Console.WriteLine($"ValidateUserAsync: ForgotPwdToken 狀態: {(string.IsNullOrEmpty(user.ForgotPwdToken) ? "NULL/Empty" : "有值")}");
 
             // 首先檢查是否使用 ForgotPwdToken 登入
             if (!string.IsNullOrEmpty(user.ForgotPwdToken))
             {
+                Console.WriteLine($"ValidateUserAsync: 嘗試使用 ForgotPwdToken 驗證");
                 var tokenResult = _passwordHasher.VerifyHashedPassword(user, user.ForgotPwdToken, password);
+                Console.WriteLine($"ValidateUserAsync: Token 驗證結果: {tokenResult}");
+                
                 if (tokenResult == PasswordVerificationResult.Success)
                 {
                     Console.WriteLine($"ValidateUserAsync: User {user.UserName} logged in with token");
                     
-                    // 清空 ForgotPwdToken（token 只能使用一次）
-                    user.ForgotPwdToken = null;
-                    await this.UpdateAsync(user);
-                    await this.SaveChangesAsync();
+                    // 不要在這裡清除 token，讓用戶可以重複使用 token 登入
+                    // token 只會在用戶修改密碼時被清除 (UserService.UpdatePersonProfileAsync)
                     
                     return true;
+                }
+                else
+                {
+                    Console.WriteLine($"ValidateUserAsync: Token 驗證失敗，嘗試使用正常密碼驗證");
                 }
             }
 
@@ -106,9 +126,13 @@ namespace Matrix.Repository
 
             if (isNewHash)
             {
+                Console.WriteLine($"ValidateUserAsync: 使用新格式密碼驗證");
                 // 使用 Identity 的 PasswordHasher 來驗證新格式的密碼
                 var result = _passwordHasher.VerifyHashedPassword(user, user.Password, password);
-                return result == PasswordVerificationResult.Success || result == PasswordVerificationResult.SuccessRehashNeeded;
+                Console.WriteLine($"ValidateUserAsync: 新格式密碼驗證結果: {result}");
+                bool success = result == PasswordVerificationResult.Success || result == PasswordVerificationResult.SuccessRehashNeeded;
+                Console.WriteLine($"ValidateUserAsync: 最終驗證結果: {success}");
+                return success;
             }
             else
             {
@@ -349,6 +373,29 @@ namespace Matrix.Repository
             return await _dbSet
                 .AsNoTracking()
                 .AnyAsync(u => u.Email == email && u.IsDelete == 0);
+        }
+
+        /// <summary>
+        /// 清除特定用戶的忘記密碼 Token
+        /// </summary>
+        public async Task<bool> ClearForgotPasswordTokenAsync(Guid userId)
+        {
+            try
+            {
+                Console.WriteLine($"UserRepository.ClearForgotPasswordTokenAsync: 開始清除用戶 {userId} 的 ForgotPwdToken");
+                
+                // 使用原始 SQL 來確保清除操作成功
+                var affectedRows = await _context.Database.ExecuteSqlRawAsync(
+                    "UPDATE Users SET ForgotPwdToken = NULL WHERE UserId = {0}", userId);
+                
+                Console.WriteLine($"UserRepository.ClearForgotPasswordTokenAsync: 影響的資料列數: {affectedRows}");
+                return affectedRows > 0;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"UserRepository.ClearForgotPasswordTokenAsync 錯誤: {ex.Message}");
+                return false;
+            }
         }
     }
 }

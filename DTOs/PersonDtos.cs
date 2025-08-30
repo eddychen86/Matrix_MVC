@@ -60,9 +60,8 @@ namespace Matrix.DTOs
         public List<ArticleDto> Articles { get; set; } = new List<ArticleDto>();
 
         /// <summary>
-        /// 使用者密碼 - 在公開 API 中會被忽略
+        /// 使用者密碼 - 只在更新時使用，不會在查詢時返回
         /// </summary>
-        [JsonIgnore]
         public string? Password { get; set; }
 
         public DateTime CreateTime { get; set; }

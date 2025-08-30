@@ -46,7 +46,7 @@
 - 問題 18: 組件屬性跨頁面可用性 → `cross-page.md`
 - 問題 23: CKEditor Vue 3 生命週期函數調用錯誤 → `ckeditor-lifecycle.md`
 
-### ASP.NET Core (12 個問題)
+### ASP.NET Core (14 個問題)
 - 問題 2: Claims 資訊調試 → `claims-dbg.md`
 - 問題 3: 篩選特定 Claims → `claims-flt.md`
 - 問題 8: 管理員註冊服務實作 → `admin-reg.md`
@@ -59,6 +59,8 @@
 - 問題 20: 未登入用戶訪問頁面自動重定向 → `auth-redirect.md`
 - 問題 21: macOS 上的 NuGet 包路徑解析錯誤 → `nuget-path.md`
 - 問題 22: ViewComponent 中引用使用者資訊 → `vw-comp-usr.md`
+- 問題 24: 忘記密碼後修改密碼導致登入失敗 → `pwd-change-fix.md`
+- 問題 25: 忘記密碼流程 Token 管理 → `forgot-password-flow.md`
 
 ### Git 版本控制 (2 個問題)
 - 問題 4: 搜尋所有分支中的關鍵字 → `git-srch.md`
@@ -91,12 +93,12 @@
 
 ## 📊 統計資訊
 
-- **總問題數量**: 25 個
+- **總問題數量**: 27 個
 - **程式語言**: JavaScript, C#
 - **框架技術**: Vue.js, ASP.NET Core
 - **工具系統**: Git
 - **最後更新**: 2025-08-30
-- **版本**: v2.2 (新增 NuGet 跨平台問題解決方案)
+- **版本**: v2.3 (新增忘記密碼流程知識)
 
 ## 🔄 從原版本遷移
 

@@ -42,7 +42,7 @@
               <i data-lucide="eye" class="text-white subTitle"></i>
             </button>
           </div>
-          
+
           <div class="flex flex-col gap-2">
             <small class="text-gray-400">留空表示不更改目前密碼</small>
             
@@ -71,16 +71,16 @@
       </li>
 
       @* Wallet *@
-      <li>
+      @* <li>
         <h4 class="title" data-i18n="ProfileWellat">@Localizer["ProfileWellat"]</h4>
         <input class="subTitle" type="password" v-model="updatProfile.walletAddress" />
-      </li>
+      </li> *@
 
       @* IsPrivate *@
-      <li>
+      @* <li>
         <h4 class="title" data-i18n="ProfileState">@Localizer["ProfileState"]</h4>
         <input type="checkbox" :checked="!updatProfile.isPrivate" class="toggle toggle-xl toggle-success my-1" v-model="updatProfile.isPrivate" />
-      </li>
+      </li> *@
     </ul>
 
     <div class="btnGroup">

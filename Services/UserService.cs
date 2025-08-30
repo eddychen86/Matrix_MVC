@@ -286,6 +286,33 @@ namespace Matrix.Services
         }
 
         /// <summary>
+        /// 清除用戶的忘記密碼 Token (使用直接 SQL 操作確保成功)
+        /// </summary>
+        private async Task ClearForgotPasswordTokenAsync(Guid userId)
+        {
+            try
+            {
+                Console.WriteLine($"UserService.ClearForgotPasswordTokenAsync: 開始清除用戶 {userId} 的 ForgotPwdToken");
+                
+                var success = await _userRepository.ClearForgotPasswordTokenAsync(userId);
+                Console.WriteLine($"UserService.ClearForgotPasswordTokenAsync: 清除結果: {success}");
+                
+                if (success)
+                {
+                    Console.WriteLine($"UserService.ClearForgotPasswordTokenAsync: ForgotPwdToken 已成功清除");
+                }
+                else
+                {
+                    Console.WriteLine($"UserService.ClearForgotPasswordTokenAsync: ForgotPwdToken 清除失敗");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"UserService.ClearForgotPasswordTokenAsync 錯誤: {ex.Message}");
+            }
+        }
+
+        /// <summary>
         /// 更新個人資料圖片（頭像或橫幅）
         /// </summary>
         public async Task<ReturnType<object>> UpdateProfileImageAsync(Guid userId, string type, string filePath)
@@ -745,6 +772,17 @@ namespace Matrix.Services
                     return new ReturnType<object> { Success = false, Message = "找不到使用者" };
                 }
 
+                Console.WriteLine($"UpdatePersonProfileAsync: 收到的 DTO 詳細信息:");
+                Console.WriteLine($"  - DisplayName: {dto.DisplayName ?? "NULL"}");
+                Console.WriteLine($"  - Email: {dto.Email ?? "NULL"}");
+                Console.WriteLine($"  - Password: {(string.IsNullOrEmpty(dto.Password) ? "NULL/EMPTY" : $"有值，長度 {dto.Password.Length}")}");
+                Console.WriteLine($"  - Website1: {dto.Website1 ?? "NULL"}");
+                
+                if (!string.IsNullOrEmpty(dto.Password))
+                {
+                    Console.WriteLine($"UpdatePersonProfileAsync: 收到的密碼內容 (前3字符): {dto.Password.Substring(0, Math.Min(3, dto.Password.Length))}...");
+                }
+
                 // 更新個人資料
                 person.DisplayName = dto.DisplayName;
                 person.Bio = dto.Bio;
@@ -756,13 +794,46 @@ namespace Matrix.Services
                 // 更新使用者資料
                 if (!string.IsNullOrEmpty(dto.Password))
                 {
+                    Console.WriteLine($"UpdatePersonProfileAsync: 準備更新密碼 for user {user.UserName}");
+                    Console.WriteLine($"UpdatePersonProfileAsync: 新密碼長度: {dto.Password.Length}");
+                    Console.WriteLine($"UpdatePersonProfileAsync: 修改前 ForgotPwdToken 狀態: {(string.IsNullOrEmpty(user.ForgotPwdToken) ? "NULL" : "有值")}");
+                    
                     user.Password = _passwordHasher.HashPassword(user, dto.Password);
+                    // 清除忘記密碼 token，防止舊 token 干擾登入
+                    user.ForgotPwdToken = null;
+                    
+                    Console.WriteLine($"UpdatePersonProfileAsync: 新密碼雜湊: {user.Password.Substring(0, Math.Min(20, user.Password.Length))}...");
+                    Console.WriteLine($"UpdatePersonProfileAsync: ForgotPwdToken 已清除 for user {user.UserName}");
+                    Console.WriteLine($"UpdatePersonProfileAsync: user.ForgotPwdToken 現在是: {(user.ForgotPwdToken ?? "NULL")}");
+                    
+                    // 直接使用 repository 來確保清除 token
+                    await ClearForgotPasswordTokenAsync(userId);
                 }
                 if (!string.IsNullOrEmpty(dto.Email))
                 {
                     user.Email = dto.Email;
                 }
 
+                // 保存 User 變更（如果有密碼或Email變更）
+                if (!string.IsNullOrEmpty(dto.Password) || !string.IsNullOrEmpty(dto.Email))
+                {
+                    Console.WriteLine($"UpdatePersonProfileAsync: 準備保存變更前 - user.ForgotPwdToken: {(user.ForgotPwdToken ?? "NULL")}");
+                    Console.WriteLine($"UpdatePersonProfileAsync: 準備保存變更前 - user.Password 開頭: {user.Password?.Substring(0, Math.Min(10, user.Password.Length))}");
+                    
+                    await _userRepository.UpdateAsync(user);
+                    var saveResult = await _userRepository.SaveChangesAsync();
+                    Console.WriteLine($"UpdatePersonProfileAsync: SaveChanges 回傳結果: {saveResult}");
+                    Console.WriteLine($"UpdatePersonProfileAsync: User 資料已保存");
+                    
+                    // 直接從同一個 repository 重新查詢驗證
+                    var verifyUser = await _userRepository.GetByIdAsync(userId);
+                    if (verifyUser != null)
+                    {
+                        Console.WriteLine($"UpdatePersonProfileAsync: 驗證保存結果 - Password 開頭: {verifyUser.Password?.Substring(0, Math.Min(10, verifyUser.Password.Length))}");
+                        Console.WriteLine($"UpdatePersonProfileAsync: 驗證保存結果 - ForgotPwdToken: {(string.IsNullOrEmpty(verifyUser.ForgotPwdToken) ? "NULL (正確)" : $"仍有值: {verifyUser.ForgotPwdToken}")}");
+                    }
+                }
+                
                 // 使用 Repository 來保存變更
                 await _personRepository.SaveChangesAsync();
 

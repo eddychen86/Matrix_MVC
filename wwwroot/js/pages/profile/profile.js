@@ -135,16 +135,14 @@ export const useProfile = () => {
             }
 
             // Server端會自動從認證中獲取UserId，不需要傳遞
-            const data = {
-                bio: updatProfile.bio,
-                displayName: updatProfile.displayName,
-                email: updatProfile.email,
-                // 只有當密碼不為空時才傳送密碼更新
-                ...(updatProfile.password && updatProfile.password.trim() !== '' && { password: updatProfile.password }),
-                isPrivate: updatProfile.isPrivate ? 1 : 0,
-                website1: updatProfile.website1,
-                website2: updatProfile.website2,
-                website3: updatProfile.website3,
+            let data = {}
+            const dataTitle = ['bio', 'displayName', 'email', 'password', 'isPrivate', 'website1', 'website2', 'website3']
+
+            for (const i in dataTitle) {
+                const update = updatProfile[dataTitle[i]]
+                if (update && update.trim() !== '') {
+                    data[dataTitle[i]] = update
+                }
             }
 
             const response = await fetch('/api/Profile/personal', {
@@ -311,7 +309,6 @@ export const useProfile = () => {
             if (!result.success) {
                 throw new Error(result.message || '上傳失敗');
             }
-            console.log(`NFT ${file.name} uploaded successfully:`, result.data.filePath);
         } catch (error) {
             console.error('NFT upload failed:', error);
             alert(`上傳 ${file.name} 失敗: ${error.message}`);
@@ -479,8 +476,6 @@ export const useProfile = () => {
     //#region File Handling
 
     const updateFile = type => {
-        // console.log('updateFile called with type:', type)
-
         // 根據類型選擇對應的 input 元素
         let inputId
         if (type === 'avatar') {
@@ -550,8 +545,6 @@ export const useProfile = () => {
 
                 // 強制更新顯示
                 rand.value = new Date().getTime()
-
-                console.log(`${type} uploaded successfully:`, result.data.filePath)
             } else {
                 throw new Error(result.message || '上傳失敗')
             }
@@ -569,8 +562,6 @@ export const useProfile = () => {
     //#region User & Profile Loading
 
     const GetPostsAsync = async (page = 1, append = false, pageSize = 10) => {
-        // console.log(`載入第 ${page} 頁文章，每頁 ${pageSize} 篇`)
-
         if (isLoading.value || (!hasMorePosts.value && append)) return null
 
         // 服務可用性檢查
@@ -724,7 +715,6 @@ export const useProfile = () => {
 
             const images = await response.json()
             userImages.value = images
-            // console.log('載入用戶圖片成功:', images.length, '張圖片')
         } catch (err) {
             console.error('載入用戶圖片失敗:', err)
             userImages.value = []
@@ -797,8 +787,7 @@ export const useProfile = () => {
         // 6. 等待 Vue 完成所有 DOM 更新後，手動觸發 Lucide icons 渲染
         Vue.nextTick(() => {
             if (typeof lucide !== 'undefined') {
-                lucide.createIcons();
-                //console.log("Lucide icons refreshed."); // 你可以在主控台看到此訊息，表示成功執行
+                lucide.createIcons()
             } else {
                 console.warn("Lucide library not found. Icons will not be rendered.");
             }

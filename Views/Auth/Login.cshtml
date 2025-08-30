@@ -68,15 +68,15 @@
         <div id="auth-layout_forgot" v-on:click="toggleClose">
             <form v-on:submit.prevent="submitForgotPassword">
                 <h1 class="title" data-i18n="ForgotPasswordTitle">@Localizer["ForgotPasswordTitle"]</h1>
-                <button type="button" class="subTitle" v-on:click="toggleClose">
+                <button type="button" class="subTitle cursor-pointer" v-on:click="closeModal">
                     <i data-lucide="x" class="close-btn text-error"></i>
                 </button>
                 <p class="para" data-i18n="ForgotPasswordMsg">@Localizer["ForgotPasswordMsg"]</p>
                 <div class="ctn-input">
                     <input type="email" class="text-secondary" placeholder="@Localizer["EmailPlaceholder"]"
                         data-i18n-placeholder="EmailPlaceholder" v-model="forgotEmail" :disabled="isForgotSubmitting" required />
-                    <button type="submit" class="subTitle" data-i18n="SubmitBtn" :disabled="isForgotSubmitting">
-                        <span v-if="isForgotSubmitting">發送中...</span>
+                    <button type="submit" class="subTitle cursor-pointer" data-i18n="SubmitBtn" :disabled="isForgotSubmitting">
+                        <span v-if="isForgotSubmitting" class="loading loading-dots loading-xl text-white"></span>
                         <span v-else>@Localizer["SubmitBtn"]</span>
                     </button>
                 </div>

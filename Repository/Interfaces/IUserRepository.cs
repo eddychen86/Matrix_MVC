@@ -68,5 +68,8 @@ namespace Matrix.Repository.Interfaces
 
         /// <summary>檢查電子郵件是否在未刪除用戶中存在</summary>
         Task<bool> ActiveEmailExistsAsync(string email);
+
+        /// <summary>清除特定用戶的忘記密碼 Token</summary>
+        Task<bool> ClearForgotPasswordTokenAsync(Guid userId);
     }
 }

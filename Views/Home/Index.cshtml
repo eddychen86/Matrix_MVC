@@ -27,13 +27,15 @@
                         </figure>
                         <div class="card-body carousel-item_body">
                             <div class="userInfo">
-                                <a href="/profile">
+                                <a :href="`/Profile/${item.authorName.replace(/\s+/g, '')}`">
                                     <img v-if="item.authorAvatar" :src="item.authorAvatar" :alt="item.authorName" />
                                     <div v-else class="no-img border-2 border-white bg-secondary">
                                         <span>{{ (item.authorName || '').slice(0, 1).toUpperCase() }}</span>
                                     </div>
                                 </a>
-                                <h2 class="card-title text-sm text-white">{{ item.authorName || '' }}</h2>
+                                <a :href="`/Profile/${item.authorName.replace(/\s+/g, '')}`">
+                                    <h2 class="card-title text-sm text-white">{{ item.authorName || '' }}</h2>
+                                </a>
                             </div>
                             <div class="card-actions justify-end text-white">
                                 <p class="line-clamp-3 text-xs">{{ item.content }}</p>

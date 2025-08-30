@@ -20,30 +20,23 @@ createApp({
         const toggleOpen = () => isForgot.value = true
 
         const submitForgotPassword = async (event) => {
-            console.log('submitForgotPassword called', event)
             event.preventDefault()
             
-            console.log('isForgot.value:', isForgot.value)
-            console.log('forgotEmail.value:', forgotEmail.value)
             
             if (!isForgot.value) {
-                console.log('Forgot password modal not open, returning')
                 return
             }
             
             if (!forgotEmail.value) {
-                console.log('No email provided')
                 forgotMessage.value = '請輸入電子郵件'
                 forgotMessageType.value = 'error'
                 return
             }
             
-            console.log('Starting forgot password request...')
             isForgotSubmitting.value = true
             forgotMessage.value = ''
             
             try {
-                console.log('Sending request to API...')
                 const response = await fetch('/api/ForgotPassword/reset', {
                     method: 'POST',
                     headers: {
@@ -54,15 +47,12 @@ createApp({
                     })
                 })
                 
-                console.log('Response received:', response.status, response.statusText)
                 const result = await response.json()
-                console.log('Result:', result)
                 
                 if (result.success) {
                     forgotMessage.value = result.message
                     forgotMessageType.value = 'success'
                     forgotEmail.value = ''
-                    console.log('Success message set')
                 } else {
                     forgotMessage.value = result.message || '重置失敗'
                     forgotMessageType.value = 'error'
@@ -74,12 +64,24 @@ createApp({
                 forgotMessageType.value = 'error'
             } finally {
                 isForgotSubmitting.value = false
-                console.log('Request completed')
             }
         }
 
+        // 點擊背景遮罩關閉彈窗
         const toggleClose = (event) => {
-            if (event.target === event.currentTarget) isForgot.value = false
+            // 只有點擊背景遮罩時才關閉
+            if (event && event.target === event.currentTarget) {
+                isForgot.value = false
+            }
+        }
+
+        // 直接關閉彈窗（用於關閉按鈕）
+        const closeModal = (event) => {
+            if (event) {
+                event.preventDefault()
+                event.stopPropagation()
+            }
+            isForgot.value = false
         }
 
         // 切換密碼顯示/隱藏
@@ -98,8 +100,6 @@ createApp({
             // 清除之前的錯誤訊息
             document.querySelectorAll('p[data-valmsg-for]').forEach(p => p.textContent = '')
 
-            // console.log('Received errors:', errors) // Debug log
-
             Object.keys(errors).forEach(field => {
                 const errMsg = errors[field]
                 if (errMsg && errMsg.length > 0) {
@@ -108,7 +108,6 @@ createApp({
 
                     if (el) {
                         el.textContent = errMsg[0]
-                        // console.log(`Set error for ${field}:`, errMsg[0]) // Debug log
                     } else {
                         console.log(`Could not find validation element for ${field}`)
                         console.log('Available validation elements:', document.querySelectorAll('p[data-valmsg-for]'))
@@ -208,6 +207,7 @@ createApp({
             loginForm,
             toggleOpen,
             toggleClose,
+            closeModal,
             togglePasswordVisibility,
             submitForm,
             isSubmitting,
