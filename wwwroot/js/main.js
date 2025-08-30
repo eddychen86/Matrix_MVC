@@ -275,33 +275,18 @@ globalApp({
 
         //#region 匯入各頁面的 Vue 模組（ESM）
 
-        const LoadingPage = (pattern, useFunc) => {
-            const path = window.location.pathname.toLowerCase()
-            const matched = pattern instanceof RegExp
-                ? pattern.test(path)
-                : path.includes(String(pattern).toLowerCase())
-
-            if (!matched) return {}
-            try {
-                return typeof useFunc === 'function' ? useFunc() : {}
-            } catch (error) {
-                console.error('頁面模組載入失敗:', error)
-                return {}
-            }
-        }
-
         // 路徑偵測（供後續邏輯使用）
         const currentPath = window.location.pathname.toLowerCase()
-        const isHomePage = /^\/(?:home(?:\/|$))?$|^\/$/.test(currentPath)
-        const isProfilePage = /^\/profile(?:\/|$)/.test(currentPath)
-        const isAboutPage = /^\/about(?:\/|$)/.test(currentPath)
+        const isHomePage = /^\/(?:home(?:\/index)?)?$|^\/$/i.test(currentPath)
+        const isProfilePage = /^\/profile/i.test(currentPath)
+        const isAboutPage = /^\/about/i.test(currentPath)
 
         // 組件/頁面模組
         const Menu = (typeof useMenu === 'function') ? useMenu() : {}
-        const Home = LoadingPage(/^\/(?:home(?:\/|$))?$|^\/$/i, useHome)
-        const Profile = LoadingPage(/^\/profile(?:\/|$)/i, useProfile)
+        const Home = isHomePage && typeof useHome === 'function' ? useHome() : {}
+        const Profile = isProfilePage && typeof useProfile === 'function' ? useProfile() : {}
+        const About = isAboutPage && typeof useAbout === 'function' ? useAbout() : {}
         const Reply = (typeof useReply === 'function') ? useReply() : {}  // 全域載入，因為 ReplyPopup 在各頁面都會使用
-        const About = LoadingPage(/^\/about(?:\/|$)/i, useAbout)
 
         // 全域載入 CreatePost 組件，因為 CreatePostPopup 在各頁面都會使用
         const CreatePost = (typeof useCreatePost === 'function') ? useCreatePost() : {}
