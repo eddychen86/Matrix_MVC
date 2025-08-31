@@ -4,8 +4,8 @@
         @* 文章標題區 *@
         <div class="post-content_header">
             <a class="author-info" :href="`/Profile/${item?.authorName}`">
-                <div class="author-avatar">
-                    <img v-if="item.authorAvatar" :src="item.authorAvatar" alt="">
+                <div class="author-avatar border-2 border-white">
+                    <img v-if="item.authorAvatar && !hasError(item, 'avatar')" :src="item.authorAvatar" @@error="handleImageError(item, 'avatar')">
                     <span v-else class="bg-secondary">{{ item?.authorName?.slice(0,1).toUpperCase() }}</span>
                 </div>
                 <div>
@@ -32,7 +32,10 @@
                 v-if="item.attachments.filter(f => f.type.toLowerCase() === 'image').length > 0">
                 <div class="img_layout" v-for="img in item.attachments.filter(f => f.type.toLowerCase() === 'image')"
                     :key="img.fileId">
-                    <img :src="img.filePath" :alt="img.fileName" />
+                    <img v-if="!hasError(item, 'image')" :src="img.filePath" :alt="img.fileName" @@error="handleImageError(item, 'image')" />
+                    <div v-else class="size-full bg-stone-800 flex items-center justify-center">
+                        <i data-lucide="image" class="text-stone-600 size-24"></i>
+                    </div>
                 </div>
             </div>
 

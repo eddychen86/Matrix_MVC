@@ -32,22 +32,24 @@
 
 ## 🔍 快速導航
 
-### JavaScript (5 個問題)
+### JavaScript (6 個問題)
 - 問題 1: PermissionService 不是函數錯誤 → `perm-err.md`
 - 問題 2: JavaScript 解構賦值 null 物件錯誤 → `destruct-null.md`
 - 問題 3: CKEditor 自訂樣式被覆蓋且 overflow 無效 → `ckeditor-style.md`
 - 問題 4: 熱門文章輪播按鈕無法正確滾動到最後一個項目 → `carousel-scroll.md`
+- 問題 5: 函數式編程風格的圖片錯誤處理 Hook → `fp-img-error.md`
 - 問題 18: Vue 組件屬性跨頁面可用性問題 → `comp-prop.md`
 
-### Vue.js (6 個問題)
+### Vue.js (7 個問題)
 - 問題 6: Vue 3 響應式物件重置錯誤 → `react-rst.md`
 - 問題 7: Vue 元件屬性未定義錯誤 → `prop-undef.md`
 - 問題 11: Vue v-model 使用可選鏈結運算子導致錯誤 → `vmodel-opt.md`
 - 問題 12: 配置管理頁面 v-for 優化 → `config-vfor.md`
 - 問題 18: 組件屬性跨頁面可用性 → `cross-page.md`
 - 問題 23: CKEditor Vue 3 生命週期函數調用錯誤 → `ckeditor-lifecycle.md`
+- 問題 24: 圖片載入錯誤處理與動態顯示切換 → `img-error.md`
 
-### ASP.NET Core (14 個問題)
+### ASP.NET Core (21 個問題)
 - 問題 2: Claims 資訊調試 → `claims-dbg.md`
 - 問題 3: 篩選特定 Claims → `claims-flt.md`
 - 問題 8: 管理員註冊服務實作 → `admin-reg.md`
@@ -62,6 +64,13 @@
 - 問題 22: ViewComponent 中引用使用者資訊 → `vw-comp-usr.md`
 - 問題 24: 忘記密碼後修改密碼導致登入失敗 → `pwd-change-fix.md`
 - 問題 25: 忘記密碼流程 Token 管理 → `forgot-password-flow.md`
+- 問題 26: Razor 頁面中 Vue.js @error 事件語法編譯錯誤 → `razor-vue-error.md`
+- 問題 27: 共用圖片驗證服務與數據清理 → `img-validation-service.md`
+- 問題 28: EnrichWithImageValidationAsync 可空性 CS8603 修復 → `nullable-cs8603-imgvalidation.md`
+- 問題 29: ValidateImagesAsync 重複鍵導致 ToDictionary 例外 (500) → `img-validation-dupkey.md`
+- 問題 30: CommonController Primary Constructor 注入 ILogger 造成 CS9105/CS9113 → `common-logger-static.md`
+- 問題 31: CommonController 指向不存在的屬性導致 CS1061（auth.displayName） → `menu-auth-displayname.md`
+- 問題 32: 使用者名稱 Substring 超出長度導致 ArgumentOutOfRangeException → `menu-substring-oob.md`
 
 ### Git 版本控制 (2 個問題)
 - 問題 4: 搜尋所有分支中的關鍵字 → `git-srch.md`
@@ -94,12 +103,12 @@
 
 ## 📊 統計資訊
 
-- **總問題數量**: 28 個
+- **總問題數量**: 37 個
 - **程式語言**: JavaScript, C#
 - **框架技術**: Vue.js, ASP.NET Core
 - **工具系統**: Git
-- **最後更新**: 2025-08-30
-- **版本**: v2.4 (新增輪播滾動修復知識)
+- **最後更新**: 2025-08-31
+- **版本**: v2.10 (新增 ValidateImagesAsync 去重修復)
 
 ## 🔄 從原版本遷移
 

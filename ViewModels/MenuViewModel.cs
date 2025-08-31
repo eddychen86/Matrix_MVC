@@ -11,6 +11,7 @@ namespace Matrix.ViewModels
         public Guid? UserId { get; set; }
         public bool IsGuest { get; set; }
         public string? UserImg { get; set; }
+        public string? DisplayName { get; set; }
     }
 
     public class MenuItemModel

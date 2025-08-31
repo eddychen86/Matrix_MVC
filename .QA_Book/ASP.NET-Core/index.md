@@ -88,6 +88,48 @@
 **關鍵字**: 忘記密碼, Token 管理, 安全流程, ValidateUserAsync, ClearForgotPasswordTokenAsync
 **相關檔案**: `UserRepository.cs`, `IUserRepository.cs`, `UserService.cs`
 
+### 問題 26: Razor 頁面中 Vue.js @error 事件語法編譯錯誤
+**檔案**: [`razor-vue-error.md`](./razor-vue-error.md)
+**描述**: 修復 Razor 頁面中使用 Vue.js 事件處理器時的語法衝突編譯錯誤
+**關鍵字**: Razor, Vue.js, @error, 編譯錯誤, 轉義語法, @@
+**相關檔案**: `Views/Home/Index.cshtml:25,42`
+
+### 問題 27: 共用圖片驗證服務與數據清理
+**檔案**: [`img-validation-service.md`](./img-validation-service.md)
+**描述**: 建立共用的圖片驗證服務，在 API 層檢查檔案存在性並清理無效路徑
+**關鍵字**: 圖片驗證, 共用服務, 數據清理, 快取, 批量檢查, 性能優化
+**相關檔案**: `Services/ImageValidationService.cs`, `Controllers/Api/PostController.cs:66-111`
+
+### 問題 28: EnrichWithImageValidationAsync 可空性 CS8603 修復
+**檔案**: [`nullable-cs8603-imgvalidation.md`](./nullable-cs8603-imgvalidation.md)
+**描述**: 修正 `ImageValidationService` 的泛型方法在可空性啟用下回傳 null 的合約不一致問題
+**關鍵字**: 可空性, CS8603, 泛型, 服務層, 介面合約
+**相關檔案**: `Services/Interfaces/IImageValidationService.cs`, `Services/ImageValidationService.cs`
+
+### 問題 29: ValidateImagesAsync 重複鍵導致 ToDictionary 例外 (500)
+**檔案**: [`img-validation-dupkey.md`](./img-validation-dupkey.md)
+**描述**: 批量驗證圖片時因重複路徑導致 `ToDictionary` 拋 `ArgumentException`，造成 500
+**關鍵字**: ToDictionary, 重複鍵, Distinct, 快取, 服務層
+**相關檔案**: `Services/ImageValidationService.cs`, `Controllers/Api/PostController.cs`
+
+### 問題 30: CommonController Primary Constructor 注入 ILogger 造成 CS9105/CS9113
+**檔案**: [`common-logger-static.md`](./common-logger-static.md)  
+**描述**: 在 static 方法中使用 Primary Constructor 參數導致編譯錯誤，改以 HttpContext DI 解析 logger  
+**關鍵字**: CS9105, CS9113, Primary Constructor, ILogger, static, DI  
+**相關檔案**: `Controllers/CommonController.cs`
+
+### 問題 31: CommonController 指向不存在的屬性導致 CS1061（auth.displayName）
+**檔案**: [`menu-auth-displayname.md`](./menu-auth-displayname.md)  
+**描述**: 大小寫錯誤與模型不一致導致 CS1061，移除無效欄位指派並使用 `UserName` 顯示  
+**關鍵字**: CS1061, DisplayName, 駝峰/帕斯卡命名, MenuViewModel  
+**相關檔案**: `Controllers/CommonController.cs`, `ViewModels/MenuViewModel.cs`, `Extensions/CookieExtension.cs`
+
+### 問題 32: 使用者名稱 Substring 超出長度導致 ArgumentOutOfRangeException
+**檔案**: [`menu-substring-oob.md`](./menu-substring-oob.md)  
+**描述**: 字串長度判斷與截斷長度不一致，導致 6~7 字元時 Substring 越界  
+**關鍵字**: ArgumentOutOfRangeException, Substring, 長度判斷, 邊界條件  
+**相關檔案**: `Controllers/CommonController.cs`
+
 ---
 
 ## 🔍 快速搜尋
@@ -100,29 +142,33 @@
 - **安全功能**: 問題 19 (密碼重置), 問題 20 (權限控制), 問題 24 (Token 清除), 問題 25 (Token 管理)
 
 ### 技術領域
-- **Controller**: 問題 2, 3, 13, 14, 20
-- **Service Layer**: 問題 8, 9, 10, 19, 24, 25
-- **依賴注入**: 問題 9, 10
-- **前後端整合**: 問題 14, 15
+- **Controller**: 問題 2, 3, 13, 14, 20, 27
+- **Service Layer**: 問題 8, 9, 10, 19, 24, 25, 27
+- **依賴注入**: 問題 9, 10, 27
+- **前後端整合**: 問題 14, 15, 26
 - **授權機制**: 問題 20
+- **Razor 語法**: 問題 26
+- **性能優化**: 問題 27
 
 ### 難度分級
-- **初級**: 問題 2, 3 (Claims 調試), 問題 20 (授權設定)
-- **中級**: 問題 8, 13, 14 (業務邏輯), 問題 19 (安全功能), 問題 24 (Token 管理), 問題 25 (安全流程)
+- **初級**: 問題 2, 3 (Claims 調試), 問題 20 (授權設定), 問題 26 (Razor 語法)
+- **中級**: 問題 8, 13, 14 (業務邏輯), 問題 19 (安全功能), 問題 24 (Token 管理), 問題 25 (安全流程), 問題 27 (圖片驗證)
 - **高級**: 問題 9, 10, 15 (架構設計)
 
 ## 📊 統計
 
-- **總問題數**: 14
-- **已解決**: 14
-- **Controller 相關**: 6
-- **Service 相關**: 6
+- **總問題數**: 21
+- **已解決**: 21
+- **Controller 相關**: 10
+- **Service 相關**: 9
 - **ViewComponent 相關**: 1
-- **錯誤修復**: 5
+- **錯誤修復**: 9
 - **安全功能**: 4
 - **授權機制**: 1
 - **跨平台問題**: 1
-- **最後更新**: 2025-08-30
+- **Razor 語法**: 1
+- **性能優化**: 1
+- **最後更新**: 2025-08-31
 
 ## 🔍 快速搜尋
 

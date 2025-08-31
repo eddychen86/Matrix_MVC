@@ -14,7 +14,7 @@
             @if (Model.IsAuthenticated) {
                 <a href="/Profile" class="cts-btn">
                     <img src="@Model.UserImg" alt="" class="icon-lg object-cover object-center border-2 border-white" />
-                    <span class="title">@Model.UserName</span>
+                    <span class="title">@Model.DisplayName</span>
                 </a>
             }
         </li>

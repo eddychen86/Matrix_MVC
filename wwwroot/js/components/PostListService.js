@@ -56,10 +56,10 @@ export class PostListService {
             const authorPersonId =
                 a.authorPersonId || a.personId || a.author?.personId || a.authorId || null;
 
-            return {
+            const data = {
                 articleId: a.articleId,
                 content: a.content,
-                createTime: this.formatDate(a.createTime),
+                createTime: a.createTime,
 
                 praiseCount: a.praiseCount || 0,
                 collectCount: a.collectCount || 0,
@@ -80,6 +80,11 @@ export class PostListService {
                     type: (att.type || '').toLowerCase(),
                 })),
 
+                // ✅ 提取主圖片給 Vue 模板使用
+                image: (a.attachments || []).find(att => 
+                    (att.type || '').toLowerCase() === 'image'
+                ),
+
                 isPraised: !!a.isPraised,
                 isCollected: !!a.isCollected,
                 hashtags: Array.isArray(a.hashtags)
@@ -88,10 +93,9 @@ export class PostListService {
                         name: t.name || t.Name
                     }))
                     : [],
-                
-                // ✅ 頭像錯誤狀態追蹤
-                _avatarError: [],
-            };
+            }
+
+            return data
         });
     }
 

@@ -34,6 +34,12 @@
 **關鍵字**: 輪播, carousel, 滾動, 元素選擇器, getStep, getMaxIndex  
 **相關檔案**: wwwroot/js/pages/home/home.js, Views/Home/Index.cshtml
 
+### 問題 5: 函數式編程風格的圖片錯誤處理 Hook
+**檔案**: [`fp-img-error.md`](./fp-img-error.md)  
+**描述**: 創建統一的圖片載入錯誤處理 Hook，支持多種圖片類型和批量處理  
+**關鍵字**: Hook, 函數式編程, 圖片錯誤, Vue3, Composition API, 錯誤處理  
+**相關檔案**: wwwroot/js/hooks/useImgError.js, wwwroot/js/pages/home/home.js
+
 ---
 
 ## 🔍 快速搜尋
@@ -43,14 +49,16 @@
 - **Vue 組件相關**: 問題 18
 - **CKEditor 相關**: 問題 3
 - **輪播滾動相關**: 問題 4
+- **Hook 開發相關**: 問題 5
 - **函數調用錯誤**: 問題 1
 - **屬性未定義**: 問題 18
 - **TypeError**: 問題 2
 - **CSS 樣式覆蓋**: 問題 3
 - **元素選擇器錯誤**: 問題 4
+- **圖片錯誤處理**: 問題 5
 
 ## 📊 統計
 
-- **總問題數**: 5
-- **已解決**: 5
-- **最後更新**: 2025-08-30
+- **總問題數**: 6
+- **已解決**: 6
+- **最後更新**: 2025-08-31

@@ -1,5 +1,6 @@
 // import { useCreatePost } from '/js/components/create-post.js' // 現在全域載入
 import { usePostActions } from '/js/hooks/usePostActions.js'
+import { useImgError } from '/js/hooks/useImgError.js'
 
 export const useHome = () => {
     const { ref, onMounted, onBeforeUnmount, nextTick } = Vue
@@ -8,13 +9,21 @@ export const useHome = () => {
     const hotCarouselRef = ref(null)
     const canPrev = ref(false)
     const canNext = ref(false)
+    
+    // 圖片錯誤處理
+    const { handleImageError, hasError, testImgExist } = useImgError()
 
     const fetchHotList = async () => {
         try {
             const resp = await fetch('/api/post/hot?count=10', { credentials: 'same-origin' })
             if (!resp.ok) throw new Error('HTTP ' + resp.status)
             const data = await resp.json()
+
             hotlist.value = Array.isArray(data?.items) ? data.items : []
+
+            // 檢查圖片存在性並自動清理無效圖片
+            hotlist.value = await testImgExist(hotlist.value, ['image', 'avatar'])
+
             await nextTick()
             window.lucide?.createIcons?.()
             updateEdge()
@@ -159,7 +168,9 @@ export const useHome = () => {
         toggleCreatePost, openCreatePost,
         hotlist, hotCarouselRef, hotPrev, hotNext,
         canPrev, canNext,
-        stateFunc
+        stateFunc,
+        // 圖片錯誤處理
+        handleImageError, hasError
     }
 }
 

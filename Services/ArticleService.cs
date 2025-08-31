@@ -302,22 +302,46 @@ namespace Matrix.Services
         }
 
         /// <summary>
-        /// 獲取熱門文章
+        /// 獲取熱門文章（不足時自動補充最新文章）
         /// </summary>
         public async Task<List<ArticleDto>> GetPopularArticlesAsync(int limit = 10, int days = 7)
         {
             var sinceDate = DateTime.Now.AddDays(-days);
 
-            var articles = await _context.Articles
+            // 1. 先取熱門文章（最近N天內有讚數或收藏的）
+            var popularArticles = await _context.Articles
                 .AsNoTracking() // 只讀查詢
                 .Include(a => a.Author)
                 .Include(a => a.Attachments!.Where(att => (att.Type ?? "") == "image"))
-                .Where(a => a.Status == 0 && a.IsPublic == 0 && a.CreateTime >= sinceDate)
+                .Where(a => a.Status == 0 && a.IsPublic == 0 && a.CreateTime >= sinceDate 
+                       && (a.PraiseCount > 0 || a.CollectCount > 0)) // 確保有互動
                 .OrderByDescending(a => a.PraiseCount + a.CollectCount)
                 .Take(limit)
                 .ToListAsync();
 
-            return _mapper.Map<List<ArticleDto>>(articles);
+            var result = new List<Article>(popularArticles);
+
+            // 2. 如果熱門文章不足，用最新文章補充
+            if (popularArticles.Count < limit)
+            {
+                var neededCount = limit - popularArticles.Count;
+                var existingIds = popularArticles.Select(a => a.ArticleId).ToHashSet();
+                
+                var recentArticles = await _context.Articles
+                    .AsNoTracking()
+                    .Include(a => a.Author)
+                    .Include(a => a.Attachments!.Where(att => (att.Type ?? "") == "image"))
+                    .Where(a => a.Status == 0 && a.IsPublic == 0 && !existingIds.Contains(a.ArticleId))
+                    .OrderByDescending(a => a.CreateTime)
+                    .Take(neededCount)
+                    .ToListAsync();
+                
+                result.AddRange(recentArticles);
+                
+                // 補充日誌：熱門文章 {popularArticles.Count} 篇，最新文章 {recentArticles.Count} 篇
+            }
+
+            return _mapper.Map<List<ArticleDto>>(result);
         }
 
         /// <summary>

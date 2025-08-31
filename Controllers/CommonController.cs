@@ -1,4 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Matrix.Services;
 
 namespace Matrix.Controllers
@@ -7,13 +9,20 @@ namespace Matrix.Controllers
     {
         public static MenuViewModel BuildMenuModel(HttpContext context)
         {
+            var logger = context.RequestServices.GetRequiredService<ILogger<CommonController>>();
             var auth = context.GetAuthInfo();
+
+            // logger.LogInformation("\n\nAuth:\n{auth}", auth);
+
             var isLogin = auth.IsAuthenticated;
             var isAdmin = auth.Role >= 1;
 
             // 安全處理 UserName，避免 null 或空字串導致崩潰
             var safeUserName = string.IsNullOrWhiteSpace(auth.UserName) ? "Guest" : auth.UserName;
-            var displayUserName = safeUserName.Length > 8 ? safeUserName.Substring(0, 8) + "..." : safeUserName;
+            const int maxUserNameLen = 5;
+            var displayUserName = safeUserName.Length > maxUserNameLen
+                ? safeUserName.Substring(0, maxUserNameLen) + "..."
+                : safeUserName;
 
             // 安全處理 AvatarPath
             var safeAvatarPath = string.IsNullOrWhiteSpace(auth.AvatarPath) ? "" : auth.AvatarPath;
@@ -22,6 +31,7 @@ namespace Matrix.Controllers
             {
                 IsAuthenticated = isLogin,
                 UserName = displayUserName,
+                DisplayName = auth.DisplayName,
                 UserRole = auth.Role,
                 UserId = auth.UserId,
                 IsGuest = !isLogin,

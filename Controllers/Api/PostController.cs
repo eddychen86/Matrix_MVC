@@ -191,7 +191,7 @@ namespace Matrix.Controllers.Api
                         createTime = a.CreateTime,
                         praiseCount = a.PraiseCount,
                         collectCount = a.CollectCount,
-                        authorName = a.Author?.User?.UserName ?? "未知作者",
+                        authorName = a.Author?.DisplayName ?? "未知作者",
                         authorAvator = a.Author?.AvatarPath ?? "",
                         attachments = a.Attachments ?? new List<ArticleAttachmentDto>(),
 

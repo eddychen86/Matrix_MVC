@@ -20,7 +20,9 @@
                 <li v-for="item in hotlist" :key="item.articleId" class="min-w-1/4 h-full bg-accent rounded-[30px]">
                     <div class="card image-full shadow-sm size-full relative">
                         <figure>
-                            <img v-if="item.image && item.image.filePath" :src="item.image.filePath" />
+                            <img v-if="item.image && item.image.filePath && !hasError(item, 'image')" 
+                                 :src="item.image.filePath" 
+                                 @@error="handleImageError(item, 'image')" />
                             <div v-else class="no-img bg-accent size-full flex items-center justify-center">
                                 <i data-lucide="image" class="size-24 text-stone-600"></i>
                             </div>
@@ -32,9 +34,13 @@
                             </p>
 
                             <a :href="`/Profile/${item.authorName.replace(/\s+/g, '')}`" class="flex justify-between gap-4">
-                                <div class="size-10 rounded-full overflow-hidden border-2 border-white ">
-                                    <img v-if="item.authorAvatar" :src="item.authorAvatar" :alt="item.authorName" class="size-full" />
-                                    <div v-else class="no-img bg-secondary size-full flex items-center justify-center">
+                                <div class="size-10 rounded-full overflow-hidden border-2 border-white flex items-center justify-center bg-secondary">
+                                    <img v-if="item.authorAvatar && item.authorAvatar !== '' && !hasError(item, 'avatar')" 
+                                         :src="item.authorAvatar" 
+                                         :alt="item.authorName" 
+                                         @@error="handleImageError(item, 'avatar')"
+                                         class="size-full" />
+                                    <div v-else class="no-img size-full flex items-center justify-center">
                                         <span>{{ (item.authorName || '').slice(0, 1).toUpperCase() }}</span>
                                     </div>
                                 </div>
