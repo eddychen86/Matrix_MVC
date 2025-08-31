@@ -71,8 +71,9 @@ window.mountPostsPage = function () {
       })
 
       const formatDate = (datetime) => {
-        const date = new Date(datetime)
-        return date.toLocaleDateString() + ' ' + date.toLocaleTimeString()
+        if (window.formatDateGlobal) return window.formatDateGlobal(datetime, 'datetime')
+        const d = new Date(datetime)
+        return d.toLocaleDateString() + ' ' + d.toLocaleTimeString()
       }
 
       const findArticle = (id) => articles.value.find(a => a.articleId === id) || null

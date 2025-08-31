@@ -1,7 +1,5 @@
-/**
- * Post Manager - 處理文章列表相關功能
- * 從 main.js 中抽離出來的文章管理功能
- */
+// 文章小管家：幫你拿文章、排排隊、看到底還有沒有更多
+// 這份是從 main.js 分出來的，讓事情更清楚
 
 import { usePostActions } from '/js/hooks/usePostActions.js'
 
@@ -10,14 +8,15 @@ export const usePostManager = (currentUser) => {
 
     //#region PostList Data (共用於所有使用 PostList ViewComponent 的頁面)
 
-    // PostList 相關的狀態
+    // 這些是文章清單的狀態（像是進度條、頁碼）
+    // TODO: 請保持命名清楚，方便看懂
     const posts = ref([])
     const postListLoading = ref(false)
     const hasMorePosts = ref(true)
     const currentPage = ref(1)
     let infiniteScrollObserver = null
 
-    // 跳轉到對象個人頁面
+    // 去看看某位使用者的個人頁
     const gotoUserPrpfile = authorName => {
         window.herf = `/Profile/${authorName}`
     }
@@ -29,7 +28,8 @@ export const usePostManager = (currentUser) => {
         return await postActions.stateFunc(action, articleId, item)
     }
 
-    // 載入文章的通用方法
+    // 幫我去後端拿文章回來（通用版）
+    // TODO: 如果失敗，記得優雅處理不要卡住畫面
     const loadPosts = async (page = 1, pageSize = 10, uid = null, isProfilePage = false) => {
         const { postListService } = await import('/js/components/PostListService.js')
         if (!postListService) return { success: false, articles: [] }
@@ -57,7 +57,7 @@ export const usePostManager = (currentUser) => {
         }
     }
 
-    // 載入更多文章（用於無限滾動）
+    // 往下滑就幫你多抓一頁（無限滾動）
     const loadMorePosts = async (uid = null, isProfilePage = false) => {
         if (!hasMorePosts.value || postListLoading.value) return
 
@@ -80,23 +80,25 @@ export const usePostManager = (currentUser) => {
         }
     }
 
-    // 設置無限滾動
+    // 設定無限滾動（看到觸發點就再抓）
+    // TODO: 頁面可能沒有觸發點，要能安靜跳過
     const setupInfiniteScroll = (uid = null, isProfilePage = false) => {
         // 清理之前的 Observer
         if (infiniteScrollObserver) {
             infiniteScrollObserver.disconnect()
         }
 
-        // 尋找觸發元素（由 PostList ViewComponent 提供）
+        // 找到觸發元素（PostList ViewComponent 會放一個）
         const triggerElement = document.querySelector('.infinite-scroll-trigger')
         if (!triggerElement) {
-            console.warn('Infinite scroll trigger element not found')
+            // 某些頁面（如無文章列表）不會有觸發元素，屬正常情況
+            console.debug && console.debug('Infinite scroll trigger element not found')
             return
         }
 
         // console.log('Setting up infinite scroll...', { uid, isProfilePage })
 
-        // 設置 Intersection Observer
+        // 使用 IntersectionObserver 盯著觸發點
         infiniteScrollObserver = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting && hasMorePosts.value && !postListLoading.value) {
@@ -113,7 +115,7 @@ export const usePostManager = (currentUser) => {
         infiniteScrollObserver.observe(triggerElement)
     }
 
-    // 清理無限滾動
+    // 把觀察器收起來（換頁或離開時）
     const cleanupInfiniteScroll = () => {
         if (infiniteScrollObserver) {
             infiniteScrollObserver.disconnect()
@@ -125,7 +127,7 @@ export const usePostManager = (currentUser) => {
         triggers.forEach(trigger => trigger.remove())
     }
 
-    // 重置文章列表狀態
+    // 一鍵重置狀態（像是重開機）
     const resetPostState = () => {
         posts.value = []
         currentPage.value = 1
@@ -134,7 +136,7 @@ export const usePostManager = (currentUser) => {
         cleanupInfiniteScroll()
     }
 
-    // 初始化首頁文章列表
+    // 進入首頁時先抓第一頁，然後把無限滾動也準備好
     const initializeHomePosts = async () => {
         const result = await loadPosts(1, 10, null, false) // page=1, pageSize=10, uid=null, isProfilePage=false
         if (result.success) {
@@ -150,7 +152,7 @@ export const usePostManager = (currentUser) => {
         return result
     }
 
-    // 監聽新貼文事件，實現局部刷新
+    // 有新貼文進來時，幫你塞到最上面（不重整頁面）
     const setupPostRefreshListener = () => {
         window.addEventListener('post:listRefresh', (event) => {
             const { action, newArticle } = event.detail;
@@ -159,7 +161,7 @@ export const usePostManager = (currentUser) => {
                 // 將新貼文插入到列表頂部
                 posts.value.unshift(newArticle);
 
-                // 可選：添加視覺提示
+                // 可選：閃一下當提示「新貼文來了！」
                 Vue.nextTick(() => {
                     const firstPost = document.querySelector('.post-item:first-child, .article-item:first-child');
                     if (firstPost) {

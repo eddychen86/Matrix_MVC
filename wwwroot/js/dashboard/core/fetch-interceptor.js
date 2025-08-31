@@ -1,7 +1,4 @@
-/**
- * Fetch Interceptor - 處理 API 請求監控和取消功能
- * 從 d_main.js 中抽離出來的 fetch 攔截功能
- */
+// Fetch Interceptor - 處理 API 監控與可取消請求（從 d_main.js 抽出）
 
 (function() {
     'use strict';

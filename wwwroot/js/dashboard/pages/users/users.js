@@ -113,8 +113,9 @@ window.mountUsersPage = function () {
             })
             //以上多語系
             const formatDate = (datetime) => {
-                const date = new Date(datetime)
-                return date.toLocaleDateString() + ' ' + date.toLocaleTimeString()
+                if (window.formatDateGlobal) return window.formatDateGlobal(datetime, 'datetime')
+                const d = new Date(datetime)
+                return d.toLocaleDateString() + ' ' + d.toLocaleTimeString()
             }
 
 
@@ -136,6 +137,7 @@ window.mountUsersPage = function () {
 
             //轉YYYY-MM-DD字串給後端
             function formatYMD(dt) {
+                // 後端查詢參數仍需 yyyy-MM-dd，因此保留本地轉換
                 const d = new Date(dt)
                 const y = d.getFullYear()
                 const m = String(d.getMonth() + 1).padStart(2, '0')

@@ -1,18 +1,7 @@
-/**
- * API 請求 Hook - 自動管理載入狀態
- * 
- * 使用方式：
- * const { callApi, isLoading } = useApiWithLoading()
- * 
- * // 方式 1: 使用 callApi
- * const result = await callApi('/api/posts', { method: 'GET' })
- * 
- * // 方式 2: 使用 withLoading
- * const result = await withLoading(async () => {
- *     const response = await fetch('/api/posts')
- *     return response.json()
- * })
- */
+// API 請求 Hook - 自動管理載入狀態
+// 用法：
+// const { callApi, isLoading } = useApiWithLoading()
+// const res = await callApi('/api/posts')
 
 export const useApiWithLoading = () => {
     // 如果全域載入管理器已經載入，使用它；否則創建本地狀態
@@ -75,16 +64,7 @@ export const useApiWithLoading = () => {
     }
 }
 
-/**
- * 為現有的 fetch 調用快速添加載入狀態管理
- * 
- * 使用方式：
- * // 將原本的 fetch
- * const response = await fetch('/api/data')
- * 
- * // 改為
- * const response = await managedFetch('/api/data')
- */
+// 幫現有 fetch 快速加上載入管理
 export const managedFetch = (url, options = {}, requestId = null) => {
     if (window.globalLoadingManager) {
         return window.globalLoadingManager.fetch(url, options, requestId)
@@ -95,17 +75,7 @@ export const managedFetch = (url, options = {}, requestId = null) => {
     }
 }
 
-/**
- * 為現有的異步操作快速添加載入狀態管理
- * 
- * 使用方式：
- * const result = await withGlobalLoading(async () => {
- *     const response = await fetch('/api/data')
- *     const data = await response.json()
- *     // 其他處理邏輯
- *     return data
- * })
- */
+// 幫任何非同步工作快速加上載入管理
 export const withGlobalLoading = (operation, requestId = null) => {
     if (window.globalLoadingManager) {
         return window.globalLoadingManager.withLoading(operation, requestId)

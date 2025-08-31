@@ -1,7 +1,4 @@
-/**
- * Menu App - Dashboard 選單 Vue 應用程式
- * 從 d_main.js 中抽離出來的選單應用功能
- */
+// Menu App - Dashboard 選單 Vue 應用程式（從 d_main.js 抽出）
 
 (function() {
     'use strict';

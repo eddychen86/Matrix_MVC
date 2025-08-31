@@ -1,7 +1,5 @@
-/**
- * 統一認證服務 - 單例模式 (ESM)
- * 負責管理用戶認證狀態，避免重複API調用
- */
+// 統一認證服務 - 單例模式 (ESM)
+// 負責管理用戶認證狀態，避免重複 API 呼叫
 export class AuthService {
     constructor() {
         this.authData = null;
@@ -11,9 +9,7 @@ export class AuthService {
         this.subscribers = new Set(); // 狀態變更訂閱者
     }
 
-    /**
-     * 獲取認證狀態（帶緩存）
-     */
+    // 取得認證狀態（有快取）
     async getAuthStatus() {
         // 如果有有效緩存，直接返回
         if (this.authData && this.cacheTime &&
@@ -38,9 +34,7 @@ export class AuthService {
         }
     }
 
-    /**
-     * 私有方法：實際的API調用
-     */
+    // 私有方法：真的去打 API
     async _fetchAuthStatus() {
         try {
             const response = await fetch('/api/auth/status', {
@@ -84,9 +78,7 @@ export class AuthService {
         }
     }
 
-    /**
-     * 獲取當前用戶ID（如果已認證）
-     */
+    // 取得當前用戶 ID（如果已認證）
     async getCurrentUserId() {
         const authStatus = await this.getAuthStatus();
 
@@ -99,9 +91,7 @@ export class AuthService {
         return null;
     }
 
-    /**
-     * 獲取當前用戶信息
-     */
+    // 取得當前用戶資訊
     async getCurrentUser() {
         const authStatus = await this.getAuthStatus();
 
@@ -112,17 +102,13 @@ export class AuthService {
         return null;
     }
 
-    /**
-     * 檢查是否已認證
-     */
+    // 檢查是否已認證
     async isAuthenticated() {
         const authStatus = await this.getAuthStatus();
         return authStatus.success && authStatus.data.authenticated;
     }
 
-    /**
-     * 強制刷新認證狀態（清除緩存）
-     */
+    // 強制刷新認證狀態（清空快取）
     async refreshAuthStatus() {
         this.authData = null;
         this.cacheTime = null;
@@ -131,9 +117,7 @@ export class AuthService {
         return await this.getAuthStatus();
     }
 
-    /**
-     * 登出時清除認證狀態
-     */
+    // 登出時清除認證狀態
     clearAuthStatus() {
         this.authData = null;
         this.cacheTime = null;
@@ -147,9 +131,7 @@ export class AuthService {
         this._notifySubscribers(logoutData);
     }
 
-    /**
-     * 訂閱認證狀態變更
-     */
+    // 訂閱認證狀態變更
     subscribe(callback) {
         this.subscribers.add(callback);
 
@@ -164,9 +146,7 @@ export class AuthService {
         };
     }
 
-    /**
-     * 通知所有訂閱者
-     */
+    // 通知所有訂閱者
     _notifySubscribers(data) {
         this.subscribers.forEach(callback => {
             try {
@@ -177,9 +157,7 @@ export class AuthService {
         });
     }
 
-    /**
-     * 獲取緩存狀態（調試用）
-     */
+    // 取得快取狀態（除錯用）
     getCacheInfo() {
         return {
             hasCache: !!this.authData,

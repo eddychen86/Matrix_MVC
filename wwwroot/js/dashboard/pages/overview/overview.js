@@ -9,16 +9,24 @@ window.mountOverviewPage = function() {
       const totalTag = ref(null)
       let hashtagChart = null
       const total = reactive([
-        /* 總用戶數       */ { id: 0, title: 'user', result: 0, color: 'blue', icon: 'user-round'  },
-        /* 文章總數       */ { id: 1, title: 'post', result: 0, color: 'green', icon: 'scroll-text' },
-        /* 待處理檢舉     */ { id: 2, title: 'reports', result: 0, color: 'yellow', icon: 'flag' },
-        /* 今日活躍使用者 */ { id: 3, title: 'todayLoginUsers', result: 0, color: 'purple', icon: 'users' },
+        // 總用戶數
+        { id: 0, title: 'user', result: 0, color: 'blue', icon: 'user-round'  },
+        // 文章總數
+        { id: 1, title: 'post', result: 0, color: 'green', icon: 'scroll-text' },
+        // 待處理檢舉
+        { id: 2, title: 'reports', result: 0, color: 'yellow', icon: 'flag' },
+        // 今日活躍使用者
+        { id: 3, title: 'todayLoginUsers', result: 0, color: 'purple', icon: 'users' },
       ])
       const systemStatus = reactive({
-        /* 系統運行時間   */ totelRunTime: '載入中...',
-        /* 資料庫連線狀態 */ DBConnectStatus: false,
-        /* SMTP 服務狀態  */ SMTPStatus: false,
-        /* 剩餘儲存空間   */ Storage: '載入中...',
+        // 系統運行時間
+        totelRunTime: '載入中...',
+        // 資料庫連線狀態
+        DBConnectStatus: false,
+        // SMTP 服務狀態
+        SMTPStatus: false,
+        // 剩餘儲存空間
+        Storage: '載入中...',
       })
 
       const hashtagsData = reactive({
@@ -760,4 +768,3 @@ if (overviewElement) {
 } else {
   // console.log('❌ 找不到 #adminOverview 元素')
 }
-

@@ -1,7 +1,5 @@
-/**
- * 全域載入狀態管理器
- * 用於追蹤所有 API 請求的載入狀態
- */
+// 全域載入狀態管理器
+// 用來追蹤所有 API 請求是否在忙
 
 class LoadingManager {
     constructor() {
@@ -10,10 +8,7 @@ class LoadingManager {
         this.pendingRequests = Vue.ref(0)
     }
 
-    /**
-     * 開始一個新的載入狀態
-     * @param {string} requestId - 唯一的請求標識符
-     */
+    // 開始一個新的載入狀態（回傳這次的 id）
     startLoading(requestId = null) {
         const id = requestId || `request_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
         this.activeRequests.add(id)
@@ -21,38 +16,25 @@ class LoadingManager {
         return id
     }
 
-    /**
-     * 結束一個載入狀態
-     * @param {string} requestId - 請求標識符
-     */
+    // 結束一個載入狀態
     finishLoading(requestId) {
         this.activeRequests.delete(requestId)
         this.updateLoadingState()
     }
 
-    /**
-     * 更新整體載入狀態
-     */
+    // 更新整體載入狀態
     updateLoadingState() {
         this.pendingRequests.value = this.activeRequests.size
         this.isLoading.value = this.activeRequests.size > 0
     }
 
-    /**
-     * 清除所有載入狀態（用於頁面切換或錯誤處理）
-     */
+    // 把所有載入清掉（切頁或出錯時）
     clearAll() {
         this.activeRequests.clear()
         this.updateLoadingState()
     }
 
-    /**
-     * 包裝 fetch 請求以自動管理載入狀態
-     * @param {string} url - 請求 URL
-     * @param {object} options - fetch 選項
-     * @param {string} requestId - 可選的請求 ID
-     * @returns {Promise} fetch promise
-     */
+    // 幫 fetch 外面套一層，進入就顯示載入、完成就關掉
     async fetch(url, options = {}, requestId = null) {
         const id = this.startLoading(requestId)
         
@@ -64,12 +46,7 @@ class LoadingManager {
         }
     }
 
-    /**
-     * 包裝任意異步操作以自動管理載入狀態
-     * @param {Function} asyncOperation - 異步操作函數
-     * @param {string} requestId - 可選的請求 ID
-     * @returns {Promise} 包裝後的 promise
-     */
+    // 幫任何非同步工作加上載入管理
     async withLoading(asyncOperation, requestId = null) {
         const id = this.startLoading(requestId)
         

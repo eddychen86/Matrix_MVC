@@ -1,7 +1,5 @@
-/**
- * Friends Manager - 處理好友相關功能
- * 從 main.js 中抽離出來的好友管理功能
- */
+// Friends Manager - 處理好友相關功能
+// 從 main.js 抽出來的好友管理功能
 
 export const useFriendsManager = (currentUser) => {
     const { ref } = Vue
@@ -64,7 +62,7 @@ export const useFriendsManager = (currentUser) => {
             return
         }
 
-        // ✅ 防呆：targetPersonId 必須存在
+        // 防呆：targetPersonId 必須存在
         if (!targetPersonId) {
             console.warn('toggleFollow: targetPersonId 為空，取消請求')
             return
@@ -76,7 +74,7 @@ export const useFriendsManager = (currentUser) => {
                 credentials: 'include'
             })
 
-            // ✅ 500/HTML 錯誤頁防呆
+            // 500/HTML 錯誤頁防呆
             const ct = res.headers.get('content-type') || ''
             let result
             if (ct.includes('application/json')) {
@@ -93,15 +91,15 @@ export const useFriendsManager = (currentUser) => {
                 return
             }
 
-            // ✅ 同步更新「搜尋結果」按鈕狀態
+            // 同步更新「搜尋結果」按鈕狀態
             const u = popupData.Search.Users.find(u => u.personId === targetPersonId)
             if (u) u.isFollowed = !currentStatus
 
             if (currentStatus === true) {
-                // ✅ 取消追蹤：從清單移除
+                // 取消追蹤：從清單移除
                 popupData.Follows = popupData.Follows.filter(f => f.personId !== targetPersonId)
             } else {
-                // ✅ 追蹤：若清單沒有，樂觀加入一筆
+                // 追蹤：若清單沒有，樂觀加入一筆
                 const exists = popupData.Follows.some(f => f.personId === targetPersonId)
                 if (!exists) {
                     const item = u
@@ -121,7 +119,7 @@ export const useFriendsManager = (currentUser) => {
                 }
             }
 
-            // ✅ 若此時關鍵字已清空、且身在 Follows 視窗 → 重抓一次清單（確保與後端一致）
+            // 若此時關鍵字已清空、且身在 Follows 視窗 → 重抓一次清單（確保與後端一致）
             // 這個邏輯需要在使用時傳入相關的參數
         } catch (err) {
             console.error('追蹤操作錯誤：', err)

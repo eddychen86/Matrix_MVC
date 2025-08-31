@@ -1,7 +1,13 @@
-/**
- * Matrix SignalR 客戶端管理
- * 處理所有即時更新功能：通知、功能開關、按讚、追蹤、新貼文等
- */
+// Matrix SignalR 客戶端管理
+// 負責通知、功能開關、按讚、追蹤、新貼文等即時功能
+
+// 可切換的除錯輸出（預設關閉）
+const SignalRDebug = {
+  enabled: false,
+  log: (...args) => { if (SignalRDebug.enabled) console.log(...args); },
+  warn: (...args) => { if (SignalRDebug.enabled) console.warn(...args); },
+  error: (...args) => { if (SignalRDebug.enabled) console.error(...args); },
+};
 
 class MatrixSignalR {
   constructor() {
@@ -12,9 +18,7 @@ class MatrixSignalR {
     this.eventHandlers = new Map();
   }
 
-  /**
-   * 初始化 SignalR 連接
-   */
+  // 初始化 SignalR 連接
   async initialize() {
     if (this.connection) {
       //console.log('SignalR 連接已存在');
@@ -26,7 +30,7 @@ class MatrixSignalR {
       this.connection = new signalR.HubConnectionBuilder()
         .withUrl('/matrixHub')
         .withAutomaticReconnect([0, 2000, 10000, 30000])
-        .configureLogging(signalR.LogLevel.Information)
+        .configureLogging(signalR.LogLevel.None)
         .build();
 
       // 設置事件監聽器
@@ -37,87 +41,85 @@ class MatrixSignalR {
       this.isConnected = true;
       this.reconnectAttempts = 0;
 
-      console.log('✅ MatrixSignalR 連接成功');
+      SignalRDebug.log('MatrixSignalR 連接成功');
 
       // 觸發連接成功事件
       this.emit('connected');
 
     } catch (error) {
-      console.error('❌ MatrixSignalR 連接失敗:', error);
+      SignalRDebug.error('MatrixSignalR 連接失敗:', error);
       this.isConnected = false;
     }
   }
 
-  /**
-   * 設置 SignalR 事件監聽器
-   */
+  // 設置 SignalR 事件監聽器
   setupEventHandlers() {
     if (!this.connection) return;
 
     // 連接狀態變化
     this.connection.onreconnecting(() => {
-      console.log('🔄 SignalR 重新連接中...');
+      SignalRDebug.log('SignalR 重新連接中...');
       this.isConnected = false;
       this.emit('reconnecting');
     });
 
     this.connection.onreconnected(() => {
-      console.log('✅ SignalR 重新連接成功');
+      SignalRDebug.log('SignalR 重新連接成功');
       this.isConnected = true;
       this.reconnectAttempts = 0;
       this.emit('reconnected');
     });
 
     this.connection.onclose((error) => {
-      console.log('❌ SignalR 連接關閉', error);
+      SignalRDebug.warn('SignalR 連接關閉', error);
       this.isConnected = false;
       this.emit('disconnected', error);
     });
 
     // 心跳回應
     this.connection.on('Pong', (timestamp) => {
-      console.log('💓 SignalR Pong received:', timestamp);
+      SignalRDebug.log('SignalR Pong received:', timestamp);
     });
 
     // 功能開關變更
     this.connection.on('FeatureToggle', (data) => {
-      console.log('🔧 功能開關變更:', data);
+      SignalRDebug.log('功能開關變更:', data);
       this.emit('featureToggle', data);
     });
 
     // 系統公告
     this.connection.on('SystemAnnouncement', (announcement) => {
-      console.log('📢 系統公告:', announcement);
+      SignalRDebug.log('系統公告:', announcement);
       this.emit('systemAnnouncement', announcement);
     });
 
     // 互動更新（按讚/收藏）
     this.connection.on('InteractionUpdate', (update) => {
-      console.log('👍 互動更新:', update);
+      SignalRDebug.log('互動更新:', update);
       this.emit('interactionUpdate', update);
     });
 
     // 追蹤更新
     this.connection.on('FollowUpdate', (update) => {
-      console.log('👥 追蹤更新:', update);
+      SignalRDebug.log('追蹤更新:', update);
       this.emit('followUpdate', update);
     });
 
     // 個人通知
     this.connection.on('PersonalNotification', (notification) => {
-      console.log('🔔 個人通知:', notification);
+      SignalRDebug.log('個人通知:', notification);
       this.emit('newNotification', notification);
     });
 
     // 統計更新
     this.connection.on('StatsUpdate', (stats) => {
-      console.log('📊 統計更新:', stats);
+      SignalRDebug.log('統計更新:', stats);
       this.emit('statsUpdate', stats);
     });
 
     // 新貼文通知
     this.connection.on('NewPostReceived', (postData) => {
-      console.log('📝 收到新貼文通知:', postData);
+      SignalRDebug.log('收到新貼文通知:', postData);
 
       // 觸發自定義事件，讓貼文列表組件監聽
       window.dispatchEvent(new CustomEvent('post:listRefresh', {
@@ -133,66 +135,56 @@ class MatrixSignalR {
     });
   }
 
-  /**
-   * 發送心跳
-   */
+  // 發送心跳
   async ping() {
     if (this.isConnected && this.connection) {
       try {
         await this.connection.invoke('Ping');
       } catch (error) {
-        console.error('SignalR ping 失敗:', error);
+        SignalRDebug.error('SignalR ping 失敗:', error);
       }
     }
   }
 
-  /**
-   * 通知新貼文（供發文者調用）
-   */
+  // 通知新貼文（供發文者調用）
   async notifyNewPost(postData) {
     if (this.isConnected && this.connection) {
       try {
         await this.connection.invoke('NotifyNewPost', postData);
         return true;
       } catch (error) {
-        console.error('SignalR 新貼文通知失敗:', error);
+        SignalRDebug.error('SignalR 新貼文通知失敗:', error);
         return false;
       }
     }
     return false;
   }
 
-  /**
-   * 加入特定群組
-   */
+  // 加入特定群組
   async joinGroup(groupName) {
     if (this.isConnected && this.connection) {
       try {
         await this.connection.invoke('JoinGroup', groupName);
-        console.log(`✅ 已加入群組: ${groupName}`);
+        SignalRDebug.log(`已加入群組: ${groupName}`);
       } catch (error) {
-        console.error(`❌ 加入群組失敗: ${groupName}`, error);
+        SignalRDebug.error(`加入群組失敗: ${groupName}`, error);
       }
     }
   }
 
-  /**
-   * 離開特定群組
-   */
+  // 離開特定群組
   async leaveGroup(groupName) {
     if (this.isConnected && this.connection) {
       try {
         await this.connection.invoke('LeaveGroup', groupName);
-        console.log(`✅ 已離開群組: ${groupName}`);
+        SignalRDebug.log(`已離開群組: ${groupName}`);
       } catch (error) {
-        console.error(`❌ 離開群組失敗: ${groupName}`, error);
+        SignalRDebug.error(`離開群組失敗: ${groupName}`, error);
       }
     }
   }
 
-  /**
-   * 註冊事件監聽器
-   */
+  // 註冊事件監聽器
   on(eventName, handler) {
     if (!this.eventHandlers.has(eventName)) {
       this.eventHandlers.set(eventName, []);
@@ -200,9 +192,7 @@ class MatrixSignalR {
     this.eventHandlers.get(eventName).push(handler);
   }
 
-  /**
-   * 移除事件監聽器
-   */
+  // 移除事件監聽器
   off(eventName, handler) {
     if (this.eventHandlers.has(eventName)) {
       const handlers = this.eventHandlers.get(eventName);
@@ -213,40 +203,34 @@ class MatrixSignalR {
     }
   }
 
-  /**
-   * 觸發事件
-   */
+  // 觸發事件
   emit(eventName, data) {
     if (this.eventHandlers.has(eventName)) {
       this.eventHandlers.get(eventName).forEach(handler => {
         try {
           handler(data);
         } catch (error) {
-          console.error(`事件處理器錯誤 (${eventName}):`, error);
+          SignalRDebug.error(`事件處理器錯誤 (${eventName}):`, error);
         }
       });
     }
   }
 
-  /**
-   * 斷開連接
-   */
+  // 斷開連接
   async disconnect() {
     if (this.connection) {
       try {
         await this.connection.stop();
         this.connection = null;
         this.isConnected = false;
-        console.log('SignalR 連接已斷開');
+        SignalRDebug.log('SignalR 連接已斷開');
       } catch (error) {
-        console.error('SignalR 斷開連接失敗:', error);
+        SignalRDebug.error('SignalR 斷開連接失敗:', error);
       }
     }
   }
 
-  /**
-   * 獲取連接狀態
-   */
+  // 獲取連接狀態
   getConnectionState() {
     return {
       isConnected: this.isConnected,
@@ -272,10 +256,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 
       // console.log(`SignalR 已為用戶 ${authData.userName} 初始化`);
     } catch (error) {
-      console.warn('SignalR 自動初始化失敗:', error);
+      SignalRDebug.warn('SignalR 自動初始化失敗:', error);
     }
   } else {
-    console.log('用戶未登入，跳過 SignalR 初始化');
+    SignalRDebug.log('用戶未登入，跳過 SignalR 初始化');
   }
 });
 
@@ -283,3 +267,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = MatrixSignalR;
 }
+
+// 對外提供切換方法（預設關閉）
+window.setSignalRDebug = (enabled) => { SignalRDebug.enabled = !!enabled; };
+window.getSignalRDebug = () => SignalRDebug.enabled;

@@ -9,13 +9,14 @@ import { createCKEditor } from '/js/components/ckeditor5.js'
 import loginPopupManager from '/js/auth/login-popup.js'
 import { useGlobalLoading } from '/js/utils/loadingManager.js'
 
-// 導入新的模組化組件
+// 新朋友們：模組化小工具們都在這
 import { useUserManager } from '/js/components/user-manager.js'
 import { usePopupManager } from '/js/components/popup-manager.js'
 import { useSearchService } from '/js/components/search-service.js'
 import { useFriendsManager } from '/js/components/friends-manager.js'
 import { usePostManager } from '/js/components/post-manager.js'
 import { useChat } from '/js/components/chat.js'
+import { useImgError } from '/js/hooks/useImgError.js'
 
 const globalApp = content => {
     if (typeof Vue === 'undefined') {
@@ -27,7 +28,7 @@ const globalApp = content => {
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', () => {
                 const app = Vue.createApp(content)
-                // 配置警告處理器來忽略特定警告
+                // 這裡把一些無傷大雅的警告忽略掉，不要吵
                 app.config.warnHandler = (msg) => {
                     // 忽略常見的無害警告
                     const ignoredWarnings = [
@@ -49,7 +50,7 @@ const globalApp = content => {
         } else {
             // DOM 已經載入完成
             const app = Vue.createApp(content)
-            // 配置警告處理器來忽略特定警告
+            // 同上：別被小雜音影響
             app.config.warnHandler = (msg) => {
                 // 忽略常見的無害警告
                 const ignoredWarnings = [
@@ -69,17 +70,20 @@ const globalApp = content => {
     }
 }
 
-// 將需要被內嵌 HTML 調用的單例暴露到全域
+// 把登入彈窗管家放到 window，HTML 也能叫他
 window.loginPopupManager = loginPopupManager
 
 globalApp({
     setup() {
         const { ref, computed, onMounted, watch } = Vue
         const { formatDate, timeAgo } = useFormatting()
+        // 全頁共用：圖片錯誤處理（讓 PostList 等部分頁面也可使用）
+        const { handleImageError, hasError } = useImgError()
 
-        //#region 模組化管理器初始化
+        //#region 模組化管理器初始化（集合啦！）
 
-        // 初始化全域載入管理器
+        // 全域載入管理器：幫忙數還在跑的請求
+        // TODO: 所有 fetch 盡量走這裡，方便控管
         const globalLoading = useGlobalLoading()
         const {
             isLoading: globalIsLoading,
@@ -95,7 +99,7 @@ globalApp({
         const userManager = useUserManager()
         const { currentUser, getCurrentUser } = userManager
 
-        // 初始化搜尋服務
+        // 搜尋服務：關鍵字、追蹤、彈窗互動
         const searchService = useSearchService(null, null) // 先初始化搜尋服務
         const {
             goTag,
@@ -110,7 +114,7 @@ globalApp({
             isLoading: searchLoading
         } = searchService
 
-        // 初始化彈窗管理器，傳入清空搜尋的回調
+        // 彈窗管理器：開關彈窗、載入內容
         const popupManager = usePopupManager(clearSearch)
         const {
             popupState,
@@ -124,7 +128,7 @@ globalApp({
             backFromArticle,
         } = popupManager
 
-        // 初始化好友管理器
+        // 好友管理器：追蹤、名單、狀態
         const friendsManager = useFriendsManager(currentUser)
         const {
             friends,
@@ -136,7 +140,7 @@ globalApp({
             toggleFollow
         } = friendsManager
 
-        // 初始化文章管理器
+        // 文章管理器：列表、無限滾動、互動
         const postManager = usePostManager(currentUser)
         const {
             posts,
@@ -152,7 +156,7 @@ globalApp({
             gotoUserPrpfile
         } = postManager
 
-        // 初始化聊天管理器
+        // 聊天管理器：訊息、會話、未讀、連線
         const chatManager = useChat(currentUser)
         const {
             // 聊天狀態
@@ -187,7 +191,7 @@ globalApp({
         // 重新設定搜尋服務的 popupData 和 popupState
         setPopupData(popupData, popupState)
 
-        // 設置搜尋監聽器
+        // 幫搜尋裝上監聽器（輸入就查）
         setupSearchWatcher(fetchFollows)
 
         // 將 openChatPopup 暴露到全局，以便從非 Vue 環境調用
@@ -195,7 +199,7 @@ globalApp({
 
         //#endregion
 
-        const isAppReady = ref(false)
+        const isAppReady = ref(false) // App 準備好了沒？
 
         // ==== 在 setup() 內，postManager 解構之後加上這段 ====
 
@@ -225,7 +229,7 @@ globalApp({
             posts.value = firstPage
             hasMorePosts.value = firstPage.length === 10
 
-            // 3) 綁定「以該 tag 繼續載入」的無限滾動（我們自己這邊管理一支 observer）
+            // 3) 為這個標籤重新綁定無限滾動
             if (tagObserver) {
                 tagObserver.disconnect()
                 tagObserver = null
@@ -312,7 +316,7 @@ globalApp({
 
         //#region Lifecycle
 
-        // 組件掛載時獲取用戶信息並初始化頁面數據
+        // 掛載後：抓使用者、初始化頁面
         onMounted(async () => {
             // 將 currentUser 設為全局可訪問
             window.currentUser = currentUser
@@ -338,7 +342,7 @@ globalApp({
 
             // Vue 的 v-if 指令會自動控制彈窗的顯示狀態
 
-            // 如果是首頁，初始化文章列表
+            // 如果是首頁，準備文章列表與監聽新貼文
             if (isHomePage) {
                 await initializeHomePosts()
                 // 設置新貼文事件監聽器
@@ -351,7 +355,7 @@ globalApp({
 
         //#endregion
 
-        // 合併所有loading狀態 - 使用全域載入管理器
+        // 把所有 loading 狀態合起來（讓畫面只看一個）
         const isLoading = computed(() => globalIsLoading.value || postListLoading.value || popupLoading.value || searchLoading.value)
 
 
@@ -461,6 +465,10 @@ globalApp({
             
             // CKEditor 管理器
             ckEditorManager,
+            
+            // 圖片錯誤處理（全域可用，供各頁面的清單使用）
+            handleImageError,
+            hasError,
             
             // 頁面組件
             ...Menu,

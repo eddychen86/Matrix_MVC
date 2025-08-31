@@ -1,7 +1,4 @@
-/**
- * Language Manager - 處理多語系切換和翻譯功能
- * 從 d_main.js 中抽離出來的語言管理功能
- */
+// Language Manager - 處理多語系切換和翻譯功能（從 d_main.js 抽出）
 
 (function() {
     'use strict';
@@ -13,8 +10,8 @@
     const LanguageManager = {
         // 可用語言清單
         availableLanguages: [
-            { code: 'zh-TW', name: '繁體中文', flag: '🇹🇼' },
-            { code: 'en-US', name: 'English', flag: '🇺🇸' }
+            { code: 'zh-TW', name: '繁體中文', flag: 'TW' },
+            { code: 'en-US', name: 'English', flag: 'US' }
         ],
 
         // 獲取當前語言
@@ -198,7 +195,7 @@
                 // console.log(`✅ 全域動態國際化已應用: ${currentLang}`)
             }
         } catch (error) {
-            console.error('❌ 全域動態國際化失敗:', error)
+            console.error('全域動態國際化失敗:', error)
         }
     }
 

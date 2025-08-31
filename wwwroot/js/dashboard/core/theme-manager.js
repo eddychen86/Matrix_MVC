@@ -1,7 +1,4 @@
-/**
- * Theme Manager - 處理主題切換功能
- * 從 d_main.js 中抽離出來的主題管理功能
- */
+// Theme Manager - 處理主題切換功能（從 d_main.js 抽出）
 
 (function() {
     'use strict';

@@ -23,6 +23,39 @@
 
 ---
 
+### 文件 2: 從零開始建立 MVC 專案（超新手）
+**檔案**: [`mvc-from-zero.md`](./mvc-from-zero.md)  
+**描述**: 超新手友善，逐步帶你用 .NET CLI 建立 MVC、認識資料夾結構、加控制器與 View、加入 Model 與 SQLite、做出簡單 CRUD  ️ 
+**關鍵字**: 入門, MVC, .NET CLI, Controller, View, Model, EF Core, SQLite  
+**相關檔案**: Controllers/, Views/, Models/, Data/, Program.cs  
+**複雜度**: 基礎  
+
+**內容概要**:
+- 建立專案與啟動網站
+- 建立控制器與簡單頁面
+- 建立 Model 與強型別 View
+- EF Core + SQLite + Migration
+- 簡易 CRUD（文章列表與新增）
+- 常見錯誤排查（大小寫、Substring、DI、Razor 路徑）
+
+---
+
+### 文件 3: 從零開始建立 Web API（超新手）
+**檔案**: [`webapi-from-zero.md`](./webapi-from-zero.md)  
+**描述**: 不用 MVC 畫面，直接做出 Minimal API/Controller API、Swagger 測試、加上 SQLite/EF Core 做 CRUD，並設定 CORS 提供給前端  
+**關鍵字**: 入門, Web API, Minimal API, Controller, Swagger, EF Core, SQLite, CORS  
+**相關檔案**: Program.cs, Controllers/, Models/, Data/  
+**複雜度**: 基礎  
+
+**內容概要**:
+- 使用 `dotnet new webapi` 快速建立
+- Minimal API 與 Controller 兩種路線
+- 加入 Model、In-Memory/SQLite 資料儲存
+- 使用 Swagger 測試 API
+- 啟用 CORS 給前端呼叫
+
+---
+
 ## 🎯 學習路線
 
 ### 入門階段 (1-2 週)
@@ -65,6 +98,6 @@
 
 ---
 
-**最後更新**: 2025-08-29  
-**文件數量**: 1  
-**總學習時間**: 4-7 週 (依個人基礎而定)
+**最後更新**: 2025-08-31  
+**文件數量**: 3  
+**總學習時間**: 基礎 1-2 天；進階 4-7 週 (依個人基礎而定)

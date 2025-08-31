@@ -33,6 +33,13 @@
 - 響應式設計實作
 - 動畫與互動效果
 
+### 文件 3: Web API + Vue 超新手整合
+**檔案**: [`vue-webapi-integration.md`](./vue-webapi-integration.md)  
+**描述**: 用最少的程式碼把 Web API (/api/todos) 與 Vue 介面接起來，支援清單顯示與新增、載入與錯誤處理  
+**關鍵字**: Vue 3, fetch, axios, CORS, Minimal API  
+**相關檔案**: Backend/webapi-from-zero.md  
+**複雜度**: 基礎  
+
 ---
 
 ## 🎯 學習路線
@@ -106,6 +113,6 @@
 
 ---
 
-**最後更新**: 2025-08-29  
-**文件數量**: 2  
+**最後更新**: 2025-08-31  
+**文件數量**: 3  
 **總學習時間**: 4-7 週 (依個人基礎而定)

@@ -58,14 +58,18 @@
             </button>
 
             @* 註冊 *@
-            <p class="para text-center"><span data-i18n="NewHereMsg">@Localizer["NewHereMsg"]</span><a href="/register"
-                    class="font-semibold" data-i18n="RegisterTitle">@Localizer["RegisterTitle"]</a></p>
+            <p class="para text-center">
+                <span data-i18n="NewHereMsg">@Localizer["NewHereMsg"]</span>
+                <a href="/register" class="font-semibold" data-i18n="RegisterTitle">@Localizer["RegisterTitle"]</a>
+                <span data-i18n="or"> @Localizer["or"] </span>
+                <a href="/Home/Index" class="font-semibold" data-i18n="returnHome">@Localizer["returnHome"]</a>
+            </p>
         </form>
     </div>
 
     @* 忘記密碼 pop-up *@
     <transition name="fade" :class="isForgot ? 'block' : 'hidden'">
-        <div id="auth-layout_forgot" v-on:click="toggleClose">
+        <div id="auth-layout_forgot" v-on:click="toggleClose" style="display: none;" data-vue-init>
             <form v-on:submit.prevent="submitForgotPassword">
                 <h1 class="title" data-i18n="ForgotPasswordTitle">@Localizer["ForgotPasswordTitle"]</h1>
                 <button type="button" class="subTitle cursor-pointer" v-on:click="closeModal">

@@ -1,17 +1,19 @@
-// 圖片錯誤處理的 hook
+// 這個小工具在幫你照看圖片，壞掉就記起來，畫面就不會亂掉
 export const useImgError = () => {
     const { ref, computed } = Vue
     
-    // 存錯誤狀態的地方
+    // 這裡像一本小筆記本，記下哪張圖壞了
+    // TODO: 只記必要資訊，保持筆記本輕巧
     const errorMap = ref(new Map())
     
-    // 生成唯一的錯誤 key
+    // 幫每個項目做一個不重複的「身分證」
     const getErrorKey = (item, type) => {
         const id = item.id || item.articleId || item.fileId || item.userId || 'unknown'
         return `${id}_${type}`
     }
     
-    // 處理圖片錯誤
+    // 如果圖片載不出來，就在筆記本打勾「壞了」
+    // TODO: 發生錯誤就別再重試，省流量
     const handleImageError = (item, type = 'image') => {
         if (!item) return
         
@@ -21,26 +23,27 @@ export const useImgError = () => {
         // console.log(`圖片載入失敗: ${key}`)
     }
     
-    // 檢查是否有錯誤
+    // 問問筆記本：這張圖有壞掉嗎？
     const hasError = (item, type = 'image') => {
         if (!item) return false
         const key = getErrorKey(item, type)
         return errorMap.value.get(key) || false
     }
     
-    // 重置錯誤
+    // 把「壞掉」標記擦掉（如果之後又成功載入）
     const resetError = (item, type = 'image') => {
         if (!item) return
         const key = getErrorKey(item, type)
         errorMap.value.set(key, false)
     }
     
-    // 清除所有錯誤
+    // 一鍵清空整本筆記（全部重新來過）
+    // TODO: 小心用，這會把所有狀態都清掉
     const clearAllErrors = () => {
         errorMap.value.clear()
     }
     
-    // 初始化一堆項目的錯誤狀態
+    // 幫一整批的項目先準備好錯誤狀態（預設都沒壞）
     const initErrorStates = (items, types = ['image', 'avatar']) => {
         if (!Array.isArray(items)) return
         
@@ -54,12 +57,14 @@ export const useImgError = () => {
         })
     }
 
+    // 幫你偷偷檢查圖片在不在，不在就幫你藏起來
     const testImgExist = async (items, types = ['image', 'avatar']) => {
         if (!Array.isArray(items)) return []
         
         let errors = []
         
-        // 建立所有檢查的 Promise 陣列
+        // 把要檢查的工作排成一列，大家一起去做
+        // TODO: 批次執行，避免一個一個慢慢等
         const checkPromises = []
         items.forEach(item => {
             types.forEach(type => {
@@ -80,10 +85,10 @@ export const useImgError = () => {
             })
         })
 
-        // 等待所有檢查完成
+        // 等大家都檢查完再說
         await Promise.all(checkPromises)
 
-        // 建立錯誤映射 Map<articleId, Set<errorTypes>>
+        // 把哪些文章哪些類型壞了整理成表
         const errorMap = new Map()
         errors.forEach(error => {
             if (!errorMap.has(error.articleId)) {
@@ -92,7 +97,7 @@ export const useImgError = () => {
             errorMap.get(error.articleId).add(error.type)
         })
         
-        // 處理結果：只清理確實失敗的圖片類型
+        // 最後處理：真的壞掉的才藏起來，別亂刪
         const result = items.map(item => {
             const errorTypes = errorMap.get(item.articleId)
             if (errorTypes) {
@@ -111,7 +116,7 @@ export const useImgError = () => {
         return result
     }
     
-    // 幫項目加上錯誤狀態屬性 (比如 imageError, avatarError)
+    // 幫每個項目加上小旗子（imageError / avatarError），好讓畫面知道要不要顯示
     const addErrorProps = (items, types = ['imageError', 'avatarError']) => {
         if (!Array.isArray(items)) return []
         
@@ -127,7 +132,7 @@ export const useImgError = () => {
         })
     }
     
-    // 總錯誤數量
+    // 有多少「壞掉」的數量（拿來觀察用）
     const totalErrors = computed(() => {
         let count = 0
         errorMap.value.forEach(hasErr => {

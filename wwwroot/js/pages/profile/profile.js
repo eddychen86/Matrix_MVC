@@ -372,7 +372,7 @@ export const useProfile = () => {
         delBtn.className = 'nft-delete';
         delBtn.textContent = 'Delete';
 
-        // ✅ 關鍵修改！使用你佈局頁面中已經定義好的 window.matrixAuthData.userId
+        // 關鍵修改！使用你佈局頁面中已經定義好的 window.matrixAuthData.userId
         const isOwner = String(profile.userId) === String(window.matrixAuthData?.userId);
 
         if (isOwner) {
@@ -584,7 +584,7 @@ export const useProfile = () => {
 
             const formattedArticles = postListService.formatArticles(result.articles).map(m => ({
                 ...m,
-                createTime: timeAgo(m.createTime),
+                createTime: timeAgo(m.createTimeRaw || m.createTime),
                 authorName: m.authorName,
                 authorAvator: m.authorAvator,
             }))

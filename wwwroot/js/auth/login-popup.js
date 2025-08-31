@@ -1,7 +1,4 @@
-/**
- * Login Popup Manager (ESM)
- * 管理登入彈窗的顯示和訪客權限控制
- */
+// Login Popup Manager (ESM) - 管理登入彈窗顯示與訪客權限
 import { authService } from '/js/services/AuthService.js'
 
 export class LoginPopupManager {
@@ -14,9 +11,7 @@ export class LoginPopupManager {
         this.init();
     }
 
-    /**
-     * 初始化
-     */
+    // 初始化
     init() {
         // 檢查用戶認證狀態
         this.checkAuthStatus();
@@ -33,9 +28,7 @@ export class LoginPopupManager {
         this.setupScrollMonitoring();
     }
 
-    /**
-     * 檢查認證狀態 (使用 AuthService)
-     */
+    // 檢查認證狀態 (使用 AuthService)
     async checkAuthStatus() {
         try {
             if (authService) {
@@ -51,9 +44,7 @@ export class LoginPopupManager {
         }
     }
 
-    /**
-     * 設定滾動監控
-     */
+    // 設定滾動監控
     setupScrollMonitoring() {
         if (!this.isGuest) return;
 
@@ -84,9 +75,7 @@ export class LoginPopupManager {
         });
     }
 
-    /**
-     * 顯示登入彈窗
-     */
+    // 顯示登入彈窗
     showLoginPopup() {
         // 創建彈窗 HTML
         const popupHTML = `
@@ -115,9 +104,7 @@ export class LoginPopupManager {
         this.addPopupStyles();
     }
 
-    /**
-     * 隱藏登入彈窗
-     */
+    // 隱藏登入彈窗
     hideLoginPopup() {
         const popup = document.getElementById('login-popup-overlay');
         if (popup) {
@@ -126,9 +113,7 @@ export class LoginPopupManager {
         this.popupShown = false;
     }
 
-    /**
-     * 添加彈窗樣式
-     */
+    // 添加彈窗樣式
     addPopupStyles() {
         if (document.getElementById('login-popup-styles')) return;
 

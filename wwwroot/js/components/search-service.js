@@ -81,8 +81,8 @@ export const useSearchService = (initialPopupData, initialPopupState) => {
                 displayName: user.displayName,
                 avatarUrl: user.avatarPath,
                 bio: user.bio || '這位使用者尚未填寫個人簡介。',
-                isFollowed: user.isFollowed,     // ✅ 已有
-                personId: user.personId          // ✅ 需要這個來傳給 API
+                isFollowed: user.isFollowed,     // 已有
+                personId: user.personId          // 需要這個來傳給 API
             }))
 
             popupData.Search.Hashtags = tags.data
@@ -96,7 +96,7 @@ export const useSearchService = (initialPopupData, initialPopupState) => {
         }
     }
 
-    // ✅ 專用於 Follows 浮窗：只抓使用者
+    // 專用於 Follows 浮窗：只抓使用者
     const manualFollowSearch = async () => {
         if (!popupData) {
             console.warn('popupData not initialized yet')
@@ -127,7 +127,7 @@ export const useSearchService = (initialPopupData, initialPopupState) => {
                 bio: u.bio || '這位使用者尚未填寫個人簡介。'
             }))
 
-            // ✅ 不處理/不改動 Hashtags（保持為空）
+            // 不處理/不改動 Hashtags（保持為空）
             // popupData.Search.Hashtags = []
         } catch (e) {
             console.error('Follow popup search error:', e)
@@ -177,7 +177,7 @@ export const useSearchService = (initialPopupData, initialPopupState) => {
             const list = Array.isArray(result?.data) ? result.data : (result?.data?.items ?? [])
             popupData.Follows = list
         } catch (e) {
-            console.error('❌ 載入 Follows 失敗', e)
+            console.error('載入 Follows 失敗', e)
             popupData.Follows = []
         } finally {
             isLoading.value = false
@@ -200,15 +200,15 @@ export const useSearchService = (initialPopupData, initialPopupState) => {
             })
             const result = await res.json()
 
-            // ✅ 容錯：同時支援 data 是陣列或是物件(items)
+            // 容錯：同時支援 data 是陣列或是物件(items)
             const list = Array.isArray(result?.data)
                 ? result.data
                 : (result?.data?.items ?? [])
 
-            // ✅ 做大小寫兼容 & 預設值
+            // 做大小寫兼容 & 預設值
             popupData.Follows = list
         } catch (e) {
-            console.error('❌ 載入 Follows 失敗', e)
+            console.error('載入 Follows 失敗', e)
             popupData.Follows = []
         } finally {
             isLoading.value = false
@@ -242,7 +242,7 @@ export const useSearchService = (initialPopupData, initialPopupState) => {
 
         const res = await fetch(`/api/search/stats/${personId}`, { credentials: 'include' })
         const json = await res.json()
-        const stats = (json && json.data) ? json.data : { followers: 0, following: 0 }  // ✅ 不用 ?.
+        const stats = (json && json.data) ? json.data : { followers: 0, following: 0 }  // 不用 ?.
 
         statsCache[personId] = stats
         return stats

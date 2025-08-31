@@ -187,6 +187,12 @@ createApp({
 
         // 組件掛載後初始化
         onMounted(() => {
+            // 移除 Vue 初始化前的隱藏樣式
+            const elementsToShow = document.querySelectorAll('[data-vue-init]')
+            elementsToShow.forEach(el => {
+                el.style.display = ''
+            })
+
             // 綁定表單數據到 DOM 元素
             const userName = document.querySelector('input[name="UserName"]')
             const pwd = document.querySelector('input[name="Password"]')

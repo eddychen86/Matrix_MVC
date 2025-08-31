@@ -1,8 +1,5 @@
-/**
- * Dashboard Main App - 重構版本
- * 整合各個模組化組件，簡化主文件
- * 支援 zh-TW 和 en-US 語系切換
- */
+// Dashboard Main App - 重構版本
+// 整合各個模組化組件，簡化主文件；支援 zh-TW / en-US 語系
 
 (function() {
     'use strict';
@@ -44,7 +41,7 @@
             }
 
         } catch (error) {
-            console.error('❌ Dashboard 模組載入失敗:', error)
+            console.error('Dashboard 模組載入失敗:', error)
         }
     }
 
@@ -97,7 +94,7 @@
             console.warn('正在載入 Dashboard 回退版本...')
             loadScript('/js/dashboard/d_main-original.js')
                 // .then(() => console.log('✅ Dashboard 回退版本載入成功'))
-                .catch(fallbackError => console.error('❌ Dashboard 回退版本載入失敗:', fallbackError))
+                .catch(fallbackError => console.error('Dashboard 回退版本載入失敗:', fallbackError))
         }
     }
 

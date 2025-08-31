@@ -23,6 +23,39 @@
 
 ---
 
+### 文件 2: 從零部署到雲端（超新手）
+**檔案**: [`deploy-from-zero.md`](./deploy-from-zero.md)  
+**描述**: 從本機執行 → SQLite → Docker（可選）→ Azure App Service 部署 → GitHub Actions 自動化的最簡流程  
+**關鍵字**: 入門, 部署, Azure App Service, Docker, GitHub Actions, Health Checks  
+**相關檔案**: Dockerfile, .github/workflows/deploy.yml, Program.cs  
+**複雜度**: 基礎  
+
+**內容概要**:
+- 本機啟動 MVC 專案
+- 加入 SQLite 與 Migration
+- 建立 Docker 映像並本機執行
+- 以 Zip 部署至 Azure App Service
+- GitHub Actions 自動化部署
+- 健康檢查與常見錯誤排查
+
+---
+
+### 文件 3: 容器化部署：Docker Hub → Azure Web App for Containers
+**檔案**: [`deploy-containers.md`](./deploy-containers.md)  
+**描述**: 將映像推到 Docker Hub，並以 Azure Web App for Containers 直接拉取執行；含版本更新、環境變數與 Actions 自動化  
+**關鍵字**: Docker Hub, Container, Azure Web App for Containers, Startup Command, App Settings, Actions  
+**相關檔案**: Dockerfile, .github/workflows/deploy-container.yml  
+**複雜度**: 基礎-中級  
+
+**內容概要**:
+- 建立多階段 Dockerfile、在本機跑容器
+- 推送映像到 Docker Hub
+- 建立 Azure Web App for Containers 並指定映像
+- 切換版本標籤、設定環境變數
+- GitHub Actions 自動化推送與更新映像
+
+---
+
 ## 🎯 學習路線
 
 ### 入門階段 (1-2 週)
@@ -222,6 +255,6 @@ ENTRYPOINT ["dotnet", "Matrix.dll"]
 
 ---
 
-**最後更新**: 2025-08-29  
-**文件數量**: 1  
-**總學習時間**: 5-8 週 (依個人基礎而定)
+**最後更新**: 2025-08-31  
+**文件數量**: 3  
+**總學習時間**: 入門 0.5-1 天；進階 5-8 週 (依個人基礎而定)

@@ -1,7 +1,5 @@
-/**
- * usePostActions Hook
- * 統一處理文章互動操作（按讚、收藏、評論、分享、檢舉等）
- */
+// usePostActions Hook
+// 統一處理文章互動（按讚、收藏、評論、分享、檢舉…）
 import { authService } from '/js/services/AuthService.js'
 
 export function usePostActions() {
@@ -26,10 +24,10 @@ export function usePostActions() {
         }
     }
 
-    /** Guid 判斷（最後的保險用在 userId 上，若後端其實塞的是 PersonId 也能吃到） */
+    // Guid 判斷（最後保險：userId 長得像 Guid 才當作 PersonId）
     const looksLikeGuid = (v) => typeof v === 'string' && /^[0-9a-fA-F-]{36}$/.test(v)
 
-    /** 專門把「作者的 PersonId」解出來；優先只用明確的 personId 欄位，最後才容忍 userId(看起來是 Guid 時) */
+    // 專門把「作者的 PersonId」解出來；優先用 personId，最後才容忍 userId(像 Guid 時)
     const resolveAuthorPersonId = (row, provided) => {
         if (provided) return provided
         if (!row) return null
@@ -40,13 +38,13 @@ export function usePostActions() {
             row.profile?.personId ||
             row.author?.personId ||
             (looksLikeGuid(row.userPersonId) ? row.userPersonId : null) ||
-            // ⚠️ 最後保險：若確定 userId 本來就存的是 PersonId，這行就能救回；否則不會吃到
+            // 最後保險：若確定 userId 本來就存的是 PersonId，這行就能救回；否則不會吃到
             (looksLikeGuid(row.userId) ? row.userId : null) ||
             null
         )
     }
 
-    /** 按讚 */
+    // 按讚
     const togglePraise = async (articleId, item = null) => {
         if (!(await checkAuth())) return false
         try {
@@ -79,7 +77,7 @@ export function usePostActions() {
         }
     }
 
-    /** 收藏 */
+    // 收藏
     const toggleCollect = async (articleId, item = null) => {
         if (!(await checkAuth())) return false
         try {
@@ -112,7 +110,7 @@ export function usePostActions() {
         }
     }
 
-    /** 回覆 */
+    // 回覆
     const openReply = async (articleId) => {
         if (!(await checkAuth())) return false
         try {
@@ -133,7 +131,7 @@ export function usePostActions() {
         }
     }
 
-    /** 分享 */
+    // 分享
     const shareArticle = async (articleId, item = null) => {
         try {
             const url = `${window.location.origin}/article/${articleId}`
@@ -155,9 +153,7 @@ export function usePostActions() {
         }
     }
 
-    // =========================================================================================
-    // ⭐ 新增：簡單的「原生 <dialog>」檢舉 UI（避免 prompt，改成彈窗）
-    // =========================================================================================
+    // 新增：簡單的「原生 <dialog>」檢舉 UI（避免 prompt，改成彈窗）
     function createReportDialogIfNeed() {
         let dlg = document.getElementById('report-dialog')
         if (dlg) return dlg._controller
@@ -166,7 +162,7 @@ export function usePostActions() {
                     wrapper.innerHTML = `
             <dialog id="report-dialog">
               <form method="dialog" id="report-form"
-                    style="width:min(800px,96vw)"  /* 直寫 style 保證寬度，不靠 Tailwind 編譯 */
+                    style="width:min(800px,96vw)"
                     class="flex flex-col gap-3 rounded-2xl p-5
                            bg-neutral-900/95 text-white shadow-2xl ring-1 ring-white/10">
                 <h3 class="font-bold text-lg">檢舉</h3>
@@ -301,10 +297,8 @@ export function usePostActions() {
         dlg._controller = controller
         return controller
     }
-    // =========================================================================================
 
-    /** 檢舉 */
-    /** 檢舉（只呼叫上面的 dialog，不再內嵌 template） */
+    // 檢舉（只呼叫上面的 dialog，不再內嵌 template）
     const openReport = async (articleId, authorPersonId, row = null) => {
         if (!(await checkAuth())) return false
 
@@ -325,7 +319,7 @@ export function usePostActions() {
         try { await ui.submit(postJson); return true } catch { return false }
     }
 
-    /** 統一的 stateFunc（自動把第二個參數當 payload 或 articleId；也會把 row（item）帶進去） */
+    // 統一的 stateFunc（自動把第二個參數當 payload 或 articleId；也會把 row 帶進去）
     const stateFunc = async (action, articleIdOrPayload, item = null) => {
         // 兼容兩種呼叫：stateFunc('x', item) 或 stateFunc('x', {articleId, authorId}, item)
         let articleId = articleIdOrPayload

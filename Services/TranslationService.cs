@@ -23,6 +23,7 @@ namespace Matrix.Services
                 ["LoginTitle"] = "登入",
                 ["RegisterTitle"] = "註冊",
                 ["ForgotPasswordTitle"] = "忘記密碼",
+                ["returnHome"] = "返回首頁",
 
                 // 副標題/訊息
                 ["WelcomeMsg"] = "加入區塊鏈社群",
@@ -100,6 +101,12 @@ namespace Matrix.Services
                 ["disable"] = "停用",
                 ["public"] = "公開",
                 ["private"] = "不公開",
+                ["Article"] = "貼文",
+                ["User"] = "會員",
+                ["NotYet"] = "未處理",
+                ["Processed"] = "已處理",
+                ["Rejected"] = "駁回",
+                ["or"] = "或",
 
                 ["bestResolution"] = "螢幕解析度建議 1920x1080",
 
@@ -469,6 +476,7 @@ namespace Matrix.Services
                 ["LoginTitle"] = "Login",
                 ["RegisterTitle"] = "Register",
                 ["ForgotPasswordTitle"] = "Forgot Password",
+                ["returnHome"] = "Go back to Index",
 
                 // 副標題/訊息
                 ["WelcomeMsg"] = "Join the blockchain community",
@@ -545,6 +553,12 @@ namespace Matrix.Services
                 ["disable"] = "Disable",
                 ["public"] = "Public",
                 ["private"] = "Private",
+                ["Article"] = "Posts",
+                ["User"] = "Account",
+                ["NotYet"] = "NotYet",
+                ["Processed"] = "Processed",
+                ["Rejected"] = "Rejected",
+                ["or"] = "or",
 
                 ["bestResolution"] = "Suggested resolution: 1920x1080",
 

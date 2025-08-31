@@ -1,4 +1,5 @@
-// import { useCreatePost } from '/js/components/create-post.js' // 現在全域載入
+// 這頁負責首頁的互動（像是熱門卡片滑動）
+// TODO: 讓按鈕反應自然、不卡頓
 import { usePostActions } from '/js/hooks/usePostActions.js'
 import { useImgError } from '/js/hooks/useImgError.js'
 
@@ -10,9 +11,11 @@ export const useHome = () => {
     const canPrev = ref(false)
     const canNext = ref(false)
     
-    // 圖片錯誤處理
+    // 圖片管家：有壞圖就用預設圖替代
     const { handleImageError, hasError, testImgExist } = useImgError()
 
+    // 從伺服器拿「熱門文章」回來
+    // TODO: 失敗時也要把畫面還原
     const fetchHotList = async () => {
         try {
             const resp = await fetch('/api/post/hot?count=10', { credentials: 'same-origin' })
@@ -21,7 +24,7 @@ export const useHome = () => {
 
             hotlist.value = Array.isArray(data?.items) ? data.items : []
 
-            // 檢查圖片存在性並自動清理無效圖片
+            // 先幫你檢查圖片在不在，不在就不要顯示
             hotlist.value = await testImgExist(hotlist.value, ['image', 'avatar'])
 
             await nextTick()

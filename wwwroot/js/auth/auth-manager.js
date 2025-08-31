@@ -1,7 +1,5 @@
-/**
- * Authentication Manager (ESM)
- * 處理用戶認證狀態檢查和自動登入
- */
+// Authentication Manager (ESM)
+// 負責檢查用戶認證狀態與自動登入
 import { authService } from '/js/services/AuthService.js'
 
 export class AuthManager {
@@ -9,9 +7,7 @@ export class AuthManager {
         this.checkAuthOnLoad();
     }
 
-    /**
-     * 頁面載入時檢查認證狀態
-     */
+    // 頁面載入時檢查認證狀態
     async checkAuthOnLoad() {
         try {
             if (authService) {
@@ -34,9 +30,7 @@ export class AuthManager {
         }
     }
 
-    /**
-     * 處理已認證用戶
-     */
+    // 處理已認證用戶
     handleAuthenticatedUser(user) {
         // 可以在這裡更新 UI，顯示用戶資訊等
         document.body.classList.add('authenticated');
@@ -47,9 +41,7 @@ export class AuthManager {
         }));
     }
 
-    /**
-     * 處理未認證用戶
-     */
+    // 處理未認證用戶
     handleUnauthenticatedUser() {
         document.body.classList.add('unauthenticated');
 
@@ -59,9 +51,7 @@ export class AuthManager {
         }));
     }
 
-    /**
-     * 登出功能
-     */
+    // 登出功能
     async logout() {
         try {
             const response = await fetch('/api/auth/logout', {

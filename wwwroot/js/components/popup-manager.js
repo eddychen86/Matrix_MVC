@@ -66,7 +66,7 @@ export const usePopupManager = (clearSearchCallback = null) => {
             const json = await res.json()
             popupData.Article = json?.article ?? null   // 對應你的 API 回傳 { success, article }
         } catch (e) {
-            console.error('❌ 讀取文章失敗', e)
+            console.error('讀取文章失敗', e)
             popupData.Article = null
         } finally {
             isLoading.value = false
@@ -136,7 +136,7 @@ export const usePopupManager = (clearSearchCallback = null) => {
                 popupData.Notify = json.data
             }
         } catch (err) {
-            console.error('❌ 載入通知失敗', err)
+            console.error('載入通知失敗', err)
             popupData.Notify = []
         } finally {
             isLoading.value = false
@@ -153,7 +153,7 @@ export const usePopupManager = (clearSearchCallback = null) => {
             const list = Array.isArray(result?.data) ? result.data : (result?.data?.items ?? [])
             popupData.Follows = list
         } catch (e) {
-            console.error('❌ 載入 Follows 失敗', e)
+            console.error('載入 Follows 失敗', e)
             popupData.Follows = []
         } finally {
             isLoading.value = false
@@ -188,15 +188,15 @@ export const usePopupManager = (clearSearchCallback = null) => {
             })
             const result = await res.json()
 
-            // ✅ 容錯：同時支援 data 是陣列或是物件(items)
+            // 容錯：同時支援 data 是陣列或是物件(items)
             const list = Array.isArray(result?.data)
                 ? result.data
                 : (result?.data?.items ?? [])
 
-            // ✅ 做大小寫兼容 & 預設值
+            // 做大小寫兼容 & 預設值
             popupData.Follows = list
         } catch (e) {
-            console.error('❌ 載入 Follows 失敗', e)
+            console.error('載入 Follows 失敗', e)
             popupData.Follows = []
         } finally {
             isLoading.value = false

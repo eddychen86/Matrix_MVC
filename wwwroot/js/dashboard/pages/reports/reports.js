@@ -47,7 +47,7 @@ window.mountReportsPage = function() {
       //#endregion
 
       //#region Watch 監聽器
-      // 🔽 新增：當 keyword 清空時，自動回復到未搜尋狀態
+      // 新增：當 keyword 清空時，自動回復到未搜尋狀態
       watch(keyword, (val, oldVal) => {
         // 只有在「從有字 → 變成空」時才 reload，避免初始化時觸發
         if (oldVal !== undefined && oldVal.trim() !== '' && val.trim() === '') {
@@ -74,14 +74,15 @@ window.mountReportsPage = function() {
       }
 
       function formatDateValue(date) {
+        // 查詢參數需要 yyyy-MM-dd，故沿用本地轉換
         const d = new Date(date)
-        return d.toISOString().split('T')[0]  // yyyy-MM-dd 格式
+        return d.toISOString().split('T')[0]
       }
 
       //Report狀態判斷
       const isNotYet = s => s === 0 || s === '0' || s === undefined || s === null || s === '';
 
-      // ✅ 幫按鈕決定是否「被選中」
+      // 幫按鈕決定是否「被選中」
       const isStatusActive = v => status.value === String(v);
       const isTypeActive = v => type.value === String(v);
       //#endregion
@@ -92,7 +93,7 @@ window.mountReportsPage = function() {
         loadReports()
       }
 
-      // ✅ 點按狀態按鈕：再點一次同一顆=清除
+      // 點按狀態按鈕：再點一次同一顆=清除
       function setStatus(v) {
         const newVal = String(v);                 // 後端用 '0','1','2'
         status.value = (status.value === newVal) ? '' : newVal;
@@ -100,7 +101,7 @@ window.mountReportsPage = function() {
         loadReports();
       }
 
-      // ✅ 點按類型按鈕：再點一次同一顆=清除
+      // 點按類型按鈕：再點一次同一顆=清除
       function setType(v) {
         const newVal = String(v);                 // 後端用 '0','1'
         type.value = (type.value === newVal) ? '' : newVal;
@@ -169,14 +170,14 @@ window.mountReportsPage = function() {
             if (n === 1 || s === 'processed' || s === 'done' || s === 'success') {
               statusCode = 1
               statusText = 'Processed'
-            } else if (n === 2 || s === 'rejected' || s === 'reject' || s === 'denied') { // ✅ 新增：Rejected 分支
+            } else if (n === 2 || s === 'rejected' || s === 'reject' || s === 'denied') { // 新增：Rejected 分支
               statusCode = 2
               statusText = 'Rejected'
             }
 
               const pt = r.processTime ?? r.modifyTime ?? r.ProcessTime ?? r.ModifyTime ?? null
-            return {
-              ...r,
+              return {
+                ...r,
               // 🔧 修改：改用上面算出的三態
               statusCode,                       // 0=Pending, 1=Processed, 2=Rejected
               statusText,
@@ -188,7 +189,9 @@ window.mountReportsPage = function() {
               // 🔧 修改：處理時間欄位統一
                 processTime: pt,
                 modifyTime: pt,
-            }
+                processTimeDisplay: formatDate(pt, 'datetime'),
+                createTimeDisplay: r.createTime ? formatDate(r.createTime, 'datetime') : null,
+              }
           })
 
           // 補 resolverName（非同步補齊，不擋畫面）
@@ -247,10 +250,10 @@ window.mountReportsPage = function() {
 
           const result = await res.json().catch(() => ({}))
 
-          // ✅ 前端立即更新畫面
+          // 前端立即更新畫面
 
 
-          // ✅ 管理員名字：優先用後端回傳；其次用 resolverId 去查；最後用預設字樣
+          // 管理員名字：優先用後端回傳；其次用 resolverId 去查；最後用預設字樣
           if (result.resolverName) {
             item.resolverName = result.resolverName
           } else if (result.resolverId) {

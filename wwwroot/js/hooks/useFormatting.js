@@ -1,5 +1,5 @@
 export const useFormatting = () => {
-    const formatDate = (date, type = 'date', lang = 'zh-TW') => {
+    const formatDate = (date, type = 'date', lang = 'en-US') => {
         if (!date) return '';
 
         const dateObj = new Date(date);
@@ -12,8 +12,10 @@ export const useFormatting = () => {
         const hours = String(dateObj.getHours()).padStart(2, '0');
         const minutes = String(dateObj.getMinutes()).padStart(2, '0');
         const ampm = dateObj.getHours() >= 12 ? 'PM' : 'AM';
-        const engMonths = [{ "01": "Jan" }, { "02": "Feb" }, { "03": "Mar" }, { "04": "Apr" }, { "05": "May" }, { "06": "Jun" }, { "07": "Jul" }, { "08": "Aug" }, { "09": "Sep" }, { "10": "Oct" }, { "11": "Nov" }, { "12": "Dec" }]
-        const formattedDate = lang === 'en-US' ? `${engMonths[month]} ${day} ${year}` : `${year} 年 ${month} 月 ${day} 日`
+        const engMonths = { '01': 'Jan', '02': 'Feb', '03': 'Mar', '04': 'Apr', '05': 'May', '06': 'Jun', '07': 'Jul', '08': 'Aug', '09': 'Sep', '10': 'Oct', '11': 'Nov', '12': 'Dec' }
+        const isEn = String(lang).toLowerCase().startsWith('en')
+        const monthName = engMonths[month] || month
+        const formattedDate = isEn ? `${monthName} ${day} ${year}` : `${year} 年 ${month} 月 ${day} 日`
 
         if (type === 'date') {
             return formattedDate

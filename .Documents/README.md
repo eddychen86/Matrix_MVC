@@ -2,7 +2,7 @@
 
 > 基於 ASP.NET Core + Vue.js 的社群平台技術文件庫  
 > **建立日期**: 2025-08-29  
-> **最後更新**: 2025-08-29  
+> **最後更新**: 2025-08-31  
 
 ## 📋 文件概覽
 
@@ -25,6 +25,8 @@
 | 文件 | 技術 | 複雜度 | 描述 |
 |------|------|--------|------|
 | [`aspnet-core.md`](./Backend/aspnet-core.md) | ASP.NET Core 8.0 | 中級-高級 | Web 框架、MVC、API、中介軟體、DI 容器 |
+| [`mvc-from-zero.md`](./Backend/mvc-from-zero.md) | ASP.NET Core MVC | 基礎 | 超新手友善，一步步完成 MVC 網站 |
+| [`webapi-from-zero.md`](./Backend/webapi-from-zero.md) | ASP.NET Core Web API | 基礎 | 超新手友善，做出 Minimal/Controller API 與 CRUD |
 
 **涵蓋範圍**: Web 應用程式開發、RESTful API、身份驗證、授權機制、中介軟體開發
 
@@ -35,6 +37,7 @@
 |------|------|--------|------|
 | [`vue-integration.md`](./Frontend/vue-integration.md) | Vue.js 3.5 | 中級 | Vue + ASP.NET Core 整合、Composition API、模組化開發 |
 | [`styling-system.md`](./Frontend/styling-system.md) | Tailwind CSS + DaisyUI | 基礎-中級 | 現代化樣式系統、響應式設計、組件化 UI |
+| [`vue-webapi-integration.md`](./Frontend/vue-webapi-integration.md) | Vue + Web API | 基礎 | 用最少程式碼把 API 與 Vue 接起來 |
 
 **涵蓋範圍**: 前端框架整合、樣式系統設計、響應式佈局、組件開發
 
@@ -53,6 +56,8 @@
 | 文件 | 技術 | 複雜度 | 描述 |
 |------|------|--------|------|
 | [`deployment-config.md`](./DevOps/deployment-config.md) | Azure + Docker | 中級-高級 | 多環境部署、CI/CD、設定管理、監控 |
+| [`deploy-from-zero.md`](./DevOps/deploy-from-zero.md) | 部署入門 | 基礎 | 從本機到雲端的最簡部署路線（含 Actions） |
+| [`deploy-containers.md`](./DevOps/deploy-containers.md) | 容器化部署 | 基礎-中級 | 推送到 Docker Hub 並以 Azure Web App for Containers 運行 |
 
 **涵蓋範圍**: 雲端部署、容器化、自動化部署、環境管理
 
@@ -76,6 +81,19 @@
 
 ---
 
+## 🆕 近期更新 (2025-08-31)
+
+- 後端修正: `CommonController` 移除 Primary Constructor 注入，於靜態方法透過 `HttpContext.RequestServices` 解析 `ILogger<CommonController>`，避免 CS9105/CS9113。
+- 邊界處理: 修正使用者名稱裁切條件與長度不一致，避免 `Substring` 越界拋出 `ArgumentOutOfRangeException`。
+- 模型擴充: `MenuViewModel` 新增 `DisplayName` 屬性並於選單顯示使用。
+- 前端能力: 新增 Hook `wwwroot/js/hooks/useImgError.js`，整合列表頁處理圖片載入錯誤並替換為預設圖。
+- 知識庫: `.QA_Book/ASP.NET-Core` 新增問題條目（Primary Constructor 日誌注入、DisplayName 大小寫、Substring 越界）並更新索引與統計。
+
+文件新增：`Backend/mvc-from-zero.md`（從零到有的 MVC 教學，適合完全新手）
+
+對應參考：`.QA_Book/ASP.NET-Core/common-logger-static.md`、`menu-auth-displayname.md`、`menu-substring-oob.md`
+
+
 ## 🎯 使用指南
 
 ### 新手入門路線
@@ -88,6 +106,13 @@
 1. **安全機制**: 深入 [`jwt-authentication.md`](./Security/jwt-authentication.md) 學習認證授權
 2. **即時功能**: 學習 [`signalr-realtime.md`](./Architecture/signalr-realtime.md) 實作即時通訊
 3. **部署運維**: 掌握 [`deployment-config.md`](./DevOps/deployment-config.md) 完成專案部署
+
+### 超新手路線圖（從零到上線）
+1. 從零建立 MVC 專案 → [`mvc-from-zero.md`](./Backend/mvc-from-zero.md)
+2. 最簡部署（Zip）到 Azure → [`deploy-from-zero.md`](./DevOps/deploy-from-zero.md)
+3. 進階容器部署（Docker Hub → Azure）→ [`deploy-containers.md`](./DevOps/deploy-containers.md)
+4. 若改走 Web API（非 MVC 畫面）→ [`webapi-from-zero.md`](./Backend/webapi-from-zero.md)
+5. Web API + Vue 前端整合 → [`vue-webapi-integration.md`](./Frontend/vue-webapi-integration.md)
 
 ### 按技術領域查找
 - **想了解後端開發** → Backend 分類

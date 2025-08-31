@@ -4,13 +4,8 @@ export class FriendsService {
         this.baseUrl = '/api/friends';
     }
 
-    /**
-     * 取得好友列表
-     * @param {number} page - 頁碼 (從 1 開始，預設為 1)
-     * @param {number} pageSize - 每頁數量 (預設為 20)
-     * @param {string|null} username - 指定使用者名稱；不提供時取當前登入者
-     * @returns {Promise<{success:boolean, friends:Array, totalCount:number, unauthorized?:boolean, error?:string}>}
-     */
+    // 取得好友列表
+    // page: 第幾頁；pageSize: 每頁幾筆；username: 指定使用者，空的話用目前登入者
     
     async getFriends(page = 1, pageSize = 20, username = null, status = 'accepted') {
         return
@@ -67,11 +62,7 @@ export class FriendsService {
         }
     }
 
-    /**
-     * 格式化好友資料
-     * @param {Array} items - 原始好友資料（FriendListViewModel[]）
-     * @returns {Array<{userId:string, userName:string, avatarPath:string|null}>}
-     */
+    // 把好友資料整理成前端好用的樣子
     formatFriends(items) {
         return items.map(item => ({
             userId: String(item.userId || ''),

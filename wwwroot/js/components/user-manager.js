@@ -1,7 +1,5 @@
-/**
- * User Manager - 處理用戶認證相關功能
- * 從 main.js 中抽離出來的用戶管理功能
- */
+// User Manager - 處理用戶認證相關功能
+// 從 main.js 抽出來的用戶管理功能
 
 export const useUserManager = () => {
     const { reactive } = Vue

@@ -2,10 +2,10 @@
 @using Matrix.Services
 @inject ICustomLocalizer Localizer
 
-<!-- 文章 -->
+<!-- 文章牆：大家的分享都在這裡 -->
 <div class="col-span-7 flex flex-col gap-8 2xl:col-span-4 2xl:col-start-2">
 
-    @* 熱門文章輪播（僅登入可見） *@
+    @* 熱門卡片：像跑馬燈一樣可以左右滑（登入才看的到） *@
     <section class="home-hots_list">
         <h1 class="title">Hot</h1>
         <div class="hots_list_carousel">
@@ -64,7 +64,7 @@
 
         <div class="post_editor_app">
             <h3 class="title">News</h3>
-            <!--發文編輯-->
+            <!-- 發文按鈕：想說點什麼就按這裡 -->
             @if (ViewBag.IsAuthenticated == true)
             {
                 <button v-on:click="openModal">

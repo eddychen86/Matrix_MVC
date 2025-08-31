@@ -29,21 +29,27 @@
             <div class="flex rounded-full border border-blue-400 bg-white p-0.5 shadow-inner">
                 <button class="rounded-full px-3 py-1 text-sm font-semibold text-blue-600 transition"
                         :class="{ 'bg-blue-700 text-white shadow': status === '' }"
-                        @@click ="setStatus('')">
-                    All
+                        @@click ="setStatus('')"
+                        data-i18n="All">
+                    @Localizer["All"]
                 </button>
                 <button class="rounded-full p-1 px-3 text-sm font-semibold text-blue-600 transition"
-                :class="{ 'bg-blue-700 text-white shadow': isStatusActive(0) }"
-                @@click="setStatus(0)">Not yet</button>
+                        :class="{ 'bg-blue-700 text-white shadow': isStatusActive(0) }"
+                        @@click="setStatus(0)"
+                        data-i18n="NotYet">
+                    @Localizer["NotYet"]
+                </button>
                 <button class="rounded-full px-3 py-1 text-sm font-semibold text-blue-600 transition"
                         :class="{ 'bg-blue-700 text-white shadow': isStatusActive(1) }"
-                        @@click ="setStatus(1)">
-                    Processed
+                        @@click ="setStatus(1)"
+                        data-i18n="Processed">
+                    @Localizer["Processed"]
                 </button>
                 <button class="rounded-full px-3 py-1 text-sm font-semibold text-blue-600 transition"
                         :class="{ 'bg-blue-700 text-white shadow': isStatusActive(2) }"
-                        @@click="setStatus(2)">
-                    Rejected
+                        @@click="setStatus(2)"
+                        data-i18n="Rejected">
+                    @Localizer["Rejected"]
                 </button>
             </div>
         </div>
@@ -54,18 +60,21 @@
             <div class="flex rounded-full border border-blue-400 bg-white p-0.5 shadow-inner">
                 <button class="rounded-full px-3 py-1 text-sm font-semibold text-blue-600 transition"
                         :class="{ 'bg-blue-700 text-white shadow': type === '' }"
-                        @@click="setType('')">
-                    All
+                        @@click="setType('')"
+                        data-i18n="All">
+                    @Localizer["All"]
                 </button>
                 <button class="rounded-full px-3 py-1 text-sm font-semibold text-blue-600 transition"
                         :class="{ 'bg-blue-700 text-white shadow': isTypeActive(0) }"
-                        @@click ="setType(0)">
-                    Users
+                        @@click ="setType(0)"
+                        data-i18n="User">
+                    @Localizer["User"]
                 </button>
                 <button class="rounded-full px-3 py-1 text-sm font-semibold text-blue-600 transition"
                         :class="{ 'bg-blue-700 text-white shadow': isTypeActive(1) }"
-                        @@click ="setType(1)">
-                    Article
+                        @@click ="setType(1)"
+                        data-i18n="Article">
+                    @Localizer["Article"]
                 </button>
             </div>
         </div>
@@ -100,7 +109,9 @@
                     <tr v-for="item in reports" :key="item.reportId" class="cursor-pointer hover:bg-blue-100">
                         <td class="max-w-[240px] truncate" :title="item.reason">{{ item.reason }}</td>
                         <td>{{ item.reporter }}</td>
-                        <td>{{ item.type }}</td>
+                        <td>
+                            <p :data-i18n="item.type">@Localizer["item.type"]</p>
+                        </td>
                         <td class="max-w-[200px] truncate" :title="item.target">{{ item.target }}</td>
                         <td>
                             {{ item.modifyTime ? formatDate(item.modifyTime || item.processTime) : '-' }}<!-- ⬇⬇ 新增：Status 欄（未處理顯示下拉、已處理顯示標籤） -->

@@ -1,7 +1,4 @@
-/**
- * State Manager - 處理 Dashboard 全域狀態管理
- * 從 d_main.js 中抽離出來的狀態管理功能
- */
+// State Manager - 處理 Dashboard 全域狀態管理（從 d_main.js 抽出）
 
 (function() {
     'use strict';
