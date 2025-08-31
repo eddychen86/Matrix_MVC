@@ -119,8 +119,8 @@ window.mountReportsPage = function() {
         if (status.value !== '') sp.append('status', status.value)
         if (type.value !== '') sp.append('type', type.value)
         // from/to 可能是 null 或已是 yyyy-MM-dd 字串
-        if (from.value) sp.append('from', typeof from.value === 'string' ? from.value : formatDateValue(from.value))
-        if (to.value) sp.append('to', typeof to.value === 'string' ? to.value : formatDateValue(to.value))
+        if (from.value) sp.append('from', typeof from.value === 'string' ? from.value : formatDate(from.value, 'date', 'en-US'))
+        if (to.value) sp.append('to', typeof to.value === 'string' ? to.value : formatDate(to.value, 'date', 'en-US'))
         if (keyword.value.trim()) sp.append('keyword', keyword.value.trim())
         return sp.toString()
       }
@@ -410,7 +410,7 @@ if (document.readyState === 'loading') {
   })
 } else {
   if (document.querySelector('#reports-app')) {
-    console.log('DOM already loaded, mounting reports page...')
+    // console.log('DOM already loaded, mounting reports page...')
     window.mountReportsPage()
   }
 }

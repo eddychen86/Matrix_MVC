@@ -113,9 +113,14 @@ window.mountUsersPage = function () {
             })
             //以上多語系
             const formatDate = (datetime) => {
-                if (window.formatDateGlobal) return window.formatDateGlobal(datetime, 'datetime')
+                // 動態載入 useFormatting
+                if (window.useFormatting) {
+                    const { formatDate: useFormattingFormatDate } = window.useFormatting()
+                    return useFormattingFormatDate(datetime, 'datetime', 'en-US')
+                }
+                // 回退方案
                 const d = new Date(datetime)
-                return d.toLocaleDateString() + ' ' + d.toLocaleTimeString()
+                return d.toLocaleDateString('en-US') + ' ' + d.toLocaleTimeString('en-US')
             }
 
 
