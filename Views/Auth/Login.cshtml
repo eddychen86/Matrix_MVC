@@ -69,7 +69,7 @@
 
     @* 忘記密碼 pop-up *@
     <transition name="fade" :class="isForgot ? 'block' : 'hidden'">
-        <div id="auth-layout_forgot" v-on:click="toggleClose" style="display: none;" data-vue-init>
+        <div id="auth-layout_forgot" v-on:click="toggleClose" data-vue-init>
             <form v-on:submit.prevent="submitForgotPassword">
                 <h1 class="title" data-i18n="ForgotPasswordTitle">@Localizer["ForgotPasswordTitle"]</h1>
                 <button type="button" class="subTitle cursor-pointer" v-on:click="closeModal">

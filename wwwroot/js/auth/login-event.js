@@ -9,6 +9,7 @@ createApp({
         const forgotEmail = ref('')
         const isForgotSubmitting = ref(false)
         const forgotMessage = ref('')
+        const forgotPwdDisplay = ref(null)
         const forgotMessageType = ref('success')
         const loginForm = ref({
             UserName: '',
@@ -17,7 +18,24 @@ createApp({
         })
 
         // 切換忘記密碼彈窗
-        const toggleOpen = () => isForgot.value = true
+        const toggleOpen = () => {
+            // 開啟狀態
+            isForgot.value = true
+
+            // 保障：移除可能殘留的 display:none 與 hidden 類別
+            try {
+                const targets = document.querySelectorAll('#auth-layout_forgot, [data-vue-init]')
+                targets.forEach(el => {
+                    if (!el) return
+                    // 清除行內 display:none
+                    if (el.style && el.style.display === 'none') {
+                        el.style.display = ''
+                    }
+                })
+            } catch (err) {
+                console.error('toggleOpen: failed to clear display:none/hidden', err)
+            }
+        }
 
         const submitForgotPassword = async (event) => {
             event.preventDefault()
@@ -220,7 +238,8 @@ createApp({
             forgotEmail,
             isForgotSubmitting,
             forgotMessage,
-            forgotMessageType
+            forgotMessageType,
+            forgotPwdDisplay
         }
     }
 }).mount('#auth-body')
