@@ -24,5 +24,7 @@ namespace Matrix.Repository.Interfaces
 
         /// <summary>根據用戶ID取得個人資料（用於更新操作，啟用變更追蹤）</summary>
         Task<Person?> GetByUserIdForUpdateAsync(Guid userId);
+
+        Task<IEnumerable<Person>> GetUserIdsByPersonIds(IEnumerable<Guid> personIds);
     }
 }
