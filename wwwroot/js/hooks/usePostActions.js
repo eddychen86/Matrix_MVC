@@ -115,17 +115,17 @@ export function usePostActions() {
         if (!(await checkAuth())) return false
         try {
             if (window.globalApp?.openReplyWithAuth) {
-                const currentUser = window.globalApp.currentUser || window.currentUser
+                //const currentUser = window.globalApp.currentUser || window.currentUser
                 await window.globalApp.openReplyWithAuth(articleId, currentUser)
             } else if (window.globalApp?.replyModal) {
                 await window.globalApp.openReply(articleId)
             } else {
-                console.log('Opening reply for article:', articleId)
+                //console.log('Opening reply for article:', articleId)
                 alert('回覆功能開發中')
             }
             return true
         } catch (error) {
-            console.error('openReply failed:', error)
+            //console.error('openReply failed:', error)
             alert('開啟回覆失敗')
             return false
         }

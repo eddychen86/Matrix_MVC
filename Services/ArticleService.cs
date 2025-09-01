@@ -41,12 +41,13 @@ namespace Matrix.Services
                     .ThenInclude(ah => ah.Hashtag)
                 .Include(a => a.Replies!)
                     .ThenInclude(r => r.User)
-                .Where(a => a.ArticleId == id && a.Status != 1) // 添加狀態篩選
+                .Where(a => a.ArticleId == id)
                 .FirstOrDefaultAsync();
 
             if (article == null) return null;
             return _mapper.Map<ArticleDto>(article);
         }
+
 
 
         ///<summary>
@@ -61,7 +62,7 @@ namespace Matrix.Services
                     .ThenInclude(r => r.User!)
                         .ThenInclude(p => p.User)
                 .AsNoTracking()
-                .Where(a => a.ArticleId == articleId && a.Status != 1) // 添加狀態篩選
+                .Where(a => a.ArticleId == articleId)
                 .Select(a => new ArticleDto
                 {
                     ArticleId = a.ArticleId,
@@ -127,6 +128,7 @@ namespace Matrix.Services
                 })
                 .FirstOrDefaultAsync();
         }
+
 
 
 
@@ -367,26 +369,24 @@ namespace Matrix.Services
 
         // 私有輔助方法 - 優化版本，使用 Select 投影避免 N+1 查詢
         private IQueryable<Article> BuildArticleQuery(
-            string? searchKeyword, Guid? authorId, int? status, bool onlyPublic, DateTime? dateFrom, DateTime? dateTo)
+            string? searchKeyword, Guid? authorId, int? status, bool onlyPublic,
+            DateTime? dateFrom, DateTime? dateTo)
         {
-            var query = _context.Articles
-                .AsNoTracking() // 只讀查詢
-                                // Status == 0 表示正常，IsPublic == 0 表示公開
-                .Where(a => a.Status != 1);
+            var query = _context.Articles.AsNoTracking();
 
-            // if (onlyPublic)
-            // {
-            //     query = query.Where(a => a.Status == 0 && a.IsPublic == 0);
-            // }
-            // else
-            // {
-            //     query = query.Where(a => a.Status != 2);
-            //     if (status.HasValue)
-            //         query = query.Where(a => a.Status == status.Value);
-            // }
-
-            if (status.HasValue)
-                query = query.Where(a => a.Status == status.Value);
+            if (onlyPublic)
+            {
+                // 前台：只看「正常且公開」
+                query = query.Where(a => a.Status == 0 && a.IsPublic == 0);
+            }
+            else
+            {
+                // 後台：若指定 status，就照指定值；否則預設排除刪除（保留隱藏可被篩出）
+                if (status.HasValue)
+                    query = query.Where(a => a.Status == status.Value);
+                else
+                    query = query.Where(a => a.Status != 2);
+            }
 
             if (authorId.HasValue)
                 query = query.Where(a => a.AuthorId == authorId.Value);
@@ -396,9 +396,10 @@ namespace Matrix.Services
                     a.Content.Contains(searchKeyword) ||
                     (a.Author != null && a.Author.DisplayName != null && a.Author.DisplayName.Contains(searchKeyword))
                 );
+
             if (dateFrom.HasValue && dateTo.HasValue)
             {
-                query = query.Where(a => a.CreateTime >= dateFrom.Value && a.CreateTime <= dateTo.Value);
+                query = query.Where(a => a.CreateTime >= dateFrom.Value && a.CreateTime < dateTo.Value);
             }
             else if (dateFrom.HasValue)
             {
@@ -406,10 +407,10 @@ namespace Matrix.Services
                 query = query.Where(a => a.CreateTime >= dateFrom.Value.Date && a.CreateTime < next);
             }
 
-            // 包含作者個人資料的關聯
             return query.Include(a => a.Author!)
-                       .ThenInclude(p => p.User);
+                        .ThenInclude(p => p.User);
         }
+
 
 
         private async Task<bool> UpdateCountAsync(Guid articleId, Action<Article> updateAction)
