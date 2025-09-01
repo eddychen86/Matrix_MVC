@@ -159,12 +159,12 @@ export function useReply() {
                     ? window.currentUser.value
                     : window.currentUser) ?? null)
 
-        console.log('[openReplyWithAuth] articleId=', articleId, 'user=', user)
+        //console.log('[openReplyWithAuth] articleId=', articleId, 'user=', user)
         if (!user?.isAuthenticated) {
             window.loginPopupManager?.open?.() || alert('請先登入')
             return
         }
-        console.log('[openReplyWithAuth] pass auth, seedItem=', seedItem)
+        //console.log('[openReplyWithAuth] pass auth, seedItem=', seedItem)
         await openReply(articleId, seedItem)
     }
 
