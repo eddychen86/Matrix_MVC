@@ -17,7 +17,7 @@
             </button>
 
             <ul ref="hotCarouselRef" v-if="hotlist && hotlist.length" class="h-64 flex gap-x-4 overflow-x-auto">
-                <li v-for="item in hotlist" :key="item.articleId" class="min-w-1/4 h-full bg-accent rounded-[30px]">
+                <li v-for="item in hotlist" :key="item.articleId" class="min-w-[200px] h-full bg-accent rounded-[30px]">
                     <div class="card image-full shadow-sm size-full relative">
                         <figure>
                             <img v-if="item.image && item.image.filePath && !hasError(item, 'image')" 
