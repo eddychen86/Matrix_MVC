@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Matrix.Models;
 using Matrix.Repository.Interfaces;
+using Matrix.Helpers;
 
 namespace Matrix.Repository
 {
@@ -82,7 +83,7 @@ namespace Matrix.Repository
                 report.Status = status;
                 report.ResolverId = handledById;
                 // report.HandlerNote = handlerNote; // Model 中無此欄位
-                report.ProcessTime = DateTime.Now;
+                report.ProcessTime = TimeZoneHelper.GetTaipeiTime();
                 await _context.SaveChangesAsync();
             }
         }
@@ -113,7 +114,7 @@ namespace Matrix.Repository
             {
                 report.Status = status;
                 report.ResolverId = handledById;
-                report.ProcessTime = DateTime.Now;
+                report.ProcessTime = TimeZoneHelper.GetTaipeiTime();
             }
 
             await _context.SaveChangesAsync();

@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Http;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using Matrix.Helpers;
 
 namespace Matrix.DTOs
 {
@@ -424,7 +425,7 @@ public class CreateArticleDto
             ["Content"] = Content,
             ["IsPublic"] = IsPublic,
             ["Status"] = 0, // 新文章預設為正常狀態
-            ["CreateTime"] = DateTime.Now,
+            ["CreateTime"] = TimeZoneHelper.GetTaipeiTime(),
             ["PraiseCount"] = 0,
             ["CollectCount"] = 0
         };

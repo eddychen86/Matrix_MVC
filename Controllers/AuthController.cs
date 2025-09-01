@@ -8,6 +8,7 @@ using Microsoft.Extensions.Configuration;
 using Matrix.Services.Interfaces;
 using Matrix.Repository.Interfaces;
 using Matrix.Models;
+using Matrix.Helpers;
 
 namespace Matrix.Controllers
 {
@@ -217,7 +218,7 @@ namespace Matrix.Controllers
             else
             {
                 // 不勾選記住我：設定為當天晚上 11:59 (本地時間)
-                var today = DateTime.Now.Date;
+                var today = TimeZoneHelper.GetTaipeiToday();
                 var endOfDay = today.AddDays(1).AddMinutes(-1); // 當天 23:59
                 expires = new DateTimeOffset(endOfDay, TimeZoneInfo.Local.GetUtcOffset(endOfDay));
             }

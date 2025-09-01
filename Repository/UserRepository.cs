@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Matrix.Models;
 using Matrix.Repository.Interfaces;
+using Matrix.Helpers;
 
 namespace Matrix.Repository
 {
@@ -24,7 +25,7 @@ namespace Matrix.Repository
                 .Where(u => u.Status != 0 && u.Role == 0 && u.IsDelete == 0)
                 .ToListAsync();
 
-            var todayStart = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 0, 0, 0);
+            var todayStart = TimeZoneHelper.GetTaipeiToday();
             var totalTodayLogin = users.Count(u => u.LastLoginTime > todayStart);
             var totalUsers = users.Count;
 

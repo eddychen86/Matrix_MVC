@@ -4,6 +4,7 @@ using Matrix.DTOs;
 using Matrix.Models;
 using Matrix.Repository.Interfaces;
 using Matrix.Services.Interfaces;
+using Matrix.Helpers;
 
 namespace Matrix.Services
 {
@@ -37,7 +38,7 @@ namespace Matrix.Services
             {
                 var activity = _mapper.Map<AdminActivityLog>(activityDto);
                 activity.LoginId = Guid.NewGuid();
-                activity.ActionTime = DateTime.Now;
+                activity.ActionTime = TimeZoneHelper.GetTaipeiTime();
 
                 await _activityRepository.LogActivityAsync(activity);
                 
@@ -65,7 +66,7 @@ namespace Matrix.Services
                 Role = role,
                 IpAddress = ipAddress,
                 UserAgent = userAgent,
-                LoginTime = DateTime.Now,
+                LoginTime = TimeZoneHelper.GetTaipeiTime(),
                 ActionType = "LOGIN",
                 ActionDescription = $"管理員 {adminName} 成功登入系統",
                 IsSuccessful = true
@@ -87,8 +88,9 @@ namespace Matrix.Services
 
                 if (loginRecord != null)
                 {
-                    loginRecord.LogoutTime = DateTime.Now;
-                    loginRecord.Duration = (int)(DateTime.Now - (loginRecord.LoginTime ?? DateTime.Now)).TotalSeconds;
+                    var taipeiNow = TimeZoneHelper.GetTaipeiTime();
+                    loginRecord.LogoutTime = taipeiNow;
+                    loginRecord.Duration = (int)(taipeiNow - (loginRecord.LoginTime ?? taipeiNow)).TotalSeconds;
                     
                     await _activityRepository.UpdateAsync(loginRecord);
                 }
@@ -101,7 +103,7 @@ namespace Matrix.Services
                     Role = loginRecord?.Role ?? 1,
                     IpAddress = ipAddress,
                     UserAgent = loginRecord?.UserAgent ?? "",
-                    LogoutTime = DateTime.Now,
+                    LogoutTime = TimeZoneHelper.GetTaipeiTime(),
                     ActionType = "LOGOUT",
                     ActionDescription = $"管理員成功登出系統",
                     IsSuccessful = true

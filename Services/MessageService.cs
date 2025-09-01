@@ -2,6 +2,7 @@ using Microsoft.Extensions.Logging;
 using Matrix.Models;
 using Matrix.Services.Interfaces;
 using Matrix.Repository.Interfaces;
+using Matrix.Helpers;
 
 namespace Matrix.Services
 {
@@ -71,7 +72,7 @@ namespace Matrix.Services
                     SentId = sender.PersonId,
                     ReceiverId = receiver.PersonId,
                     Content = content,
-                    CreateTime = DateTime.Now,
+                    CreateTime = TimeZoneHelper.GetTaipeiTime(),
                     IsRead = 0 // 未讀
                 };
 

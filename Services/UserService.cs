@@ -8,6 +8,7 @@ using Matrix.Models;
 using Matrix.Services.Interfaces;
 using Matrix.Repository.Interfaces;
 using AutoMapper;
+using Matrix.Helpers;
 using NuGet.Packaging.Signing;
 
 namespace Matrix.Services
@@ -200,7 +201,7 @@ namespace Matrix.Services
                 Role = dto.Role,  // 使用 DTO 傳入的角色
                 UserName = dto.UserName,
                 Email = dto.Email,
-                CreateTime = DateTime.Now,
+                CreateTime = TimeZoneHelper.GetTaipeiTime(),
                 Status = dto.Role > 0 ? 1 : 0  // 管理員直接啟用，一般用戶需驗證
             };
 

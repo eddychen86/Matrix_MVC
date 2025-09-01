@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using Matrix.Helpers;
 
 namespace Matrix.DTOs
 {
@@ -246,7 +247,7 @@ namespace Matrix.DTOs
                 if (IsUnread) return "未讀";
                 if (ReadTime.HasValue)
                 {
-                    var timeSpan = DateTime.Now - ReadTime.Value;
+                    var timeSpan = TimeZoneHelper.GetTaipeiTime() - ReadTime.Value;
                     return timeSpan.TotalDays switch
                     {
                         > 1 => $"已讀 - {(int)timeSpan.TotalDays} 天前",

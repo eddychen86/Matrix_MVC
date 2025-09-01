@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Matrix.DTOs;
 using Matrix.Services.Interfaces;
 using System.Security.Claims;
+using Matrix.Helpers;
 
 namespace Matrix.Controllers.Api
 {
@@ -211,7 +212,7 @@ namespace Matrix.Controllers.Api
         {
             try
             {
-                var expiredBefore = DateTime.Now.AddDays(-days);
+                var expiredBefore = TimeZoneHelper.GetTaipeiTimeAddDays(-days);
                 var cleanedCount = await _activityService.CleanupExpiredRecordsAsync(expiredBefore);
                 
                 return Ok(new { CleanedCount = cleanedCount, Message = $"成功清理 {cleanedCount} 筆過期記錄" });

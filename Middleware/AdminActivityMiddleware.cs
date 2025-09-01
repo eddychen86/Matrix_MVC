@@ -1,5 +1,6 @@
 using Matrix.Services.Interfaces;
 using System.Security.Claims;
+using Matrix.Helpers;
 
 namespace Matrix.Middleware
 {
@@ -48,7 +49,7 @@ namespace Matrix.Middleware
                              !string.IsNullOrEmpty(userName) &&
                              ShouldTrackPath(context.Request.Path);
 
-            DateTime startTime = DateTime.Now;
+            DateTime startTime = TimeZoneHelper.GetTaipeiTime();
 
             try
             {
@@ -57,7 +58,7 @@ namespace Matrix.Middleware
                 // 在請求完成後記錄頁面訪問（只記錄成功的請求）
                 if (shouldTrack && context.Response.StatusCode < 400 && userId.HasValue && userRole.HasValue)
                 {
-                    var duration = (int)(DateTime.Now - startTime).TotalSeconds;
+                    var duration = (int)(TimeZoneHelper.GetTaipeiTime() - startTime).TotalSeconds;
                     await LogPageVisitAsync(context, userId.Value, userName!, userRole.Value, duration);
                 }
             }

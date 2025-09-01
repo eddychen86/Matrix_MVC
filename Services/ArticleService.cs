@@ -5,6 +5,7 @@ using Matrix.DTOs;
 using Matrix.Services.Interfaces;
 using Matrix.Repository.Interfaces;
 using AutoMapper;
+using Matrix.Helpers;
 
 namespace Matrix.Services
 {
@@ -143,7 +144,7 @@ namespace Matrix.Services
                 Content = dto.Content,
                 IsPublic = dto.IsPublic,
                 Status = 0,
-                CreateTime = GetTaipeiTime(),
+                CreateTime = TimeZoneHelper.GetTaipeiTime(),
                 PraiseCount = 0,
                 CollectCount = 0
             });
@@ -288,7 +289,7 @@ namespace Matrix.Services
                 ArticleId = dto.ArticleId,
                 UserId = authorId,
                 Content = dto.Content,
-                ReplyTime = GetTaipeiTime()
+                ReplyTime = TimeZoneHelper.GetTaipeiTime()
             });
 
             await _context.SaveChangesAsync();
@@ -308,7 +309,7 @@ namespace Matrix.Services
         /// </summary>
         public async Task<List<ArticleDto>> GetPopularArticlesAsync(int limit = 10, int days = 7)
         {
-            var sinceDate = GetTaipeiTime().AddDays(-days);
+            var sinceDate = TimeZoneHelper.GetTaipeiTimeAddDays(-days);
 
             // 1. 先取熱門文章（最近N天內有讚數或收藏的）
             var popularArticles = await _context.Articles
@@ -362,25 +363,6 @@ namespace Matrix.Services
         public async Task<bool> UpdateStatusAsync(Guid id, int status)
         {
             return await UpdateArticleStatusAsync(id, status);
-        }
-
-        /// <summary>
-        /// 獲取台北時區的當前時間
-        /// </summary>
-        private DateTime GetTaipeiTime()
-        {
-            try
-            {
-                // Windows: "Taipei Standard Time", Linux: "Asia/Taipei"
-                string timeZoneId = OperatingSystem.IsWindows() ? "Taipei Standard Time" : "Asia/Taipei";
-                var taipeiTimeZone = TimeZoneInfo.FindSystemTimeZoneById(timeZoneId);
-                return TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, taipeiTimeZone);
-            }
-            catch (TimeZoneNotFoundException)
-            {
-                // 如果找不到時區，回退到 UTC+8
-                return DateTime.UtcNow.AddHours(8);
-            }
         }
 
         // 私有輔助方法 - 優化版本，使用 Select 投影避免 N+1 查詢
@@ -518,7 +500,7 @@ namespace Matrix.Services
                 AuthorId = author.PersonId,
                 Content = dto.Content,
                 IsPublic = dto.IsPublic,
-                CreateTime = GetTaipeiTime(),
+                CreateTime = TimeZoneHelper.GetTaipeiTime(),
                 Status = 0,
                 PraiseCount = 0,
                 CollectCount = 0

@@ -4,6 +4,7 @@ using Matrix.Models;
 using Matrix.Repository;
 using Matrix.Repository.Interfaces;
 using Matrix.Services.Interfaces;
+using Matrix.Helpers;
 
 namespace Matrix.Services
 {
@@ -42,7 +43,7 @@ namespace Matrix.Services
                 ArticleId = articleId,
                 UserId = person.PersonId,
                 Content = content,
-                ReplyTime = DateTime.Now
+                ReplyTime = TimeZoneHelper.GetTaipeiTime()
             };
 
             await _replyRepository.AddAsync(reply);

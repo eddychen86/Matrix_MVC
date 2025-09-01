@@ -1,4 +1,5 @@
 using AutoMapper;
+using Matrix.Helpers;
 
 namespace Matrix.Services
 {
@@ -68,7 +69,7 @@ namespace Matrix.Services
                 SendId = receiver.PersonId,
                 Type = type,
                 IsRead = 0,
-                SentTime = DateTime.Now,
+                SentTime = TimeZoneHelper.GetTaipeiTime(),
                 Receiver = receiver,
                 Sender = receiver
             });
@@ -94,7 +95,7 @@ namespace Matrix.Services
 
             if (existingNotification != null)
             {
-                existingNotification.SentTime = DateTime.Now;
+                existingNotification.SentTime = TimeZoneHelper.GetTaipeiTime();
                 existingNotification.IsRead = 0;
                 existingNotification.IsReadTime = null;
             }
@@ -107,7 +108,7 @@ namespace Matrix.Services
                     SendId = sender.PersonId,
                     Type = type,
                     IsRead = 0,
-                    SentTime = DateTime.Now,
+                    SentTime = TimeZoneHelper.GetTaipeiTime(),
                     Receiver = receiver,
                     Sender = sender
                 });
@@ -144,7 +145,7 @@ namespace Matrix.Services
             foreach (var notification in notifications.Where(n => n.IsRead == 0))
             {
                 notification.IsRead = 1;
-                notification.IsReadTime = DateTime.Now;
+                notification.IsReadTime = TimeZoneHelper.GetTaipeiTime();
             }
 
             await _context.SaveChangesAsync();
@@ -166,7 +167,7 @@ namespace Matrix.Services
             foreach (var notification in unreadNotifications)
             {
                 notification.IsRead = 1;
-                notification.IsReadTime = DateTime.Now;
+                notification.IsReadTime = TimeZoneHelper.GetTaipeiTime();
             }
 
             await _context.SaveChangesAsync();
@@ -246,7 +247,7 @@ namespace Matrix.Services
         /// </summary>
         public async Task<int> CleanupOldNotificationsAsync(int days = 30)
         {
-            var cutoffDate = DateTime.Now.AddDays(-days);
+            var cutoffDate = TimeZoneHelper.GetTaipeiTimeAddDays(-days);
             var oldNotifications = await _context.Notifications
                 .Where(n => n.IsRead == 1 && n.IsReadTime < cutoffDate)
                 .ToListAsync();
@@ -299,7 +300,7 @@ namespace Matrix.Services
                 return notification?.Receiver.UserId == userId;
 
             notification.IsRead = readStatus;
-            notification.IsReadTime = readStatus == 1 ? DateTime.Now : null;
+            notification.IsReadTime = readStatus == 1 ? TimeZoneHelper.GetTaipeiTime() : null;
             await _context.SaveChangesAsync();
             return true;
         }

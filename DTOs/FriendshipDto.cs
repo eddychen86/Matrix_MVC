@@ -1,3 +1,5 @@
+using Matrix.Helpers;
+
 namespace Matrix.DTOs
 {
     /// <summary>
@@ -216,7 +218,7 @@ namespace Matrix.DTOs
             {
                 if (!IsAccepted || ResponseTime == null) return "尚未建立好友關係";
 
-                var timeSpan = DateTime.Now - ResponseTime.Value;
+                var timeSpan = TimeZoneHelper.GetTaipeiTime() - ResponseTime.Value;
 
                 return timeSpan.TotalDays switch
                 {

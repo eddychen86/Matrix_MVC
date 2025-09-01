@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Matrix.Models;
 using Matrix.Repository.Interfaces;
+using Matrix.Helpers;
 
 namespace Matrix.Repository
 {
@@ -35,7 +36,7 @@ namespace Matrix.Repository
             if (notification != null)
             {
                 notification.IsRead = 1;
-                notification.IsReadTime = DateTime.Now;
+                notification.IsReadTime = TimeZoneHelper.GetTaipeiTime();
                 await _context.SaveChangesAsync();
             }
         }
@@ -49,7 +50,7 @@ namespace Matrix.Repository
             foreach (var notification in notifications)
             {
                 notification.IsRead = 1;
-                notification.IsReadTime = DateTime.Now;
+                notification.IsReadTime = TimeZoneHelper.GetTaipeiTime();
             }
 
             await _context.SaveChangesAsync();
@@ -64,7 +65,7 @@ namespace Matrix.Repository
             foreach (var notification in unreadNotifications)
             {
                 notification.IsRead = 1;
-                notification.IsReadTime = DateTime.Now;
+                notification.IsReadTime = TimeZoneHelper.GetTaipeiTime();
             }
 
             await _context.SaveChangesAsync();
