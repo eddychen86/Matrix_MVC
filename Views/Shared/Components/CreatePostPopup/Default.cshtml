@@ -57,14 +57,14 @@
 
             <!-- 選中的 Hashtags -->
             <div class="flex flex-wrap gap-2 items-center" v-if="selectedHashtags.length > 0">
-                <div v-for="(tag, index) in selectedHashtags" :key="tag.tagId"
+                <button type="button" v-for="(tag, index) in selectedHashtags" v-on:click="removeHashtag(index)" :key="tag.tagId"
                     class="rounded-full bg-[#ffda78] px-3 py-1 text-sm text-[#333] flex items-center gap-1">
                     <span>{{ tag.content }}</span>
-                    <button type="button" v-on:click="removeHashtag(index)"
+                    @* <button type="button" v-on:click="removeHashtag(index)"
                         class="cursor-pointer h-6 w-6 flex items-center justify-center text-stone-900">
                         <i data-lucide="x" class="h-3 w-3"></i>
-                    </button>
-                </div>
+                    </button> *@
+                </button>
             </div>
 
             <!-- 底部按鈕 -->

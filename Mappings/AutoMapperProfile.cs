@@ -24,7 +24,16 @@ namespace Matrix.Mappings
             // Article ↔ ArticleDto 映射
             CreateMap<Article, ArticleDto>()
                 .ForMember(dest => dest.Author, opt => opt.MapFrom(src => src.Author))
-                .ForMember(dest => dest.Replies, opt => opt.MapFrom(src => src.Replies ?? new List<Reply>()));
+                .ForMember(dest => dest.Replies, opt => opt.MapFrom(src => src.Replies ?? new List<Reply>()))
+                .ForMember(dest => dest.Hashtags, opt => opt.MapFrom(src => 
+                    src.ArticleHashtags != null 
+                        ? src.ArticleHashtags.Where(ah => ah.Hashtag != null)
+                                            .Select(ah => new HashtagDto 
+                                            { 
+                                                TagId = ah.TagId, 
+                                                Name = ah.Hashtag!.Content 
+                                            })
+                        : new List<HashtagDto>()));
 
             // ArticleDto ← Article (單向映射，用於讀取)
             CreateMap<CreateArticleDto, Article>()

@@ -40,7 +40,8 @@ namespace Matrix.Services
                     .ThenInclude(ah => ah.Hashtag)
                 .Include(a => a.Replies!)
                     .ThenInclude(r => r.User)
-                .FirstOrDefaultAsync(a => a.ArticleId == id);
+                .Where(a => a.ArticleId == id && a.Status != 1) // 添加狀態篩選
+                .FirstOrDefaultAsync();
 
             if (article == null) return null;
             return _mapper.Map<ArticleDto>(article);
@@ -59,7 +60,7 @@ namespace Matrix.Services
                     .ThenInclude(r => r.User!)
                         .ThenInclude(p => p.User)
                 .AsNoTracking()
-                .Where(a => a.ArticleId == articleId)
+                .Where(a => a.ArticleId == articleId && a.Status != 1) // 添加狀態篩選
                 .Select(a => new ArticleDto
                 {
                     ArticleId = a.ArticleId,
@@ -142,7 +143,7 @@ namespace Matrix.Services
                 Content = dto.Content,
                 IsPublic = dto.IsPublic,
                 Status = 0,
-                CreateTime = DateTime.Now,
+                CreateTime = GetTaipeiTime(),
                 PraiseCount = 0,
                 CollectCount = 0
             });
@@ -278,7 +279,8 @@ namespace Matrix.Services
         /// </summary>
         public async Task<bool> CreateReplyAsync(CreateReplyDto dto, Guid authorId)
         {
-            var article = await _context.Articles.FirstOrDefaultAsync(a => a.ArticleId == dto.ArticleId);
+            var article = await _context.Articles
+                .FirstOrDefaultAsync(a => a.ArticleId == dto.ArticleId && a.Status != 1); // 不允許回覆隱藏文章
             if (article == null) return false;
 
             _context.Replies.Add(new Reply
@@ -286,7 +288,7 @@ namespace Matrix.Services
                 ArticleId = dto.ArticleId,
                 UserId = authorId,
                 Content = dto.Content,
-                ReplyTime = DateTime.Now
+                ReplyTime = GetTaipeiTime()
             });
 
             await _context.SaveChangesAsync();
@@ -306,7 +308,7 @@ namespace Matrix.Services
         /// </summary>
         public async Task<List<ArticleDto>> GetPopularArticlesAsync(int limit = 10, int days = 7)
         {
-            var sinceDate = DateTime.Now.AddDays(-days);
+            var sinceDate = GetTaipeiTime().AddDays(-days);
 
             // 1. 先取熱門文章（最近N天內有讚數或收藏的）
             var popularArticles = await _context.Articles
@@ -362,6 +364,25 @@ namespace Matrix.Services
             return await UpdateArticleStatusAsync(id, status);
         }
 
+        /// <summary>
+        /// 獲取台北時區的當前時間
+        /// </summary>
+        private DateTime GetTaipeiTime()
+        {
+            try
+            {
+                // Windows: "Taipei Standard Time", Linux: "Asia/Taipei"
+                string timeZoneId = OperatingSystem.IsWindows() ? "Taipei Standard Time" : "Asia/Taipei";
+                var taipeiTimeZone = TimeZoneInfo.FindSystemTimeZoneById(timeZoneId);
+                return TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, taipeiTimeZone);
+            }
+            catch (TimeZoneNotFoundException)
+            {
+                // 如果找不到時區，回退到 UTC+8
+                return DateTime.UtcNow.AddHours(8);
+            }
+        }
+
         // 私有輔助方法 - 優化版本，使用 Select 投影避免 N+1 查詢
         private IQueryable<Article> BuildArticleQuery(
             string? searchKeyword, Guid? authorId, int? status, bool onlyPublic, DateTime? dateFrom, DateTime? dateTo)
@@ -369,18 +390,21 @@ namespace Matrix.Services
             var query = _context.Articles
                 .AsNoTracking() // 只讀查詢
                                 // Status == 0 表示正常，IsPublic == 0 表示公開
-                .Where(a => a.Status == 0 && a.IsPublic == 0);
+                .Where(a => a.Status != 1);
 
-            if (onlyPublic)
-            {
-                query = query.Where(a => a.Status == 0 && a.IsPublic == 0);
-            }
-            else
-            {
-                query = query.Where(a => a.Status != 2);
-                if (status.HasValue)
-                    query = query.Where(a => a.Status == status.Value);
-            }
+            // if (onlyPublic)
+            // {
+            //     query = query.Where(a => a.Status == 0 && a.IsPublic == 0);
+            // }
+            // else
+            // {
+            //     query = query.Where(a => a.Status != 2);
+            //     if (status.HasValue)
+            //         query = query.Where(a => a.Status == status.Value);
+            // }
+
+            if (status.HasValue)
+                query = query.Where(a => a.Status == status.Value);
 
             if (authorId.HasValue)
                 query = query.Where(a => a.AuthorId == authorId.Value);
@@ -494,7 +518,7 @@ namespace Matrix.Services
                 AuthorId = author.PersonId,
                 Content = dto.Content,
                 IsPublic = dto.IsPublic,
-                CreateTime = DateTime.Now,
+                CreateTime = GetTaipeiTime(),
                 Status = 0,
                 PraiseCount = 0,
                 CollectCount = 0
@@ -583,6 +607,7 @@ namespace Matrix.Services
         {
             return await _context.Articles
                 .AsNoTracking()
+                .Where(a => a.Status != 1) // 排除隱藏文章
                 .CountAsync();
         }
     }

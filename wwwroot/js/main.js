@@ -350,7 +350,7 @@ globalApp({
             }
 
             // 初始化 Lucide icons，確保 SSR 載入的組件圖標能正常顯示
-            if (typeof lucide !== 'undefined' && lucide.createIcons) lucide.createIcons()
+            if (typeof lucide !== 'undefined' && lucide.createIcons) window.lucide.createIcons()
         })
 
         //#endregion
