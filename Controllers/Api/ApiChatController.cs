@@ -22,11 +22,13 @@ namespace Matrix.Controllers.Api
 
         private readonly IHubContext<MatrixHub> _hubContext;
         private readonly IMessageService _messageService;
+        private readonly IPersonRepository _personRepository;
 
-        public ApiChatController(IHubContext<MatrixHub> hubContext, IMessageService messageService)
+        public ApiChatController(IHubContext<MatrixHub> hubContext, IMessageService messageService, IPersonRepository personRepository)
         {
             _hubContext = hubContext;
             _messageService = messageService;
+            _personRepository = personRepository;
         }
 
         // 範例：發送即時訊息
@@ -141,12 +143,35 @@ namespace Matrix.Controllers.Api
 
             try
             {
-                var conversation = await _messageService.GetConversationAsync(user1Id.Value, receiverId, page, pageSize);
-                return Ok(conversation);
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                return StatusCode(403, new { message = ex.Message });
+                // 1. 從 Service 取得原始的歷史訊息 (內部是 PersonId)
+                var conversationHistory = await _messageService.GetConversationAsync(user1Id.Value, receiverId, page, pageSize);
+
+                // 2. [核心修正] 將歷史訊息中的 PersonId 轉換回 UserId
+                var userIds = await _personRepository.GetUserIdsByPersonIds(
+                    conversationHistory.Select(m => m.SentId).Distinct()
+                );
+
+                var formattedHistory = conversationHistory.Select(message =>
+                {
+                    // 根據 PersonId 找到對應的 UserId
+                    var senderUserId = userIds.FirstOrDefault(u => u.PersonId == message.SentId)?.UserId;
+
+                    // 注意：我們假設 ReceiverId 也需要轉換，但通常另一方就是當前用戶或聊天對象
+                    // 為了簡化，我們先只處理發送者，這足以解決左右顯示問題
+
+                    return new
+                    {
+                        MsgId = message.MsgId,
+                        SentId = senderUserId, // <-- 使用轉換後的 UserId
+                        ReceiverId = message.ReceiverId, // 這裡可能仍是 PersonId，但暫不影響左右判斷
+                        Content = message.Content,
+                        CreateTime = message.CreateTime,
+                        IsRead = message.IsRead
+                    };
+                });
+
+                // 3. 回傳格式化後的、包含 UserId 的資料
+                return Ok(formattedHistory);
             }
             catch (Exception)
             {

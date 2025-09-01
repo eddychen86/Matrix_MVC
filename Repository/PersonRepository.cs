@@ -59,5 +59,12 @@ namespace Matrix.Repository
                 .Include(p => p.User)
                 .FirstOrDefaultAsync(p => p.UserId == userId);
         }
+
+        public async Task<IEnumerable<Person>> GetUserIdsByPersonIds(IEnumerable<Guid> personIds)
+        {
+            // 使用 Where 和 Contains 來一次性查詢所有 PersonId 在列表中的 Person 物件
+            return await _dbSet.Where(p => personIds.Contains(p.PersonId))
+                               .ToListAsync();
+        }
     }
 }

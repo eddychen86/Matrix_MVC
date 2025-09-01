@@ -1,36 +1,45 @@
 ﻿<div id="popup-wrapper" style="display:none;">
     <!-- Universal Popup Modal -->
-    <div id="popup-overlay" v-if=" popupState.isVisible" @@click="closePopup" style="display:none;"
-        class="fixed inset-0 flex h-screen w-screen items-center justify-center bg-black/50" style="z-index: 99999;">
+    <!-- 1) Overlay：改成靠上置中 + 上方留白 -->
+    <!-- 1) Overlay：靠上置中（保留你現在的做法） -->
+    <div id="popup-overlay"
+         v-if="popupState.isVisible"
+         @@click="closePopup"
+         class="fixed inset-0 flex h-screen w-screen items-start justify-center bg-black/50 pt-20"
+         style="z-index: 99999;">
+
+        <!-- 2) Container：固定高度（vh），取消 max-h；改用 h-[*]；加 min-h-0 讓內層能縮放 -->
         <div id="popup-container" @@click.stop=""
-            class="max-h-[80vh] w-4/5 overflow-hidden rounded-[30px] bg-[#161616] text-white md:w-2/3 lg:w-3/5">
-            <!-- Header -->
-            <div id="popup-header" class="flex w-full items-center justify-between">
+             class="flex h-[64vh] min-h-0 w-11/12 flex-col overflow-hidden
+              rounded-[30px] bg-[#161616] text-white antialiased md:h-[70vh]
+              md:w-2/3 lg:w-3/5">
+            <!-- CHANGED: 固定高度；你可改數字 -->
+            <!-- Header：固定在頂端 -->
+            <div id="popup-header"
+                 class="sticky top-0 z-10 flex w-full items-center
+                justify-between bg-[#161616] px-4 py-3">
                 <h3 class="title w-1/3">{{ popupState.title }}</h3>
 
-                <!-- 右側區塊 -->
                 <div class="flex w-1/3 justify-end gap-4">
-                    <!-- ✅ 搜尋框只在 Search 與 Follows 顯示 -->
                     <div class="relative w-full" v-if="popupState.type === 'Search' || popupState.type === 'Follows'">
                         <input type="text" v-model="searchQuery"
-                            class="para h-12 w-full rounded-full border bg-stone-700 px-4 outline-none">
+                               class="para placeholder-gray-300 h-12 w-full rounded-full border bg-stone-700 px-4 text-white outline-none">
                         <button class="absolute top-1/2 right-4 -translate-y-1/2" v-on:click="onSearchClick">
                             <i data-lucide="search" class="icon-base"></i>
                         </button>
                     </div>
-
-                    <!-- 關閉按鈕 -->
                     <button @@click="closePopup">
                         <i data-lucide="x" class="icon-base text-red-300"></i>
                     </button>
                 </div>
             </div>
 
-            <!-- Content -->
-            <div class="popup-content relative">
-                <!-- 遮罩式 Loading -->
+            <!-- 3) Content：撐滿剩餘高度並能捲動；加 min-h-0 防止 Flex 溢出 -->
+            <div class="popup-content relative min-h-0 flex-1 overflow-y-auto pb-6">
+                <!-- CHANGED/ADDED -->
+                <!-- Loading 遮罩（只蓋內容區） -->
                 <div v-if="isLoading"
-                    class="absolute inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+                     class="absolute inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
                     <img src="~/static/img/Loading.gif" alt="Loading" class="h-16 w-16" />
                 </div>
 
@@ -40,14 +49,14 @@
                     <div v-if="popupState.type === 'Collects'">
                         <div class="popup-data grid auto-rows-min grid-cols-3 gap-4">
                             <div v-for="item in popupData.Collects" :key="item.articleId"
-                                class="relative cursor-pointer overflow-hidden rounded-xl bg-black/20 transition hover:opacity-90"
-                                v-on:click="goArticle(item.articleId)" role="button" tabindex="0"
-                                v-on:keydown.enter="goArticle(item.articleId)">
+                                 class="relative cursor-pointer overflow-hidden rounded-xl bg-black/20 transition hover:opacity-90"
+                                 v-on:click="goArticle(item.articleId)" role="button" tabindex="0"
+                                 v-on:keydown.enter="goArticle(item.articleId)">
 
                                 <!-- 圖片區 -->
                                 <img class="block h-40 w-full object-cover"
-                                    :src="item.imageUrl || '/static/img/Cute.png'"
-                                    :alt="item.title || 'article cover'" />
+                                     :src="item.imageUrl || '/static/img/Cute.png'"
+                                     :alt="item.title || 'article cover'" />
 
                                 <!-- 資訊區：改成圖片下方 -->
                                 <div class="bg-black/40 p-4 text-white">
@@ -56,7 +65,7 @@
                                     <div class="mt-1 flex items-center gap-2">
                                         <!-- 如果有頭像 -->
                                         <img v-if="item.authorAvatar" :src="item.authorAvatar"
-                                            class="h-6 w-6 rounded-full object-cover" alt="author avatar" />
+                                             class="h-6 w-6 rounded-full object-cover" alt="author avatar" />
                                         <span class="text-sm">{{ item.authorName }}</span>
                                     </div>
                                 </div>
@@ -64,9 +73,7 @@
                         </div>
                     </div>
 
-
                     <!-- Article -->
-
                     <div v-if="popupState.type === 'Article'">
                         <div class="relative p-4">
                             <!-- 載入中 -->
@@ -89,15 +96,15 @@
 
                                 <!-- 內文：若是純文字就用 {{ }}，若包含 HTML 要用 v-html -->
                                 <div class="prose prose-invert max-w-none break-words whitespace-pre-line"
-                                    v-html="popupData.Article.content">
+                                     v-html="popupData.Article.content">
                                 </div>
 
                                 <!-- 圖片附件（依你的 DTO 欄位命名調整） -->
                                 <div v-if="popupData.Article.attachments && popupData.Article.attachments.length"
-                                    class="mt-4 grid grid-cols-2 gap-2">
+                                     class="mt-4 grid grid-cols-2 gap-2">
                                     <img v-for="att in popupData.Article.attachments.filter(a => a.type?.toLowerCase() === 'image')"
-                                        :key="att.id || att.filePath" :src="att.filePath" class="w-full rounded"
-                                        :alt="att.fileName || 'image'" />
+                                         :key="att.id || att.filePath" :src="att.filePath" class="w-full rounded"
+                                         :alt="att.fileName || 'image'" />
                                 </div>
                             </div>
 
@@ -105,24 +112,21 @@
                             <div v-else class="py-12 text-center text-gray-500">
                                 載入失敗或文章不存在
                             </div>
-                            <button
-                                class="absolute right-0 -bottom-4 cursor-pointer rounded-lg bg-white px-4 py-2 font-medium text-black shadow transition hover:bg-gray-100"
-                                v-on:click="backFromArticle" aria-label="Back">
+                            <button class="absolute right-0 -bottom-4 cursor-pointer rounded-lg bg-white px-4 py-2 font-medium text-black shadow transition hover:bg-gray-100"
+                                    v-on:click="backFromArticle" aria-label="Back">
                                 返回
                             </button>
                         </div>
                     </div>
 
-
-
                     <!-- Notify -->
                     <div v-if="popupState.type == 'Notify'">
                         <div class="popup-data-notify space-y-4">
                             <div v-for="item in popupData[popupState.type]" :key="item.senderName"
-                                class="item-center flex justify-between rounded-lg bg-neutral-800 px-4 py-3 transition hover:bg-neutral-700">
+                                 class="item-center flex justify-between rounded-lg bg-neutral-800 px-4 py-3 transition hover:bg-neutral-700">
                                 <div class="flex items-center space-x-4">
                                     <img :src="item.senderAvatarUrl"
-                                        class="h-10 w-10 rounded-full border border-gray-600" />
+                                         class="h-10 w-10 rounded-full border border-gray-600" />
                                     <div>
                                         <p class="font-semibold">{{ item.senderName }}</p>
                                         <p class="text-sm text-gray-400">{{ item.message }}</p>
@@ -141,10 +145,10 @@
                         <div v-if="popupData.Search?.Users?.length > 0" class="space-y-4">
                             <h3 class="subTitle">搜尋結果</h3>
                             <div v-for="(user, index) in popupData.Search.Users" :key="'search-user-' + index"
-                                class="flex items-center justify-between rounded-lg bg-neutral-800 px-4 py-3 transition hover:bg-neutral-700">
+                                 class="flex items-center justify-between rounded-lg bg-neutral-800 px-4 py-3 transition hover:bg-neutral-700">
                                 <div class="flex items-center space-x-4">
                                     <img :src="user.avatarUrl || ''"
-                                        class="h-12 w-12 rounded-full border border-gray-600" />
+                                         class="h-12 w-12 rounded-full border border-gray-600" />
                                     <div>
                                         <p class="title">{{ user.displayName }}</p>
                                         <p class="subTitle text-sm text-gray-400">{{ user.bio }}</p>
@@ -152,18 +156,17 @@
                                 </div>
                                 <div class="flex flex-col items-end space-y-1">
                                     <button class="cts-btn hover:underline"
-                                        :class="user.isFollowed ? '!text-red-400' : '!text-blue-400'"
-                                        @@click="toggleFollow(user.personId, user.isFollowed)">
+                                            :class="user.isFollowed ? '!text-red-400' : '!text-blue-400'"
+                                            @@click="toggleFollow(user.personId, user.isFollowed)">
                                         {{ user.isFollowed ? '取消追蹤' : '追蹤' }}
                                     </button>
-
                                 </div>
                             </div>
                         </div>
 
                         <!-- 如果沒有搜尋結果且有關鍵字，顯示沒有結果 -->
                         <div v-else-if="popupData.Search?.Users?.length === 0 && searchQuery.trim() !== ''"
-                            class="py-8 text-center text-gray-400">
+                             class="py-8 text-center text-gray-400">
                             沒有找到符合「{{ searchQuery }}」的使用者。
                         </div>
 
@@ -171,10 +174,10 @@
                         <div v-else-if="popupData.Follows?.length > 0" class="space-y-4">
                             <h3 class="subTitle">追蹤清單</h3>
                             <div v-for="(follow, index) in popupData.Follows" :key="'follow-' + index"
-                                class="flex items-center justify-between rounded-lg bg-neutral-800 px-4 py-3 transition hover:bg-neutral-700">
+                                 class="flex items-center justify-between rounded-lg bg-neutral-800 px-4 py-3 transition hover:bg-neutral-700">
                                 <div class="flex items-center space-x-4">
                                     <img :src="follow.senderAvatarUrl || ''"
-                                        class="h-12 w-12 rounded-full border border-gray-600" />
+                                         class="h-12 w-12 rounded-full border border-gray-600" />
                                     <div>
                                         <p class="title">{{ follow.senderName }}</p>
                                         <p class="subTitle text-sm text-gray-400">{{ timeAgo(follow.followTime) }}</p>
@@ -182,7 +185,7 @@
                                 </div>
                                 <div class="flex flex-col items-end space-y-1">
                                     <button class="cts-btn !text-red-400 hover:underline"
-                                        @@click="toggleFollow(follow.personId, true)">
+                                            @@click="toggleFollow(follow.personId, true)">
                                         取消追蹤
                                     </button>
                                 </div>
@@ -200,7 +203,7 @@
 
                         <!-- 🔍 使用者結果（滑過展開統計 + 追蹤按鈕） -->
                         <div v-if="popupData.Search && popupData.Search.Users && popupData.Search.Users.length > 0"
-                            class="space-y-4">
+                             class="space-y-4">
                             <h3 class="subTitle">使用者</h3>
 
                             <!-- 用 template v-for，確保整塊都在 user 作用域 -->
@@ -208,14 +211,14 @@
 
                                 <!-- 外層容器要 overflow-hidden 才有手風琴效果 -->
                                 <div class="overflow-hidden rounded-lg bg-neutral-800 transition hover:bg-neutral-700"
-                                    @@mouseenter="onHoverUser(user)" @@mouseleave="user._hover = false">
+                                     @@mouseenter="onHoverUser(user)" @@mouseleave="user._hover = false">
 
                                     <!-- 主列 -->
                                     <div class="flex items-center justify-between px-4 py-3">
                                         <div class="flex items-center space-x-4">
                                             <img :src="user.avatarUrl || '/static/img/cute.png'"
-                                                @@error="$event.target.src='/static/img/cute.png'"
-                                                class="h-12 w-12 rounded-full border border-gray-600" />
+                                                 @@error="$event.target.src='/static/img/cute.png'"
+                                                 class="h-12 w-12 rounded-full border border-gray-600" />
                                             <div>
                                                 <p class="title">{{ user.displayName }}</p>
                                                 <p class="subTitle text-sm text-gray-400">{{ user.bio }}</p>
@@ -224,18 +227,15 @@
 
                                         <div class="flex flex-col items-end justify-between space-y-1">
                                             <a class="cts-btn !text-blue-400 hover:underline"
-                                                :href="`/Profile/${encodeURIComponent(user.username)}`">
+                                               :href="`/Profile/${encodeURIComponent(user.username)}`">
                                                 查看
                                             </a>
-
-
-
                                         </div>
                                     </div>
 
                                     <!-- 展開區：字串 style 綁定（避免 Razor 與物件語法衝突） -->
                                     <div class="overflow-hidden bg-neutral-900 transition-all duration-300 ease-in-out"
-                                        :style="(user && user._hover) ? 'max-height:96px' : 'max-height:0px'">
+                                         :style="(user && user._hover) ? 'max-height:96px' : 'max-height:0px'">
                                         <div class="px-4 py-3">
                                             <!-- 已載入統計 -->
                                             <div v-if="user && user.stats" class="grid grid-cols-2 gap-4">
@@ -261,12 +261,12 @@
 
                         <!-- 🏷️ Hashtag 結果（chip，自適應寬度，可點擊觸發搜尋） -->
                         <div v-if="popupData.Search && popupData.Search.Hashtags && popupData.Search.Hashtags.length > 0"
-                            class="mt-6">
+                             class="mt-6">
                             <h3 class="subTitle mb-2">標籤</h3>
                             <div class="flex flex-wrap gap-2">
                                 <button v-for="(tag, index) in popupData.Search.Hashtags" :key="'tag-' + index"
-                                    class="inline-block rounded-full border border-gray-600 bg-neutral-800 px-3 py-2 text-sm whitespace-nowrap text-white transition hover:bg-neutral-700"
-                                    @@click="goTag(tag.content)">
+                                        class="inline-block rounded-full border border-gray-600 bg-neutral-800 px-3 py-2 text-sm whitespace-nowrap text-white transition hover:bg-neutral-700"
+                                        @@click="goTag(tag.content)">
                                     #{{ tag.content }}
                                 </button>
                             </div>
@@ -281,7 +281,7 @@
                     </div>
 
                 </div>
-            </div>
-        </div>
-    </div>
-</div>
+            </div> <!-- /popup-content -->
+        </div> <!-- /popup-container -->
+    </div> <!-- /popup-overlay -->
+</div> <!-- /popup-wrapper -->
